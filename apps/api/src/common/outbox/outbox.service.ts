@@ -1,16 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 /**
- * Transactional outbox writer (document 17 §4 + 31 §"OutboxEvent").
+ * Transactional outbox writer (document 17 §4 + 31 "OutboxEvent").
  *
- * The application calls `enqueueOutboxEvent(...)` INSIDE the same
- * `prisma.$transaction([...])` call as the business mutation.
- * A separate worker (out of scope for Phase 3) drains the outbox
- * and dispatches the events to BullMQ / external providers.
+ * A business mutation and the event that describes it must commit together.
+ * The caller therefore opens `prisma.$transaction(...)`, performs the mutation
+ * and the `enqueue(...)` on the SAME transaction client, so PostgreSQL either
+ * commits both or neither. Publishing an event before that commit is forbidden.
  *
- * Phase 3 ships an in-memory writer for the test/contract surface.
- * The interface is stable so the production repository is a
- * one-line change.
+ * A separate consumer drains the rows afterwards. It claims work with a lease
+ * so two consumers cannot process the same event concurrently, retries with
+ * backoff, and finally dead-letters rows it cannot deliver.
  */
 
 export interface OutboxEventRecord {
@@ -24,10 +24,40 @@ export interface OutboxEventRecord {
   readonly createdAt: Date;
 }
 
+/** An unpublished row leased to one consumer. */
+export interface ClaimedOutboxEvent extends OutboxEventRecord {
+  readonly id: string;
+  readonly attempts: number;
+}
+
+export interface OutboxClaimOptions {
+  /** Maximum rows to lease in one call. */
+  readonly limit: number;
+  /** How long the lease is held before another consumer may take the row. */
+  readonly leaseMs: number;
+  /** Consumer identity recorded in `locked_by`. */
+  readonly ownerId: string;
+  /** Injectable clock for tests. */
+  readonly now?: Date;
+}
+
+/** How a failed delivery should be recorded. */
+export interface OutboxFailureState {
+  /** When the next attempt may start. `null` means "immediately eligible". */
+  readonly nextAttemptAt: Date | null;
+  /** Set once the retry budget is exhausted; the row stops being claimed. */
+  readonly deadLetteredAt: Date | null;
+}
+
 export interface OutboxWriter {
-  enqueue(event: OutboxEventRecord): Promise<void>;
+  /**
+   * Append one event.
+   *
+   * `client` is the Prisma client or an open transaction client. Pass the
+   * transaction client to make the event atomic with a business mutation.
+   */
+  enqueue(event: OutboxEventRecord, client?: unknown): Promise<void>;
   list(filter?: { eventType?: string; published?: boolean }): Promise<readonly OutboxEventRecord[]>;
-  markPublished(eventIndex: number): Promise<void>;
 }
 
 @Injectable()
@@ -60,6 +90,11 @@ export class InMemoryOutboxWriter implements OutboxWriter {
     return events;
   }
 
+  /**
+   * Test-surface helper only. The in-memory list is process-local and
+   * single-threaded, so an index cannot race the way a database index can.
+   * The Prisma writer exposes `markPublishedById` instead.
+   */
   async markPublished(eventIndex: number): Promise<void> {
     if (eventIndex < 0 || eventIndex >= this.#events.length) {
       throw new Error(`Outbox event index ${eventIndex} out of range.`);
@@ -68,12 +103,9 @@ export class InMemoryOutboxWriter implements OutboxWriter {
   }
 
   /**
-   * Phase 3 transactional helper — the application calls this
-   * inside its Prisma `$transaction` so the business mutation
-   * and the OutboxEvent row commit atomically. The in-memory
-   * implementation here does not need transactional isolation
-   * (the events list is single-threaded), but the interface
-   * preserves the production contract.
+   * Present for interface symmetry with the Prisma writer. The in-memory
+   * store commits synchronously in the calling microtask, so there is no
+   * transaction to enlist in; real atomicity is a Prisma concern.
    */
   async enqueueTransactional(event: OutboxEventRecord): Promise<void> {
     await this.enqueue(event);

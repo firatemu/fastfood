@@ -1,5 +1,14 @@
 # FASTFOOD Güncel Kod Tabanı Analizi ve AI Geliştirme Rehberi
 
+> **SUPERSEDED (1 Ekim 2026):**
+> Bu dosyanın **P0/P1/P2 risk listesi artık geçerli değildir**.
+> 21 Eylül 2026 ile 1 Ekim 2026 arasında staff token imzası,
+> istek kimliği ve personel izin bağlama düzeltmeleri yapıldı; bir kısmı
+> hâlâ açık kalemler ise raporda sanıldığından daha ağır. Güncel
+> doğrulanmış risk listesi için bkz. `CODEBASE_RISK_AUDIT.md`.
+> Bu dosyanın mimari, paket sınırları ve akış anlatımı bölümleri
+> kullanılabilir durumdadır.
+
 > Analiz tarihi: 21 Eylül 2026  
 > İncelenen kapsam: güncel kaynak kod, paket bildirimleri, çalışma zamanı yapılandırmaları, Prisma şeması ve migration'lar, otomatik testler, yerel altyapı tanımları ve doğrulama komutlarının gerçek çıktıları.  
 > Bilinçli olarak hariç tutulan kapsam: depoda önceden bulunan tüm Markdown dokümanlarının içeriği. Bu rapor, eski plan veya ilerleme anlatılarına göre değil, çalışan kodun fiilî durumuna göre hazırlanmıştır.

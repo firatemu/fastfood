@@ -1084,7 +1084,7 @@ export class OrderService {
         'automatic_routing',
         actorUserId,
       );
-      void this.outbox?.enqueueBranchAssigned({
+      await this.outbox?.enqueueBranchAssigned({
         orderId: mutable.id,
         branchId: assignment.branchId,
         previousBranchId: previous,
@@ -1099,22 +1099,28 @@ export class OrderService {
       mutable.updatedAt = new Date();
       return this.#clone(mutable);
     }
-    await this.prisma.order.update({
-      where: { id: orderId },
-      data: { branchId: assignment.branchId },
-    });
-    await this.#recordBranchAssignmentDb(
-      orderId,
-      assignment.branchId,
-      'automatic_routing',
-      actorUserId,
-    );
-    void this.outbox?.enqueueBranchAssigned({
-      orderId,
-      branchId: assignment.branchId,
-      previousBranchId: previous,
-      reason: 'automatic_routing',
-      actorUserId,
+    await this.prisma.$transaction(async (tx) => {
+      await tx.order.update({
+        where: { id: orderId },
+        data: { branchId: assignment.branchId },
+      });
+      await this.#recordBranchAssignmentDb(
+        orderId,
+        assignment.branchId,
+        'automatic_routing',
+        actorUserId,
+        tx,
+      );
+      await this.outbox?.enqueueBranchAssigned(
+        {
+          orderId,
+          branchId: assignment.branchId,
+          previousBranchId: previous,
+          reason: 'automatic_routing',
+          actorUserId,
+        },
+        tx,
+      );
     });
     if (order.status === 'PAID' || order.status === 'CREATED') {
       return this.#setStatusDb(orderId, 'BRANCH_ASSIGNED', actorUserId, {
@@ -1154,7 +1160,7 @@ export class OrderService {
       }
       mutable.branchId = branchId;
       this.#recordBranchAssignmentMemory(mutable, branchId, reason, input.actorUserId ?? null);
-      void this.outbox?.enqueueBranchAssigned({
+      await this.outbox?.enqueueBranchAssigned({
         orderId: mutable.id,
         branchId,
         previousBranchId: previous,
@@ -1185,24 +1191,35 @@ export class OrderService {
       mutable.updatedAt = new Date();
       return this.#clone(mutable);
     }
-    await this.prisma.order.update({ where: { id: orderId }, data: { branchId } });
-    await this.#recordBranchAssignmentDb(orderId, branchId, reason, input.actorUserId ?? null);
-    await this.prisma.orderEvent.create({
-      data: {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.order.update({ where: { id: orderId }, data: { branchId } });
+      await this.#recordBranchAssignmentDb(
         orderId,
-        eventType: 'OrderBranchReassigned',
-        fromStatus: order.status,
-        toStatus: order.status,
-        actorUserId: input.actorUserId ?? null,
-        payloadJson: { previousBranchId: previous, branchId, reason } as Prisma.InputJsonValue,
-      },
-    });
-    void this.outbox?.enqueueBranchAssigned({
-      orderId,
-      branchId,
-      previousBranchId: previous,
-      reason,
-      actorUserId: input.actorUserId ?? null,
+        branchId,
+        reason,
+        input.actorUserId ?? null,
+        tx,
+      );
+      await tx.orderEvent.create({
+        data: {
+          orderId,
+          eventType: 'OrderBranchReassigned',
+          fromStatus: order.status,
+          toStatus: order.status,
+          actorUserId: input.actorUserId ?? null,
+          payloadJson: { previousBranchId: previous, branchId, reason } as Prisma.InputJsonValue,
+        },
+      });
+      await this.outbox?.enqueueBranchAssigned(
+        {
+          orderId,
+          branchId,
+          previousBranchId: previous,
+          reason,
+          actorUserId: input.actorUserId ?? null,
+        },
+        tx,
+      );
     });
     if (
       order.status === 'PAID' ||
@@ -1235,13 +1252,13 @@ export class OrderService {
       payloadJson: meta.reason ? { reason: meta.reason } : null,
       createdAt: order.updatedAt,
     });
-    void this.outbox?.enqueueStatusChanged({
+    await this.outbox?.enqueueStatusChanged({
       orderId: order.id,
       fromStatus: from,
       toStatus,
       actorUserId,
     });
-    void this.notifyCustomerStatus(order.userId, order.id, toStatus);
+    await this.notifyCustomerStatus(order.userId, order.id, toStatus);
   }
 
   async #setStatusDb(
@@ -1256,29 +1273,34 @@ export class OrderService {
     const prisma = this.prisma;
     const current = await this.get(orderId);
     const from = current.status;
-    await prisma.order.update({
-      where: { id: orderId },
-      data: { status: toStatus },
+    await prisma.$transaction(async (tx) => {
+      await tx.order.update({
+        where: { id: orderId },
+        data: { status: toStatus },
+      });
+      await tx.orderEvent.create({
+        data: {
+          orderId,
+          eventType: 'OrderStatusChanged',
+          fromStatus: from,
+          toStatus,
+          actorUserId,
+          payloadJson: (meta.reason ? { reason: meta.reason } : undefined) as
+            | Prisma.InputJsonValue
+            | undefined,
+        },
+      });
+      await this.outbox?.enqueueStatusChanged(
+        {
+          orderId,
+          fromStatus: from,
+          toStatus,
+          actorUserId,
+        },
+        tx,
+      );
     });
-    await prisma.orderEvent.create({
-      data: {
-        orderId,
-        eventType: 'OrderStatusChanged',
-        fromStatus: from,
-        toStatus,
-        actorUserId,
-        payloadJson: (meta.reason ? { reason: meta.reason } : undefined) as
-          | Prisma.InputJsonValue
-          | undefined,
-      },
-    });
-    void this.outbox?.enqueueStatusChanged({
-      orderId,
-      fromStatus: from,
-      toStatus,
-      actorUserId,
-    });
-    void this.notifyCustomerStatus(current.userId, orderId, toStatus);
+    await this.notifyCustomerStatus(current.userId, orderId, toStatus);
     return this.get(orderId);
   }
 
@@ -1303,11 +1325,13 @@ export class OrderService {
     branchId: string,
     reason: string | null,
     assignedBy: string | null,
+    client?: Prisma.TransactionClient,
   ): Promise<void> {
-    if (!this.prisma) {
+    const db: Prisma.TransactionClient | PrismaService | null = client ?? this.prisma;
+    if (!db) {
       throw new Error('Prisma is required for #recordBranchAssignmentDb');
     }
-    await this.prisma.orderBranchAssignment.create({
+    await db.orderBranchAssignment.create({
       data: { orderId, branchId, reason, assignedBy },
     });
   }

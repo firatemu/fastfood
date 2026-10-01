@@ -480,12 +480,20 @@ model OutboxEvent {
   attempts        Int       @default(0) @map("attempts")
   lastAttemptAt   DateTime? @map("last_attempt_at") @db.Timestamptz(6)
   lastError       String?   @map("last_error") @db.VarChar(2048)
+  // Dispatch state for the durable outbox consumer. The event row stays
+  // unpublished until a consumer confirms it, so these columns carry lease,
+  // retry backoff and dead-letter bookkeeping (document 17 §4).
+  nextAttemptAt  DateTime? @map("next_attempt_at") @db.Timestamptz(6)
+  lockedAt       DateTime? @map("locked_at") @db.Timestamptz(6)
+  lockedBy       String?   @map("locked_by") @db.VarChar(128)
+  deadLetteredAt DateTime? @map("dead_lettered_at") @db.Timestamptz(6)
 
   createdByUser User? @relation("OutboxCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
 
   @@index([eventType])
   @@index([publishedAt])
   @@index([aggregateType, aggregateId])
+  @@index([publishedAt, deadLetteredAt, nextAttemptAt, createdAt], map: "outbox_events_dispatch_idx")
   @@map("outbox_events")
 }
 
