@@ -315,7 +315,7 @@ dokunulmadı.
   `vitest.config.base.mjs` veya kök `vitest.config.*` için yazım hatası.
   Hiçbir yapılandırma bunu okumuyor.
 
-## 6. Doğrulama komutları
+## 7. Doğrulama komutları
 
 ```bash
 pnpm lint
