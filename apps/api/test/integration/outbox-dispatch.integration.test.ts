@@ -97,9 +97,40 @@ describe('durable outbox dispatch (integration)', () => {
   });
 
   describe('consumer lease', () => {
+    it('claims only the requested event types', async () => {
+      // The development database is shared. A claim without a type filter would
+      // lease whatever else is pending — real order and cart events — and leave
+      // them locked to a test clock, which stalls the running API's consumer.
+      await db.outboxEvent.create({
+        data: {
+          eventType: 'SomeOtherDomainEvent',
+          eventVersion: 1,
+          aggregateType: 'order',
+          aggregateId: null,
+          payloadJson: {},
+          createdByUserId: null,
+          createdAt: new Date(),
+        },
+      });
+      const claimed = await writer.claimBatch({
+        limit: 10,
+        leaseMs: 60_000,
+        ownerId: OWNER_A,
+        eventTypes: [TEST_EVENT],
+      });
+      expect(claimed.every((e) => e.eventType === TEST_EVENT)).toBe(true);
+
+      await db.outboxEvent.deleteMany({ where: { eventType: 'SomeOtherDomainEvent' } });
+    });
+
     it('claims an unpublished event and increments attempts', async () => {
       await writer.enqueue(record());
-      const claimed = await writer.claimBatch({ limit: 10, leaseMs: 60_000, ownerId: OWNER_A });
+      const claimed = await writer.claimBatch({
+        limit: 10,
+        leaseMs: 60_000,
+        ownerId: OWNER_A,
+        eventTypes: [TEST_EVENT],
+      });
       expect(claimed).toHaveLength(1);
       expect(claimed[0]?.attempts).toBe(1);
       expect(claimed[0]?.eventType).toBe(TEST_EVENT);
@@ -112,13 +143,23 @@ describe('durable outbox dispatch (integration)', () => {
     });
 
     it('does not hand a leased event to a second consumer', async () => {
-      const again = await writer.claimBatch({ limit: 10, leaseMs: 60_000, ownerId: OWNER_B });
+      const again = await writer.claimBatch({
+        limit: 10,
+        leaseMs: 60_000,
+        ownerId: OWNER_B,
+        eventTypes: [TEST_EVENT],
+      });
       expect(again).toHaveLength(0);
     });
 
     it('recovers the event for another consumer once the lease expires', async () => {
       await writer.enqueue(record());
-      const first = await writer.claimBatch({ limit: 10, leaseMs: 60_000, ownerId: OWNER_A });
+      const first = await writer.claimBatch({
+        limit: 10,
+        leaseMs: 60_000,
+        ownerId: OWNER_A,
+        eventTypes: [TEST_EVENT],
+      });
       expect(first).toHaveLength(1);
       const id = first[0]!.id;
 
@@ -130,6 +171,7 @@ describe('durable outbox dispatch (integration)', () => {
         limit: 10,
         leaseMs: 60_000,
         ownerId: OWNER_B,
+        eventTypes: [TEST_EVENT],
         now: later,
       });
       expect(claimed.map((e) => e.id)).toEqual([id]);
@@ -142,7 +184,12 @@ describe('durable outbox dispatch (integration)', () => {
   describe('completion is addressable by id, not by list position', () => {
     it('refuses to publish an event whose lease belongs to another consumer', async () => {
       await writer.enqueue(record());
-      const claimed = await writer.claimBatch({ limit: 10, leaseMs: 60_000, ownerId: OWNER_A });
+      const claimed = await writer.claimBatch({
+        limit: 10,
+        leaseMs: 60_000,
+        ownerId: OWNER_A,
+        eventTypes: [TEST_EVENT],
+      });
       expect(claimed.length).toBeGreaterThan(0);
       const id = claimed[0]!.id;
 
@@ -155,7 +202,12 @@ describe('durable outbox dispatch (integration)', () => {
 
     it('publishes the event and releases the lease for the lease owner', async () => {
       await writer.enqueue(record());
-      const claimed = await writer.claimBatch({ limit: 10, leaseMs: 60_000, ownerId: OWNER_A });
+      const claimed = await writer.claimBatch({
+        limit: 10,
+        leaseMs: 60_000,
+        ownerId: OWNER_A,
+        eventTypes: [TEST_EVENT],
+      });
       const id = claimed[0]!.id;
 
       expect(await writer.markPublishedById(id, OWNER_A)).toBe(true);
@@ -169,7 +221,12 @@ describe('durable outbox dispatch (integration)', () => {
     it('never claims a published event again', async () => {
       await writer.enqueue(record());
       await writer.enqueue(record());
-      const claimed = await writer.claimBatch({ limit: 10, leaseMs: 60_000, ownerId: OWNER_A });
+      const claimed = await writer.claimBatch({
+        limit: 10,
+        leaseMs: 60_000,
+        ownerId: OWNER_A,
+        eventTypes: [TEST_EVENT],
+      });
       expect(claimed).toHaveLength(2);
       const publishedId = claimed[0]!.id;
       expect(await writer.markPublishedById(publishedId, OWNER_A)).toBe(true);
@@ -178,6 +235,7 @@ describe('durable outbox dispatch (integration)', () => {
         limit: 10,
         leaseMs: 60_000,
         ownerId: OWNER_A,
+        eventTypes: [TEST_EVENT],
         now: new Date(Date.now() + 10 * 60_000),
       });
       const nextIds = next.map((e) => e.id);
@@ -189,7 +247,12 @@ describe('durable outbox dispatch (integration)', () => {
   describe('failure handling', () => {
     it('holds a failed event back until its backoff time passes', async () => {
       await writer.enqueue(record());
-      const claimed = await writer.claimBatch({ limit: 10, leaseMs: 60_000, ownerId: OWNER_A });
+      const claimed = await writer.claimBatch({
+        limit: 10,
+        leaseMs: 60_000,
+        ownerId: OWNER_A,
+        eventTypes: [TEST_EVENT],
+      });
       const id = claimed[0]!.id;
 
       const retryAt = new Date(Date.now() + 5 * 60_000);
@@ -206,7 +269,12 @@ describe('durable outbox dispatch (integration)', () => {
 
       // Not yet eligible.
       expect(
-        await writer.claimBatch({ limit: 10, leaseMs: 60_000, ownerId: OWNER_A }),
+        await writer.claimBatch({
+          limit: 10,
+          leaseMs: 60_000,
+          ownerId: OWNER_A,
+          eventTypes: [TEST_EVENT],
+        }),
       ).toHaveLength(0);
 
       // Eligible once the backoff window has passed.
@@ -214,6 +282,7 @@ describe('durable outbox dispatch (integration)', () => {
         limit: 10,
         leaseMs: 60_000,
         ownerId: OWNER_B,
+        eventTypes: [TEST_EVENT],
         now: new Date(retryAt.getTime() + 1000),
       });
       expect(later.map((e) => e.id)).toContain(id);
@@ -221,7 +290,12 @@ describe('durable outbox dispatch (integration)', () => {
 
     it('stops claiming a dead-lettered event', async () => {
       await writer.enqueue(record());
-      const claimed = await writer.claimBatch({ limit: 10, leaseMs: 60_000, ownerId: OWNER_A });
+      const claimed = await writer.claimBatch({
+        limit: 10,
+        leaseMs: 60_000,
+        ownerId: OWNER_A,
+        eventTypes: [TEST_EVENT],
+      });
       const id = claimed[0]!.id;
 
       expect(
@@ -236,6 +310,7 @@ describe('durable outbox dispatch (integration)', () => {
         limit: 10,
         leaseMs: 60_000,
         ownerId: OWNER_B,
+        eventTypes: [TEST_EVENT],
         now: farFuture,
       });
       expect(later.map((e) => e.id)).not.toContain(id);

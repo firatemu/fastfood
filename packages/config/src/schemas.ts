@@ -86,6 +86,22 @@ export const serverEnvSchema = z.object({
 
   RATE_LIMIT_DEFAULT_PER_MINUTE: z.coerce.number().int().positive().default(120),
 
+  /**
+   * Durable outbox consumer (document 17 §4). The consumer runs in the API
+   * process and drains `outbox_events`; it is forced off under
+   * `NODE_ENV=test` so integration tests own event dispatch themselves and
+   * cannot race the poller for a leased row.
+   */
+  OUTBOX_CONSUMER_ENABLED: booleanFromString.default(true),
+  OUTBOX_CONSUMER_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(5_000),
+  OUTBOX_CONSUMER_BATCH_SIZE: z.coerce.number().int().positive().default(25),
+  /** How long one consumer may hold a row before another may recover it. */
+  OUTBOX_CONSUMER_LEASE_MS: z.coerce.number().int().positive().default(60_000),
+  /** Attempts before a row is dead-lettered and stops being claimed. */
+  OUTBOX_CONSUMER_MAX_ATTEMPTS: z.coerce.number().int().positive().default(10),
+  OUTBOX_CONSUMER_BACKOFF_BASE_MS: z.coerce.number().int().positive().default(1_000),
+  OUTBOX_CONSUMER_BACKOFF_MAX_MS: z.coerce.number().int().positive().default(300_000),
+
   OTEL_ENABLED: booleanFromString.default(false),
 });
 

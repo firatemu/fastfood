@@ -3,6 +3,7 @@ import { Global, Module } from '@nestjs/common';
 import { InMemoryAuditLogWriter } from './audit/audit.service.js';
 import { PrismaAuditLogWriter } from './audit/prisma-audit-log.writer.js';
 import { DatabaseModule } from './database/database.module.js';
+import { OutboxConsumerService } from './outbox/outbox-consumer.service.js';
 import { InMemoryOutboxWriter } from './outbox/outbox.service.js';
 import { PrismaOutboxWriter } from './outbox/prisma-outbox.writer.js';
 
@@ -21,6 +22,7 @@ import { PrismaOutboxWriter } from './outbox/prisma-outbox.writer.js';
   providers: [
     PrismaAuditLogWriter,
     PrismaOutboxWriter,
+    OutboxConsumerService,
     // Keep class tokens resolvable for tests that still import them.
     InMemoryAuditLogWriter,
     InMemoryOutboxWriter,

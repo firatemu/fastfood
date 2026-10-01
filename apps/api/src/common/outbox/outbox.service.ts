@@ -37,6 +37,17 @@ export interface OutboxClaimOptions {
   readonly leaseMs: number;
   /** Consumer identity recorded in `locked_by`. */
   readonly ownerId: string;
+  /**
+   * Restrict the batch to these event types.
+   *
+   * Omit it to claim every type, which is what the API consumer does so that
+   * an event it has no handler for is still reported rather than sitting
+   * unnoticed. A consumer that deliberately handles a subset passes its types
+   * here, which is what lets one consumer be deployed per domain and lets a
+   * test claim only the rows it created instead of leasing whatever else is
+   * pending in the shared development database.
+   */
+  readonly eventTypes?: readonly string[];
   /** Injectable clock for tests. */
   readonly now?: Date;
 }

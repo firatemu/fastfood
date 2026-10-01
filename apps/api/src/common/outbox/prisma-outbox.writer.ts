@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
-import type { Prisma } from '../../../prisma/generated/client/client.js';
+import { Prisma } from '../../../prisma/generated/client/client.js';
 import { PrismaService } from '../database/prisma.service.js';
 
 import type {
@@ -106,6 +106,9 @@ export class PrismaOutboxWriter implements OutboxWriter {
   async claimBatch(options: OutboxClaimOptions): Promise<readonly ClaimedOutboxEvent[]> {
     const now = options.now ?? new Date();
     const leaseCutoff = new Date(now.getTime() - options.leaseMs);
+    const eventTypeFilter = options.eventTypes
+      ? Prisma.sql`AND i."event_type" IN (${Prisma.join(options.eventTypes)})`
+      : Prisma.empty;
     const rows = await this.prisma.$queryRaw<OutboxClaimRow[]>`
       UPDATE "outbox_events" AS o
          SET "locked_at" = ${now},
@@ -113,13 +116,14 @@ export class PrismaOutboxWriter implements OutboxWriter {
              "attempts" = o."attempts" + 1,
              "last_attempt_at" = ${now}
        WHERE o."id" IN (
-         SELECT "id"
-           FROM "outbox_events"
-          WHERE "published_at" IS NULL
-            AND "dead_lettered_at" IS NULL
-            AND ("next_attempt_at" IS NULL OR "next_attempt_at" <= ${now})
-            AND ("locked_at" IS NULL OR "locked_at" < ${leaseCutoff})
-          ORDER BY "created_at" ASC
+         SELECT i."id"
+           FROM "outbox_events" AS i
+          WHERE i."published_at" IS NULL
+            AND i."dead_lettered_at" IS NULL
+            AND (i."next_attempt_at" IS NULL OR i."next_attempt_at" <= ${now})
+            AND (i."locked_at" IS NULL OR i."locked_at" < ${leaseCutoff})
+            ${eventTypeFilter}
+          ORDER BY i."created_at" ASC
           LIMIT ${options.limit}
             FOR UPDATE SKIP LOCKED
        )
