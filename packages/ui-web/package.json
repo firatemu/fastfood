@@ -1,0 +1,51 @@
+{
+  "name": "@fastfood/ui-web",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Canonical web component library. Foundation primitives only in Phase 0; full inventory is built in Phase 2 per document 38.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings=0",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run --passWithNoTests",
+    "build": "tsc -p tsconfig.build.json && cp src/styles.css dist/styles.css",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@fastfood/design-tokens": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@fastfood/eslint-config": "workspace:*",
+    "@fastfood/tsconfig": "workspace:*",
+    "@testing-library/react": "16.1.0",
+    "@types/node": "22.20.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "jsdom": "25.0.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "typescript": "5.9.3",
+    "vitest": "5.0.1"
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
+}

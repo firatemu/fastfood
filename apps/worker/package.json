@@ -1,0 +1,40 @@
+{
+  "name": "@fastfood/worker",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "FASTFOOD background worker — BullMQ consumer process. Phase 0 foundation only.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "start:dev": "tsx watch src/main.ts",
+    "lint": "eslint src --max-warnings=0",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run --passWithNoTests",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@fastfood/config": "workspace:*",
+    "@fastfood/contracts": "workspace:*",
+    "@fastfood/domain-types": "workspace:*",
+    "@fastfood/observability": "workspace:*",
+    "@nestjs/common": "12.0.3",
+    "@nestjs/core": "12.0.3",
+    "@nestjs/platform-express": "12.0.3",
+    "bullmq": "6.3.6",
+    "ioredis": "5.4.2",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.1"
+  },
+  "devDependencies": {
+    "@fastfood/eslint-config": "workspace:*",
+    "@fastfood/tsconfig": "workspace:*",
+    "@types/node": "22.20.3",
+    "pino-pretty": "11.3.0",
+    "tsx": "4.19.2",
+    "typescript": "5.9.3",
+    "vitest": "5.0.1"
+  }
+}

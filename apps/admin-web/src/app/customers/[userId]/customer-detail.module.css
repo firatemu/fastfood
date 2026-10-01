@@ -1,0 +1,583 @@
+.page {
+  --surface: var(--ops-surface-1, light-dark(#fcfcfd, #161b22));
+  --raised: var(--ops-surface-2, light-dark(#f8f9f9, #1f242d));
+  --line: var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
+  --text: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
+  --muted: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
+  --amber: var(--ops-amber, light-dark(#a57709, #feb300));
+  width: 100%;
+  max-width: 1220px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 22px clamp(16px, 2vw, 28px) 38px;
+  color: var(--text);
+  font-family: var(--ops-font-sans, Inter, sans-serif);
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 19px;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 11px;
+  color: light-dark(#916a1c, #e2b969);
+  font-size: 11px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: light-dark(#a0690d, #ffd38a);
+  text-decoration: underline;
+}
+.pageHeader h1 {
+  margin: 0;
+  font: 400 clamp(28px, 2.3vw, 36px) / 1.1 var(--ops-font-anton, Anton, sans-serif);
+  letter-spacing: 0.025em;
+}
+.pageHeader p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.statePanel button,
+.clubState button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid light-dark(#d3d6d9, #465364);
+  border-radius: 3px;
+  background: light-dark(#f8f9f9, #222a34);
+  color: light-dark(#2e5984, #dce4ec);
+  cursor: pointer;
+  font: 700 11px var(--ops-font-sans, Inter, sans-serif);
+}
+
+.statePanel button:hover,
+.clubState button:hover {
+  border-color: light-dark(#d6bd8a, #d6aa4e);
+  color: light-dark(#292929, #ffffff);
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  min-height: 138px;
+  padding: 23px 25px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ops-amber-border);
+  background: light-dark(#fcfcfd, #1a2028);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 69px;
+  height: 69px;
+  flex: 0 0 auto;
+  border: 1px solid light-dark(#d3ba8d, #765c2d);
+  background: light-dark(#f5f2ed, #634d2c);
+  color: light-dark(#a06c0d, #ffd17e);
+  font: 400 27px var(--ops-font-anton, Anton, sans-serif);
+  letter-spacing: 0.06em;
+}
+
+.profileIdentity {
+  min-width: 0;
+  flex: 1;
+}
+.identityLine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.identityLine h2 {
+  margin: 0;
+  overflow: hidden;
+  font-size: 21px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+}
+.profileIdentity p {
+  margin: 7px 0 0;
+  overflow: hidden;
+  color: light-dark(#24292e, #c5d0dc);
+  font-size: 13px;
+  text-overflow: ellipsis;
+}
+.memberSince {
+  display: block;
+  margin-top: 10px;
+  color: light-dark(#58636f, #98a7b6);
+  font-size: 11px;
+}
+.statusActive,
+.statusMuted {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid light-dark(#d3d9d7, #3b6653);
+  background: light-dark(#eef4f1, #20392d);
+  color: light-dark(#2e844d, #b1e3c3);
+  font-size: 11px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.statusActive::before,
+.statusMuted::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+}
+.statusMuted {
+  border-color: light-dark(#c7b499, #725c3e);
+  background: light-dark(#f4f4f3, #352d22);
+  color: light-dark(#91681d, #e5c17d);
+}
+.profileSide {
+  display: grid;
+  gap: 4px;
+  padding-left: 20px;
+  border-left: 1px solid light-dark(#d3d6d9, #3d4652);
+  text-align: right;
+}
+.profileSide span {
+  color: light-dark(#58636f, #96a5b4);
+  font-size: 10px;
+}
+.profileSide strong {
+  color: light-dark(#24292e, #d8e0e7);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.readOnlyNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 37px;
+  margin: 10px 0 18px;
+  padding: 8px 12px;
+  border: 1px solid light-dark(#d3d7d9, #314453);
+  background: light-dark(#eef1f4, #18232c);
+  color: light-dark(#2e6784, #a9c4d2);
+  font-size: 11px;
+}
+.readOnlyNote span {
+  color: light-dark(#2e6b84, #89bfd5);
+  font-size: 16px;
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(280px, 0.82fr);
+  gap: 14px;
+  margin-bottom: 15px;
+}
+.section,
+.clubSection,
+.activitySection {
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  min-height: 58px;
+  padding: 14px 17px;
+  border-bottom: 1px solid var(--line);
+}
+.sectionHeader h3 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.25;
+}
+.sectionHeader > span {
+  color: light-dark(#58646f, #94a5b4);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.overline {
+  display: block;
+  margin-bottom: 4px;
+  color: light-dark(#886425, #d4aa60);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.infoRows {
+  display: grid;
+}
+.infoRow {
+  display: grid;
+  grid-template-columns: 85px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 57px;
+  padding: 10px 17px;
+  border-bottom: 1px solid light-dark(#d3d6d9, #2b3541);
+}
+.infoRow:last-child {
+  border-bottom: 0;
+}
+.infoRow > span:first-child {
+  color: light-dark(#58636f, #9fadbb);
+  font-size: 11px;
+}
+.infoRow strong {
+  overflow: hidden;
+  color: light-dark(#24282e, #e4e9ef);
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.verified,
+.unverified {
+  padding: 5px 7px;
+  border: 1px solid light-dark(#d3d9d7, #3d6657);
+  background: light-dark(#eef4f2, #1f382e);
+  color: light-dark(#2e844e, #b5dec4);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.unverified {
+  border-color: light-dark(#d7d3d9, #5e5960);
+  background: light-dark(#f3f3f4, #2a2b33);
+  color: light-dark(#24282e, #bcc4d0);
+}
+
+.accountRows {
+  display: grid;
+}
+.accountRows > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 38px;
+  padding: 7px 17px;
+  border-bottom: 1px solid light-dark(#d3d6d9, #2b3541);
+}
+.accountRows > div:last-child {
+  border-bottom: 0;
+}
+.accountRows span {
+  color: light-dark(#58636f, #9eacba);
+  font-size: 11px;
+}
+.accountRows strong {
+  color: light-dark(#2e5d84, #e1e8ee);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.clubSection {
+  margin-bottom: 15px;
+}
+.clubOverview {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) 190px;
+  gap: 0;
+  min-height: 152px;
+}
+.balanceBlock,
+.tierBlock,
+.welcomeBlock {
+  padding: 22px 20px;
+  border-right: 1px solid var(--line);
+}
+.balanceBlock {
+  border-left: 3px solid light-dark(#d6bf8a, #d4a537);
+  background: light-dark(#fdfdfc, #262518);
+}
+.balanceBlock > span,
+.tierBlock span,
+.welcomeBlock span {
+  display: block;
+  color: light-dark(#58636f, #aebac6);
+  font-size: 11px;
+}
+.balanceBlock strong {
+  display: inline-block;
+  margin-top: 12px;
+  color: light-dark(#a06c0d, #ffcd72);
+  font: 700 31px / 1 var(--ops-font-mono, 'JetBrains Mono', monospace);
+}
+.balanceBlock small {
+  display: inline-block;
+  margin-left: 6px;
+  color: light-dark(#80682d, #ceb883);
+  font-size: 11px;
+}
+.tierTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.tierTop strong {
+  color: light-dark(#9b6b12, #f3d49a);
+  font-size: 15px;
+}
+.progressTrack {
+  height: 7px;
+  margin-top: 27px;
+  overflow: hidden;
+  border: 1px solid light-dark(#d9d7d3, #5b523c);
+  background: light-dark(#f3f4f4, #2d3032);
+}
+.progressTrack span {
+  display: block;
+  height: 100%;
+  background: light-dark(#e8b649, #e8b649);
+}
+.tierBlock p {
+  margin: 11px 0 0;
+  color: light-dark(#58636f, #9eacbb);
+  font-size: 11px;
+}
+.welcomeBlock {
+  border-right: 0;
+}
+.welcomeBlock strong {
+  display: block;
+  margin-top: 14px;
+  color: light-dark(#2e6384, #d8e5ed);
+  font-size: 14px;
+}
+.welcomeBlock small {
+  display: block;
+  margin-top: 8px;
+  color: light-dark(#58636f, #96a6b6);
+  font-size: 10px;
+}
+.clubMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 41px;
+  padding: 9px 17px;
+  border-top: 1px solid var(--line);
+  background: light-dark(#fcfcfd, #141a21);
+  color: light-dark(#58636f, #aab8c6);
+  font-size: 11px;
+}
+.clubMeta strong {
+  color: light-dark(#2e5984, #e2e9f0);
+  font: 700 12px var(--ops-font-mono, 'JetBrains Mono', monospace);
+}
+.clubState {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  min-height: 95px;
+  padding: 20px;
+  color: light-dark(#58636f, #aab8c6);
+  font-size: 12px;
+}
+.clubState strong {
+  color: light-dark(#24292e, #e4e9ee);
+  font-size: 13px;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.table th {
+  height: 39px;
+  padding: 0 17px;
+  border-bottom: 1px solid light-dark(#d3d6d9, #414b58);
+  background: light-dark(#f8f9f9, #202833);
+  color: light-dark(#24292e, #b7c3d0);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.table th button {
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+.table th button:hover {
+  color: light-dark(#a06d0d, #ffd586);
+}
+.table th button span {
+  color: light-dark(#58646f, #8fa0af);
+}
+.table td {
+  height: 49px;
+  padding: 9px 17px;
+  border-bottom: 1px solid light-dark(#d3d6d9, #2d3844);
+  background: light-dark(#f8f9f9, #1a222b);
+  color: light-dark(#2e5984, #d7e0e9);
+  font-size: 12px;
+}
+.table tbody tr:nth-child(even) td {
+  background: light-dark(#fcfcfd, #161d25);
+}
+.table tbody tr:hover td {
+  background: light-dark(#f3f4f4, #273541);
+}
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.table th:last-child,
+.table td:last-child {
+  text-align: right;
+}
+.date {
+  color: light-dark(#58656f, #acbcc9);
+  font: 11px var(--ops-font-mono, 'JetBrains Mono', monospace);
+}
+.activityType {
+  color: light-dark(#926a1c, #e8c785);
+  font-weight: 750;
+}
+.positive,
+.negative {
+  color: light-dark(#2e844d, #b5dfc4);
+  font: 700 12px var(--ops-font-mono, 'JetBrains Mono', monospace);
+}
+.negative {
+  color: light-dark(#962d1d, #efb5ac);
+}
+.tableFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  min-height: 48px;
+  padding: 9px 17px;
+  border-top: 1px solid var(--line);
+  color: light-dark(#58636f, #9baaba);
+  font-size: 11px;
+}
+.tableFooter > div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.tableFooter button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid light-dark(#d3d6d9, #4b5969);
+  background: light-dark(#f3f3f4, #222b35);
+  color: light-dark(#2e5984, #e4eaf0);
+  cursor: pointer;
+  font-size: 18px;
+}
+.tableFooter button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.emptyActivity {
+  padding: 25px 18px;
+  color: light-dark(#58636f, #9eacba);
+  font-size: 12px;
+}
+
+.statePanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 230px;
+  padding: 25px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: light-dark(#58636f, #a8b6c4);
+  font-size: 12px;
+  text-align: center;
+}
+.statePanel strong {
+  color: light-dark(#24292e, #e7ecf1);
+  font-size: 15px;
+}
+.page :is(a, button):focus-visible {
+  outline: 2px solid var(--ops-amber-border);
+  outline-offset: 2px;
+}
+
+@media (max-width: 940px) {
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+  .clubOverview {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+  .welcomeBlock {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--line);
+  }
+  .tierBlock {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 590px) {
+  .page {
+    padding: 17px 12px 27px;
+  }
+  .profile {
+    align-items: flex-start;
+    gap: 12px;
+    padding: 17px;
+  }
+  .avatar {
+    width: 51px;
+    height: 51px;
+    font-size: 20px;
+  }
+  .profileSide {
+    display: none;
+  }
+  .identityLine h2 {
+    font-size: 18px;
+  }
+  .infoRow {
+    grid-template-columns: 70px minmax(0, 1fr);
+    gap: 5px 9px;
+  }
+  .infoRow > span:last-child {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .clubOverview {
+    grid-template-columns: 1fr;
+  }
+  .balanceBlock,
+  .tierBlock,
+  .welcomeBlock {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .table {
+    min-width: 600px;
+  }
+}

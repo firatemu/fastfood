@@ -1,0 +1,532 @@
+<!DOCTYPE html><html class="dark" lang="tr" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style id="color-swap-override" class="">:root { --primary-amber: #F59E0B; --primary-amber-light: #FDE68A; --secondary-orange: #FF5722; --secondary-orange-light: #FFB5A0; } .bg-primary-container { background-color: #F59E0B !important; } .text-primary-container { color: #F59E0B !important; } .text-primary { color: #FBBF24 !important; } .text-primary-fixed-dim { color: #FCD34D !important; } .border-primary\/40 { border-color: rgba(245, 158, 11, 0.4) !important; } .selection\:bg-primary-container::selection { background-color: #F59E0B !important; } .bg-primary-container\/10 { background-color: rgba(245, 158, 11, 0.1) !important; } .bg-primary-container\/20 { background-color: rgba(245, 158, 11, 0.2) !important; } .from-primary-container { --tw-gradient-from: #F59E0B var(--tw-gradient-from-position) !important; --tw-gradient-to: rgb(245 158 11 / 0) var(--tw-gradient-to-position) !important; --tw-gradient-stops: var(--tw-gradient-from), #D97706, var(--tw-gradient-to) !important; } .to-tertiary-container { --tw-gradient-to: #D97706 var(--tw-gradient-to-position) !important; } .shadow-primary-container\/30 { --tw-shadow-color: rgba(245, 158, 11, 0.3) !important; } .shadow-\[0_4px_20px_rgba\(255\,87\,34\,0\.35\)\] { box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4) !important; } .shadow-\[0_4px_24px_rgba\(255\,87\,34\,0\.4\)\] { box-shadow: 0 4px 24px rgba(245, 158, 11, 0.45) !important; } .has-\[\:checked\]\:shadow-\[inset_0_0_0_1\.5px_\#ff5722\]:has(:checked) { box-shadow: inset 0 0 0 1.5px #F59E0B !important; } .accent-primary-container { accent-color: #F59E0B !important; } .bg-secondary-container { background-color: #FF5722 !important; } .text-secondary-container { color: #FF7043 !important; } .text-secondary { color: #FF8A65 !important; } .bg-secondary-container\/10 { background-color: rgba(255, 87, 34, 0.1) !important; } .bg-secondary-container\/20 { background-color: rgba(255, 87, 34, 0.2) !important; } .text-on-primary-container { color: #1f1400 !important; font-weight: 700 !important; } .text-on-secondary-container { color: #ffffff !important; }</style><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { 'colors': { 'outline': '#ab8980', 'surface-container-low': '#1b1b1f', 'inverse-primary': '#b02f00', 'secondary-fixed-dim': '#ffba38', 'surface-bright': '#38393c', 'on-secondary-fixed-variant': '#604100', 'on-primary': '#5f1500', 'surface-container-lowest': '#0d0e11', 'on-primary-fixed-variant': '#862200', 'on-tertiary-fixed': '#3b0900', 'surface': '#121316', 'on-primary-fixed': '#3b0900', 'primary-fixed-dim': '#ffb5a0', 'on-error': '#690005', 'tertiary-fixed': '#ffdbd1', 'tertiary-container': '#fc5a29', 'secondary-fixed': '#ffdeac', 'secondary-container': '#feb300', 'secondary': '#ffd799', 'on-error-container': '#ffdad6', 'outline-variant': '#5b4039', 'on-tertiary': '#601500', 'error-container': '#93000a', 'on-secondary': '#432c00', 'on-primary-container': '#541200', 'surface-container-high': '#292a2d', 'surface-tint': '#ffb5a0', 'primary': '#ffb5a0', 'on-secondary-container': '#6a4800', 'error': '#ffb4ab', 'on-tertiary-fixed-variant': '#872100', 'tertiary': '#ffb5a0', 'primary-fixed': '#ffdbd1', 'surface-variant': '#343538', 'inverse-on-surface': '#2f3034', 'primary-container': '#ff5722', 'on-secondary-fixed': '#281900', 'on-background': '#e3e2e6', 'surface-container-highest': '#343538', 'tertiary-fixed-dim': '#ffb5a0', 'inverse-surface': '#e3e2e6', 'surface-container': '#1f1f23', 'on-tertiary-container': '#541100', 'on-surface': '#e3e2e6', 'background': '#121316', 'surface-dim': '#121316', 'on-surface-variant': '#e4beb4' }, 'borderRadius': { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, 'spacing': { 'margin': '2.5rem', 'space-xs': '0.25rem', 'space-lg': '1.5rem', 'margin-sm': '1.25rem', 'space-xl': '2.5rem', 'gutter-sm': '1rem', 'space-sm': '0.5rem', 'space-md': '1rem', 'gutter': '1.5rem' }, 'fontFamily': { 'label-md': ['Plus Jakarta Sans'], 'headline-xl-mobile': ['Anton'], 'label-sm': ['Plus Jakarta Sans'], 'headline-lg-mobile': ['Anton'], 'body-md': ['Plus Jakarta Sans'], 'label-lg': ['Plus Jakarta Sans'], 'headline-xl': ['Anton'], 'headline-md': ['Anton'], 'headline-sm': ['Plus Jakarta Sans'], 'headline-lg': ['Anton'], 'body-lg': ['Plus Jakarta Sans'], 'body-sm': ['Plus Jakarta Sans'] }, 'fontSize': { 'label-md': ['12px', { 'lineHeight': '16px', 'letterSpacing': '0.06em', 'fontWeight': '700' }], 'headline-xl-mobile': ['40px', { 'lineHeight': '44px', 'letterSpacing': '0.02em', 'fontWeight': '400' }], 'label-sm': ['11px', { 'lineHeight': '14px', 'letterSpacing': '0.08em', 'fontWeight': '700' }], 'headline-lg-mobile': ['32px', { 'lineHeight': '36px', 'letterSpacing': '0.02em', 'fontWeight': '400' }], 'body-md': ['15px', { 'lineHeight': '24px', 'fontWeight': '400' }], 'label-lg': ['14px', { 'lineHeight': '20px', 'letterSpacing': '0.04em', 'fontWeight': '600' }], 'headline-xl': ['64px', { 'lineHeight': '68px', 'letterSpacing': '0.02em', 'fontWeight': '400' }], 'headline-md': ['28px', { 'lineHeight': '32px', 'letterSpacing': '0.01em', 'fontWeight': '400' }], 'headline-sm': ['20px', { 'lineHeight': '28px', 'letterSpacing': '-0.01em', 'fontWeight': '700' }], 'headline-lg': ['44px', { 'lineHeight': '48px', 'letterSpacing': '0.02em', 'fontWeight': '400' }], 'body-lg': ['18px', { 'lineHeight': '28px', 'fontWeight': '400' }], 'body-sm': ['13px', { 'lineHeight': '20px', 'fontWeight': '400' }] } } } };</script></head><body class="bg-background font-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 left-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 max-w-7xl mx-auto px-margin-sm lg:px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg shrink-0"><a class="flex items-center gap-space-sm" data-path="menu" href="#"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFysva_VgGXTmQrfLShOxN831HSNPWpJSGZaMmDXsvh_XC7ZtCCqNBzgJKuyuk3BKbd6ocwshsQrMMpxjINOF-uQK-1BQEQZyl6L340IG1ewOiwdDEuax3lLFpOCJhABT5timDpj0Blsiox-oP1885y9XFR3IMS7n3n4ohxyY0JX8kJlDxayryf0qYRNMfcmPuEd_0k3t_nLtBJixq7Ocx2wQ9vTdqlREP5O5i8J3NVLZizUHx1H0a" alt="BURGER HOME" class="h-8 md:h-10 object-contain"><span class="font-headline-md text-headline-md tracking-wider text-on-surface uppercase">BURGER HOME</span></a><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-1.5 rounded-lg bg-surface-container-low"><span class="material-symbols-outlined text-primary text-lg">location_on</span><div class="flex flex-col text-left"><span class="font-label-sm text-label-sm text-on-surface uppercase leading-none">Kadıköy Moda, İstanbul</span><span class="font-label-sm text-[10px] text-secondary-container leading-tight mt-0.5">Teslimat: 25-35 dk</span></div><span class="material-symbols-outlined text-on-surface-variant text-base ml-1 cursor-pointer">expand_more</span></div></div><nav class="hidden lg:flex items-center gap-space-lg" data-active-classes="text-primary-container font-semibold"><a class="font-label-lg text-label-lg uppercase text-on-surface-variant hover:text-on-surface transition-colors" data-path="menu" href="#"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFysva_VgGXTmQrfLShOxN831HSNPWpJSGZaMmDXsvh_XC7ZtCCqNBzgJKuyuk3BKbd6ocwshsQrMMpxjINOF-uQK-1BQEQZyl6L340IG1ewOiwdDEuax3lLFpOCJhABT5timDpj0Blsiox-oP1885y9XFR3IMS7n3n4ohxyY0JX8kJlDxayryf0qYRNMfcmPuEd_0k3t_nLtBJixq7Ocx2wQ9vTdqlREP5O5i8J3NVLZizUHx1H0a" alt="BURGER HOME" class="h-8 md:h-10 object-contain"><span class="font-headline-md text-headline-md tracking-wider text-on-surface uppercase">BURGER HOME</span></a><a aria-current="page" class="uppercase transition-colors text-primary-container font-semibold" data-path="ozel-burgerini-yarat" href="#">Özel Burgerini Yarat</a><a class="font-label-lg text-label-lg uppercase text-on-surface-variant hover:text-on-surface transition-colors" data-path="subeler-and-hikaye" href="#">Şubeler &amp; Hikaye</a><a class="font-label-lg text-label-lg uppercase text-on-surface-variant hover:text-on-surface transition-colors" data-path="indirimler-and-firsatlar" href="#">İndirimler &amp; Fırsatlar</a></nav><div class="flex items-center gap-space-sm shrink-0"><div class="relative hidden md:flex items-center"><span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-base">search</span><input class="w-48 xl:w-60 h-10 pl-9 pr-space-sm bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/60 font-body-sm text-body-sm rounded-lg outline-none focus:bg-surface-container-high transition-colors" placeholder="Burger, sos veya çıtır ara..." type="text"></div><a class="hidden sm:flex items-center gap-1.5 px-space-sm py-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high hover:text-on-surface transition-colors text-on-surface-variant" data-path="siparis-takibi" href="#"><span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span><span class="font-label-sm text-label-sm uppercase text-on-surface">Izgarada</span></a><button class="relative flex items-center gap-2 h-10 px-space-md rounded-lg bg-primary-container text-on-primary-container font-label-md text-label-md uppercase tracking-wide hover:brightness-110 shadow-[0_4px_20px_rgba(255,87,34,0.35)] transition-all" type="button"><span class="material-symbols-outlined text-base">shopping_bag</span><span class="hidden sm:inline">Sepet</span><span class="px-1.5 py-0.5 rounded-full bg-surface-container-lowest font-label-sm text-label-sm text-primary">3</span></button><a class="flex items-center ml-1" data-path="hesabim" href="#"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKGDVe9bbuaOgCl6md_pyqHOu-_kPhs7x2i6mP6r59aBr64alcXbfC9LfNPvm0J67zLR4j2BPCeTKeOOoarNgJcPtfZwo1Qo523W_ZR8B_U2wKQ_45rWUrh-lPuUFdBKNL3Pg9cji8OU5yz14u4KZhqz6fpp-9987BYswBbcD_LTy5es-SRhQdDG_ECae7C7bZIocBSk3DCeyrwOzC7IetCZfeqEgZ-4iLplJ2UZfKTaIRKoKIIUDn"></a></div></div></header><main class="w-full pt-20 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Subtle Ambient Glow Canvas -->
+<div class="relative w-full max-w-7xl mx-auto px-margin-sm lg:px-margin py-space-md lg:py-space-xl">
+<div class="absolute top-12 left-1/4 w-96 h-96 bg-primary-container/10 blur-[130px] rounded-full pointer-events-none"></div>
+<div class="absolute bottom-20 right-10 w-80 h-80 bg-secondary-container/10 blur-[120px] rounded-full pointer-events-none"></div>
+<!-- Navigation Breadcrumbs & Live Kitchen Status -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm mb-space-lg">
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
+<a class="hover:text-on-surface transition-colors" data-path="menu" href="#">Menü</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-on-surface-variant/70">Smash Burgerler</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-primary font-semibold">The Double Truffle Smash</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high/80 backdrop-blur-md">
+<span class="material-symbols-outlined text-secondary-container text-sm animate-spin" style="animation-duration: 4s;">local_fire_department</span>
+<span class="font-label-sm text-label-sm text-on-surface tracking-wide uppercase">Döküm Izgara: 240°C Seared</span>
+</div>
+</div>
+<!-- Main Layout Grid (Burger Customizer + Cart Drawer Summary) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Left & Center Column: Detailed Product Presentation & Customizer Engine -->
+<div class="lg:col-span-8 flex flex-col gap-space-lg">
+<!-- Hero Showcase Card -->
+<div class="relative w-full rounded-2xl bg-surface-container overflow-hidden shadow-2xl p-space-md lg:p-space-lg">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-md items-center">
+<!-- Burger Close-up Image with Flare -->
+<div class="md:col-span-6 relative flex justify-center items-center">
+<div class="absolute w-56 h-56 rounded-full bg-primary-container/20 blur-2xl"></div>
+<img class="relative z-10 w-full max-w-sm rounded-xl object-cover shadow-2xl hover:scale-105 transition-transform duration-500 ease-out" data-alt="Macro studio photograph of a gourmet smash burger with double 100g beef patties featuring ultra-crispy lace edges, glowing molten aged cheddar dripping over black truffle aioli, deeply caramelized onions on a golden butter-toasted brioche bun with matte black culinary stone background and ember smoke lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCv3fWs_TOejr9ZShzdB9cU3hlTyZyCp2ZayJQKIeT98nlMWqVrrOHlY5SSJ-kTRzmtrd4oy1Qot-Y-ScztOA8QJs2-o2rFXNXwO96KL0F6MCcQo4_5jkkdMWn2mfQnUxHpXXzVah4ces-fOvlO4_JeK-F4uhPNEfcf1VD25nc1BXTJacKVY39gxKLZQ1wfH45kDc2TZGX9clnJuVJqG4uX_-QSZydQLevvWQFlmFcdJEllsvUM092n">
+<div class="absolute top-2 left-2 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md">
+<span class="material-symbols-outlined text-secondary-container text-sm">stars</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Şefin İmza Seçimi</span>
+</div>
+</div>
+<!-- Header Description & Quick Spec -->
+<div class="md:col-span-6 flex flex-col gap-space-xs">
+<div class="flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm uppercase text-primary tracking-widest">Master Edition</span>
+<div class="flex items-center gap-1 text-secondary-container">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md text-on-surface">4.9</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">(428 değerlendirme)</span>
+</div>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface uppercase tracking-wide leading-tight">
+                THE DOUBLE TRUFFLE SMASH
+              </h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                Yüksek ısılı krom ızgarada kenarları dantel çıtırlığına ulaştırılmış 2x100g yerli kuru dinlendirilmiş dana döş, 18 aylık eritilmiş İngiliz cheddarı, taze siyah kış trüfü mayonezi ve tereyağlı brioche.
+              </p>
+<!-- Nutrition & Allergen Chips -->
+<div class="flex flex-wrap items-center gap-2 pt-space-xs">
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-primary text-sm">local_fire_department</span>
+<span class="">840 kcal</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-secondary-container text-sm">fitness_center</span>
+<span class="">48g Protein</span>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-outline text-sm">info</span>
+<span class="">Alerjen: Glüten, Süt, Yumurta</span>
+</div>
+</div>
+<!-- Price & Quantity Bar -->
+<div class="flex items-center justify-between pt-space-sm mt-space-xs border-t border-surface-bright/20">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Porsiyon Fiyatı</span>
+<span class="font-headline-md text-headline-md text-primary font-bold" id="basePriceDisplay">295 TL</span>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-lowest px-3 py-1.5 rounded-xl">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface active:scale-95 transition-all" id="btnQtyMinus" type="button">
+<span class="material-symbols-outlined text-base">remove</span>
+</button>
+<span class="font-label-lg text-label-lg text-on-surface w-6 text-center" id="qtyDisplay">1</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface active:scale-95 transition-all" id="btnQtyPlus" type="button">
+<span class="material-symbols-outlined text-base">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Customizer Accordions / Step Cards -->
+<form class="flex flex-col gap-space-md" id="customizerForm">
+<!-- Step 1: Patty & Meat Selection -->
+<div class="flex flex-col gap-space-sm p-space-md rounded-2xl bg-surface-container shadow-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm flex items-center justify-center">1</span>
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase">Köfte Seçimi</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary uppercase">Zorunlu Seçim</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm">
+<label class="relative flex flex-col p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all has-[:checked]:bg-surface-container-high has-[:checked]:shadow-[inset_0_0_0_1.5px_#ff5722]">
+<input checked="" class="sr-only custom-radio" name="pattyOption" type="radio" value="0">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-lg text-label-lg text-on-surface">Çift Köfte</span>
+<span class="w-4 h-4 rounded-full bg-surface-container flex items-center justify-center ring-1 ring-outline/40 custom-radio-indicator">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">2x100g Dana Döş</span>
+<span class="font-label-md text-label-md text-secondary-container mt-2">Dahil</span>
+</label>
+<label class="relative flex flex-col p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all has-[:checked]:bg-surface-container-high has-[:checked]:shadow-[inset_0_0_0_1.5px_#ff5722]">
+<input class="sr-only custom-radio" name="pattyOption" type="radio" value="95">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-lg text-label-lg text-on-surface">Üçlü Smash</span>
+<span class="w-4 h-4 rounded-full bg-surface-container flex items-center justify-center ring-1 ring-outline/40 custom-radio-indicator">
+<span class="w-2 h-2 rounded-full bg-transparent"></span>
+</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">3x100g Dana Döş</span>
+<span class="font-label-md text-label-md text-primary mt-2">+95 TL</span>
+</label>
+<label class="relative flex flex-col p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all has-[:checked]:bg-surface-container-high has-[:checked]:shadow-[inset_0_0_0_1.5px_#ff5722]">
+<input class="sr-only custom-radio" name="pattyOption" type="radio" value="130">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-lg text-label-lg text-on-surface">Wagyu Blend</span>
+<span class="w-4 h-4 rounded-full bg-surface-container flex items-center justify-center ring-1 ring-outline/40 custom-radio-indicator">
+<span class="w-2 h-2 rounded-full bg-transparent"></span>
+</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">2x110g A5 Yağ Doku</span>
+<span class="font-label-md text-label-md text-primary mt-2">+130 TL</span>
+</label>
+</div>
+</div>
+<!-- Step 2: Bun Selection -->
+<div class="flex flex-col gap-space-sm p-space-md rounded-2xl bg-surface-container shadow-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm flex items-center justify-center">2</span>
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase">Ekmek Türü</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary uppercase">Zorunlu Seçim</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm">
+<label class="flex flex-col p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all has-[:checked]:bg-surface-container-high has-[:checked]:shadow-[inset_0_0_0_1.5px_#ff5722]">
+<input checked="" class="sr-only" name="bunOption" type="radio" value="0">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-lg text-label-lg text-on-surface">Artisan Brioche</span>
+<span class="material-symbols-outlined text-primary text-base">bakery_dining</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Bol tereyağlı &amp; parlak</span>
+<span class="font-label-md text-label-md text-secondary-container mt-2">Dahil</span>
+</label>
+<label class="flex flex-col p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all has-[:checked]:bg-surface-container-high has-[:checked]:shadow-[inset_0_0_0_1.5px_#ff5722]">
+<input class="sr-only" name="bunOption" type="radio" value="0">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-lg text-label-lg text-on-surface">Susamlı Patates</span>
+<span class="material-symbols-outlined text-secondary text-base">grain</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Yumuşak sünger doku</span>
+<span class="font-label-md text-label-md text-secondary-container mt-2">Dahil</span>
+</label>
+<label class="flex flex-col p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all has-[:checked]:bg-surface-container-high has-[:checked]:shadow-[inset_0_0_0_1.5px_#ff5722]">
+<input class="sr-only" name="bunOption" type="radio" value="35">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-lg text-label-lg text-on-surface">Glütensiz Ekmek</span>
+<span class="material-symbols-outlined text-outline text-base">eco</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Özel fırınlanmış reçete</span>
+<span class="font-label-md text-label-md text-primary mt-2">+35 TL</span>
+</label>
+</div>
+</div>
+<!-- Step 3: Cheese & Extra Sauces / Gourmet Add-ons -->
+<div class="flex flex-col gap-space-sm p-space-md rounded-2xl bg-surface-container shadow-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center justify-center">3</span>
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase">Peynir &amp; Ekstra Dokunuşlar</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">İsteğe Bağlı</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<label class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 rounded accent-primary-container cursor-pointer" data-label="Ekstra Eritilmiş Cheddar" name="addon" type="checkbox" value="30">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Ekstra Eritilmiş Cheddar</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">+60g erimiş sıcak peynir</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-primary">+30 TL</span>
+</label>
+<label class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 rounded accent-primary-container cursor-pointer" data-label="Füme Dana Bacon" name="addon" type="checkbox" value="45">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Füme Dana Bacon</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Meşe odunu fümelenmiş çıtır</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-primary">+45 TL</span>
+</label>
+<label class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 rounded accent-primary-container cursor-pointer" data-label="Çıtır Karamelize Soğan" name="addon" type="checkbox" value="20">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Çıtır Karamelize Soğan</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Ağır ateşte eritilmiş tatlı soğan</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-primary">+20 TL</span>
+</label>
+<label class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 rounded accent-primary-container cursor-pointer" data-label="Trüf Mantarı Dilimleri" name="addon" type="checkbox" value="60">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Trüf Mantarı Dilimleri</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Taze rendelenmiş siyah kış trüfü</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-primary">+60 TL</span>
+</label>
+<label class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all sm:col-span-2">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 rounded accent-primary-container cursor-pointer" data-label="Ekstra Trüf Mayonez" name="addon" type="checkbox" value="25">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Ekstra Trüf Mayonez (Ayrı kapta)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Ev yapımı emülsiyon ve trüf püresi</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-primary">+25 TL</span>
+</label>
+</div>
+</div>
+<!-- Step 4: Removal Preferences -->
+<div class="flex flex-col gap-space-sm p-space-md rounded-2xl bg-surface-container shadow-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-6 h-6 rounded-full bg-surface-bright text-on-surface font-label-sm text-label-sm flex items-center justify-center">4</span>
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase">Çıkarılmasını İstedikleriniz</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Damak Zevkine Göre</span>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
+<label class="flex items-center gap-2 p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all">
+<input class="w-4 h-4 rounded accent-primary cursor-pointer" name="removals" type="checkbox" value="Soğansız">
+<span class="font-body-sm text-body-sm text-on-surface">Soğan Yok</span>
+</label>
+<label class="flex items-center gap-2 p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all">
+<input class="w-4 h-4 rounded accent-primary cursor-pointer" name="removals" type="checkbox" value="Turşusuz">
+<span class="font-body-sm text-body-sm text-on-surface">Turşu Yok</span>
+</label>
+<label class="flex items-center gap-2 p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all">
+<input class="w-4 h-4 rounded accent-primary cursor-pointer" name="removals" type="checkbox" value="Sossuz">
+<span class="font-body-sm text-body-sm text-on-surface">Trüf Sos Yok</span>
+</label>
+<label class="flex items-center gap-2 p-space-sm rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer transition-all">
+<input class="w-4 h-4 rounded accent-primary cursor-pointer" name="removals" type="checkbox" value="Tuzsuz">
+<span class="font-body-sm text-body-sm text-on-surface">Tuzsuz Et</span>
+</label>
+</div>
+</div>
+<!-- Bottom Action for Mobile and Flow Integration -->
+<div class="flex items-center justify-between p-space-md rounded-2xl bg-surface-container-high">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Özelleştirilmiş Ürün Toplamı</span>
+<span class="font-headline-sm text-headline-sm text-primary" id="customizedPriceSummary">295 TL</span>
+</div>
+<button class="flex items-center gap-2 px-space-lg py-3 rounded-xl bg-primary-container hover:brightness-110 text-on-primary-container font-label-md text-label-md uppercase tracking-wider shadow-lg shadow-primary-container/30 active:scale-98 transition-all" id="btnUpdateCartItem" type="button">
+<span class="material-symbols-outlined text-lg">sync_saved_locally</span>
+<span class="">Sepeti Güncelle</span>
+</button>
+</div>
+</form>
+<!-- Kitchen Quality Assurance Micro-Banner -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm py-space-xs">
+<div class="flex items-center gap-space-xs p-3 rounded-xl bg-surface-container-low">
+<span class="material-symbols-outlined text-secondary-container">timer</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface">3 Dakika Smash Tekniği</span>
+<span class="font-body-sm text-xs text-on-surface-variant">Sıcak ve sulu iç doku</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs p-3 rounded-xl bg-surface-container-low">
+<span class="material-symbols-outlined text-primary">eco</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface">%100 Yerli Besi</span>
+<span class="font-body-sm text-xs text-on-surface-variant">Trakya meraları dana eti</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs p-3 rounded-xl bg-surface-container-low">
+<span class="material-symbols-outlined text-tertiary">inventory_2</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface">Hava Kanallı Termal Paket</span>
+<span class="font-body-sm text-xs text-on-surface-variant">Çıtırlık kaybı önleyici</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Sticky Live Cart Drawer -->
+<div class="lg:col-span-4 flex flex-col gap-space-md lg:sticky lg:top-24">
+<div class="w-full rounded-2xl bg-surface-container p-space-md lg:p-space-lg shadow-2xl backdrop-blur-xl flex flex-col gap-space-md">
+<!-- Drawer Header -->
+<div class="flex items-center justify-between pb-space-xs border-b border-surface-bright/30">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary">shopping_bag</span>
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wide">Sipariş Özeti</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-primary">3 Çeşit</span>
+</div>
+<!-- Cart Item List -->
+<div class="flex flex-col gap-space-sm max-h-[360px] overflow-y-auto pr-1">
+<!-- Item 1: The Configured Burger -->
+<div class="flex flex-col p-space-sm rounded-xl bg-surface-container-low gap-2 transition-all">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-3">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close up mini icon of truffle smash burger dripping with cheddar cheese on brioche bun" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsJfEruK0YsHSaYtdo-Y4omaguZD5P0a9wtWqo9AH1yIo71WfiSDaGSAanUHhKGjizzuyA7wl9o82GscnAiPo9WBBoPByruNCspIE-FY5pBIhxyAb6J_ErVNKJXKzOuJwzb_JE_qs1ySFTbIs3U2hUc6GPcTfYPoZyr88mXqh8qbuYj6ygi8KsMELzSvUg6TS364V5tSFJjEAnIe4GBz2Iq6lj2QUFxt7AWrRc6ESsFNRza3kHhC1L">
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Double Truffle Smash</span>
+<span class="font-body-sm text-xs text-secondary-container">Özelleştirilmiş</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-on-surface">295 TL</span>
+</div>
+<div class="flex flex-wrap gap-1 text-[11px] font-body-sm text-on-surface-variant/80 pl-2 border-l-2 border-primary/40">
+<span class="">Çift Köfte (2x100g)</span> • 
+                <span class="">Brioche</span> • 
+                <span class="text-primary-fixed-dim">Ekstra Cheddar (+30 TL)</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Adet: 1</span>
+<button class="text-xs text-outline hover:text-error transition-colors flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined text-xs">delete</span> Sil
+                </button>
+</div>
+</div>
+<!-- Item 2: Truffle Fries -->
+<div class="flex flex-col p-space-sm rounded-xl bg-surface-container-low gap-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-3">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Golden crisp Belgian truffle parmesan french fries served in a craft branded paper carton" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLTuel_t6pzLgSDqf4uTDajXH_8nHyyg34VGy7KSYCDuIuqn-OvzqjcwFyv4_cFgdm7v45D-bUQMGPmDrJMZ3Y-iM_YlyD-GcsX1JpEtvtm1JHee2Bq6SlvoA9AQhQOOEVLiLvqi7dh-UkRULaxKSvPMwwfP85ou6TIyF8iFCDtDR2SZQZWucVO1gdFPD8_Az62VImo-Cg08EOfA_6JusSDRfggWWjxirkAj56SqibiJMj7-dOrsIL">
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Loaded Truffle Fries</span>
+<span class="font-body-sm text-xs text-on-surface-variant">Parmesan &amp; Trüf Yağlı</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-on-surface">165 TL</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Adet: 1</span>
+<button class="text-xs text-outline hover:text-error transition-colors flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined text-xs">delete</span> Sil
+                </button>
+</div>
+</div>
+<!-- Item 3: Craft Drink -->
+<div class="flex flex-col p-space-sm rounded-xl bg-surface-container-low gap-2">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-3">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Artisanal chilled craft ginger beer bottle with condensation droplets and lime wedge" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9wcNJD618LlFk76IEGcMxeArIQe9bVm0oT5uVx_V_zHh8aQTyDgR67R-OMgcjn3BLARgDkGM2DlpsM92_ZeeIoRrS2GzIcbgG1IoJYdafOw3BCHq0E_UFrpbeiK9eQS6FvNjLqmOLpPu2-fxyKHsfWrz2aDVEIvzVoyTY1tlPD0ycg0TTT79sVtVbyQrHncxZgrvfTXYgVF2gkioCCNxNAR0WGxtocGdYN6RRanxRuFPuV8bgomGj">
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Ev Yapımı Zencefilli Gazoz</span>
+<span class="font-body-sm text-xs text-on-surface-variant">330ml Şişe &amp; Buz</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-on-surface">80 TL</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Adet: 1</span>
+<button class="text-xs text-outline hover:text-error transition-colors flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined text-xs">delete</span> Sil
+                </button>
+</div>
+</div>
+</div>
+<!-- Promo Code Input Group -->
+<div class="flex flex-col gap-1.5 pt-space-xs">
+<div class="flex items-center bg-surface-container-lowest rounded-xl p-1.5 focus-within:ring-1 focus-within:ring-primary-container transition-all">
+<span class="material-symbols-outlined text-outline ml-2 text-base">sell</span>
+<input class="w-full bg-transparent px-2 py-1 font-label-sm text-label-sm text-on-surface uppercase outline-none" id="promoInput" placeholder="İndirim Kodu Girin" type="text" value="BURGERLOVER">
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-secondary font-label-sm text-label-sm uppercase transition-colors" type="button">
+                Uygulandı
+              </button>
+</div>
+<div class="flex items-center gap-1 text-[11px] font-body-sm text-secondary-container pl-1">
+<span class="material-symbols-outlined text-xs">check_circle</span>
+<span class="">BURGERLOVER koduyla 50 TL indirim aktif!</span>
+</div>
+</div>
+<!-- Cost Calculation Breakdown -->
+<div class="flex flex-col gap-2 pt-space-xs border-t border-surface-bright/20 font-body-sm text-body-sm">
+<div class="flex justify-between text-on-surface-variant">
+<span class="">Ara Toplam</span>
+<span class="text-on-surface font-label-md" id="cartSubtotalText">540 TL</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="">Teslimat Ücreti</span>
+<span class="text-[10px] bg-secondary-container/20 text-secondary-container px-1 rounded">350 TL Üzeri</span>
+</div>
+<span class="text-secondary font-label-md">ÜCRETSİZ</span>
+</div>
+<div class="flex justify-between text-secondary-container">
+<span class="">Kupon İndirimi</span>
+<span class="font-label-md">-50 TL</span>
+</div>
+<div class="flex justify-between items-baseline pt-space-xs border-t border-surface-bright/40">
+<span class="font-headline-sm text-headline-sm text-on-surface uppercase">Genel Toplam</span>
+<span class="font-headline-md text-headline-md text-primary font-bold" id="cartGrandTotalText">490 TL</span>
+</div>
+</div>
+<!-- Checkout Primary CTA -->
+<button class="group w-full relative flex items-center justify-between px-space-md py-3.5 rounded-xl bg-gradient-to-r from-primary-container to-tertiary-container hover:brightness-110 text-on-primary-container font-label-lg text-label-lg uppercase tracking-wider shadow-[0_4px_24px_rgba(255,87,34,0.4)] active:scale-98 transition-all overflow-hidden" id="btnProceedCheckout" type="button">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xl">shopping_cart_checkout</span>
+<span class="">Ödemeye Geç</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="font-headline-sm text-headline-sm font-bold" id="btnTotalBadge">490 TL</span>
+<span class="material-symbols-outlined text-xl transition-transform group-hover:translate-x-1.5">arrow_forward</span>
+</div>
+</button>
+<!-- Safe Delivery & Contactless Guarantee -->
+<div class="flex items-center justify-center gap-space-xs text-[11px] text-on-surface-variant/80">
+<span class="material-symbols-outlined text-xs text-primary">verified_user</span>
+<span class="">Güvenli 3D Ödeme • Hijyenik Mühürlü Teslimat</span>
+</div>
+</div>
+<!-- Mini Recommendation / Upsell Card -->
+<div class="p-space-sm rounded-xl bg-surface-container-low flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-2xl">lunch_dining</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface uppercase">Smash Sosu İster Misin?</span>
+<span class="font-body-sm text-xs text-on-surface-variant">Özel tütsülü dip sos</span>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-sm text-label-sm uppercase transition-colors shrink-0" type="button">
+            +18 TL Ekle
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive JavaScript for Live Price Calculations & Cart Feedback -->
+<script>
+    (function() {
+      const BASE_BURGER_PRICE = 295;
+      let quantity = 1;
+      
+      const qtyDisplay = document.getElementById('qtyDisplay');
+      const basePriceDisplay = document.getElementById('basePriceDisplay');
+      const customizedPriceSummary = document.getElementById('customizedPriceSummary');
+      const customizerForm = document.getElementById('customizerForm');
+      const btnQtyPlus = document.getElementById('btnQtyPlus');
+      const btnQtyMinus = document.getElementById('btnQtyMinus');
+      const btnUpdateCartItem = document.getElementById('btnUpdateCartItem');
+
+      function calculateCurrentCustomizedBurgerPrice() {
+        let pattyCost = 0;
+        const selectedPatty = document.querySelector('input[name="pattyOption"]:checked');
+        if (selectedPatty) pattyCost = parseFloat(selectedPatty.value) || 0;
+
+        let bunCost = 0;
+        const selectedBun = document.querySelector('input[name="bunOption"]:checked');
+        if (selectedBun) bunCost = parseFloat(selectedBun.value) || 0;
+
+        let addonsCost = 0;
+        const checkedAddons = document.querySelectorAll('input[name="addon"]:checked');
+        checkedAddons.forEach(addon => {
+          addonsCost += parseFloat(addon.value) || 0;
+        });
+
+        const singleUnitCustomized = BASE_BURGER_PRICE + pattyCost + bunCost + addonsCost;
+        return singleUnitCustomized * quantity;
+      }
+
+      function updatePriceDisplays() {
+        const total = calculateCurrentCustomizedBurgerPrice();
+        if (customizedPriceSummary) {
+          customizedPriceSummary.textContent = total + ' TL';
+        }
+      }
+
+      if (btnQtyPlus) {
+        btnQtyPlus.addEventListener('click', () => {
+          quantity++;
+          if (qtyDisplay) qtyDisplay.textContent = quantity;
+          updatePriceDisplays();
+        });
+      }
+
+      if (btnQtyMinus) {
+        btnQtyMinus.addEventListener('click', () => {
+          if (quantity > 1) {
+            quantity--;
+            if (qtyDisplay) qtyDisplay.textContent = quantity;
+            updatePriceDisplays();
+          }
+        });
+      }
+
+      if (customizerForm) {
+        customizerForm.addEventListener('change', () => {
+          updatePriceDisplays();
+        });
+      }
+
+      if (btnUpdateCartItem) {
+        btnUpdateCartItem.addEventListener('click', () => {
+          const originalText = btnUpdateCartItem.innerHTML;
+          btnUpdateCartItem.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">sync</span><span>Güncellendi!</span>';
+          btnUpdateCartItem.classList.add('bg-secondary-container', 'text-on-secondary-container');
+          setTimeout(() => {
+            btnUpdateCartItem.innerHTML = originalText;
+            btnUpdateCartItem.classList.remove('bg-secondary-container', 'text-on-secondary-container');
+          }, 1200);
+        });
+      }
+
+      updatePriceDisplays();
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest"><div class="max-w-7xl mx-auto px-margin-sm lg:px-margin py-space-xl"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-xl pb-space-xl"><div class="flex flex-col gap-space-sm"><div class="flex items-center gap-space-sm mb-space-xs"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5jrZwPyETgX1F0V_bHO9Uq6de5VLSwcaehSfD77tfgmhFnx9A5H6bKMh-9YbCRbZOIbIjnh2ZPbt8nB0qAqm4bgQp_vxtOGPOLlGjXhOVXVohDcpkMjjB28x5aYK1b903Pfj9-37sqryaTQRaR87RsV7nwfkvo4gQXgl_aUh56M1QZue59_IXXVnZ1u6SOw-fC5EfCvU4vOMA13YMY4wZWNGzXOGy-sDTkPftuvU_BOqBBex1lNR7" alt="BURGER HOME" class="h-8 md:h-10 object-contain"><span class="font-headline-md text-headline-md tracking-wider text-on-surface uppercase">BURGER HOME</span></div><p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs">Yüksek ısıyla mühürlenen %100 yerli dana döş, patatesli taze brioche ekmeği ve gizli ev yapımı soslar. Gerçek smash lezzeti.</p><div class="flex items-center gap-space-sm mt-space-xs"><span class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors cursor-pointer material-symbols-outlined text-lg">alternate_email</span><span class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors cursor-pointer material-symbols-outlined text-lg">public</span><span class="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors cursor-pointer material-symbols-outlined text-lg">call</span></div></div><div class="flex flex-col gap-space-sm"><span class="font-headline-sm text-headline-sm text-on-surface uppercase">Çalışma Saatleri</span><ul class="flex flex-col gap-2 font-body-sm text-body-sm text-on-surface-variant"><li class="flex justify-between items-center py-1"><span class="text-on-surface-variant">Pzt - Per:</span><span class="font-label-sm text-on-surface">11:30 - 01:00</span></li><li class="flex justify-between items-center py-1"><span class="text-on-surface-variant">Cuma - Cmt:</span><span class="font-label-sm text-secondary">11:30 - 03:00</span></li><li class="flex justify-between items-center py-1"><span class="text-on-surface-variant">Pazar:</span><span class="font-label-sm text-on-surface">12:00 - 00:00</span></li></ul><div class="flex items-center gap-2 mt-space-xs text-secondary-container"><span class="material-symbols-outlined text-sm">local_fire_department</span><span class="font-label-sm text-label-sm uppercase">Ateş Hiç Sönmüyor</span></div></div><div class="flex flex-col gap-space-sm"><span class="font-headline-sm text-headline-sm text-on-surface uppercase">Gurme Taahhüdü</span><ul class="flex flex-col gap-3 font-body-sm text-body-sm text-on-surface-variant"><li class="flex items-start gap-2"><span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">verified</span><span class="">%100 Taze Kuru Dinlendirilmiş Dana Eti</span></li><li class="flex items-start gap-2"><span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">bakery_dining</span><span class="">Günlük Tereyağlı Brioche Ekmeği</span></li><li class="flex items-start gap-2"><span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">restaurant</span><a class="text-on-surface-variant hover:text-on-surface transition-colors underline decoration-outline-variant" data-path="alerjen-rehberi" href="#">Şeffaf Alerjen ve Besin Rehberi</a></li></ul></div><div class="flex flex-col gap-space-sm"><span class="font-headline-sm text-headline-sm text-on-surface uppercase">Ember Kulübü</span><p class="font-body-sm text-body-sm text-on-surface-variant">Gizli menü tadımları, gece indirimi fırsatları ve şef özel sos bülteni için katılın.</p><form class="flex flex-col gap-2 mt-space-xs"><div class="flex items-center bg-surface-container-low rounded-lg p-1"><input class="w-full px-3 py-2 bg-transparent text-on-surface placeholder:text-on-surface-variant/50 font-body-sm text-body-sm outline-none" placeholder="E-posta adresiniz" type="email"><button class="px-space-md py-2 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm uppercase shrink-0 hover:brightness-110 transition-all" type="button">Katıl</button></div><span class="font-label-sm text-[10px] text-on-surface-variant/70">Dilediğiniz zaman tek tıkla ayrılabilirsiniz.</span></form></div></div><div class="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant"><p class="">© 2025 BURGER HOME. Tüm hakları saklıdır.</p><div class="flex items-center gap-space-lg font-label-sm text-label-sm uppercase"><a class="hover:text-on-surface transition-colors" data-path="gizlilik-sozlesmesi" href="#">Gizlilik</a><a class="hover:text-on-surface transition-colors" data-path="kullanim-kosullari" href="#">Kullanım Koşulları</a><a class="hover:text-on-surface transition-colors" data-path="kvkk" href="#">KVKK Aydınlatma</a></div></div></div></footer>
+
+</body></html>

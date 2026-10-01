@@ -1,0 +1,765 @@
+<!DOCTYPE html><html class="dark" lang="tr"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><title>BURGER HOME - Operasyon Kontrol Paneli</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      "colors": {
+        "on-secondary-container": "#fffbff",
+        "on-secondary-fixed": "#3b0900",
+        "secondary": "#ffb5a0",
+        "primary-fixed-dim": "#ffba36",
+        "surface-variant": "#31353b",
+        "on-background": "#e0e2ea",
+        "surface-container": "#1c2025",
+        "surface": "#101419",
+        "on-tertiary-fixed": "#001e2c",
+        "surface-container-low": "#181c21",
+        "primary-fixed": "#ffdeac",
+        "on-error-container": "#ffdad6",
+        "error-container": "#93000a",
+        "tertiary-fixed-dim": "#7bd0ff",
+        "primary": "#ffd799",
+        "on-tertiary": "#00354a",
+        "background": "#101419",
+        "on-surface": "#e0e2ea",
+        "inverse-on-surface": "#2d3136",
+        "surface-container-lowest": "#0a0f13",
+        "secondary-fixed-dim": "#ffb5a0",
+        "surface-tint": "#ffba36",
+        "secondary-container": "#d73b00",
+        "on-tertiary-container": "#005575",
+        "outline": "#9e8e78",
+        "on-primary-fixed": "#281900",
+        "surface-bright": "#36393f",
+        "error": "#ffb4ab",
+        "tertiary-container": "#6bccff",
+        "outline-variant": "#514532",
+        "on-primary-fixed-variant": "#5f4100",
+        "surface-container-high": "#262a30",
+        "primary-container": "#feb300",
+        "tertiary": "#b8e3ff",
+        "on-primary": "#432c00",
+        "inverse-surface": "#e0e2ea",
+        "surface-dim": "#101419",
+        "on-primary-container": "#6a4900",
+        "on-error": "#690005",
+        "on-tertiary-fixed-variant": "#004c69",
+        "on-surface-variant": "#d6c4ac",
+        "on-secondary-fixed-variant": "#862200",
+        "inverse-primary": "#7e5700",
+        "tertiary-fixed": "#c4e7ff",
+        "on-secondary": "#5f1500",
+        "surface-container-highest": "#31353b",
+        "secondary-fixed": "#ffdbd1"
+      },
+      "borderRadius": {
+        "DEFAULT": "0.125rem",
+        "lg": "0.25rem",
+        "xl": "0.5rem",
+        "full": "0.75rem"
+      },
+      "spacing": {
+        "space-xxs": "0.125rem",
+        "margin-desktop": "1.5rem",
+        "gutter": "0.75rem",
+        "margin": "1rem",
+        "space-xl": "1.5rem",
+        "space-xs": "0.25rem",
+        "space-md": "0.75rem",
+        "space-sm": "0.5rem",
+        "space-lg": "1rem",
+        "gutter-desktop": "1rem"
+      },
+      "fontFamily": {
+        "body-md": ["Inter"],
+        "headline-lg": ["Anton"],
+        "data-mono": ["JetBrains Mono"],
+        "body-sm": ["Inter"],
+        "body-lg": ["Inter"],
+        "metric-md": ["JetBrains Mono"],
+        "metric-display": ["JetBrains Mono"],
+        "headline-sm": ["Inter"],
+        "headline-md": ["Anton"],
+        "label-caps": ["Inter"],
+        "headline-xl": ["Anton"],
+        "label-mono": ["JetBrains Mono"]
+      },
+      "fontSize": {
+        "body-md": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+        "headline-lg": ["28px", {"lineHeight": "32px", "letterSpacing": "0.03em", "fontWeight": "400"}],
+        "data-mono": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+        "body-lg": ["15px", {"lineHeight": "22px", "fontWeight": "400"}],
+        "metric-md": ["20px", {"lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+        "metric-display": ["32px", {"lineHeight": "36px", "letterSpacing": "-0.03em", "fontWeight": "700"}],
+        "headline-sm": ["16px", {"lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+        "headline-md": ["22px", {"lineHeight": "26px", "letterSpacing": "0.02em", "fontWeight": "400"}],
+        "label-caps": ["11px", {"lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "700"}],
+        "headline-xl": ["40px", {"lineHeight": "44px", "letterSpacing": "0.04em", "fontWeight": "400"}],
+        "label-mono": ["10px", {"lineHeight": "12px", "letterSpacing": "0.04em", "fontWeight": "600"}]
+      }
+    }
+  }
+}</script></head><body class="bg-background font-body-md text-on-surface antialiased select-none"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col shadow-[0_4px_16px_rgba(0,0,0,0.45)]"><div class="h-14 px-margin flex items-center justify-between bg-surface-container-low"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary-container text-[20px]">lunch_dining</span></div><div class="flex flex-col"><span class="font-headline-md text-headline-md tracking-wider text-primary leading-none">BURGER HOME</span><span class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-widest">HQ CONTROL PLANE</span></div></div><div class="px-space-xs py-space-xxs rounded bg-surface-container text-on-surface-variant font-label-mono text-label-mono">V2.4</div></div><div class="flex-1 overflow-y-auto px-space-sm py-space-md"><nav class="space-y-space-md" data-active-classes="bg-primary-container text-on-primary-container font-headline-sm"><div class="space-y-space-xxs"><div class="px-space-sm py-space-xxs font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Genel Bakış</div><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[18px]">dashboard</span><span>Dashboard</span></a></div><div class="space-y-space-xxs"><div class="px-space-sm py-space-xxs font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Operasyon</div><a aria-current="page" class="flex items-center justify-between px-space-sm py-space-xs rounded-lg transition-colors bg-primary-container text-on-primary-container font-headline-sm" data-path="siparisler" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">receipt_long</span><span>Siparişler</span></div><span class="px-space-xs py-space-xxs rounded bg-surface-container text-primary font-data-mono text-data-mono">#SC</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="mutfak-kds" href="#"><span class="material-symbols-outlined text-[18px]">soup_kitchen</span><span>Mutfak (KDS)</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="kuryeler-sevkiyat" href="#"><span class="material-symbols-outlined text-[18px]">two_wheeler</span><span>Kuryeler &amp; Sevkiyat</span></a></div><div class="space-y-space-xxs"><div class="px-space-sm py-space-xxs font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Katalog</div><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="urunler" href="#"><span class="material-symbols-outlined text-[18px]">fastfood</span><span>Ürünler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="kategoriler" href="#"><span class="material-symbols-outlined text-[18px]">category</span><span>Kategoriler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="modifier-gruplari" href="#"><span class="material-symbols-outlined text-[18px]">tune</span><span>Modifier Grupları</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="alerjenler" href="#"><span class="material-symbols-outlined text-[18px]">warning</span><span>Alerjenler</span></a></div><div class="space-y-space-xxs"><div class="px-space-sm py-space-xxs font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Şube Yönetimi</div><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="subeler" href="#"><span class="material-symbols-outlined text-[18px]">storefront</span><span>Şubeler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="servis-alanlari" href="#"><span class="material-symbols-outlined text-[18px]">near_me</span><span>Servis Alanları</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="urun-bulunabilirligi" href="#"><span class="material-symbols-outlined text-[18px]">inventory_2</span><span>Ürün Bulunabilirliği</span></a></div><div class="space-y-space-xxs"><div class="px-space-sm py-space-xxs font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Müşteriler &amp; Pazarlama</div><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="musteri-listesi" href="#"><span class="material-symbols-outlined text-[18px]">people</span><span>Müşteri Listesi</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="promosyonlar" href="#"><span class="material-symbols-outlined text-[18px]">local_offer</span><span>Promosyonlar</span></a></div><div class="space-y-space-xxs"><div class="px-space-sm py-space-xxs font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Finans &amp; Raporlar</div><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="odemeler" href="#"><span class="material-symbols-outlined text-[18px]">payments</span><span>Ödemeler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="analitik-raporlar" href="#"><span class="material-symbols-outlined text-[18px]">monitoring</span><span>Analitik Raporlar</span></a></div><div class="space-y-space-xxs"><div class="px-space-sm py-space-xxs font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Sistem &amp; Erişim</div><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="kullanicilar-roller" href="#"><span class="material-symbols-outlined text-[18px]">badge</span><span>Kullanıcılar &amp; Roller</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="denetim-kayitlari" href="#"><span class="material-symbols-outlined text-[18px]">history_edu</span><span>Denetim Kayıtları</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-body-md text-body-md transition-colors" data-path="ayarlar" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span>Ayarlar</span></a></div></nav></div><div class="p-space-sm bg-surface-container-low"><div class="flex items-center justify-between p-space-xs rounded-lg bg-surface-container"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span><span class="font-label-mono text-label-mono text-on-surface-variant">TELEMETRY ACTIVE</span></div><span class="font-label-mono text-label-mono text-primary font-bold">99.98%</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-low/95 backdrop-blur-xl z-40 flex items-center justify-between px-margin-desktop shadow-[0_4px_16px_rgba(0,0,0,0.45)]"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs bg-surface-container-high px-space-sm py-space-xs rounded-lg"><span class="w-2 h-2 rounded-full bg-tertiary-container shadow-[0_0_8px_#6bccff]"></span><label class="font-label-caps text-label-caps text-on-surface-variant uppercase sr-only" for="branch-select">Şube</label><select class="bg-transparent font-headline-sm text-body-md text-on-surface outline-none cursor-pointer pr-space-xs" id="branch-select"><option class="bg-surface-container-high text-on-surface" value="all">Tüm Şubeler (Konsolide)</option><option class="bg-surface-container-high text-on-surface" selected="" value="kadikoy">Kadıköy Moda Şubesi</option><option class="bg-surface-container-high text-on-surface" value="besiktas">Beşiktaş Şubesi</option><option class="bg-surface-container-high text-on-surface" value="caddebostan">Caddebostan Şubesi</option></select><div class="flex items-center gap-space-xxs pl-space-xs bg-surface-container py-space-xxs px-space-xs rounded"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span><span class="font-label-mono text-label-mono text-primary font-bold uppercase tracking-wider">Sipariş Kabul Ediyor</span></div></div><div class="hidden xl:flex items-center gap-space-xs bg-surface-container-lowest px-space-sm py-space-xs rounded-lg"><span class="font-label-mono text-label-mono text-on-surface-variant">Son Senkron:</span><span class="font-data-mono text-data-mono text-on-surface font-semibold">12 sn önce</span><button class="flex items-center gap-space-xxs ml-space-xs text-primary hover:text-primary-fixed transition-colors font-label-mono text-label-mono uppercase tracking-wider" type="button"><span class="material-symbols-outlined text-[14px]">sync</span><span>Yenile</span></button></div></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-sm bg-surface-container px-space-sm py-space-xs rounded-lg"><div class="flex flex-col items-end"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-body-md text-on-surface">Barış K.</span><span class="px-space-xxs py-space-xxs rounded bg-secondary-container text-on-secondary-container font-label-mono text-label-mono font-bold">HQ_ADMIN</span></div><span class="font-label-mono text-label-mono text-on-surface-variant">Yetki Kapsamı: Tüm Şubeler</span></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1Vkip8LUJJahOqUTuLPvDbH5Kq5Ty-6ZiaUS102kB_qUM2X0ieAXKPEtsaJnj_UjwZwa5abQJrGx7QaHY59QJhlyhKyW1opLyBbfknzwkA-7d08W7FQJrA7t0GH-K4vmrElK0XVlcDpOON8X2uZDKqaOdGUeA_49QcULNWG0g_dyAHj3-m90_n4LPQYIRoTR3UneIxb-81zIZ_hlhycyn8oKXdNDwElTa4alelGusUwWEuyf4cwmqu2kCY"></div><div class="flex items-center gap-space-xs"><button aria-label="Bildirimler" class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">notifications</span></button><button aria-label="Sistem Durumu" class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">grid_view</span></button></div></div></header><main class="relative w-full pt-14 bg-surface min-h-screen"><div class="w-full px-margin-desktop py-space-lg"><div class="flex flex-col w-full space-y-space-md">
+<!-- TOP CONTEXT / BREADCRUMB & FSM BAR -->
+<div class="flex flex-col gap-space-sm bg-surface-container-low p-space-md rounded-lg shadow-md">
+<!-- Breadcrumb & Telemetry metadata -->
+<div class="flex flex-wrap items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-xs font-label-mono text-label-mono uppercase tracking-wider text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">Siparişler</a>
+<span class="text-outline">/</span>
+<span class="text-primary font-bold">#SC-89421</span>
+<span class="text-outline">•</span>
+<span class="text-on-surface">FSM STATE ENGINE: v3.1</span>
+</div>
+<div class="flex items-center gap-space-sm font-data-mono text-data-mono text-on-surface-variant">
+<span class="flex items-center gap-space-xxs">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+<span class="text-primary font-bold">MUTFAKTA HAZIRLANIYOR</span>
+</span>
+<span class="text-outline">|</span>
+<span>SLA Kalan: <strong class="text-primary font-bold">09:14 dk</strong></span>
+</div>
+</div>
+<!-- Order Main Badge + Authoritative FSM Actions -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md pt-space-xs">
+<div class="flex flex-wrap items-center gap-space-md">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-xl text-headline-xl text-primary leading-none tracking-tight">#SC-89421</span>
+<span class="px-space-xs py-space-xxs rounded bg-primary-container text-on-primary-container font-headline-sm text-label-caps uppercase tracking-wider font-bold">PREPARING</span>
+</div>
+<div class="flex flex-wrap items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant">
+<span class="flex items-center gap-space-xxs bg-surface-container px-space-xs py-space-xxs rounded text-on-surface">
+<span class="material-symbols-outlined text-[15px] text-tertiary">storefront</span>
+<span class="font-body-md font-semibold">Kadıköy Moda</span>
+</span>
+<span class="flex items-center gap-space-xxs bg-surface-container px-space-xs py-space-xxs rounded text-on-surface">
+<span class="material-symbols-outlined text-[15px] text-secondary">moped</span>
+<span>Adrese Teslimat</span>
+</span>
+<span class="flex items-center gap-space-xxs bg-surface-container px-space-xs py-space-xxs rounded text-on-surface">
+<span class="material-symbols-outlined text-[15px] text-outline">schedule</span>
+<span class="font-data-mono">Bugün, 19:42 (18 dk önce)</span>
+</span>
+</div>
+</div>
+<!-- Legal FSM Controls (Strictly strictly compliant: No arbitrary status dropdown, No delete button) -->
+<div class="flex items-center gap-space-xs flex-wrap">
+<!-- Reassign Branch Modal Trigger -->
+<button class="flex items-center gap-space-xxs px-space-sm py-space-xs rounded bg-surface-container-high hover:bg-surface-variant text-on-surface font-headline-sm text-body-md transition-all active:scale-95 shadow-sm" onclick="document.getElementById('reassign-modal').classList.remove('hidden')" type="button">
+<span class="material-symbols-outlined text-[16px] text-tertiary">alt_route</span>
+<span>Şubeyi Değiştir</span>
+</button>
+<!-- Cancel Order (Secondary Hazard Action) -->
+<button class="flex items-center gap-space-xxs px-space-sm py-space-xs rounded bg-surface-container-high hover:bg-secondary-container text-error hover:text-on-secondary-container font-headline-sm text-body-md transition-all active:scale-95 shadow-sm" onclick="document.getElementById('cancel-order-modal').classList.remove('hidden')" type="button">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+<span>Siparişi İptal Et</span>
+</button>
+<!-- Primary Legal FSM Transition CTA -->
+<button class="flex items-center gap-space-xs px-space-md py-space-xs rounded bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-headline-sm text-body-md font-bold tracking-wide transition-all shadow-md active:scale-95" id="btn-ready" onclick="triggerTransitionReady()" type="button">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>Hazır Olarak İşaretle (READY_FOR_COURIER)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 2-COLUMN OPERATIONAL BENTO GRID -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md items-start">
+<!-- LEFT COLUMN (Wide): Line Items Snapshot + Money Breakdown + Audit Event Timeline -->
+<div class="lg:col-span-7 xl:col-span-8 flex flex-col space-y-space-md">
+<!-- 1. SIPARIS ICERIGI (High-Density Read-Only Table) -->
+<div class="bg-surface-container-low rounded-lg p-space-md shadow-md flex flex-col space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">lunch_dining</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wider">Sipariş İçeriği (Snapshotted Items)</h2>
+</div>
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase px-space-xs py-space-xxs bg-surface-container rounded">KDS MUTFAK FİŞİ #89421</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-high text-on-surface-variant font-label-caps text-label-caps uppercase">
+<th class="py-space-xs px-space-sm font-bold">Adet &amp; Ürün</th>
+<th class="py-space-xs px-space-sm">Seçenekler &amp; Notlar</th>
+<th class="py-space-xs px-space-sm text-right font-data-mono">Birim</th>
+<th class="py-space-xs px-space-sm text-right font-data-mono">Tutar</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<!-- Item 1 -->
+<tr class="bg-surface-container hover:bg-surface-variant transition-colors">
+<td class="py-space-sm px-space-sm align-top">
+<div class="flex items-center gap-space-xs">
+<span class="w-6 h-6 rounded bg-primary-container text-on-primary-container font-data-mono text-data-mono font-bold flex items-center justify-center">2x</span>
+<div>
+<div class="font-headline-sm text-body-lg text-on-surface font-bold">The Double Truffle Smash</div>
+<span class="font-label-mono text-label-mono text-primary uppercase tracking-wider">Mutfak Hattı: Döküm Izgara 1</span>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-sm align-top font-body-sm text-body-sm text-on-surface-variant space-y-space-xxs">
+<div class="text-on-surface">Çift Köfte (2x90g), Artisan Brioche Ekmeği</div>
+<div class="flex flex-wrap gap-space-xxs">
+<span class="px-space-xs py-space-xxs bg-surface-container-high rounded text-primary font-label-mono text-label-mono">+ Ekstra Cheddar (+₺30,00)</span>
+<span class="px-space-xs py-space-xxs bg-error-container text-on-error-container rounded font-label-mono text-label-mono">✕ Soğansız</span>
+</div>
+</td>
+<td class="py-space-sm px-space-sm align-top text-right font-data-mono text-data-mono text-on-surface-variant">₺325,00</td>
+<td class="py-space-sm px-space-sm align-top text-right font-data-mono text-headline-sm font-bold text-on-surface">₺650,00</td>
+</tr>
+<!-- Item 2 -->
+<tr class="bg-surface-container-low hover:bg-surface-variant transition-colors">
+<td class="py-space-sm px-space-sm align-top">
+<div class="flex items-center gap-space-xs">
+<span class="w-6 h-6 rounded bg-surface-container-highest text-on-surface font-data-mono text-data-mono font-bold flex items-center justify-center">1x</span>
+<div>
+<div class="font-headline-sm text-body-lg text-on-surface font-bold">Loaded Truffle Fries</div>
+<span class="font-label-mono text-label-mono text-tertiary uppercase tracking-wider">Mutfak Hattı: Fritöz 2</span>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-sm align-top font-body-sm text-body-sm text-on-surface-variant">
+<div>Büyük Boy Porsiyon</div>
+<span class="px-space-xs py-space-xxs bg-surface-container-high rounded text-tertiary font-label-mono text-label-mono">+ Ekstra Trüf Sos</span>
+</td>
+<td class="py-space-sm px-space-sm align-top text-right font-data-mono text-data-mono text-on-surface-variant">₺165,00</td>
+<td class="py-space-sm px-space-sm align-top text-right font-data-mono text-headline-sm font-bold text-on-surface">₺165,00</td>
+</tr>
+<!-- Item 3 -->
+<tr class="bg-surface-container hover:bg-surface-variant transition-colors">
+<td class="py-space-sm px-space-sm align-top">
+<div class="flex items-center gap-space-xs">
+<span class="w-6 h-6 rounded bg-surface-container-highest text-on-surface font-data-mono text-data-mono font-bold flex items-center justify-center">1x</span>
+<div>
+<div class="font-headline-sm text-body-lg text-on-surface font-bold">Ev Yapımı Tuzlu Karamel Milkshake</div>
+<span class="font-label-mono text-label-mono text-secondary uppercase tracking-wider">Bar Hattı: İçecek</span>
+</div>
+</div>
+</td>
+<td class="py-space-sm px-space-sm align-top font-body-sm text-body-sm text-on-surface-variant">
+<div>330ml Soğutulmuş Cam Şişe, Kağıt Pipet</div>
+</td>
+<td class="py-space-sm px-space-sm align-top text-right font-data-mono text-data-mono text-on-surface-variant">₺95,00</td>
+<td class="py-space-sm px-space-sm align-top text-right font-data-mono text-headline-sm font-bold text-on-surface">₺95,00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- 2. TUTAR OZETI (Money Breakdown Minor Units) -->
+<div class="bg-surface-container-low rounded-lg p-space-md shadow-md flex flex-col space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-[20px]">account_balance_wallet</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wider">Finansal Tutar Dağılımı</h2>
+</div>
+<span class="font-label-mono text-label-mono text-primary bg-surface-container px-space-xs py-space-xxs rounded uppercase">TRY PARA BİRİMİ / KDVSİZ &amp; DAHİL</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md pt-space-xs">
+<!-- Sol Detay -->
+<div class="space-y-space-xs font-body-md text-body-md text-on-surface-variant">
+<div class="flex justify-between py-space-xxs">
+<span>Ürünler Ara Toplamı (3 Kalem):</span>
+<span class="font-data-mono text-data-mono text-on-surface font-semibold">₺910,00</span>
+</div>
+<div class="flex justify-between py-space-xxs text-secondary">
+<span class="flex items-center gap-space-xxs">
+<span class="material-symbols-outlined text-[15px]">sell</span>
+<span>Promosyon İndirimi (BURGERLOVER):</span>
+</span>
+<span class="font-data-mono text-data-mono font-bold">-₺50,00</span>
+</div>
+<div class="flex justify-between py-space-xxs">
+<span>Teslimat Servis Hizmeti:</span>
+<span class="font-data-mono text-data-mono text-primary font-bold uppercase">ÜCRETSİZ</span>
+</div>
+<div class="flex justify-between py-space-xxs">
+<span>Kurye Bahşişi:</span>
+<span class="font-data-mono text-data-mono text-on-surface">+₺25,00</span>
+</div>
+</div>
+<!-- Sağ Vurgulu Toplam Kartı -->
+<div class="bg-surface-container p-space-md rounded-lg flex flex-col justify-between shadow-inner">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Tahsil Edilen Toplam</span>
+<span class="px-space-xs py-space-xxs rounded bg-tertiary-container text-on-tertiary-container font-label-mono text-label-mono font-bold uppercase">ÖDENDİ (3DS)</span>
+</div>
+<div class="my-space-xs">
+<div class="font-metric-display text-metric-display text-primary tracking-tight font-bold">₺885,00</div>
+<div class="font-data-mono text-label-mono text-on-surface-variant">KDV (%10 ve %20 Dahil): ₺136,36</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs bg-surface-container-high px-space-xs py-space-xxs rounded">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Garanti BBVA Sanal POS</span>
+<span class="font-data-mono text-label-mono text-tertiary">AUTH_992481</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. DURUM GECMISI & DENETIM ZAMAN CIZELGESI (Vertical Stepper) -->
+<div class="bg-surface-container-low rounded-lg p-space-md shadow-md flex flex-col space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">history</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wider">Durum Geçmişi &amp; FSM Olay Denetim Kayıtları</h2>
+</div>
+<span class="font-label-mono text-label-mono text-on-surface-variant">5 BAŞARILI ADIM</span>
+</div>
+<div class="relative pl-6 space-y-space-md before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-surface-container-highest">
+<!-- Event 1 -->
+<div class="relative flex items-start gap-space-sm">
+<div class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-[10px]">✓</div>
+<div class="flex-1 bg-surface-container p-space-xs rounded">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-body-md text-on-surface font-semibold">Sipariş Oluşturuldu</span>
+<span class="font-data-mono text-label-mono text-primary font-bold">19:42:10</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Müşteri mobil uygulaması üzerinden iletildi (iOS v4.12.0 - IP: 176.240.89.12)</p>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="relative flex items-start gap-space-sm">
+<div class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-[10px]">✓</div>
+<div class="flex-1 bg-surface-container p-space-xs rounded">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-body-md text-on-surface font-semibold">Ödeme Onaylandı</span>
+<span class="font-data-mono text-label-mono text-primary font-bold">19:43:02</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Garanti BBVA 3D-Secure provizyonu başarılı. Tutar: ₺885,00 (Auth: #992481)</p>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="relative flex items-start gap-space-sm">
+<div class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-[10px]">✓</div>
+<div class="flex-1 bg-surface-container p-space-xs rounded">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-body-md text-on-surface font-semibold">Şubeye Yönlendirildi</span>
+<span class="font-data-mono text-label-mono text-primary font-bold">19:43:15</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Geocoding algoritması siparişi en yakın servis noktası olan Kadıköy Moda şubesine yönlendirdi.</p>
+</div>
+</div>
+<!-- Event 4 -->
+<div class="relative flex items-start gap-space-sm">
+<div class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-[10px]">✓</div>
+<div class="flex-1 bg-surface-container p-space-xs rounded">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-body-md text-on-surface font-semibold">Şube Tarafından Kabul Edildi</span>
+<span class="font-data-mono text-label-mono text-primary font-bold">19:44:00</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Mutfak Şefi: Ahmet K. tarafından KDS ekranında otomatik kuyruğa alındı.</p>
+</div>
+</div>
+<!-- Event 5 (Current active stage) -->
+<div class="relative flex items-start gap-space-sm">
+<div class="absolute -left-6 top-1 w-5 h-5 rounded-full bg-primary-container animate-pulse flex items-center justify-center text-on-primary-container font-bold text-[10px]">⚡</div>
+<div class="flex-1 bg-surface-container-high p-space-xs rounded shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-body-md text-primary font-bold">Mutfak Hazırlamaya Başladı</span>
+<span class="font-data-mono text-label-mono text-primary font-bold">19:45:22 (Şu An)</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">Döküm ızgara hattında 2x Smash köfte pişiriliyor. Hedeflenen paketleme zamanı: 19:54.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN (Narrow): Operational Cards (Customer, Courier, Payment/Refund) -->
+<div class="lg:col-span-5 xl:col-span-4 flex flex-col space-y-space-md">
+<!-- 1. MUSTERI & TESLIMAT BILGILERI -->
+<div class="bg-surface-container-low rounded-lg p-space-md shadow-md space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">person_pin_circle</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wider">Müşteri &amp; Teslimat</h3>
+</div>
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase px-space-xs py-space-xxs bg-surface-container rounded">VIP GURME</span>
+</div>
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between p-space-xs bg-surface-container rounded">
+<div class="flex flex-col">
+<span class="font-headline-sm text-body-lg text-on-surface font-bold">Barış Karataş</span>
+<span class="font-label-mono text-label-mono text-primary">18 Başarılı Sipariş • Sadakat Puanı: 420</span>
+</div>
+<a class="px-space-xs py-space-xxs rounded bg-surface-container-high hover:bg-surface-variant text-primary font-data-mono text-label-mono flex items-center gap-space-xxs" href="tel:+905328901234">
+<span class="material-symbols-outlined text-[14px]">call</span>
+<span>Ara</span>
+</a>
+</div>
+<div class="p-space-xs bg-surface-container rounded space-y-space-xxs font-body-sm text-body-sm">
+<div class="text-on-surface-variant font-label-caps text-label-caps uppercase">Teslimat Adresi:</div>
+<div class="text-on-surface font-medium leading-tight">
+              Caferağa Mah. Şair Nefi Sok. No: 18 Daire: 4, Moda / Kadıköy / İstanbul
+            </div>
+<div class="flex items-center gap-space-xxs text-primary font-label-mono text-label-mono pt-space-xxs">
+<span class="material-symbols-outlined text-[14px]">navigation</span>
+<span>Mesafe: 1.4 km (Şubeye 6 dk sürüş)</span>
+</div>
+</div>
+<!-- Kurye Notu -->
+<div class="p-space-xs bg-secondary-container/20 rounded space-y-space-xxs">
+<div class="flex items-center gap-space-xxs text-secondary font-headline-sm text-body-sm font-bold">
+<span class="material-symbols-outlined text-[16px]">notifications_active</span>
+<span>Kurye / Kapı Özel Notu:</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface italic">
+              "Kapı zilini çalmayın lütfen, bebek uyuyor. Kapı koluna asabilirsiniz."
+            </p>
+</div>
+<!-- Çevre Notu -->
+<div class="flex items-center gap-space-xs p-space-xs bg-surface-container rounded text-on-surface">
+<span class="material-symbols-outlined text-[18px] text-tertiary">eco</span>
+<span class="font-body-sm text-body-sm">Plastik çatal/bıçak istenmiyor (Eko Paketleme)</span>
+</div>
+</div>
+</div>
+<!-- 2. KURYE & SEVKIYAT YONETIMI -->
+<div class="bg-surface-container-low rounded-lg p-space-md shadow-md space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-[20px]">two_wheeler</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wider">Kurye &amp; Sevkiyat</h3>
+</div>
+<span class="px-space-xs py-space-xxs rounded bg-tertiary-container text-on-tertiary-container font-label-mono text-label-mono font-bold">ŞUBEYE YOLDA</span>
+</div>
+<div class="p-space-xs bg-surface-container rounded flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary font-headline-sm font-bold">
+              #40
+            </div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-body-lg text-on-surface font-bold">Ahmet Y.</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant">0542 123 ** ** • Honda Activa</span>
+</div>
+</div>
+<div class="text-right">
+<div class="font-label-mono text-label-mono text-on-surface-variant uppercase">Tahmini Varış</div>
+<div class="font-data-mono text-headline-sm text-tertiary font-bold">4 dk</div>
+</div>
+</div>
+<!-- Telemetri Çubuğu -->
+<div class="p-space-xs bg-surface-container rounded space-y-space-xxs">
+<div class="flex justify-between font-label-mono text-label-mono text-on-surface-variant">
+<span>Kurye Canlı GPS Takibi</span>
+<span class="text-tertiary">Canlı (350m kaldı)</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full rounded-full w-4/5 animate-pulse"></div>
+</div>
+</div>
+<!-- Kurye Aksiyonları -->
+<div class="grid grid-cols-2 gap-space-xs pt-space-xxs">
+<button class="px-space-xs py-space-xs bg-surface-container-high hover:bg-surface-variant text-on-surface rounded font-body-sm text-body-sm flex items-center justify-center gap-space-xxs transition-colors" onclick="document.getElementById('reassign-courier-modal').classList.remove('hidden')" type="button">
+<span class="material-symbols-outlined text-[15px]">swap_horiz</span>
+<span>Kurye Değiştir</span>
+</button>
+<button class="px-space-xs py-space-xs bg-surface-container-high hover:bg-surface-variant text-primary rounded font-body-sm text-body-sm flex items-center justify-center gap-space-xxs transition-colors" onclick="showQrModal()" type="button">
+<span class="material-symbols-outlined text-[15px]">qr_code_2</span>
+<span>QR Teslim Kodu</span>
+</button>
+</div>
+</div>
+<!-- 3. ODEME & IADE YONETIMI (Financial Refund Card) -->
+<div class="bg-surface-container-low rounded-lg p-space-md shadow-md space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">credit_card</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wider">Ödeme &amp; İade Yönetimi</h3>
+</div>
+<span class="px-space-xs py-space-xxs rounded bg-surface-container font-data-mono text-label-mono text-primary font-bold">#PAY-992481</span>
+</div>
+<div class="p-space-xs bg-surface-container rounded space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Ödeme Sağlayıcı:</span>
+<span class="font-data-mono text-body-sm text-on-surface font-semibold">Garanti BBVA 3D Secure</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Tahsilat Durumu:</span>
+<span class="px-space-xs py-space-xxs bg-primary-container text-on-primary-container font-label-mono text-label-mono font-bold rounded uppercase">TAMAMI TAHSİL EDİLDİ</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">İade Edilebilir Bakiye:</span>
+<span class="font-data-mono text-headline-sm text-primary font-bold">₺885,00</span>
+</div>
+</div>
+<div class="p-space-xs bg-surface-container-lowest rounded text-on-surface-variant font-label-mono text-label-mono space-y-space-xxs">
+<div class="flex items-center gap-space-xxs text-outline">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+<span>PCI-DSS Uyumlu Finansal FSM Kontrolü</span>
+</div>
+<p>Ham kart numarası / CVV verileri maskelenmiştir. İadeler doğrudan ilişkili sanal POS tokenine ters işlem (reversal/refund) olarak yansıtılır.</p>
+</div>
+<!-- Refund Trigger (Requires payments.refund permission modal) -->
+<button class="w-full py-space-xs px-space-sm bg-surface-container-highest hover:bg-surface-variant text-on-surface hover:text-primary rounded font-headline-sm text-body-md flex items-center justify-center gap-space-xs transition-colors shadow-sm" onclick="document.getElementById('refund-modal').classList.remove('hidden')" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">currency_exchange</span>
+<span>₺ İade Yap (Financial Refund)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- ==================== MODALS & FSM OVERLAYS ==================== -->
+<!-- 1. CANCEL ORDER CONFIRMATION MODAL (Waste warning & Reason required) -->
+<div class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-space-md" id="cancel-order-modal">
+<div class="bg-surface-container-low max-w-md w-full rounded-lg shadow-2xl p-space-md space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-error">
+<span class="material-symbols-outlined text-[24px]">warning</span>
+<h3 class="font-headline-sm text-headline-sm uppercase tracking-wide">Siparişi İptal Et</h3>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface" onclick="document.getElementById('cancel-order-modal').classList.add('hidden')" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Critical Kitchen Waste Warning -->
+<div class="p-space-sm bg-error-container/30 rounded space-y-space-xs">
+<div class="font-headline-sm text-body-md text-error font-bold flex items-center gap-space-xxs">
+<span class="material-symbols-outlined text-[16px]">delete_forever</span>
+<span>Mutfak İsraf ve Atık Uyarısı!</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">
+          Sipariş şu an <strong>'PREPARING'</strong> aşamasındadır. Köfteler ızgara üzerindedir. İptal işlemi mutfak fire/zayiat protokolü oluşturacak ve şube maliyet hanesine yazılacaktır.
+        </p>
+</div>
+<div class="space-y-space-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant" for="cancel-reason">Zorunlu İptal Nedeni:</label>
+<select class="w-full bg-surface-container-lowest text-on-surface font-body-md text-body-md p-space-xs rounded outline-none cursor-pointer" id="cancel-reason">
+<option value="">İptal Gerekçesi Seçiniz...</option>
+<option value="customer_request">Müşteri Talebi (Müşteri vazgeçti)</option>
+<option value="out_of_stock">Şube Stok Eksikliği / Malzeme Tükendi</option>
+<option value="courier_unavailable">Servis Bölgesinde Kurye Bulunamadı</option>
+<option value="late_delivery">Aşırı Yoğunluk / SLA Aşımı Riski</option>
+<option value="duplicate_order">Mükerrer Sipariş Oluşturuldu</option>
+</select>
+</div>
+<div class="space-y-space-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant" for="cancel-notes">Denetim / Şube Açıklama Notu:</label>
+<textarea class="w-full bg-surface-container-lowest text-on-surface font-body-md text-body-md p-space-xs rounded outline-none" id="cancel-notes" placeholder="Operasyonel kayıtlar için detay giriniz..." rows="2"></textarea>
+</div>
+<div class="flex items-center justify-end gap-space-xs pt-space-xs">
+<button class="px-space-sm py-space-xs bg-surface-container-high text-on-surface rounded font-body-md" onclick="document.getElementById('cancel-order-modal').classList.add('hidden')" type="button">
+          Vazgeç
+        </button>
+<button class="px-space-md py-space-xs bg-secondary-container hover:bg-error-container text-on-secondary-container rounded font-headline-sm text-body-md font-bold transition-colors" onclick="submitOrderCancellation()" type="button">
+          İptali ve Zayiatı Onayla
+        </button>
+</div>
+</div>
+</div>
+<!-- 2. REASSIGN BRANCH MODAL (orders.reassign_branch) -->
+<div class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-space-md" id="reassign-modal">
+<div class="bg-surface-container-low max-w-md w-full rounded-lg shadow-2xl p-space-md space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-tertiary">
+<span class="material-symbols-outlined text-[24px]">store</span>
+<h3 class="font-headline-sm text-headline-sm uppercase tracking-wide">Şubeyi Yeniden Ata</h3>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface" onclick="document.getElementById('reassign-modal').classList.add('hidden')" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-space-xs bg-surface-container rounded text-on-surface-variant font-body-sm text-body-sm">
+        Mevcut Şube: <strong class="text-on-surface">Kadıköy Moda</strong>. Yeni atanacak şube sipariş kuyruğunu otomatik olarak devralacaktır.
+      </div>
+<div class="space-y-space-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant" for="new-branch-select">Hedef Şube Seçin:</label>
+<select class="w-full bg-surface-container-lowest text-on-surface font-body-md text-body-md p-space-xs rounded outline-none cursor-pointer" id="new-branch-select">
+<option value="caddebostan">Caddebostan Şubesi (2.4 km • Düşük Yoğunluk)</option>
+<option value="besiktas">Beşiktaş Şubesi (Motorlu Kurye • Deniz Hattı)</option>
+<option value="acibadem">Acıbadem Express (3.1 km • Normal Kuyruk)</option>
+</select>
+</div>
+<div class="flex items-center justify-end gap-space-xs pt-space-xs">
+<button class="px-space-sm py-space-xs bg-surface-container-high text-on-surface rounded font-body-md" onclick="document.getElementById('reassign-modal').classList.add('hidden')" type="button">
+          İptal
+        </button>
+<button class="px-space-md py-space-xs bg-primary-container text-on-primary-container rounded font-headline-sm text-body-md font-bold transition-colors" onclick="submitReassignBranch()" type="button">
+          Şubeyi Transfer Et
+        </button>
+</div>
+</div>
+</div>
+<!-- 3. FINANCIAL REFUND MODAL (payments.refund) -->
+<div class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-space-md" id="refund-modal">
+<div class="bg-surface-container-low max-w-md w-full rounded-lg shadow-2xl p-space-md space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-primary">
+<span class="material-symbols-outlined text-[24px]">account_balance</span>
+<h3 class="font-headline-sm text-headline-sm uppercase tracking-wide">Finansal İade (POS Reversal)</h3>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface" onclick="document.getElementById('refund-modal').classList.add('hidden')" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-space-xs bg-surface-container rounded font-body-sm text-body-sm space-y-space-xxs">
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Ödeme Referansı:</span>
+<span class="font-data-mono text-on-surface">#PAY-992481 (Garanti BBVA)</span>
+</div>
+<div class="flex justify-between">
+<span class="text-on-surface-variant">Maksimum İade Tutarı:</span>
+<span class="font-data-mono text-primary font-bold">₺885,00</span>
+</div>
+</div>
+<div class="space-y-space-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant" for="refund-amount-type">İade Kapsamı:</label>
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="p-space-xs rounded bg-primary-container text-on-primary-container font-headline-sm text-body-md font-bold" id="rf-full-btn" onclick="setRefundType('full')" type="button">Tam İade (₺885,00)</button>
+<button class="p-space-xs rounded bg-surface-container text-on-surface-variant font-headline-sm text-body-md" id="rf-part-btn" onclick="setRefundType('partial')" type="button">Kısmi İade</button>
+</div>
+</div>
+<div class="hidden space-y-space-xxs" id="partial-amount-group">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant" for="refund-amount">Kısmi İade Tutarı (TRY):</label>
+<input class="w-full bg-surface-container-lowest text-primary font-data-mono text-headline-sm p-space-xs rounded outline-none" id="refund-amount" max="885.00" min="1.00" step="0.50" type="number" value="885.00">
+</div>
+<div class="space-y-space-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant" for="refund-reason">Zorunlu Muhasebe Gerekçe Kodu:</label>
+<select class="w-full bg-surface-container-lowest text-on-surface font-body-md text-body-md p-space-xs rounded outline-none cursor-pointer" id="refund-reason">
+<option value="MUSTERI_MEMNUNIYETSIZLIGI">REF_01: Müşteri Memnuniyetsizliği</option>
+<option value="EKSİK_TESLIMAT">REF_02: Eksik / Hatalı Ürün Gönderimi</option>
+<option value="SIPARIS_IPTALI">REF_03: Sipariş İptali İadesi</option>
+<option value="GECIKME_TELAFISI">REF_04: Aşırı Gecikme Telafi İadesi</option>
+</select>
+</div>
+<div class="flex items-center justify-end gap-space-xs pt-space-xs">
+<button class="px-space-sm py-space-xs bg-surface-container-high text-on-surface rounded font-body-md" onclick="document.getElementById('refund-modal').classList.add('hidden')" type="button">
+          Vazgeç
+        </button>
+<button class="px-space-md py-space-xs bg-primary-container text-on-primary-container rounded font-headline-sm text-body-md font-bold transition-colors" onclick="submitRefund()" type="button">
+          İadeyi Gerçekleştir
+        </button>
+</div>
+</div>
+</div>
+<!-- 4. REASSIGN COURIER MODAL -->
+<div class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-space-md" id="reassign-courier-modal">
+<div class="bg-surface-container-low max-w-md w-full rounded-lg shadow-2xl p-space-md space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-tertiary">
+<span class="material-symbols-outlined text-[24px]">moped</span>
+<h3 class="font-headline-sm text-headline-sm uppercase tracking-wide">Yeni Kurye Ata</h3>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface" onclick="document.getElementById('reassign-courier-modal').classList.add('hidden')" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="space-y-space-xs">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant" for="courier-select">Müsait Kadıköy Filosu Kuryeleri:</label>
+<div class="space-y-space-xxs">
+<label class="flex items-center justify-between p-space-xs bg-surface-container rounded cursor-pointer hover:bg-surface-container-high">
+<div class="flex items-center gap-space-xs">
+<input checked="" class="accent-primary" name="courier" type="radio" value="42">
+<div>
+<div class="font-headline-sm text-body-md text-on-surface">Serkan V. (#42)</div>
+<div class="font-body-sm text-on-surface-variant">Şube Önünde Müsait (Motosiklet)</div>
+</div>
+</div>
+<span class="font-label-mono text-label-mono text-primary font-bold">HAZIR</span>
+</label>
+<label class="flex items-center justify-between p-space-xs bg-surface-container rounded cursor-pointer hover:bg-surface-container-high">
+<div class="flex items-center gap-space-xs">
+<input class="accent-primary" name="courier" type="radio" value="18">
+<div>
+<div class="font-headline-sm text-body-md text-on-surface">Oğuz B. (#18)</div>
+<div class="font-body-sm text-on-surface-variant">Moda Dönüşünde (1.2 km uzakta)</div>
+</div>
+</div>
+<span class="font-label-mono text-label-mono text-on-surface-variant font-bold">2 DK</span>
+</label>
+</div>
+</div>
+<div class="flex items-center justify-end gap-space-xs pt-space-xs">
+<button class="px-space-sm py-space-xs bg-surface-container-high text-on-surface rounded font-body-md" onclick="document.getElementById('reassign-courier-modal').classList.add('hidden')" type="button">
+          İptal
+        </button>
+<button class="px-space-md py-space-xs bg-primary-container text-on-primary-container rounded font-headline-sm text-body-md font-bold transition-colors" onclick="submitReassignCourier()" type="button">
+          Kuryeyi Değiştir
+        </button>
+</div>
+</div>
+</div>
+<!-- 5. QR TESLIM MODAL -->
+<div class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-space-md" id="qr-modal">
+<div class="bg-surface-container-low max-w-xs w-full rounded-lg shadow-2xl p-space-md space-y-space-md text-center">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm uppercase tracking-wide text-primary">Kurye QR Teslim Kodu</h3>
+<button class="text-on-surface-variant hover:text-on-surface" onclick="document.getElementById('qr-modal').classList.add('hidden')" type="button">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="bg-surface-container p-space-md rounded flex flex-col items-center justify-center space-y-space-xs">
+<!-- Visual QR Mockup -->
+<div class="w-44 h-44 bg-surface-container-lowest p-space-xs rounded flex items-center justify-center border-0">
+<svg class="w-40 h-40 text-primary" fill="currentColor" viewBox="0 0 100 100">
+<path d="M10 10h30v30h-30zM15 15v20h20v-20zM60 10h30v30h-30zM65 15v20h20v-20zM10 60h30v30h-30zM15 65v20h20v-20zM22 22h6v6h-6zM72 22h6v6h-6zM22 72h6v6h-6zM50 15h5v5h-5zM50 30h5v10h-5zM60 50h10v5h-10zM80 50h10v10h-10zM50 60h5v10h-5zM65 65h10v5h-10zM80 70h5v15h-5zM60 85h15v5h-15zM50 85h5v5h-5z"></path>
+</svg>
+</div>
+<div class="font-data-mono text-metric-md text-on-surface font-bold tracking-widest">894-210</div>
+<span class="font-label-mono text-label-mono text-on-surface-variant">Kurye el terminali ile okutunuz</span>
+</div>
+<button class="w-full py-space-xs bg-surface-container-high text-on-surface rounded font-headline-sm text-body-md" onclick="document.getElementById('qr-modal').classList.add('hidden')" type="button">
+        Kapat
+      </button>
+</div>
+</div>
+<!-- INLINE CLIENT SCRIPT (FSM Transitions & Modal State Handling) -->
+<script>
+    function triggerTransitionReady() {
+      const btn = document.getElementById('btn-ready');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span><span>FSM İşleniyor...</span>';
+      
+      setTimeout(function() {
+        btn.classList.remove('bg-primary-container', 'text-on-primary-container');
+        btn.classList.add('bg-surface-container-highest', 'text-tertiary');
+        btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">done_all</span><span>READY_FOR_COURIER Aktif</span>';
+        alert('Sipariş FSM Durumu Güncellendi: READY_FOR_COURIER. Kurye terminaline bildirim gönderildi.');
+      }, 700);
+    }
+
+    function submitOrderCancellation() {
+      const reason = document.getElementById('cancel-reason').value;
+      if (!reason) {
+        alert('Lütfen zorunlu bir iptal gerekçesi seçiniz!');
+        return;
+      }
+      document.getElementById('cancel-order-modal').classList.add('hidden');
+      alert('Sipariş #SC-89421 iptal edildi ve mutfak zayiat kaydı oluşturuldu.');
+    }
+
+    function submitReassignBranch() {
+      const newBranch = document.getElementById('new-branch-select').value;
+      document.getElementById('reassign-modal').classList.add('hidden');
+      alert('Sipariş başarıyla yeni şubeye aktarıldı: ' + newBranch);
+    }
+
+    function setRefundType(type) {
+      const fullBtn = document.getElementById('rf-full-btn');
+      const partBtn = document.getElementById('rf-part-btn');
+      const partGroup = document.getElementById('partial-amount-group');
+
+      if (type === 'full') {
+        fullBtn.className = 'p-space-xs rounded bg-primary-container text-on-primary-container font-headline-sm text-body-md font-bold';
+        partBtn.className = 'p-space-xs rounded bg-surface-container text-on-surface-variant font-headline-sm text-body-md';
+        partGroup.classList.add('hidden');
+      } else {
+        partBtn.className = 'p-space-xs rounded bg-primary-container text-on-primary-container font-headline-sm text-body-md font-bold';
+        fullBtn.className = 'p-space-xs rounded bg-surface-container text-on-surface-variant font-headline-sm text-body-md';
+        partGroup.classList.remove('hidden');
+      }
+    }
+
+    function submitRefund() {
+      document.getElementById('refund-modal').classList.add('hidden');
+      alert('Garanti BBVA POS İade isteği onaylandı. İşlem Dekontu: #REF-TX-89421-GARANTI');
+    }
+
+    function submitReassignCourier() {
+      document.getElementById('reassign-courier-modal').classList.add('hidden');
+      alert('Yeni kurye ataması başarıyla yapıldı. Kurye terminaline rota iletildi.');
+    }
+
+    function showQrModal() {
+      document.getElementById('qr-modal').classList.remove('hidden');
+    }
+  </script>
+</div></div></main></div></body></html>

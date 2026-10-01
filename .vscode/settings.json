@@ -1,0 +1,4 @@
+{
+  "npm.packageManager": "pnpm",
+  "npm.exclude": "**/tests/e2e"
+}

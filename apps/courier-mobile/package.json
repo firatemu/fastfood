@@ -1,0 +1,41 @@
+{
+  "name": "@fastfood/courier-mobile",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Courier iOS + Android app. Expo SDK 57 / React Native 0.86. Login, deliveries, QR claim, Maps.",
+  "main": "expo-router/entry",
+  "scripts": {
+    "build": "echo \"courier-mobile: build is performed by `npx expo prebuild` + native toolchain\" && exit 0",
+    "dev": "expo start --port 8082",
+    "start": "expo start --port 8082",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run --passWithNoTests",
+    "clean": "rm -rf .expo dist .turbo"
+  },
+  "dependencies": {
+    "@fastfood/api-client": "workspace:*",
+    "@fastfood/config": "workspace:*",
+    "@fastfood/contracts": "workspace:*",
+    "@fastfood/design-tokens": "workspace:*",
+    "@fastfood/domain-types": "workspace:*",
+    "@fastfood/ui-native": "workspace:*",
+    "expo": "57.0.25",
+    "expo-router": "57.0.23",
+    "expo-status-bar": "57.0.1",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "5.7.0",
+    "react-native-screens": "4.26.2",
+    "zod": "3.24.4"
+  },
+  "devDependencies": {
+    "@fastfood/eslint-config": "workspace:*",
+    "@fastfood/tsconfig": "workspace:*",
+    "@types/react": "19.2.4",
+    "typescript": "5.9.3",
+    "vitest": "5.0.1"
+  }
+}

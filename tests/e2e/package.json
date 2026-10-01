@@ -1,0 +1,20 @@
+{
+  "name": "@fastfood/e2e-web",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Playwright E2E foundation for storefront-web and admin-web.",
+  "scripts": {
+    "test": "playwright test",
+    "test:chromium": "playwright test --project=chromium",
+    "install-browsers": "playwright install --with-deps chromium",
+    "lint": "exit 0",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf playwright-report test-results .turbo"
+  },
+  "devDependencies": {
+    "@fastfood/tsconfig": "workspace:*",
+    "@playwright/test": "1.63.0",
+    "typescript": "5.9.3"
+  }
+}

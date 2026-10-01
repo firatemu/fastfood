@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# CI is verification-only per document 49 + document 22. This workflow MUST
+# NOT deploy anything, call Coolify, or mutate remote environments.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24.21.0'
+  PNPM_VERSION: '12.4.0'
+  API_PORT: '4000'
+  STOREFRONT_PORT: '3100'
+  ADMIN_PORT: '3101'
+  POSTGRES_HOST: 'localhost'
+  POSTGRES_PORT: '5439'
+  REDIS_URL: 'redis://localhost:6388'
+
+jobs:
+  foundation-verify:
+    name: Foundation verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile --ignore-scripts
+        env:
+          CI: 'true'
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+        env:
+          CI: 'true'
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test:unit
+        env:
+          CI: 'true'
+
+      - name: Build applications and packages
+        run: pnpm build
+        env:
+          CI: 'true'
+
+      - name: Prisma validate
+        run: pnpm db:validate
+        env:
+          CI: 'true'
+
+      - name: Install Playwright browser
+        run: pnpm --filter @fastfood/e2e-web exec playwright install --with-deps chromium
+
+      - name: Boot local infra (PostgreSQL + PostGIS, Redis)
+        run: |
+          docker compose -f infrastructure/docker/docker-compose.yml up -d
+          docker exec fastfood-postgres psql -U fastfood -d fastfood -c "CREATE EXTENSION IF NOT EXISTS postgis;" || true
+
+      - name: Apply Prisma migrations + seed
+        run: |
+          cp .env.example apps/api/.env
+          pnpm db:migrate:deploy
+          pnpm db:seed
+        env:
+          CI: 'true'
+
+      - name: API integration tests (boots Nest against real PG + Redis)
+        run: pnpm --filter @fastfood/api exec vitest run --config vitest.integration.config.ts
+        env:
+          CI: 'true'
+
+      - name: Boot API for E2E smoke
+        run: |
+          node --env-file=apps/api/.env apps/api/dist/main.js &
+          echo $! > /tmp/api.pid
+          for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
+            if curl -fsS http://localhost:${API_PORT}/health/live >/dev/null; then break; fi
+            sleep 1
+          done
+        env:
+          CI: 'true'
+
+      - name: E2E foundation smoke (Playwright)
+        run: pnpm --filter @fastfood/e2e-web test
+        env:
+          CI: 'true'
+          API_PORT: ${{ env.API_PORT }}
+          STOREFRONT_PORT: ${{ env.STOREFRONT_PORT }}
+          ADMIN_PORT: ${{ env.ADMIN_PORT }}
+
+      - name: Tear down API
+        if: always()
+        run: |
+          if [ -f /tmp/api.pid ]; then kill "$(cat /tmp/api.pid)" 2>/dev/null || true; fi
+
+      - name: Tear down local infra
+        if: always()
+        run: docker compose -f infrastructure/docker/docker-compose.yml down
+# No deploy job, no CD, no remote secrets. Document 49.

@@ -1,0 +1,678 @@
+.catalogMark {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px;
+  border: 1px solid light-dark(#d3d6d9, #435363);
+  background: light-dark(#f8f9f9, #1d2730);
+  color: light-dark(#2e6185, #b9d4e7);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.catalogMark :global(.material-symbols-outlined) {
+  font-size: 17px;
+}
+.scopeNote {
+  margin-left: auto;
+  color: light-dark(#58636f, #8393a4);
+  font-size: 10px;
+}
+.area {
+  display: inline-block;
+  padding: 5px 8px;
+  border: 1px solid light-dark(#d3d5d9, #43516a);
+  background: light-dark(#f8f9f9, #202936);
+  color: light-dark(#2e5e84, #acc8de);
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.description {
+  color: light-dark(#24292e, #b6c4d1);
+  font-size: 11px;
+}
+.count {
+  color: light-dark(#986f15, #f0d394);
+  font: 700 12px var(--ops-font-mono, 'JetBrains Mono', monospace);
+}
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 15px 0 17px;
+  padding: 19px;
+  border: 1px solid light-dark(#d9d8d3, #5d563d);
+  background: linear-gradient(
+    105deg,
+    light-dark(#f9f9f8, #302b1f),
+    light-dark(#f8f9f9, #232a32) 78%
+  );
+}
+.hero > div {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.hero strong {
+  overflow-wrap: anywhere;
+  color: light-dark(#a0700d, #ffe2a6);
+  font-family: var(--ops-font-anton, Anton, sans-serif);
+  font-size: 27px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.hero small {
+  color: light-dark(#2e5c84, #b5c6d5);
+  font-size: 11px;
+}
+.hero :global(.material-symbols-outlined) {
+  color: light-dark(#916a1d, #e2bb6c);
+  font-size: 37px;
+}
+.permissionList,
+.staffList {
+  display: grid;
+  border-top: 1px solid light-dark(#d3d6d9, #33404c);
+}
+.permissionList > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-right: 1px solid light-dark(#d3d6d9, #33404c);
+  border-bottom: 1px solid light-dark(#d3d6d9, #33404c);
+  border-left: 1px solid light-dark(#d3d6d9, #33404c);
+  background: light-dark(#f8f9f9, #1d252e);
+}
+.permissionList > div:nth-child(even) {
+  background: light-dark(#f8f9f9, #1a222a);
+}
+.permissionList span,
+.staffList > div {
+  display: grid;
+  gap: 4px;
+}
+.permissionList strong,
+.staffList strong {
+  font-size: 12px;
+}
+.permissionList small,
+.staffList small {
+  color: light-dark(#58636f, #94a6b8);
+  font: 10px var(--ops-font-mono, 'JetBrains Mono', monospace);
+}
+.permissionList em {
+  color: light-dark(#856929, #d9bf83);
+  font-size: 10px;
+  font-style: normal;
+  white-space: nowrap;
+}
+.staffList {
+  max-height: 150px;
+  overflow: auto;
+}
+.staffList > div {
+  padding: 10px 12px;
+  border-right: 1px solid light-dark(#d3d6d9, #33404c);
+  border-bottom: 1px solid light-dark(#d3d6d9, #33404c);
+  border-left: 1px solid light-dark(#d3d6d9, #33404c);
+  background: light-dark(#f8f9f9, #1d252e);
+}
+.staffList > div:nth-child(even) {
+  background: light-dark(#f8f9f9, #1a222a);
+}
+.assignRow {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+}
+.assignRow label {
+  flex: 1;
+}
+.confirmIcon {
+  color: light-dark(#9c6a11, #efc06d);
+}
+.confirmIcon :global(.material-symbols-outlined) {
+  font-size: 27px;
+}
+@media (max-width: 650px) {
+  .scopeNote {
+    width: 100%;
+    margin-left: 0;
+  }
+  .assignRow {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .assignRow button {
+    align-self: flex-end;
+  }
+}
+
+.accessModel {
+  --access-surface: var(--ops-surface-1, light-dark(#fcfcfd, #161b22));
+  --access-raised: var(--ops-surface-2, light-dark(#f8f9f9, #1f242d));
+  --access-base: var(--ops-canvas-sub, light-dark(#fcfcfd, #13171c));
+  --access-line: var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
+  --access-line-strong: var(--ops-keyline-strong, light-dark(#d3d5d9, #3e4656));
+  --access-text: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
+  --access-muted: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
+  --access-amber: var(--ops-amber, light-dark(#a57709, #feb300));
+  --access-ready: var(--ops-ready, light-dark(#0ea06f, #10b981));
+  --access-ready-well: var(
+    --ops-ready-well,
+    light-dark(rgba(233, 246, 242, 0.12), rgba(16, 185, 129, 0.12))
+  );
+  display: grid;
+  gap: 12px;
+  margin: 2px 0 20px;
+}
+
+.rolesPage {
+  --roles-amber: var(--ops-amber, light-dark(#a57709, #feb300));
+  --roles-line: var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
+  --roles-text: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
+  --roles-muted: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
+}
+
+.rolesHeader {
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--roles-line);
+}
+
+.rolesHeader h1 {
+  color: var(--roles-text);
+  font-family: var(--ops-font-sans, Inter, ui-sans-serif, sans-serif);
+  font-size: clamp(29px, 3vw, 38px);
+  font-weight: 650;
+  letter-spacing: -0.045em;
+  line-height: 1.12;
+  text-transform: none;
+}
+
+.rolesHeader p {
+  color: var(--roles-muted);
+  font-size: 12px;
+}
+
+.rolesBreadcrumb {
+  color: var(--roles-muted);
+}
+
+.modelIntro {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  overflow: hidden;
+  padding: 22px 24px;
+  border: 1px solid var(--access-line-strong);
+  background: radial-gradient(
+      ellipse at 100% 0%,
+      var(--ops-amber-well, light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08))),
+      transparent 35%
+    ),
+    linear-gradient(
+      110deg,
+      var(--access-raised) 0%,
+      var(--access-surface) 58%,
+      var(--access-base) 100%
+    );
+  box-shadow: inset 3px 0 var(--access-amber);
+}
+
+.modelGlyph {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--ops-amber-border) 42%, transparent);
+  background: var(--ops-amber-well, light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08)));
+  color: var(--ops-amber-text);
+}
+
+.modelGlyph :global(.material-symbols-outlined) {
+  font-size: 24px;
+}
+
+.modelCopy {
+  min-width: 0;
+}
+
+.modelKicker {
+  color: var(--ops-amber-text);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.modelCopy h2 {
+  margin: 5px 0 5px;
+  color: var(--access-text);
+  font-family: var(--ops-font-sans, Inter, sans-serif);
+  font-size: clamp(19px, 2vw, 25px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.18;
+}
+
+.modelCopy p,
+.matrixHeader p {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--access-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.modelStats {
+  display: flex;
+  min-width: 272px;
+  align-self: stretch;
+  align-items: center;
+  border-left: 1px solid var(--access-line);
+}
+
+.modelStats > div {
+  display: grid;
+  min-width: 86px;
+  gap: 3px;
+  padding: 0 15px;
+}
+
+.modelStats > div + div {
+  border-left: 1px solid var(--access-line);
+}
+
+.modelStats strong {
+  color: var(--access-text);
+  font-size: 21px;
+  font-weight: 680;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.modelStats span {
+  color: var(--access-muted);
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.roleCards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.roleCard {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid var(--access-line);
+  border-radius: 3px;
+  background: var(--access-surface);
+  color: var(--access-text);
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    transform 140ms ease;
+}
+
+.roleCard:hover {
+  border-color: var(--access-line-strong);
+  background: var(--access-raised);
+}
+
+.roleCard:focus-visible {
+  outline: 2px solid var(--ops-amber-border);
+  outline-offset: 2px;
+}
+
+.roleCardSelected {
+  border-color: var(--ops-amber-border);
+  background: linear-gradient(
+    105deg,
+    var(--ops-amber-well, light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08))),
+    var(--access-surface) 66%
+  );
+  box-shadow: inset 2px 0 var(--access-amber);
+}
+
+.roleCardMain {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 12px;
+  width: 100%;
+  min-height: 93px;
+  padding: 12px 14px 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.roleCardMain:focus-visible {
+  outline: 2px solid var(--ops-amber-border);
+  outline-offset: -3px;
+}
+
+.roleCardOpen {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 27px;
+  align-self: flex-end;
+  margin: 0 13px 10px 0;
+  padding: 0 8px;
+  border: 1px solid var(--access-line-strong);
+  background: var(--access-raised);
+  color: var(--access-ready);
+  font: inherit;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.roleCardOpen:hover,
+.roleCardOpen:focus-visible {
+  border-color: var(--access-ready);
+  outline: none;
+  background: var(--access-ready-well);
+}
+
+.roleCardOpen :global(.material-symbols-outlined) {
+  font-size: 14px;
+}
+
+.roleCardIcon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  grid-row: span 2;
+  place-items: center;
+  border: 1px solid var(--access-line-strong);
+  background: var(--access-raised);
+  color: var(--access-ready);
+}
+
+.roleCardSelected .roleCardIcon {
+  border-color: color-mix(in srgb, var(--ops-amber-border) 40%, transparent);
+  background: var(--ops-amber-well, light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08)));
+  color: var(--ops-amber-text);
+}
+
+.roleCardIcon :global(.material-symbols-outlined) {
+  font-size: 20px;
+}
+
+.roleCardText,
+.roleCardCount {
+  display: grid;
+  gap: 3px;
+}
+
+.roleCardText strong {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 680;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roleCardText small,
+.roleCardCount small {
+  color: var(--access-muted);
+  font-size: 9px;
+}
+
+.roleCardCount {
+  justify-items: end;
+  color: var(--ops-amber-text);
+  font-size: 16px;
+  font-weight: 680;
+  font-variant-numeric: tabular-nums;
+}
+
+.roleCardCount small {
+  color: var(--access-muted);
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.roleCardDescription {
+  grid-column: 2 / -1;
+  min-height: 28px;
+  color: var(--access-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.matrixPanel {
+  overflow: hidden;
+  border: 1px solid var(--access-line);
+  background: var(--access-base);
+}
+
+.matrixHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 15px 17px 13px;
+  border-bottom: 1px solid var(--access-line);
+}
+
+.matrixHeader h3 {
+  margin: 4px 0 3px;
+  color: var(--access-text);
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.matrixSelect {
+  display: grid;
+  min-width: 190px;
+  gap: 5px;
+  color: var(--access-muted);
+  font-size: 9px;
+}
+
+.matrixSelect select {
+  min-height: 34px;
+  padding: 0 28px 0 10px;
+  border: 1px solid var(--access-line-strong);
+  border-radius: 2px;
+  background: var(--access-raised);
+  color: var(--access-text);
+  font: inherit;
+  font-size: 11px;
+}
+
+.matrixScroll {
+  max-height: 410px;
+  overflow: auto;
+  scrollbar-color: var(--access-line-strong) var(--access-surface);
+  scrollbar-width: thin;
+}
+
+.matrixTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+
+.matrixTable thead {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background: var(--access-raised);
+}
+
+.matrixTable th,
+.matrixTable td {
+  height: 31px;
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--access-line);
+  text-align: center;
+}
+
+.matrixTable thead th {
+  color: var(--access-muted);
+  font-size: 9px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.matrixTable thead th:first-child,
+.matrixTable tbody th {
+  width: 42%;
+  text-align: left;
+}
+
+.matrixTable tbody th {
+  color: var(--access-text);
+  font-size: 10px;
+  font-weight: 550;
+}
+
+.matrixTable tbody tr:hover {
+  background: var(--access-surface);
+}
+
+.matrixGrant {
+  display: inline-grid;
+  width: 19px;
+  height: 19px;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1;
+}
+
+.matrixAllowed {
+  border-color: color-mix(in srgb, var(--access-ready) 24%, transparent);
+  background: var(--access-ready-well);
+  color: var(--access-ready);
+}
+
+.matrixDenied {
+  color: var(--access-muted);
+}
+
+.matrixUnknown,
+.matrixUnsupported {
+  color: var(--access-muted);
+}
+
+.matrixNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  padding: 10px 14px;
+  border-top: 1px solid var(--access-line);
+  color: var(--access-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.matrixNote :global(.material-symbols-outlined) {
+  flex: 0 0 auto;
+  color: var(--access-ready);
+  font-size: 15px;
+}
+
+@media (max-width: 1000px) {
+  .modelIntro {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .modelGlyph {
+    width: 42px;
+    height: 42px;
+  }
+
+  .modelStats {
+    grid-column: 2;
+    min-width: 0;
+    border-top: 1px solid var(--access-line);
+    border-left: 0;
+    padding-top: 12px;
+  }
+
+  .modelStats > div:first-child {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .modelIntro {
+    grid-template-columns: 36px minmax(0, 1fr);
+    align-items: start;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .modelGlyph {
+    width: 36px;
+    height: 36px;
+  }
+
+  .modelGlyph :global(.material-symbols-outlined) {
+    font-size: 19px;
+  }
+
+  .modelStats {
+    gap: 0;
+  }
+
+  .modelStats > div {
+    min-width: 0;
+    flex: 1;
+    padding: 0 9px;
+  }
+
+  .modelStats strong {
+    font-size: 18px;
+  }
+
+  .roleCards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .roleCard {
+    min-height: 84px;
+  }
+
+  .matrixHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .matrixSelect {
+    min-width: 0;
+  }
+
+  .matrixTable {
+    min-width: 580px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roleCard {
+    transition: none;
+  }
+}

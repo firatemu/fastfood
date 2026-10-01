@@ -1,0 +1,103 @@
+# Node
+node_modules/
+.pnp/
+.pnp.js
+.yarn/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+.turbo/
+.turbo-cache/
+*.tsbuildinfo
+
+# Expo / React Native
+.expo/
+.expo-shared/
+.expo-types/
+*.app.bundle.js
+*.app.bundle.meta
+ios/
+android/
+web-build/
+fastfoodcustomer-*/
+fastfoodcourier-*/
+
+# Autonomous development controller (runtime state only; controller code
+# and synthetic manifests in packages/dev-controller/ are version-controlled).
+.fastfood-controller/
+
+# Local dev stack (nohup PIDs + logs)
+.fastfood-dev/
+
+# Test
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+.playwright/
+.maestro-logs/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+.envrc
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.cursor/
+*.swp
+
+# Prisma local artifacts (migrations tracked; local dev DB excluded)
+*.db
+*.sqlite
+*.sqlite3
+prisma/dev.db*
+
+# Docker
+.docker/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/
+
+# Stitch browser OAuth profile (local only)
+apps/storefront-web/.stitch/browser-profile/
+
+# Prisma generated client — custom generator output, not source.
+# Regenerate with `pnpm db:generate`. CI runs that step before typecheck
+# because `apps/api/src` imports types from this output.
+apps/api/prisma/generated/
+
+# Local development JWT signing keys. A private signing key must never enter
+# source control (AGENTS.md §8). Regenerate with `pnpm keys:dev`.
+/apps/api/secrets/
+
+# Stitch generated exports — regenerable through the storefront `stitch:*`
+# scripts. `.stitch/README.md`, `.stitch/DESIGN.md` and the browser-profile
+# rules above remain tracked because they are the visual source of truth.
+apps/storefront-web/.stitch/export/
+apps/storefront-web/.stitch-html/
+
+# Local PostgreSQL snapshots (`pg_dump` output). They can contain credential
+# hashes, refresh-token hashes and other row data, so they stay local only.
+/backups/*.dump
+
+# Stray nested copy created by writing through a `\\wsl.localhost\...` path.
+/wsl.localhost/

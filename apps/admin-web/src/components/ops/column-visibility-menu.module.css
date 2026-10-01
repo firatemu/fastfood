@@ -1,0 +1,238 @@
+.menu {
+  position: fixed;
+  z-index: 1001;
+  width: min(332px, calc(100vw - 24px));
+  max-height: min(460px, calc(100dvh - 24px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
+  background: light-dark(#fcfcfd, #171c23);
+  border: 1px solid var(--ops-keyline-strong, light-dark(#d3d5d9, #3e4656));
+  box-shadow: 0 12px 34px light-dark(rgba(27, 42, 49, 0.154), rgba(0, 0, 0, 0.55));
+}
+
+.header {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
+}
+
+.headerIcon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--ops-amber-text);
+  background: light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08));
+  border: 1px solid light-dark(rgba(146, 160, 170, 0.2), rgba(254, 179, 0, 0.2));
+}
+
+.headerIcon :global(.material-symbols-outlined) {
+  font-size: 18px;
+}
+
+.headerText {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  margin-right: auto;
+}
+
+.headerText strong {
+  color: light-dark(#24282e, #e6eaf0);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.headerText > span {
+  color: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
+  font-size: 10px;
+}
+
+.close {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid transparent;
+  color: light-dark(#58626f, #aab4c1);
+  background: transparent;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: light-dark(#292929, #ffffff);
+  background: light-dark(#f3f3f4, #242b35);
+  border-color: light-dark(#d3d6d9, #343d49);
+}
+
+.close:focus-visible,
+.footer button:focus-visible,
+.option:focus-within {
+  outline: 2px solid var(--ops-amber-border);
+  outline-offset: 1px;
+}
+
+.close :global(.material-symbols-outlined) {
+  font-size: 17px;
+}
+
+.hint {
+  margin: 0;
+  padding: 10px 14px 8px;
+  color: light-dark(#58626f, #9aa6b5);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.list {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0 8px;
+  overflow: auto;
+  list-style: none;
+  overscroll-behavior: contain;
+}
+
+.item {
+  min-width: 0;
+}
+
+.option {
+  min-height: 53px;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-bottom: 1px solid light-dark(rgba(146, 160, 170, 0.045), rgba(58, 68, 80, 0.045));
+  cursor: pointer;
+}
+
+.option:hover {
+  background: light-dark(rgba(252, 252, 253, 0.035), rgba(23, 30, 38, 0.035));
+}
+
+.optionCopy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.optionCopy strong {
+  color: light-dark(#24282e, #dce2ea);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.optionCopy > span {
+  overflow: hidden;
+  color: light-dark(#58616f, #8e9aab);
+  font-size: 9px;
+  line-height: 13px;
+  text-overflow: ellipsis;
+}
+
+.checkbox {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.switch {
+  width: 30px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2px;
+  background: light-dark(#f3f3f4, #2a323d);
+  border: 1px solid light-dark(#d3d6d9, #414b59);
+  transition: background-color 120ms ease;
+}
+
+.switch > span {
+  width: 11px;
+  height: 11px;
+  background: light-dark(#ecedee, #8692a1);
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease;
+}
+
+.checkbox:checked + .optionCopy + .switch {
+  justify-content: flex-end;
+  background: light-dark(rgba(244, 187, 52, 0.16), rgba(254, 179, 0, 0.16));
+  border-color: light-dark(rgba(146, 160, 170, 0.45), rgba(254, 179, 0, 0.55));
+}
+
+.checkbox:checked + .optionCopy + .switch > span {
+  background: var(--ops-amber-fill);
+}
+
+.checkbox:disabled + .optionCopy + .switch {
+  opacity: 0.58;
+}
+
+.checkbox:focus-visible + .optionCopy + .switch {
+  outline: 2px solid var(--ops-amber-border);
+  outline-offset: 2px;
+}
+
+.locked {
+  position: absolute;
+  right: 47px;
+  bottom: 3px;
+  color: light-dark(#58626f, #7d8999);
+  font-size: 8px;
+}
+
+.footer {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding: 8px 12px;
+  color: light-dark(#58626f, #8793a2);
+  background: light-dark(#fcfcfd, #141920);
+  border-top: 1px solid var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
+  font-size: 10px;
+}
+
+.footer button {
+  min-height: 30px;
+  padding: 5px 8px;
+  border: 1px solid light-dark(#d3d6d9, #394352);
+  color: light-dark(#24262e, #e0e2ea);
+  background: light-dark(#f8f9f9, #1e252e);
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.footer button:hover {
+  color: var(--ops-amber-text);
+  border-color: light-dark(rgba(146, 160, 170, 0.45), rgba(254, 179, 0, 0.45));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .switch > span {
+    transition: none;
+  }
+}

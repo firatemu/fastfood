@@ -1,0 +1,33 @@
+node_modules/
+dist/
+build/
+.next/
+out/
+.turbo/
+.expo/
+ios/
+android/
+coverage/
+pnpm-lock.yaml
+*.lock
+*.lockb
+playwright-report/
+test-results/
+fastfood-project-docs/
+ai-prompts/
+apps/api/prisma/generated/
+**/next-env.d.ts
+**/expo-env.d.ts
+project-reports/
+.fastfood-controller/
+
+# Git-ignored generated output. These are already excluded in .gitignore;
+# Prettier does not read .gitignore, so they must be listed explicitly.
+graft/
+.fastfood-dev/
+
+# External design source of truth. These are Stitch-authored design packages
+# and local design references; reformatting them would alter the visual
+# authority documents cited by ADR-007/008/009.
+/stitch_burger_*/
+/apps/*/.stitch/

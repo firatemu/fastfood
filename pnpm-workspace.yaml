@@ -1,0 +1,52 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'infrastructure/scripts'
+  - 'tests/e2e'
+
+# Single canonical source of truth for workspace-level pnpm configuration.
+# `.npmrc` only carries CLI-only knobs; everything else lives here.
+
+# Document 33 / 49: no remote execution of package scripts outside this list.
+allowBuilds:
+  '@prisma/engines': true
+  '@scarf/scarf': true
+  '@tailwindcss/oxide': true
+  esbuild: true
+  msgpackr-extract: true
+  prisma: true
+  unrs-resolver: true
+
+# Bootstrap-time carve-out.
+#
+# pnpm 12 enforces a default minimumReleaseAge that rejects same-day
+# releases. The Phase 0 bootstrap pulls first-of-kind versions of the
+# NestJS 12, Prisma 7, Fastify 5, Expo 57, Vitest 5, and Playwright 1.63
+# lines, several of which were published in the same 24-hour window as
+# this commit. Without this override, a fresh clone would fail its very
+# first `pnpm install` even though the lockfile pins every resolved
+# version. Once the lockfile is generated we never re-resolve from
+# network, so this only affects brand-new clone installs. See
+# `project-reports/phase-00/PHASE_0_REMEDIATION_REPORT.md` for the full
+# audit trail. ADR backlog item ADR-003 is reserved to revisit this when
+# the project transitions to its first release branch.
+minimumReleaseAge: 0
+
+# Hoist shared dev tooling (vitest, eslint, typescript) so every workspace
+# package can run their standard scripts without per-package duplicate
+# installs. Document 49 keeps this local-only. We use the safer
+# `public-hoist-pattern` route (vs. the blanket `nodeLinker: hoisted`) so
+# production dependencies stay workspace-isolated and only build/test
+# tooling is hoisted.
+publicHoistPattern:
+  - '*'
+  - '@types/*'
+  - 'typescript'
+  - 'vitest'
+  - '@vitest/*'
+  - 'eslint'
+  - '@eslint/*'
+  - 'prettier'
+  - 'pino'
+  - 'pino-pretty'
+  - '@fastfood/*'

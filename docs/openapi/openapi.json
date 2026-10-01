@@ -1,0 +1,2857 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health/live": {
+      "get": {
+        "operationId": "HealthController_getLive",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "HealthController_getReady",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/version": {
+      "get": {
+        "operationId": "VersionController_getVersion",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Version"
+        ]
+      }
+    },
+    "/auth/customer/methods": {
+      "get": {
+        "operationId": "CustomerAuthController_methods",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/otp/request": {
+      "post": {
+        "operationId": "CustomerAuthController_otpRequest",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/otp/verify": {
+      "post": {
+        "operationId": "CustomerAuthController_otpVerify",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/register-phone": {
+      "post": {
+        "operationId": "CustomerAuthController_registerPhone",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/password/register": {
+      "post": {
+        "operationId": "CustomerAuthController_register",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/password/login": {
+      "post": {
+        "operationId": "CustomerAuthController_passwordLogin",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/password/forgot": {
+      "post": {
+        "operationId": "CustomerAuthController_forgot",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/password/reset": {
+      "post": {
+        "operationId": "CustomerAuthController_reset",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/password/change": {
+      "post": {
+        "operationId": "CustomerAuthController_change",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/password/create": {
+      "post": {
+        "operationId": "CustomerAuthController_createPassword",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/email/verify/request": {
+      "post": {
+        "operationId": "CustomerAuthController_requestEmailVerify",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/email/verify": {
+      "post": {
+        "operationId": "CustomerAuthController_verifyEmail",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/oauth/{provider}/start": {
+      "get": {
+        "operationId": "CustomerAuthController_startOAuth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/oauth/{provider}/callback": {
+      "get": {
+        "operationId": "CustomerAuthController_oauthCallback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/refresh": {
+      "post": {
+        "operationId": "CustomerAuthController_refresh",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/logout": {
+      "post": {
+        "operationId": "CustomerAuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/customer/identities": {
+      "get": {
+        "operationId": "CustomerAuthController_identities",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerAuth"
+        ]
+      }
+    },
+    "/auth/staff/me": {
+      "get": {
+        "operationId": "StaffAuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StaffAuth"
+        ]
+      }
+    },
+    "/auth/staff/email/confirm": {
+      "post": {
+        "operationId": "StaffAuthController_confirmEmailChange",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StaffAuth"
+        ]
+      }
+    },
+    "/auth/staff/login": {
+      "post": {
+        "operationId": "StaffAuthController_login",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StaffAuth"
+        ]
+      }
+    },
+    "/auth/staff/mfa/verify": {
+      "post": {
+        "operationId": "StaffAuthController_mfaVerify",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StaffAuth"
+        ]
+      }
+    },
+    "/auth/staff/refresh": {
+      "post": {
+        "operationId": "StaffAuthController_refresh",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StaffAuth"
+        ]
+      }
+    },
+    "/auth/staff/logout": {
+      "post": {
+        "operationId": "StaffAuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StaffAuth"
+        ]
+      }
+    },
+    "/storefront/branches": {
+      "get": {
+        "operationId": "BranchController_listBranches",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Branch"
+        ]
+      }
+    },
+    "/storefront/branches/{branchId}/operating-hours": {
+      "get": {
+        "operationId": "BranchController_getOperatingHours",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Branch"
+        ]
+      }
+    },
+    "/storefront/serviceability": {
+      "get": {
+        "operationId": "BranchController_getServiceability",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Branch"
+        ]
+      }
+    },
+    "/storefront/catalog/builder": {
+      "get": {
+        "operationId": "CatalogController_getBuilder",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/storefront/catalog/categories": {
+      "get": {
+        "operationId": "CatalogController_listCategories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/storefront/catalog/products/{productIdOrSlug}": {
+      "get": {
+        "operationId": "CatalogController_getProduct",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/storefront/catalog/products": {
+      "get": {
+        "operationId": "CatalogController_listProducts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/storefront/catalog/allergens": {
+      "get": {
+        "operationId": "CatalogController_listAllergens",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Catalog"
+        ]
+      }
+    },
+    "/storefront/cart": {
+      "get": {
+        "operationId": "CartController_getCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Cart"
+        ]
+      },
+      "delete": {
+        "operationId": "CartController_clearCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/storefront/cart/lines": {
+      "post": {
+        "operationId": "CartController_addLine",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/storefront/cart/lines/{lineId}": {
+      "patch": {
+        "operationId": "CartController_updateLine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Cart"
+        ]
+      },
+      "delete": {
+        "operationId": "CartController_removeLine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/storefront/cart/merge": {
+      "post": {
+        "operationId": "CartController_mergeCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/storefront/cart/quote": {
+      "post": {
+        "operationId": "CartController_quoteCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/checkout/payment-methods": {
+      "get": {
+        "operationId": "CheckoutController_paymentMethods",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Checkout"
+        ]
+      }
+    },
+    "/checkout/slots": {
+      "get": {
+        "operationId": "CheckoutController_slots",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Checkout"
+        ]
+      }
+    },
+    "/checkout/orders/{orderId}": {
+      "get": {
+        "operationId": "CheckoutController_confirmation",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Checkout"
+        ]
+      }
+    },
+    "/checkout/quote": {
+      "post": {
+        "operationId": "CheckoutController_quote",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Checkout"
+        ]
+      }
+    },
+    "/admin/promotions": {
+      "get": {
+        "operationId": "AdminPromotionController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminPromotion"
+        ]
+      },
+      "post": {
+        "operationId": "AdminPromotionController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminPromotion"
+        ]
+      }
+    },
+    "/admin/promotions/{promotionId}": {
+      "get": {
+        "operationId": "AdminPromotionController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminPromotion"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminPromotionController_patch",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminPromotion"
+        ]
+      }
+    },
+    "/storefront/promotions": {
+      "get": {
+        "operationId": "StorefrontPromotionController_listPublic",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StorefrontPromotion"
+        ]
+      }
+    },
+    "/storefront/promotions/validate": {
+      "get": {
+        "operationId": "StorefrontPromotionController_validate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StorefrontPromotion"
+        ]
+      }
+    },
+    "/checkout/loyalty/balance": {
+      "get": {
+        "operationId": "LoyaltyController_balance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Loyalty"
+        ]
+      }
+    },
+    "/checkout/loyalty/reserve": {
+      "post": {
+        "operationId": "LoyaltyController_reserve",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Loyalty"
+        ]
+      }
+    },
+    "/checkout/loyalty/reservation/{reservationId}": {
+      "delete": {
+        "operationId": "LoyaltyController_release",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Loyalty"
+        ]
+      }
+    },
+    "/me/club": {
+      "get": {
+        "operationId": "ClubController_clubSnapshot",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Club"
+        ]
+      }
+    },
+    "/me/club/welcome": {
+      "post": {
+        "operationId": "ClubController_welcome",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Club"
+        ]
+      }
+    },
+    "/me/notifications": {
+      "get": {
+        "operationId": "CustomerNotificationController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerNotification"
+        ]
+      }
+    },
+    "/me/notifications/{id}/read": {
+      "patch": {
+        "operationId": "CustomerNotificationController_markRead",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerNotification"
+        ]
+      }
+    },
+    "/me/notifications/read-all": {
+      "post": {
+        "operationId": "CustomerNotificationController_markAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "CustomerNotification"
+        ]
+      }
+    },
+    "/me/orders": {
+      "get": {
+        "operationId": "OrderController_listMine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/orders/{orderId}": {
+      "get": {
+        "operationId": "OrderController_getOne",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/orders/{orderId}/timeline": {
+      "get": {
+        "operationId": "OrderController_getTimeline",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/orders/{orderId}/courier-location": {
+      "get": {
+        "operationId": "OrderController_courierLocation",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/orders/{orderId}/reorder": {
+      "post": {
+        "operationId": "OrderController_reorder",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/orders": {
+      "post": {
+        "operationId": "OrderController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/admin/orders/summary": {
+      "get": {
+        "operationId": "OrderController_listAdminSummary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/admin/orders": {
+      "get": {
+        "operationId": "OrderController_listAdmin",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/admin/orders/{orderId}": {
+      "get": {
+        "operationId": "OrderController_getAdmin",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/admin/orders/{orderId}/transitions": {
+      "post": {
+        "operationId": "OrderController_transition",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/admin/orders/{orderId}/pickup-token": {
+      "post": {
+        "operationId": "OrderController_issuePickupToken",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/orders/pickup-tokens/{prefix}/scan": {
+      "post": {
+        "operationId": "OrderController_scanPickupToken",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/admin/orders/{orderId}/reassign-branch": {
+      "post": {
+        "operationId": "OrderController_reassign",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/admin/kitchen": {
+      "get": {
+        "operationId": "OrderController_kitchenBoard",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Order"
+        ]
+      }
+    },
+    "/admin/couriers": {
+      "post": {
+        "operationId": "CourierController_registerCourier",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      },
+      "get": {
+        "operationId": "CourierController_listCouriers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/admin/deliveries": {
+      "post": {
+        "operationId": "CourierController_createDelivery",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/admin/deliveries/{deliveryId}/assign": {
+      "post": {
+        "operationId": "CourierController_assign",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/admin/deliveries/{deliveryId}/reassign": {
+      "post": {
+        "operationId": "CourierController_reassign",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/admin/deliveries/{deliveryId}/qr-token": {
+      "post": {
+        "operationId": "CourierController_issueQr",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/courier/deliveries": {
+      "get": {
+        "operationId": "CourierController_listMine",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/courier/deliveries/{deliveryId}": {
+      "get": {
+        "operationId": "CourierController_getOne",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/courier/claims/qr": {
+      "post": {
+        "operationId": "CourierController_claimQr",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/courier/deliveries/{deliveryId}/pickup": {
+      "post": {
+        "operationId": "CourierController_pickup",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/courier/deliveries/{deliveryId}/on-the-way": {
+      "post": {
+        "operationId": "CourierController_onTheWay",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/courier/deliveries/{deliveryId}/deliver": {
+      "post": {
+        "operationId": "CourierController_deliver",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/courier/deliveries/{deliveryId}/location": {
+      "post": {
+        "operationId": "CourierController_location",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/courier/me/performance": {
+      "get": {
+        "operationId": "CourierController_performance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/courier/deliveries/{deliveryId}/navigation": {
+      "get": {
+        "operationId": "CourierController_navigation",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Courier"
+        ]
+      }
+    },
+    "/checkout/payment/initialize": {
+      "post": {
+        "operationId": "PaymentController_initialize",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/checkout/status/{checkoutId}": {
+      "get": {
+        "operationId": "PaymentController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Payment"
+        ]
+      }
+    },
+    "/integrations/iyzico/callback": {
+      "post": {
+        "operationId": "IyzicoIntegrationController_callback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "IyzicoIntegration"
+        ]
+      }
+    },
+    "/integrations/iyzico/webhook": {
+      "post": {
+        "operationId": "IyzicoIntegrationController_webhook",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "IyzicoIntegration"
+        ]
+      }
+    },
+    "/admin/payments/{paymentId}/refunds": {
+      "post": {
+        "operationId": "RefundController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Refund"
+        ]
+      },
+      "get": {
+        "operationId": "RefundController_listByPayment",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Refund"
+        ]
+      }
+    },
+    "/admin/refunds/{refundId}": {
+      "get": {
+        "operationId": "RefundController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Refund"
+        ]
+      }
+    },
+    "/admin/reports/sales": {
+      "get": {
+        "operationId": "ReportingController_sales",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Reporting"
+        ]
+      }
+    },
+    "/admin/reports/branches": {
+      "get": {
+        "operationId": "ReportingController_branches",
+        "parameters": [
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "description": "Filter orders by creation date in Europe/Istanbul (YYYY-MM-DD).",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2026-09-25"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Reporting"
+        ]
+      }
+    },
+    "/admin/reports/products": {
+      "get": {
+        "operationId": "ReportingController_products",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Reporting"
+        ]
+      }
+    },
+    "/admin/reports/couriers": {
+      "get": {
+        "operationId": "ReportingController_couriers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Reporting"
+        ]
+      }
+    },
+    "/me": {
+      "get": {
+        "operationId": "CustomerController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      },
+      "patch": {
+        "operationId": "CustomerController_patchMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/me/preferences": {
+      "get": {
+        "operationId": "CustomerController_getPreferences",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      },
+      "patch": {
+        "operationId": "CustomerController_patchPreferences",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/me/loyalty": {
+      "get": {
+        "operationId": "CustomerController_getLoyalty",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/me/addresses": {
+      "get": {
+        "operationId": "CustomerController_listAddresses",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      },
+      "post": {
+        "operationId": "CustomerController_createAddress",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/me/address-geography/provinces": {
+      "get": {
+        "operationId": "CustomerController_listAddressProvinces",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/me/address-geography/provinces/{provinceId}/districts": {
+      "get": {
+        "operationId": "CustomerController_listAddressDistricts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/me/address-geography/districts/{districtId}/neighborhoods": {
+      "get": {
+        "operationId": "CustomerController_listAddressNeighborhoods",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/me/addresses/{addressId}": {
+      "patch": {
+        "operationId": "CustomerController_updateAddress",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      },
+      "delete": {
+        "operationId": "CustomerController_deleteAddress",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/me/favorites": {
+      "get": {
+        "operationId": "CustomerController_listFavorites",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      },
+      "post": {
+        "operationId": "CustomerController_addFavorite",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/me/favorites/{favoriteId}": {
+      "delete": {
+        "operationId": "CustomerController_deleteFavorite",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Customer"
+        ]
+      }
+    },
+    "/admin/categories": {
+      "get": {
+        "operationId": "AdminCatalogController_listCategories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      },
+      "post": {
+        "operationId": "AdminCatalogController_createCategory",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/categories/{categoryId}": {
+      "patch": {
+        "operationId": "AdminCatalogController_updateCategory",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/products": {
+      "get": {
+        "operationId": "AdminCatalogController_listProducts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      },
+      "post": {
+        "operationId": "AdminCatalogController_createProduct",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/home-slides": {
+      "get": {
+        "operationId": "AdminCatalogController_listHomeSlides",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      },
+      "put": {
+        "operationId": "AdminCatalogController_replaceHomeSlides",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/products/{productId}": {
+      "get": {
+        "operationId": "AdminCatalogController_getProduct",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminCatalogController_patchProduct",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminCatalogController_deleteProduct",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/products/{productId}/media": {
+      "get": {
+        "operationId": "AdminCatalogController_listMedia",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      },
+      "post": {
+        "operationId": "AdminCatalogController_addMedia",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/products/{productId}/media/upload": {
+      "post": {
+        "operationId": "AdminCatalogController_uploadMedia",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/allergens": {
+      "get": {
+        "operationId": "AdminCatalogController_listAllergens",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCatalog"
+        ]
+      },
+      "post": {
+        "operationId": "AdminCatalogController_createAllergen",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Create an allergen with a generated internal code",
+        "tags": [
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/allergens/{allergenId}": {
+      "patch": {
+        "operationId": "AdminCatalogController_updateAllergen",
+        "parameters": [
+          {
+            "name": "allergenId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Update allergen name or description",
+        "tags": [
+          "AdminCatalog"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminCatalogController_deleteAllergen",
+        "parameters": [
+          {
+            "name": "allergenId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Delete an allergen that is not linked to products",
+        "tags": [
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/allergens/{allergenId}/products/{productId}": {
+      "post": {
+        "operationId": "AdminCatalogController_linkAllergenProduct",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "allergenId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Link an allergen to a product",
+        "tags": [
+          "AdminCatalog"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminCatalogController_unlinkAllergenProduct",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "allergenId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Unlink an allergen from a product",
+        "tags": [
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/modifier-groups": {
+      "get": {
+        "operationId": "AdminCatalogController_listModifierGroups",
+        "parameters": [
+          {
+            "name": "includeInactive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "List modifier groups with options and product links",
+        "tags": [
+          "AdminCatalog",
+          "AdminCatalog"
+        ]
+      },
+      "post": {
+        "operationId": "AdminCatalogController_createModifierGroup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "selectionMin": {
+                    "type": "integer"
+                  },
+                  "selectionMax": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Create a modifier group",
+        "tags": [
+          "AdminCatalog",
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/modifier-groups/{groupId}": {
+      "patch": {
+        "operationId": "AdminCatalogController_updateModifierGroup",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "selectionMin": {
+                    "type": "integer"
+                  },
+                  "selectionMax": {
+                    "type": "integer"
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Update modifier group rules or active state",
+        "tags": [
+          "AdminCatalog",
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/modifier-groups/{groupId}/modifiers": {
+      "post": {
+        "operationId": "AdminCatalogController_createModifierOption",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "priceDeltaMinor"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "priceDeltaMinor": {
+                    "type": "string",
+                    "pattern": "^\\d+$",
+                    "description": "Integer minor-unit amount"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Add a modifier option to a group",
+        "tags": [
+          "AdminCatalog",
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/modifier-groups/{groupId}/modifiers/{modifierId}": {
+      "patch": {
+        "operationId": "AdminCatalogController_updateModifierOption",
+        "parameters": [
+          {
+            "name": "modifierId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "priceDeltaMinor": {
+                    "type": "string",
+                    "pattern": "^\\d+$"
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Update a modifier option or active state",
+        "tags": [
+          "AdminCatalog",
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/modifier-groups/{groupId}/products/{productId}": {
+      "post": {
+        "operationId": "AdminCatalogController_linkModifierProduct",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "displayOrder": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Attach a modifier group to a product",
+        "tags": [
+          "AdminCatalog",
+          "AdminCatalog"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminCatalogController_unlinkModifierProduct",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Detach a modifier group from a product",
+        "tags": [
+          "AdminCatalog",
+          "AdminCatalog"
+        ]
+      }
+    },
+    "/admin/branches": {
+      "get": {
+        "operationId": "AdminBranchController_listBranches",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminBranch"
+        ]
+      },
+      "post": {
+        "operationId": "AdminBranchController_createBranch",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminBranch"
+        ]
+      }
+    },
+    "/admin/branches/{branchId}": {
+      "get": {
+        "operationId": "AdminBranchController_getBranch",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminBranch"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminBranchController_patchBranch",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminBranch"
+        ]
+      }
+    },
+    "/admin/branches/{branchId}/service-areas": {
+      "get": {
+        "operationId": "AdminBranchController_listServiceAreas",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminBranch"
+        ]
+      },
+      "post": {
+        "operationId": "AdminBranchController_createServiceArea",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminBranch"
+        ]
+      }
+    },
+    "/admin/branches/{branchId}/operating-hours": {
+      "get": {
+        "operationId": "AdminBranchController_getOperatingHours",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminBranch"
+        ]
+      },
+      "put": {
+        "operationId": "AdminBranchController_putOperatingHours",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminBranch"
+        ]
+      }
+    },
+    "/admin/branches/{branchId}/product-availability": {
+      "get": {
+        "operationId": "AdminBranchController_listProductAvailability",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminBranch"
+        ]
+      }
+    },
+    "/admin/branches/{branchId}/product-availability/{productId}": {
+      "patch": {
+        "operationId": "AdminBranchController_setProductAvailability",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminBranch"
+        ]
+      }
+    },
+    "/admin/payments": {
+      "get": {
+        "operationId": "AdminPaymentController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminPayment"
+        ]
+      }
+    },
+    "/admin/payments/{paymentId}": {
+      "get": {
+        "operationId": "AdminPaymentController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminPayment"
+        ]
+      }
+    },
+    "/admin/audit": {
+      "get": {
+        "operationId": "AdminAuditController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminAudit"
+        ]
+      }
+    },
+    "/admin/settings": {
+      "get": {
+        "operationId": "AdminSettingsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminSettings"
+        ]
+      }
+    },
+    "/admin/settings/{key}": {
+      "patch": {
+        "operationId": "AdminSettingsController_patch",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminSettings"
+        ]
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "operationId": "AdminUserController_listUsers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      },
+      "post": {
+        "operationId": "AdminUserController_createStaff",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/roles": {
+      "get": {
+        "operationId": "AdminUserController_listRoles",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/permissions": {
+      "get": {
+        "operationId": "AdminUserController_listPermissions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/users/{userId}": {
+      "patch": {
+        "operationId": "AdminUserController_updateUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/users/{userId}/password": {
+      "patch": {
+        "operationId": "AdminUserController_setPassword",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/users/{userId}/email-change": {
+      "post": {
+        "operationId": "AdminUserController_requestEmailChange",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/users/{userId}/status": {
+      "patch": {
+        "operationId": "AdminUserController_updateStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/users/{userId}/branches": {
+      "patch": {
+        "operationId": "AdminUserController_updateBranches",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/users/{userId}/permissions": {
+      "patch": {
+        "operationId": "AdminUserController_updatePermissions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/users/{userId}/roles": {
+      "post": {
+        "operationId": "AdminUserController_assignRole",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/users/{userId}/roles/{roleId}": {
+      "delete": {
+        "operationId": "AdminUserController_revokeRole",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/customers": {
+      "get": {
+        "operationId": "AdminCustomerController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCustomer"
+        ]
+      }
+    },
+    "/admin/customers/{userId}/club": {
+      "get": {
+        "operationId": "AdminCustomerController_clubSnapshot",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCustomer"
+        ]
+      }
+    },
+    "/admin/customers/{userId}": {
+      "get": {
+        "operationId": "AdminCustomerController_detail",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AdminCustomer"
+        ]
+      }
+    },
+    "/storefront/home": {
+      "get": {
+        "operationId": "StorefrontHomeController_getHome",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StorefrontHome"
+        ]
+      }
+    },
+    "/storefront/newsletter": {
+      "post": {
+        "operationId": "StorefrontHomeController_subscribe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StorefrontHome"
+        ]
+      }
+    },
+    "/storefront/newsletter/unsubscribe": {
+      "post": {
+        "operationId": "StorefrontHomeController_unsubscribe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StorefrontHome"
+        ]
+      }
+    },
+    "/storefront/content": {
+      "get": {
+        "operationId": "StorefrontContentController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StorefrontContent"
+        ]
+      }
+    },
+    "/storefront/content/{slug}": {
+      "get": {
+        "operationId": "StorefrontContentController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "StorefrontContent"
+        ]
+      }
+    },
+    "/public/media/products/{file}": {
+      "get": {
+        "operationId": "PublicMediaController_getProductImage",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "PublicMedia"
+        ]
+      }
+    },
+    "/me/spin": {
+      "get": {
+        "operationId": "SpinController_eligibility",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Spin"
+        ]
+      },
+      "post": {
+        "operationId": "SpinController_spin",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Spin"
+        ]
+      }
+    },
+    "/storefront/tables/{code}": {
+      "get": {
+        "operationId": "DiningTableController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "DiningTable"
+        ]
+      }
+    },
+    "/storefront/tables/{code}/scan": {
+      "post": {
+        "operationId": "DiningTableController_scan",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "DiningTable"
+        ]
+      }
+    },
+    "/me/support/conversations": {
+      "get": {
+        "operationId": "SupportChatController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SupportChat"
+        ]
+      },
+      "post": {
+        "operationId": "SupportChatController_open",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SupportChat"
+        ]
+      }
+    },
+    "/me/support/conversations/{id}": {
+      "get": {
+        "operationId": "SupportChatController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SupportChat"
+        ]
+      }
+    },
+    "/me/support/conversations/{id}/messages": {
+      "post": {
+        "operationId": "SupportChatController_send",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "SupportChat"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "FASTFOOD API",
+    "description": "FASTFOOD canonical OpenAPI document. Generated from the Nest app definition. The response envelope follows document 40 (success / list / error) and the canonical error code groups from packages/contracts/error-codes.",
+    "version": "0.0.0-phase3",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      },
+      "Idempotency-Key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Idempotency-Key"
+      }
+    },
+    "schemas": {}
+  }
+}

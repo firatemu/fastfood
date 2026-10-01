@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>Teslimat konumu seç</title>
+    <link href="https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <style>
+      html,
+      body,
+      #map {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: #1b1b1f;
+      }
+      .maplibregl-ctrl-attrib {
+        font:
+          10px Arial,
+          sans-serif;
+      }
+      .maplibregl-ctrl-group button {
+        color: #222;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map" aria-label="Teslimat konumu haritası"></div>
+    <script type="module">
+      import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.mjs';
+
+      const params = new URLSearchParams(window.location.search);
+      const latitude = Number(params.get('lat'));
+      const longitude = Number(params.get('lng'));
+      const validPoint =
+        Number.isFinite(latitude) &&
+        latitude >= -90 &&
+        latitude <= 90 &&
+        Number.isFinite(longitude) &&
+        longitude >= -180 &&
+        longitude <= 180;
+      const initialPoint =
+        validPoint && params.get('selected') === '1' ? { latitude, longitude } : null;
+      const center =
+        validPoint && (latitude !== 0 || longitude !== 0)
+          ? [longitude, latitude]
+          : [28.985, 41.036];
+      const parentOrigin = (() => {
+        try {
+          return document.referrer ? new URL(document.referrer).origin : '*';
+        } catch {
+          return '*';
+        }
+      })();
+      const post = (message) => window.parent.postMessage(JSON.stringify(message), parentOrigin);
+
+      let readySent = false;
+      let marker = null;
+      const map = new maplibregl.Map({
+        container: 'map',
+        style: 'https://tiles.openfreemap.org/styles/liberty',
+        center,
+        zoom: initialPoint ? 16 : 12,
+        scrollZoom: false,
+        attributionControl: { compact: false },
+      });
+
+      if (initialPoint) {
+        marker = new maplibregl.Marker({ color: '#d97706' })
+          .setLngLat([initialPoint.longitude, initialPoint.latitude])
+          .addTo(map);
+      }
+
+      map.once('load', () => {
+        readySent = true;
+        post({ type: 'map-ready' });
+      });
+      map.on('error', (event) => {
+        if (!readySent && event.error) post({ type: 'map-error' });
+      });
+      map.on('click', (event) => {
+        const point = { latitude: event.lngLat.lat, longitude: event.lngLat.lng };
+        if (marker) marker.setLngLat([point.longitude, point.latitude]);
+        else {
+          marker = new maplibregl.Marker({ color: '#d97706' })
+            .setLngLat([point.longitude, point.latitude])
+            .addTo(map);
+        }
+        post({ type: 'location-selected', ...point });
+      });
+      setTimeout(() => {
+        if (!readySent) post({ type: 'map-error' });
+      }, 25_000);
+    </script>
+  </body>
+</html>

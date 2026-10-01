@@ -1,0 +1,1596 @@
+// FASTFOOD — Canonical Prisma schema.
+//
+// Document 35 + 16 mandate:
+//   - UUIDv7 primary IDs via PostgreSQL 18 `uuidv7()` default
+//   - snake_case table/column names with PascalCase models and camelCase props
+//   - integer minor-unit money (`BigInt` / PostgreSQL `BIGINT`)
+//   - UTC timestamps with snake_case columns (`created_at`, `updated_at`)
+//   - PostGIS extension is enabled by the dedicated bootstrap migration
+//
+// Phase 0 introduced the foundation probe + extensions.
+// Phase 3 extends the schema with the canonical identity entities from
+// document 31 §"Identity and authorization" + §"Platform":
+//   User, StaffProfile, CustomerProfile, Session, Role, Permission,
+//   UserRole, UserBranchScope, Address, AuditLog, OutboxEvent,
+//   BusinessSetting, plus the FoundationProbe kept for end-to-end
+//   UUIDv7/BigInt/UTC pipeline validation.
+//
+// Catalog / branch / order / loyalty / payment / kitchen / courier /
+// delivery / reporting entities are intentionally added in later phases
+// per document 23.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+  output          = "./generated/client"
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [postgis, uuidOssp(map: "uuid-ossp")]
+}
+
+// ─── Phase 0 foundation probe (retained for end-to-end pipeline validation) ───
+model FoundationProbe {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  label       String   @map("label") @db.VarChar(120)
+  amountMinor BigInt   @default(0) @map("amount_minor") @db.BigInt
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("foundation_probes")
+}
+
+// ─── Identity & authorization (Phase 3) ───
+//
+// `users` is the unified identity table. `actor_type` distinguishes
+// staff vs customer vs courier at the database layer. Staff-specific
+// (StaffProfile) and customer-specific (CustomerProfile) information
+// is split into separate tables to keep the access paths simple and
+// to avoid storing courier credentials on a "customer" surface.
+//
+// Document 31 §"Identity and authorization".
+
+enum ActorType {
+  CUSTOMER
+  STAFF
+  COURIER
+  SYSTEM
+  GUEST
+
+  @@map("actor_type")
+}
+
+enum IdentifierType {
+  EMAIL
+  PHONE
+  STAFF_USERNAME
+
+  @@map("identifier_type")
+}
+
+enum AuthProvider {
+  PHONE_OTP
+  EMAIL_PASSWORD
+  GOOGLE
+  APPLE
+
+  @@map("auth_provider")
+}
+
+enum AccountStatus {
+  ACTIVE
+  DISABLED
+  LOCKED
+  PENDING_VERIFICATION
+
+  @@map("account_status")
+}
+
+model User {
+  id                       String          @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  actorType                ActorType       @map("actor_type")
+  status                   AccountStatus   @default(PENDING_VERIFICATION)
+  primaryIdentifier        String?         @unique @map("primary_identifier") @db.VarChar(255)
+  primaryIdentifierType    IdentifierType? @map("primary_identifier_type")
+  displayName              String?         @map("display_name") @db.VarChar(120)
+  customPermissionsEnabled Boolean         @default(false) @map("custom_permissions_enabled")
+  createdAt                DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  disabledAt               DateTime?       @map("disabled_at") @db.Timestamptz(6)
+
+  staffProfile                  StaffProfile?
+  customerProfile               CustomerProfile?
+  sessions                      Session[]
+  userRoles                     UserRole[]
+  userPermissionGrants          UserPermissionGrant[]        @relation("UserPermissionGrants")
+  issuedPermissionGrants        UserPermissionGrant[]        @relation("PermissionGrantActor")
+  userBranchScopes              UserBranchScope[]
+  branchAdministrator           BranchAdministrator?         @relation("BranchAdministrator")
+  appointedBranchAdministrators BranchAdministrator[]        @relation("BranchAdministratorActor")
+  addresses                     Address[]
+  outboxEvents                  OutboxEvent[]                @relation("OutboxCreator")
+  customerCredential            CustomerCredential?
+  authIdentities                AuthIdentity[]
+  emailVerificationChallenges   EmailVerificationChallenge[]
+  passwordResetChallenges       PasswordResetChallenge[]
+  customerPreference            CustomerPreference?
+  favorites                     CustomerFavorite[]
+  welcomeRewardGrants           WelcomeRewardGrant[]
+  spinPlays                     SpinPlay[]
+  supportConversations          SupportConversation[]
+  diningTableScans              DiningTableScan[]
+
+  @@index([actorType])
+  @@index([status])
+  @@map("users")
+}
+
+model StaffProfile {
+  userId               String    @id @map("user_id") @db.Uuid
+  passwordHash         String?   @map("password_hash") @db.VarChar(255)
+  passwordAlgo         String?   @map("password_algo") @db.VarChar(32)
+  passwordUpdatedAt    DateTime? @map("password_updated_at") @db.Timestamptz(6)
+  mfaEnabled           Boolean   @default(false) @map("mfa_enabled")
+  mfaSecretEnc         String?   @map("mfa_secret_enc") @db.VarChar(512)
+  mfaRecoveryCodesHash String?   @map("mfa_recovery_codes_hash") @db.VarChar(1024)
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("staff_profiles")
+}
+
+model CustomerProfile {
+  userId          String    @id @map("user_id") @db.Uuid
+  phoneNormalized String?   @unique @map("phone_normalized") @db.VarChar(32)
+  phoneVerified   Boolean   @default(false) @map("phone_verified")
+  emailNormalized String?   @unique @map("email_normalized") @db.VarChar(255)
+  emailVerified   Boolean   @default(false) @map("email_verified")
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
+  locale          String?   @map("locale") @db.VarChar(16)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("customer_profiles")
+}
+
+model CustomerCredential {
+  userId            String   @id @map("user_id") @db.Uuid
+  passwordHash      String   @map("password_hash") @db.VarChar(255)
+  passwordAlgo      String   @map("password_algo") @db.VarChar(32)
+  passwordUpdatedAt DateTime @map("password_updated_at") @db.Timestamptz(6)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("customer_credentials")
+}
+
+model AuthIdentity {
+  id                      String       @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId                  String       @map("user_id") @db.Uuid
+  provider                AuthProvider
+  providerSubject         String       @map("provider_subject") @db.VarChar(255)
+  emailNormalized         String?      @map("email_normalized") @db.VarChar(255)
+  emailVerifiedByProvider Boolean      @default(false) @map("email_verified_by_provider")
+  linkedAt                DateTime     @default(now()) @map("linked_at") @db.Timestamptz(6)
+  createdAt               DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerSubject])
+  @@index([userId])
+  @@map("auth_identities")
+}
+
+model EmailVerificationChallenge {
+  id              String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  emailNormalized String    @map("email_normalized") @db.VarChar(255)
+  tokenHash       String    @unique @map("token_hash") @db.VarChar(128)
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt      DateTime? @map("consumed_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("email_verification_challenges")
+}
+
+model PasswordResetChallenge {
+  id         String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  tokenHash  String    @unique @map("token_hash") @db.VarChar(128)
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6)
+  attempts   Int       @default(0)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_challenges")
+}
+
+model CustomerPreference {
+  userId            String    @id @map("user_id") @db.Uuid
+  marketingOptIn    Boolean   @default(false) @map("marketing_opt_in")
+  newsletterOptIn   Boolean   @default(false) @map("newsletter_opt_in")
+  orderUpdatesOptIn Boolean   @default(true) @map("order_updates_opt_in")
+  kvkkAcceptedAt    DateTime? @map("kvkk_accepted_at") @db.Timestamptz(6)
+  locale            String?   @db.VarChar(16)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("customer_preferences")
+}
+
+model Session {
+  id               String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  refreshTokenHash String    @unique @map("refresh_token_hash") @db.VarChar(128)
+  familyId         String    @map("family_id") @db.Uuid
+  issuedAt         DateTime  @default(now()) @map("issued_at") @db.Timestamptz(6)
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(6)
+  revokedReason    String?   @map("revoked_reason") @db.VarChar(64)
+  userAgent        String?   @map("user_agent") @db.VarChar(512)
+  ipAddress        String?   @map("ip_address") @db.VarChar(64)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Role {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  code        String   @unique @db.VarChar(64)
+  name        String   @map("name") @db.VarChar(120)
+  description String?  @db.VarChar(512)
+  isSystem    Boolean  @default(false) @map("is_system")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  code        String   @unique @db.VarChar(128)
+  description String?  @db.VarChar(512)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  rolePermissions      RolePermission[]
+  userPermissionGrants UserPermissionGrant[]
+
+  @@map("permissions")
+}
+
+model UserPermissionGrant {
+  userId          String   @map("user_id") @db.Uuid
+  permissionId    String   @map("permission_id") @db.Uuid
+  grantedByUserId String?  @map("granted_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user          User       @relation("UserPermissionGrants", fields: [userId], references: [id], onDelete: Cascade)
+  permission    Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  grantedByUser User?      @relation("PermissionGrantActor", fields: [grantedByUserId], references: [id], onDelete: SetNull)
+
+  @@id([userId, permissionId])
+  @@index([permissionId])
+  @@map("user_permission_grants")
+}
+
+model RolePermission {
+  roleId       String   @map("role_id") @db.Uuid
+  permissionId String   @map("permission_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  userId          String    @map("user_id") @db.Uuid
+  roleId          String    @map("role_id") @db.Uuid
+  grantedByUserId String?   @map("granted_by_user_id") @db.Uuid
+  grantedAt       DateTime  @default(now()) @map("granted_at") @db.Timestamptz(6)
+  expiresAt       DateTime? @map("expires_at") @db.Timestamptz(6)
+  revokedAt       DateTime? @map("revoked_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model UserBranchScope {
+  userId    String   @map("user_id") @db.Uuid
+  branchId  String   @map("branch_id") @db.Uuid
+  scopeKind String   @map("scope_kind") @db.VarChar(32) // "assigned" | "global" | "own"
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  branch Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@id([userId, branchId])
+  @@unique([userId])
+  @@index([branchId])
+  @@map("user_branch_scopes")
+}
+
+// ─── Address (Phase 3 — coordinate persistence only) ───
+//
+// Document 07 §7-§8 + 31 §"Customer/address". Phase 3 persists
+// coordinates + ownership. Serviceability decision (whether a
+// given address can be delivered to by a branch) is deferred to
+// Phase 4 per the roadmap.
+
+model Address {
+  id              String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  label           String?  @map("label") @db.VarChar(64)
+  recipientName   String   @map("recipient_name") @db.VarChar(120)
+  recipientPhone  String   @map("recipient_phone") @db.VarChar(32)
+  latitude        Decimal  @map("latitude") @db.Decimal(9, 6)
+  longitude       Decimal  @map("longitude") @db.Decimal(9, 6)
+  countryCode     String   @map("country_code") @db.VarChar(2)
+  provinceId      Int?     @map("province_id") @db.SmallInt
+  districtId      Int?     @map("district_id")
+  neighborhoodId  Int?     @map("neighborhood_id")
+  province        String?  @map("province") @db.VarChar(64)
+  city            String?  @map("city") @db.VarChar(64)
+  district        String?  @map("district") @db.VarChar(64)
+  neighborhood    String?  @map("neighborhood") @db.VarChar(128)
+  avenue          String?  @map("avenue") @db.VarChar(255)
+  street          String?  @map("street") @db.VarChar(255)
+  buildingNumber  String?  @map("building_number") @db.VarChar(32)
+  floor           String?  @map("floor") @db.VarChar(32)
+  apartmentNumber String?  @map("apartment_number") @db.VarChar(32)
+  floorApartment  String?  @map("floor_apartment") @db.VarChar(64)
+  accessCode      String?  @map("access_code") @db.VarChar(64)
+  deliveryNote    String?  @map("delivery_note") @db.VarChar(512)
+  providerPlaceId String?  @map("provider_place_id") @db.VarChar(255)
+  normalizedText  String?  @map("normalized_text") @db.VarChar(1024)
+  isDefault       Boolean  @default(false) @map("is_default")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user                  User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provinceReference     AddressProvince?     @relation(fields: [provinceId], references: [id], onDelete: Restrict)
+  districtReference     AddressDistrict?     @relation(fields: [districtId, provinceId], references: [id, provinceId], onDelete: Restrict)
+  neighborhoodReference AddressNeighborhood? @relation(fields: [neighborhoodId, districtId], references: [id, districtId], onDelete: Restrict)
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+// Customer address selectors use a bounded, locally seeded set of official
+// province/district/neighborhood reference identifiers.
+model AddressProvince {
+  id              Int               @id @db.SmallInt
+  name            String            @unique @db.VarChar(64)
+  displayOrder    Int               @map("display_order") @db.SmallInt
+  centerLatitude  Decimal           @map("center_latitude") @db.Decimal(9, 6)
+  centerLongitude Decimal           @map("center_longitude") @db.Decimal(9, 6)
+  districts       AddressDistrict[]
+  addresses       Address[]
+
+  @@map("address_provinces")
+}
+
+model AddressDistrict {
+  id            Int                   @id
+  provinceId    Int                   @map("province_id") @db.SmallInt
+  name          String                @db.VarChar(128)
+  postalCode    String?               @map("postal_code") @db.VarChar(16)
+  province      AddressProvince       @relation(fields: [provinceId], references: [id], onDelete: Restrict)
+  neighborhoods AddressNeighborhood[]
+  addresses     Address[]
+
+  @@unique([id, provinceId])
+  @@unique([provinceId, name])
+  @@index([provinceId])
+  @@map("address_districts")
+}
+
+model AddressNeighborhood {
+  id         Int             @id
+  districtId Int             @map("district_id")
+  name       String          @db.VarChar(128)
+  postalCode String?         @map("postal_code") @db.VarChar(16)
+  district   AddressDistrict @relation(fields: [districtId], references: [id], onDelete: Restrict)
+  addresses  Address[]
+
+  @@unique([id, districtId])
+  @@index([districtId])
+  @@map("address_neighborhoods")
+}
+
+// ─── AuditLog (Phase 3) ───
+//
+// Document 18 §8 + 31 §"Platform". Append-only. Updates / deletes are
+// rejected at the application layer (the application never exposes
+// a mutation for this table).
+model AuditLog {
+  id              String     @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  actorUserId     String?    @map("actor_user_id") @db.Uuid
+  actorType       ActorType? @map("actor_type")
+  action          String     @map("action") @db.VarChar(128)
+  resourceType    String     @map("resource_type") @db.VarChar(64)
+  resourceId      String?    @map("resource_id") @db.Uuid
+  branchId        String?    @map("branch_id") @db.Uuid
+  requestId       String?    @map("request_id") @db.Uuid
+  correlationId   String?    @map("correlation_id") @db.Uuid
+  priorValuesJson Json?      @map("prior_values_json") @db.JsonB
+  newValuesJson   Json?      @map("new_values_json") @db.JsonB
+  reason          String?    @map("reason") @db.VarChar(512)
+  ipAddress       String?    @map("ip_address") @db.VarChar(64)
+  userAgent       String?    @map("user_agent") @db.VarChar(512)
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([actorUserId])
+  @@index([resourceType, resourceId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ─── OutboxEvent (Phase 3 — transactional outbox pattern) ───
+//
+// Document 17 §4 + 31 §"OutboxEvent". The application writes the
+// business mutation + the OutboxEvent row in a single
+// `PrismaService.$transaction([...])` call. A separate worker (out
+// of scope for Phase 3) consumes published events and dispatches
+// them to BullMQ / external providers.
+model OutboxEvent {
+  id              String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  eventType       String    @map("event_type") @db.VarChar(128)
+  eventVersion    Int       @default(1) @map("event_version")
+  aggregateType   String?   @map("aggregate_type") @db.VarChar(64)
+  aggregateId     String?   @map("aggregate_id") @db.Uuid
+  payloadJson     Json      @map("payload_json") @db.JsonB
+  createdByUserId String?   @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  publishedAt     DateTime? @map("published_at") @db.Timestamptz(6)
+  attempts        Int       @default(0) @map("attempts")
+  lastAttemptAt   DateTime? @map("last_attempt_at") @db.Timestamptz(6)
+  lastError       String?   @map("last_error") @db.VarChar(2048)
+
+  createdByUser User? @relation("OutboxCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([eventType])
+  @@index([publishedAt])
+  @@index([aggregateType, aggregateId])
+  @@map("outbox_events")
+}
+
+// ─── BusinessSetting (Phase 3) ───
+//
+// Document 31 §"Platform" + 36 §"Configuration categories".
+// Typed mutable business configuration that may be changed by an
+// authorized HQ user. Values are stored as JSONB to remain flexible
+// per key while preserving the typed `valueType` discriminator.
+model BusinessSetting {
+  id              String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  key             String   @unique @db.VarChar(128)
+  valueType       String   @map("value_type") @db.VarChar(32)
+  valueJson       Json     @map("value_json") @db.JsonB
+  category        String   @map("category") @db.VarChar(64)
+  description     String?  @db.VarChar(512)
+  mutable         Boolean  @default(true) @map("mutable")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  updatedByUserId String?  @map("updated_by_user_id") @db.Uuid
+
+  @@index([category])
+  @@map("business_settings")
+}
+
+// ─── Catalog (Phase 4) ───
+//
+// Document 08 + 31 §"Catalog".
+// Categories form a tree via `parentCategoryId`. Products are owned
+// by HQ (central catalog) and may be hidden at a branch via
+// `BranchProductAvailability`.
+model Category {
+  id               String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  parentCategoryId String?  @map("parent_category_id") @db.Uuid
+  slug             String   @unique @db.VarChar(128)
+  name             String   @map("name") @db.VarChar(128)
+  description      String?  @db.VarChar(1024)
+  displayOrder     Int      @default(0) @map("display_order")
+  isActive         Boolean  @default(true) @map("is_active")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  parentCategory Category?  @relation("CategoryTree", fields: [parentCategoryId], references: [id], onDelete: SetNull)
+  children       Category[] @relation("CategoryTree")
+  products       Product[]
+
+  @@index([parentCategoryId])
+  @@index([slug])
+  @@map("categories")
+}
+
+model Allergen {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  code        String   @unique @db.VarChar(64)
+  name        String   @map("name") @db.VarChar(128)
+  description String?  @db.VarChar(512)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  products ProductAllergen[]
+
+  @@map("allergens")
+}
+
+model Product {
+  id             String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  categoryId     String   @map("category_id") @db.Uuid
+  slug           String   @unique @db.VarChar(128)
+  name           String   @map("name") @db.VarChar(128)
+  description    String?  @db.VarChar(2048)
+  basePriceMinor BigInt   @map("base_price_minor") @db.BigInt
+  currency       String   @default("TRY") @db.VarChar(3)
+  displayOrder   Int      @default(0) @map("display_order")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  category           Category                    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  media              ProductMedia[]
+  variants           ProductVariant[]
+  modifierGroups     ProductModifierGroup[]
+  ingredientRemovals IngredientRemovalOption[]
+  allergens          ProductAllergen[]
+  branchAvailability BranchProductAvailability[]
+  merchandising      ProductMerchandising?
+  comboOfferItems    StorefrontComboOfferItem[]
+  favorites          CustomerFavorite[]
+
+  @@index([categoryId])
+  @@index([slug])
+  @@map("products")
+}
+
+model ProductMedia {
+  id           String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  url          String   @map("url") @db.VarChar(2048)
+  altText      String?  @map("alt_text") @db.VarChar(255)
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_media")
+}
+
+model ProductVariant {
+  id           String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  sku          String   @unique @db.VarChar(64)
+  name         String   @map("name") @db.VarChar(128)
+  priceMinor   BigInt   @map("price_minor") @db.BigInt
+  displayOrder Int      @default(0) @map("display_order")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_variants")
+}
+
+model ModifierGroup {
+  id           String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  name         String   @map("name") @db.VarChar(128)
+  selectionMin Int      @default(0) @map("selection_min")
+  selectionMax Int      @default(1) @map("selection_max")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  modifiers     Modifier[]
+  productGroups ProductModifierGroup[]
+
+  @@map("modifier_groups")
+}
+
+model Modifier {
+  id              String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  modifierGroupId String   @map("modifier_group_id") @db.Uuid
+  name            String   @map("name") @db.VarChar(128)
+  priceDeltaMinor BigInt   @default(0) @map("price_delta_minor") @db.BigInt
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  group ModifierGroup @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+
+  @@index([modifierGroupId])
+  @@map("modifiers")
+}
+
+model ProductModifierGroup {
+  productId       String   @map("product_id") @db.Uuid
+  modifierGroupId String   @map("modifier_group_id") @db.Uuid
+  displayOrder    Int      @default(0) @map("display_order")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  product       Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  modifierGroup ModifierGroup @relation(fields: [modifierGroupId], references: [id], onDelete: Restrict)
+
+  @@id([productId, modifierGroupId])
+  @@index([modifierGroupId])
+  @@map("product_modifier_groups")
+}
+
+model IngredientRemovalOption {
+  id        String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  name      String   @map("name") @db.VarChar(128)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("ingredient_removal_options")
+}
+
+model ProductAllergen {
+  productId  String   @map("product_id") @db.Uuid
+  allergenId String   @map("allergen_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  allergen Allergen @relation(fields: [allergenId], references: [id], onDelete: Cascade)
+
+  @@id([productId, allergenId])
+  @@index([allergenId])
+  @@map("product_allergens")
+}
+
+// ─── Branch (Phase 4) ───
+//
+// Document 13 + 31 §"Branch/geography". ServiceArea stores a
+// GeoJSON MultiPolygon; routing engine (P4-005) uses these polygons
+// to assign customer coordinates to a branch. PostGIS extension is
+// enabled by the Phase 0 migration.
+model Branch {
+  id                          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  code                        String   @unique @db.VarChar(32)
+  name                        String   @map("name") @db.VarChar(128)
+  addressLine                 String   @map("address_line") @db.VarChar(255)
+  latitude                    Decimal  @map("latitude") @db.Decimal(9, 6)
+  longitude                   Decimal  @map("longitude") @db.Decimal(9, 6)
+  phone                       String?  @map("phone") @db.VarChar(32)
+  isActive                    Boolean  @default(true) @map("is_active")
+  isAcceptingOrders           Boolean  @default(true) @map("is_accepting_orders")
+  minOrderMinor               BigInt   @default(0) @map("min_order_minor") @db.BigInt
+  deliveryFeeMinor            BigInt   @default(0) @map("delivery_fee_minor") @db.BigInt
+  estimatedDeliveryMinutesMin Int      @default(0) @map("estimated_delivery_minutes_min")
+  estimatedDeliveryMinutesMax Int      @default(0) @map("estimated_delivery_minutes_max")
+  storyBody                   String?  @map("story_body") @db.Text
+  imageUrl                    String?  @map("image_url") @db.VarChar(2048)
+  pickupEnabled               Boolean  @default(true) @map("pickup_enabled")
+  deliveryEnabled             Boolean  @default(true) @map("delivery_enabled")
+  createdAt                   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  operatingHours      BranchOperatingHours[]
+  serviceAreas        ServiceArea[]
+  productAvailability BranchProductAvailability[]
+  diningTables        DiningTable[]
+  userBranchScopes    UserBranchScope[]
+  administrator       BranchAdministrator?
+
+  @@index([code])
+  @@map("branches")
+}
+
+model BranchAdministrator {
+  branchId         String   @id @map("branch_id") @db.Uuid
+  userId           String   @unique @map("user_id") @db.Uuid
+  assignedByUserId String   @map("assigned_by_user_id") @db.Uuid
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  branch         Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  user           User   @relation("BranchAdministrator", fields: [userId], references: [id], onDelete: Restrict)
+  assignedByUser User   @relation("BranchAdministratorActor", fields: [assignedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([assignedByUserId])
+  @@map("branch_administrators")
+}
+
+model BranchOperatingHours {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  branchId    String   @map("branch_id") @db.Uuid
+  dayOfWeek   Int      @map("day_of_week")
+  opensAt     DateTime @map("opens_at") @db.Timestamptz(6)
+  closesAt    DateTime @map("closes_at") @db.Timestamptz(6)
+  isClosed    Boolean  @default(false) @map("is_closed")
+  specialNote String?  @map("special_note") @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  branch Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@unique([branchId, dayOfWeek])
+  @@index([branchId])
+  @@map("branch_operating_hours")
+}
+
+model ServiceArea {
+  id             String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  branchId       String   @map("branch_id") @db.Uuid
+  name           String   @map("name") @db.VarChar(128)
+  // GeoJSON MultiPolygon in EPSG:4326. The Phase 4 routing engine
+  // uses these polygons via an in-memory point-in-polygon check.
+  // Production deployment with PostGIS spatial index uses the
+  // geometry column directly.
+  polygonGeoJson Json     @map("polygon_geojson") @db.JsonB
+  priority       Int      @default(0) @map("priority")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  branch Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@index([branchId])
+  @@map("service_areas")
+}
+
+model BranchProductAvailability {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  branchId    String   @map("branch_id") @db.Uuid
+  productId   String   @map("product_id") @db.Uuid
+  isAvailable Boolean  @default(true) @map("is_available")
+  reason      String?  @map("reason") @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  branch  Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([branchId, productId])
+  @@index([productId])
+  @@map("branch_product_availability")
+}
+
+// ─── Cart (Phase 5) ───
+//
+// Document 09 + 31 §"Checkout/payment" + 16 + 35. Cart is
+// server-side session-scoped. Guest carts use a cookie-derived
+// session id; customer carts are linked to the authenticated user.
+// On customer login the guest cart merges into the customer cart
+// (document 09 §3).
+//
+// Money-bearing columns are BIGINT per document 35 §5.
+model Cart {
+  id             String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId         String?   @map("user_id") @db.Uuid
+  guestSessionId String?   @unique @map("guest_session_id") @db.VarChar(64)
+  status         String    @default("OPEN") @db.VarChar(16)
+  branchId       String?   @map("branch_id") @db.Uuid
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  expiresAt      DateTime? @map("expires_at") @db.Timestamptz(6)
+
+  lineItems CartLineItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("carts")
+}
+
+model CartLineItem {
+  id                     String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  cartId                 String   @map("cart_id") @db.Uuid
+  productId              String   @map("product_id") @db.Uuid
+  productVariantId       String?  @map("product_variant_id") @db.Uuid
+  quantity               Int      @map("quantity")
+  unitPriceMinorSnapshot BigInt   @map("unit_price_minor_snapshot") @db.BigInt
+  currencySnapshot       String   @default("TRY") @map("currency_snapshot") @db.VarChar(3)
+  deliveryNote           String?  @map("delivery_note") @db.VarChar(512)
+  displayOrder           Int      @default(0) @map("display_order")
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  cart      Cart               @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  modifiers CartLineModifier[]
+  removals  CartLineRemoval[]
+
+  @@index([cartId])
+  @@index([productId])
+  @@map("cart_line_items")
+}
+
+model CartLineModifier {
+  id                      String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  cartLineItemId          String   @map("cart_line_item_id") @db.Uuid
+  modifierId              String   @map("modifier_id") @db.Uuid
+  priceDeltaMinorSnapshot BigInt   @default(0) @map("price_delta_minor_snapshot") @db.BigInt
+  createdAt               DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  cartLineItem CartLineItem @relation(fields: [cartLineItemId], references: [id], onDelete: Cascade)
+
+  @@unique([cartLineItemId, modifierId])
+  @@index([cartLineItemId])
+  @@map("cart_line_modifiers")
+}
+
+model CartLineRemoval {
+  id             String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  cartLineItemId String   @map("cart_line_item_id") @db.Uuid
+  ingredientId   String   @map("ingredient_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  cartLineItem CartLineItem @relation(fields: [cartLineItemId], references: [id], onDelete: Cascade)
+
+  @@unique([cartLineItemId, ingredientId])
+  @@index([cartLineItemId])
+  @@map("cart_line_removals")
+}
+
+// ─── Checkout / Payment (Phase 6) ───
+//
+// Document 31 §Checkout/payment + 09 + 37. Money columns are BIGINT.
+
+model CheckoutSession {
+  id                    String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId                String?   @map("user_id") @db.Uuid
+  guestSessionId        String?   @map("guest_session_id") @db.VarChar(64)
+  cartId                String?   @map("cart_id") @db.Uuid
+  branchId              String?   @map("branch_id") @db.Uuid
+  status                String    @default("OPEN") @db.VarChar(32)
+  currency              String    @default("TRY") @db.VarChar(3)
+  merchandiseGrossMinor BigInt    @default(0) @map("merchandise_gross_minor") @db.BigInt
+  merchandiseNetMinor   BigInt    @default(0) @map("merchandise_net_minor") @db.BigInt
+  deliveryFeeMinor      BigInt    @default(0) @map("delivery_fee_minor") @db.BigInt
+  loyaltyRedeemedMinor  BigInt    @default(0) @map("loyalty_redeemed_minor") @db.BigInt
+  finalPayableMinor     BigInt    @default(0) @map("final_payable_minor") @db.BigInt
+  fulfillmentMode       String    @default("DELIVERY") @map("fulfillment_mode") @db.VarChar(16)
+  scheduledFor          DateTime? @map("scheduled_for") @db.Timestamptz(6)
+  tipMinor              BigInt    @default(0) @map("tip_minor") @db.BigInt
+  pickupDiscountMinor   BigInt    @default(0) @map("pickup_discount_minor") @db.BigInt
+  ecoPackaging          Boolean   @default(false) @map("eco_packaging")
+  contactless           Boolean   @default(false)
+  buildingAccessCode    String?   @map("building_access_code") @db.VarChar(64)
+  deliveryNote          String?   @map("delivery_note") @db.VarChar(512)
+  paymentMethodCode     String?   @map("payment_method_code") @db.VarChar(32)
+  guestName             String?   @map("guest_name") @db.VarChar(120)
+  guestPhone            String?   @map("guest_phone") @db.VarChar(32)
+  orderId               String?   @unique @map("order_id") @db.Uuid
+  quoteSnapshotJson     Json?     @map("quote_snapshot_json")
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  expiresAt             DateTime? @map("expires_at") @db.Timestamptz(6)
+
+  paymentAttempts PaymentAttempt[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("checkout_sessions")
+}
+
+model PaymentAttempt {
+  id                 String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  checkoutSessionId  String   @map("checkout_session_id") @db.Uuid
+  provider           String   @default("iyzico") @db.VarChar(32)
+  providerPaymentId  String?  @map("provider_payment_id") @db.VarChar(128)
+  status             String   @default("INITIATED") @db.VarChar(32)
+  amountMinor        BigInt   @map("amount_minor") @db.BigInt
+  currency           String   @default("TRY") @db.VarChar(3)
+  idempotencyKey     String   @unique @map("idempotency_key") @db.VarChar(128)
+  failureCode        String?  @map("failure_code") @db.VarChar(64)
+  rawProviderPayload Json?    @map("raw_provider_payload")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  checkoutSession CheckoutSession @relation(fields: [checkoutSessionId], references: [id], onDelete: Cascade)
+  refunds         Refund[]
+
+  @@index([checkoutSessionId])
+  @@index([status])
+  @@map("payment_attempts")
+}
+
+// ─── Refund (final-acceptance persistence remediation) ───
+//
+// Document 09 + 31 §Checkout/payment. Full and partial refunds
+// against a paid PaymentAttempt. Remaining refundable balance is
+// enforced at the application layer.
+model Refund {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  paymentId   String   @map("payment_id") @db.Uuid
+  orderId     String?  @map("order_id") @db.Uuid
+  amountMinor BigInt   @map("amount_minor") @db.BigInt
+  currency    String   @default("TRY") @db.VarChar(3)
+  status      String   @default("PENDING") @db.VarChar(32)
+  reason      String?  @db.VarChar(512)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  payment PaymentAttempt @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+
+  @@index([paymentId])
+  @@index([orderId])
+  @@index([status])
+  @@map("refunds")
+}
+
+model IdempotencyRecord {
+  id             String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  scope          String    @db.VarChar(64)
+  idempotencyKey String    @map("idempotency_key") @db.VarChar(128)
+  requestHash    String?   @map("request_hash") @db.VarChar(128)
+  responseJson   Json?     @map("response_json")
+  statusCode     Int?      @map("status_code")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt      DateTime? @map("expires_at") @db.Timestamptz(6)
+
+  @@unique([scope, idempotencyKey])
+  @@index([expiresAt])
+  @@map("idempotency_records")
+}
+
+// ─── Loyalty (Phase 6) ───
+//
+// Document 31 §Loyalty. Ledger entries are immutable credit/debit/
+// reservation/compensation rows. Reservations are active checkout holds.
+
+model LoyaltyLedgerEntry {
+  id              String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  entryType       String   @map("entry_type") @db.VarChar(32)
+  pointsDelta     BigInt   @map("points_delta") @db.BigInt
+  valueMinorDelta BigInt   @default(0) @map("value_minor_delta") @db.BigInt
+  orderId         String?  @map("order_id") @db.Uuid
+  reservationId   String?  @map("reservation_id") @db.Uuid
+  reason          String?  @db.VarChar(255)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([userId, createdAt])
+  @@index([reservationId])
+  @@map("loyalty_ledger_entries")
+}
+
+model LoyaltyReservation {
+  id                String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId            String    @map("user_id") @db.Uuid
+  checkoutSessionId String?   @map("checkout_session_id") @db.Uuid
+  pointsReserved    BigInt    @map("points_reserved") @db.BigInt
+  valueMinor        BigInt    @map("value_minor") @db.BigInt
+  status            String    @default("ACTIVE") @db.VarChar(32)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  expiresAt         DateTime? @map("expires_at") @db.Timestamptz(6)
+
+  @@index([userId, status])
+  @@index([checkoutSessionId])
+  @@map("loyalty_reservations")
+}
+
+// ─── Order (Phase 7) ───
+// Document 10 + 31 §Order.
+
+model Order {
+  id                   String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId               String?   @map("user_id") @db.Uuid
+  branchId             String?   @map("branch_id") @db.Uuid
+  checkoutSessionId    String?   @unique @map("checkout_session_id") @db.Uuid
+  displayNumber        String    @unique @default(dbgenerated("'SP00001'")) @map("display_number") @db.VarChar(16)
+  status               String    @default("CREATED") @db.VarChar(32)
+  currency             String    @default("TRY") @db.VarChar(3)
+  merchandiseNetMinor  BigInt    @default(0) @map("merchandise_net_minor") @db.BigInt
+  deliveryFeeMinor     BigInt    @default(0) @map("delivery_fee_minor") @db.BigInt
+  loyaltyRedeemedMinor BigInt    @default(0) @map("loyalty_redeemed_minor") @db.BigInt
+  finalPayableMinor    BigInt    @default(0) @map("final_payable_minor") @db.BigInt
+  fulfillmentMode      String    @default("DELIVERY") @map("fulfillment_mode") @db.VarChar(16)
+  scheduledFor         DateTime? @map("scheduled_for") @db.Timestamptz(6)
+  tipMinor             BigInt    @default(0) @map("tip_minor") @db.BigInt
+  pickupDiscountMinor  BigInt    @default(0) @map("pickup_discount_minor") @db.BigInt
+  ecoPackaging         Boolean   @default(false) @map("eco_packaging")
+  contactless          Boolean   @default(false)
+  buildingAccessCode   String?   @map("building_access_code") @db.VarChar(64)
+  deliveryNote         String?   @map("delivery_note") @db.VarChar(512)
+  deliveryAddressJson  Json?     @map("delivery_address_json")
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  items             OrderItem[]
+  events            OrderEvent[]
+  branchAssignments OrderBranchAssignment[]
+  pickupTokens      OrderPickupToken[]
+
+  @@index([userId])
+  @@index([branchId, status])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderPickupToken {
+  id                  String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  orderId             String    @map("order_id") @db.Uuid
+  tokenHash           String    @unique @map("token_hash") @db.VarChar(64)
+  tokenPrefix         String    @unique @map("token_prefix") @db.VarChar(32)
+  expiresAt           DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt          DateTime? @map("consumed_at") @db.Timestamptz(6)
+  consumedByCourierId String?   @map("consumed_by_courier_id") @db.Uuid
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_pickup_tokens")
+}
+
+model OrderItem {
+  id                     String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  orderId                String   @map("order_id") @db.Uuid
+  productId              String   @map("product_id") @db.Uuid
+  productVariantId       String?  @map("product_variant_id") @db.Uuid
+  productNameSnapshot    String   @map("product_name_snapshot") @db.VarChar(255)
+  quantity               Int
+  unitPriceMinorSnapshot BigInt   @map("unit_price_minor_snapshot") @db.BigInt
+  lineGrossMinorSnapshot BigInt   @map("line_gross_minor_snapshot") @db.BigInt
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  order     Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  modifiers OrderItemModifier[]
+  removals  OrderItemRemoval[]
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model OrderItemModifier {
+  id                      String @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  orderItemId             String @map("order_item_id") @db.Uuid
+  modifierId              String @map("modifier_id") @db.Uuid
+  nameSnapshot            String @map("name_snapshot") @db.VarChar(128)
+  priceDeltaMinorSnapshot BigInt @default(0) @map("price_delta_minor_snapshot") @db.BigInt
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@index([orderItemId])
+  @@map("order_item_modifiers")
+}
+
+model OrderItemRemoval {
+  id           String @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  orderItemId  String @map("order_item_id") @db.Uuid
+  ingredientId String @map("ingredient_id") @db.Uuid
+  nameSnapshot String @map("name_snapshot") @db.VarChar(128)
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@index([orderItemId])
+  @@map("order_item_removals")
+}
+
+model OrderEvent {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  orderId     String   @map("order_id") @db.Uuid
+  eventType   String   @map("event_type") @db.VarChar(64)
+  fromStatus  String?  @map("from_status") @db.VarChar(32)
+  toStatus    String?  @map("to_status") @db.VarChar(32)
+  actorUserId String?  @map("actor_user_id") @db.Uuid
+  payloadJson Json?    @map("payload_json")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+  @@map("order_events")
+}
+
+model OrderBranchAssignment {
+  id         String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  orderId    String   @map("order_id") @db.Uuid
+  branchId   String   @map("branch_id") @db.Uuid
+  reason     String?  @db.VarChar(255)
+  assignedBy String?  @map("assigned_by") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([branchId])
+  @@map("order_branch_assignments")
+}
+
+// ─── Notifications foundation (Phase 7) ───
+
+model Notification {
+  id          String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId      String?   @map("user_id") @db.Uuid
+  channel     String    @db.VarChar(32)
+  templateKey String    @map("template_key") @db.VarChar(64)
+  status      String    @default("PENDING") @db.VarChar(32)
+  payloadJson Json?     @map("payload_json")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  sentAt      DateTime? @map("sent_at") @db.Timestamptz(6)
+  readAt      DateTime? @map("read_at") @db.Timestamptz(6)
+
+  @@index([userId, status])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+// ─── Courier / delivery (Phase 8) ───
+
+model CourierProfile {
+  id                  String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId              String   @unique @map("user_id") @db.Uuid
+  displayName         String   @map("display_name") @db.VarChar(128)
+  phone               String?  @db.VarChar(32)
+  isActive            Boolean  @default(true) @map("is_active")
+  maxActiveDeliveries Int      @default(3) @map("max_active_deliveries")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  deliveries     Delivery[]
+  assignments    DeliveryAssignment[]
+  locationPoints CourierLocationPoint[]
+
+  @@map("courier_profiles")
+}
+
+model Delivery {
+  id             String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  orderId        String    @unique @map("order_id") @db.Uuid
+  branchId       String    @map("branch_id") @db.Uuid
+  courierId      String?   @map("courier_id") @db.Uuid
+  status         String    @default("UNASSIGNED") @db.VarChar(32)
+  recipientName  String?   @map("recipient_name") @db.VarChar(128)
+  recipientPhone String?   @map("recipient_phone") @db.VarChar(32)
+  addressLine    String?   @map("address_line") @db.VarChar(255)
+  latitude       Float?
+  longitude      Float?
+  deliveryNote   String?   @map("delivery_note") @db.VarChar(512)
+  pickedUpAt     DateTime? @map("picked_up_at") @db.Timestamptz(6)
+  deliveredAt    DateTime? @map("delivered_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  courier        CourierProfile?        @relation(fields: [courierId], references: [id])
+  assignments    DeliveryAssignment[]
+  qrTokens       QrClaimToken[]
+  locationPoints CourierLocationPoint[]
+
+  @@index([branchId, status])
+  @@index([courierId, status])
+  @@map("deliveries")
+}
+
+model DeliveryAssignment {
+  id         String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  deliveryId String   @map("delivery_id") @db.Uuid
+  courierId  String   @map("courier_id") @db.Uuid
+  assignedBy String?  @map("assigned_by") @db.Uuid
+  reason     String?  @db.VarChar(255)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  delivery Delivery       @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+  courier  CourierProfile @relation(fields: [courierId], references: [id])
+
+  @@index([deliveryId])
+  @@index([courierId])
+  @@map("delivery_assignments")
+}
+
+model QrClaimToken {
+  id                 String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  deliveryId         String    @map("delivery_id") @db.Uuid
+  tokenHash          String    @unique @map("token_hash") @db.VarChar(64)
+  expiresAt          DateTime  @map("expires_at") @db.Timestamptz(6)
+  claimedAt          DateTime? @map("claimed_at") @db.Timestamptz(6)
+  claimedByCourierId String?   @map("claimed_by_courier_id") @db.Uuid
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  delivery Delivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@index([deliveryId])
+  @@map("qr_claim_tokens")
+}
+
+model CourierLocationPoint {
+  id         String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  courierId  String   @map("courier_id") @db.Uuid
+  deliveryId String   @map("delivery_id") @db.Uuid
+  latitude   Float
+  longitude  Float
+  accuracyM  Float?   @map("accuracy_m")
+  recordedAt DateTime @default(now()) @map("recorded_at") @db.Timestamptz(6)
+
+  courier  CourierProfile @relation(fields: [courierId], references: [id])
+  delivery Delivery       @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@index([courierId, recordedAt])
+  @@index([deliveryId, recordedAt])
+  @@map("courier_location_points")
+}
+
+// ─── Promotions (Wave 0) ───
+//
+// Document 11 + 31 §"Promotions". V1 supports coupon/cart discounts with
+// usage limits and optional branch scoping.
+
+enum PromotionKind {
+  FIXED_CART_MINOR
+  PERCENT_CART
+  DELIVERY_FEE_WAIVER
+
+  @@map("promotion_kind")
+}
+
+model Promotion {
+  id                    String        @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  code                  String?       @unique @db.VarChar(64)
+  name                  String        @map("name") @db.VarChar(128)
+  kind                  PromotionKind @map("kind")
+  discountMinor         BigInt?       @map("discount_minor") @db.BigInt
+  discountPercentBps    Int?          @map("discount_percent_bps")
+  minMerchandiseMinor   BigInt        @default(0) @map("min_merchandise_minor") @db.BigInt
+  validFrom             DateTime?     @map("valid_from") @db.Timestamptz(6)
+  validTo               DateTime?     @map("valid_to") @db.Timestamptz(6)
+  branchIdsJson         Json?         @map("branch_ids_json") @db.JsonB
+  usageLimitTotal       Int?          @map("usage_limit_total")
+  usageLimitPerCustomer Int?          @map("usage_limit_per_customer")
+  combinable            Boolean       @default(false) @map("combinable")
+  firstOrderOnly        Boolean       @default(false) @map("first_order_only")
+  listedOnStorefront    Boolean       @default(false) @map("listed_on_storefront")
+  customerHeadline      String?       @map("customer_headline") @db.VarChar(128)
+  customerDescription   String?       @map("customer_description") @db.VarChar(512)
+  isActive              Boolean       @default(true) @map("is_active")
+  createdAt             DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  redemptions   CouponRedemption[]
+  welcomeGrants WelcomeRewardGrant[]
+
+  @@index([isActive])
+  @@map("promotions")
+}
+
+model CouponRedemption {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  promotionId String   @map("promotion_id") @db.Uuid
+  userId      String?  @map("user_id") @db.Uuid
+  orderId     String?  @map("order_id") @db.Uuid
+  redeemedAt  DateTime @default(now()) @map("redeemed_at") @db.Timestamptz(6)
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+
+  @@index([promotionId])
+  @@index([userId])
+  @@map("coupon_redemptions")
+}
+
+// ─── Storefront merchandising (Golden Home / BURGER HOME vitrine) ───
+//
+// Public customer catalog presentation. Admin writes stay on existing
+// catalog admin surfaces; Storefront reads this via GET /storefront/home.
+
+model ProductMerchandising {
+  productId        String   @id @map("product_id") @db.Uuid
+  isFeatured       Boolean  @default(false) @map("is_featured")
+  isHero           Boolean  @default(false) @map("is_hero")
+  heroDisplayOrder Int      @default(0) @map("hero_display_order")
+  isBuilderBase    Boolean  @default(false) @map("is_builder_base")
+  kcal             Int?
+  proteinGrams     Int?     @map("protein_grams")
+  weightGrams      Int?     @map("weight_grams")
+  volumeMl         Int?     @map("volume_ml")
+  spiceLevel       Int?     @map("spice_level")
+  badge            String?  @db.VarChar(32)
+  accentLabel      String?  @map("accent_label") @db.VarChar(64)
+  eyebrow          String?  @db.VarChar(128)
+  heroDescription  String?  @map("hero_description") @db.VarChar(2048)
+  heroImageUrl     String?  @map("hero_image_url") @db.VarChar(2048)
+  soldCount        Int      @default(0) @map("sold_count")
+  averageRatingBps Int?     @map("average_rating_bps")
+  ratingCount      Int      @default(0) @map("rating_count")
+  heroSpecJson     Json?    @map("hero_spec_json") @db.JsonB
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([isFeatured])
+  @@index([isHero, heroDisplayOrder])
+  @@index([isBuilderBase])
+  @@map("product_merchandising")
+}
+
+model StorefrontContentDocument {
+  id           String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  slug         String    @unique @db.VarChar(64)
+  kind         String    @db.VarChar(32)
+  title        String    @db.VarChar(128)
+  body         String    @db.Text
+  sectionsJson Json?     @map("sections_json") @db.JsonB
+  effectiveAt  DateTime? @map("effective_at") @db.Timestamptz(6)
+  isPublished  Boolean   @default(true) @map("is_published")
+  displayOrder Int       @default(0) @map("display_order")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([kind, isPublished, displayOrder])
+  @@map("storefront_content_documents")
+}
+
+model StorefrontComboOffer {
+  id               String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  slug             String    @unique @db.VarChar(128)
+  name             String    @db.VarChar(128)
+  description      String?   @db.VarChar(2048)
+  imageUrl         String?   @map("image_url") @db.VarChar(2048)
+  bundlePriceMinor BigInt    @map("bundle_price_minor") @db.BigInt
+  compareAtMinor   BigInt?   @map("compare_at_minor") @db.BigInt
+  currency         String    @default("TRY") @db.VarChar(3)
+  endsAt           DateTime? @map("ends_at") @db.Timestamptz(6)
+  isActive         Boolean   @default(true) @map("is_active")
+  displayOrder     Int       @default(0) @map("display_order")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  items StorefrontComboOfferItem[]
+
+  @@index([isActive, displayOrder])
+  @@map("storefront_combo_offers")
+}
+
+model StorefrontComboOfferItem {
+  id           String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  comboOfferId String   @map("combo_offer_id") @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  quantity     Int      @default(1)
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  comboOffer StorefrontComboOffer @relation(fields: [comboOfferId], references: [id], onDelete: Cascade)
+  product    Product              @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([comboOfferId, productId])
+  @@index([productId])
+  @@map("storefront_combo_offer_items")
+}
+
+model StorefrontPublishedReview {
+  id                String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  authorDisplayName String   @map("author_display_name") @db.VarChar(64)
+  body              String   @db.VarChar(2048)
+  rating            Int
+  branchLabel       String?  @map("branch_label") @db.VarChar(128)
+  isPublished       Boolean  @default(true) @map("is_published")
+  publishedAt       DateTime @default(now()) @map("published_at") @db.Timestamptz(6)
+  displayOrder      Int      @default(0) @map("display_order")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([isPublished, displayOrder])
+  @@map("storefront_published_reviews")
+}
+
+model StorefrontSocialProof {
+  id                 String   @id @db.Uuid
+  averageRatingBps   Int      @map("average_rating_bps")
+  happyCustomerCount Int      @map("happy_customer_count")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("storefront_social_proof")
+}
+
+model NewsletterSubscription {
+  id             String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  email          String    @unique @db.VarChar(255)
+  source         String    @default("ember_club") @db.VarChar(64)
+  userId         String?   @map("user_id") @db.Uuid
+  unsubscribedAt DateTime? @map("unsubscribed_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([source])
+  @@map("newsletter_subscriptions")
+}
+
+model CustomerFavorite {
+  id        String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  productId String   @map("product_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@map("customer_favorites")
+}
+
+// ─── Storefront Phase 6 — Club, gamification, dine-in, support ───
+
+model LoyaltyTier {
+  id                      String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  code                    String   @unique @db.VarChar(32)
+  displayName             String   @map("display_name") @db.VarChar(64)
+  minLifetimeEarnedPoints BigInt   @map("min_lifetime_earned_points") @db.BigInt
+  sortOrder               Int      @map("sort_order")
+  isActive                Boolean  @default(true) @map("is_active")
+  createdAt               DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([isActive, sortOrder])
+  @@map("loyalty_tiers")
+}
+
+model WelcomeRewardGrant {
+  id            String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId        String    @unique @map("user_id") @db.Uuid
+  promotionId   String    @map("promotion_id") @db.Uuid
+  pointsGranted BigInt    @default(0) @map("points_granted") @db.BigInt
+  grantedAt     DateTime  @default(now()) @map("granted_at") @db.Timestamptz(6)
+  expiresAt     DateTime? @map("expires_at") @db.Timestamptz(6)
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Restrict)
+
+  @@index([promotionId])
+  @@map("welcome_reward_grants")
+}
+
+model SpinCampaign {
+  id             String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  code           String   @unique @db.VarChar(64)
+  name           String   @db.VarChar(128)
+  startsAt       DateTime @map("starts_at") @db.Timestamptz(6)
+  endsAt         DateTime @map("ends_at") @db.Timestamptz(6)
+  isActive       Boolean  @default(true) @map("is_active")
+  dailySpinLimit Int      @default(1) @map("daily_spin_limit")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  prizes SpinPrize[]
+  plays  SpinPlay[]
+
+  @@index([isActive, startsAt, endsAt])
+  @@map("spin_campaigns")
+}
+
+model SpinPrize {
+  id                 String  @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  campaignId         String  @map("campaign_id") @db.Uuid
+  code               String  @db.VarChar(32)
+  label              String  @db.VarChar(128)
+  kind               String  @db.VarChar(32)
+  weight             Int
+  pointsDelta        BigInt? @map("points_delta") @db.BigInt
+  discountMinor      BigInt? @map("discount_minor") @db.BigInt
+  discountPercentBps Int?    @map("discount_percent_bps")
+  sortOrder          Int     @default(0) @map("sort_order")
+  isActive           Boolean @default(true) @map("is_active")
+
+  campaign SpinCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  plays    SpinPlay[]
+
+  @@unique([campaignId, code])
+  @@index([campaignId, isActive])
+  @@map("spin_prizes")
+}
+
+model SpinPlay {
+  id             String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  campaignId     String   @map("campaign_id") @db.Uuid
+  prizeId        String   @map("prize_id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  periodKey      String   @map("period_key") @db.VarChar(16)
+  idempotencyKey String   @map("idempotency_key") @db.VarChar(128)
+  couponCode     String?  @map("coupon_code") @db.VarChar(64)
+  promotionId    String?  @map("promotion_id") @db.Uuid
+  pointsAwarded  BigInt   @default(0) @map("points_awarded") @db.BigInt
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  campaign SpinCampaign @relation(fields: [campaignId], references: [id], onDelete: Restrict)
+  prize    SpinPrize    @relation(fields: [prizeId], references: [id], onDelete: Restrict)
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, campaignId, periodKey])
+  @@unique([userId, idempotencyKey])
+  @@index([campaignId, createdAt])
+  @@map("spin_plays")
+}
+
+model DiningTable {
+  id         String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  branchId   String   @map("branch_id") @db.Uuid
+  label      String   @db.VarChar(64)
+  publicCode String   @unique @map("public_code") @db.VarChar(64)
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  branch Branch            @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  scans  DiningTableScan[]
+
+  @@index([branchId, isActive])
+  @@map("dining_tables")
+}
+
+model DiningTableScan {
+  id             String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  tableId        String   @map("table_id") @db.Uuid
+  userId         String?  @map("user_id") @db.Uuid
+  guestSessionId String?  @map("guest_session_id") @db.VarChar(64)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  table DiningTable @relation(fields: [tableId], references: [id], onDelete: Cascade)
+  user  User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([tableId, createdAt])
+  @@map("dining_table_scans")
+}
+
+model SupportConversation {
+  id        String    @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  orderId   String?   @map("order_id") @db.Uuid
+  status    String    @default("OPEN") @db.VarChar(16)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  closedAt  DateTime? @map("closed_at") @db.Timestamptz(6)
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages SupportMessage[]
+
+  @@index([userId, status])
+  @@index([orderId])
+  @@map("support_conversations")
+}
+
+model SupportMessage {
+  id              String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  conversationId  String   @map("conversation_id") @db.Uuid
+  senderType      String   @map("sender_type") @db.VarChar(16)
+  body            String   @db.VarChar(2000)
+  clientRequestId String?  @map("client_request_id") @db.VarChar(128)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  conversation SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, clientRequestId])
+  @@index([conversationId, createdAt])
+  @@map("support_messages")
+}

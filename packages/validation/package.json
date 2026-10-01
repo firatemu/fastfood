@@ -1,0 +1,42 @@
+{
+  "name": "@fastfood/validation",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Shared validation primitives. NestJS uses a single Zod validation pipe that lives here — no duplicate class-validator schemas.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings=0",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run --passWithNoTests",
+    "build": "tsc -p tsconfig.build.json",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@fastfood/contracts": "workspace:*",
+    "@nestjs/common": "12.0.3",
+    "zod": "3.24.4"
+  },
+  "devDependencies": {
+    "@fastfood/eslint-config": "workspace:*",
+    "@fastfood/tsconfig": "workspace:*",
+    "@types/node": "22.20.3",
+    "typescript": "5.9.3",
+    "vitest": "5.0.1"
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
+}

@@ -1,0 +1,22 @@
+/** Canonical API path fragments (document 29 + WAVE 0). */
+export const ApiPaths = {
+  storefrontServiceability: 'storefront/serviceability',
+  storefrontPromotionValidate: 'storefront/promotions/validate',
+  checkoutQuote: 'checkout/quote',
+  checkoutPaymentInitialize: 'checkout/payment/initialize',
+  meLoyalty: 'me/loyalty',
+  adminCategories: 'admin/categories',
+  adminProducts: 'admin/products',
+  adminAllergens: 'admin/allergens',
+  adminModifierGroups: 'admin/modifier-groups',
+  adminBranches: 'admin/branches',
+  adminCustomers: 'admin/customers',
+  adminUsers: 'admin/users',
+  adminRoles: 'admin/roles',
+  adminPayments: 'admin/payments',
+  adminAudit: 'admin/audit',
+  adminSettings: 'admin/settings',
+  adminPromotions: 'admin/promotions',
+  iyzicoCallback: 'integrations/iyzico/callback',
+  iyzicoWebhook: 'integrations/iyzico/webhook',
+} as const;

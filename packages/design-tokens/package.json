@@ -1,0 +1,40 @@
+{
+  "name": "@fastfood/design-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Central design tokens for FASTFOOD. The single source of truth for visual values; web and native consume from here. Document 38.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./web.css": "./dist/web.css"
+  },
+  "scripts": {
+    "lint": "eslint src --max-warnings=0",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run --passWithNoTests",
+    "build": "tsc -p tsconfig.build.json && node scripts/build-css.mjs",
+    "check:consumer-tokens": "node scripts/check-design-tokens.mjs",
+    "clean": "rm -rf dist .turbo src/web.generated.css"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@fastfood/eslint-config": "workspace:*",
+    "@fastfood/tsconfig": "workspace:*",
+    "@types/node": "22.10.5",
+    "typescript": "5.9.3",
+    "vitest": "5.0.1"
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
+}

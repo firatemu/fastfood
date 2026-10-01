@@ -1,0 +1,84 @@
+# Project-controlled local development infrastructure.
+# This file is for LOCAL DEVELOPMENT ONLY. It must not be used to
+# deploy or run a remote/staging/production environment.
+# Document 49 governs the current no-deployment execution policy.
+#
+# Ports used by FASTFOOD local services (kept off common defaults to avoid
+# collisions with other projects on the developer machine):
+#   - PostgreSQL 18 + PostGIS:  host 5439 -> container 5432
+#   - Redis 8:                  host 6388 -> container 6379
+#   - MinIO:                    host 9098 (S3 API) / 9099 (console)
+#
+# Override via .env if needed.
+name: fastfood-local
+
+services:
+  postgres:
+    image: postgis/postgis:18-3.6
+    container_name: fastfood-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fastfood
+      POSTGRES_USER: fastfood
+      POSTGRES_PASSWORD: fastfood
+      # Ensure UTF8 default locale for Turkish text.
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=C.UTF-8'
+    ports:
+      - '${FASTFOOD_POSTGRES_PORT:-5439}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./scripts/postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U fastfood -d fastfood
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:8.10.1-trixie
+    container_name: fastfood-redis
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '${FASTFOOD_REDIS_PORT:-6388}:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  minio:
+    # Pinned MinIO image — exact upstream RELEASE tag for reproducible builds
+    # (document 33 §7). The same digest is mirrored on Docker Hub
+    # (minio/minio:RELEASE.2025-09-07T16-13-09Z) and quay.io. We use the
+    # official Docker Hub image because MinIO upstream signs Docker Hub tags;
+    # the S3-compatible API surface is identical between mirrors.
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: fastfood-minio
+    restart: unless-stopped
+    command: ['server', '/data', '--console-address', ':9001']
+    environment:
+      MINIO_ROOT_USER: fastfood
+      MINIO_ROOT_PASSWORD: fastfood-dev-secret
+    ports:
+      - '${FASTFOOD_MINIO_API_PORT:-9098}:9000'
+      - '${FASTFOOD_MINIO_CONSOLE_PORT:-9099}:9001'
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:

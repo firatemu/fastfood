@@ -1,0 +1,29 @@
+{
+  "name": "@fastfood/dev-controller",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Repository-native autonomous development controller/orchestration layer (CLI + state). NOT a runtime dependency of any app or shared package.",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint src --max-warnings=0",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "cli": "tsx src/cli.ts",
+    "clean": "rm -rf .turbo .fastfood-controller/state.json .fastfood-controller/LOCK .fastfood-controller/evidence"
+  },
+  "devDependencies": {
+    "@fastfood/eslint-config": "workspace:*",
+    "@fastfood/tsconfig": "workspace:*",
+    "@types/node": "22.20.3",
+    "typescript": "5.9.3",
+    "vitest": "5.0.1",
+    "zod": "3.24.4"
+  },
+  "files": [
+    "src",
+    "fastfood-project-docs",
+    "README.md"
+  ]
+}

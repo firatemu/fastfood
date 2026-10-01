@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "BURGER HOME",
+    "slug": "fastfood-customer",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "fastfoodcustomer",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-image",
+      "expo-system-ui",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Masa kodunu taramak için kamera gerekir. Kod elle de yazılabilir.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "splash": {
+      "backgroundColor": "#121316"
+    },
+    "android": {
+      "package": "com.azemyazilim.fastfoodcustomer",
+      "userInterfaceStyle": "dark",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": false,
+          "data": [
+            {
+              "scheme": "fastfoodcustomer"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.azemyazilim.fastfoodcustomer",
+      "userInterfaceStyle": "dark"
+    }
+  }
+}

@@ -1,0 +1,206 @@
+[data-admin-theme='kitchen-fleet'] {
+  --ops-canvas: #0d0f12;
+  --ops-canvas-sub: #13171c;
+  --ops-surface-1: #161b22;
+  --ops-surface-2: #1f242d;
+  --ops-surface-3: #262c36;
+  --ops-bg-elev: #1c2129;
+  --ops-bg-scrim: rgba(8, 10, 13, 0.72);
+  --ops-shadow-drawer: -16px 0 48px rgba(0, 0, 0, 0.55);
+  --ops-keyline: #2d333f;
+  --ops-keyline-strong: #3e4656;
+  --ops-on-surface: #e0e2ea;
+  --ops-on-muted: #94a3b8;
+  --ops-on-variant: #d6c4ac;
+  --ops-amber: #feb300;
+  --ops-amber-hover: #f59e0b;
+  --ops-amber-ink: #0d0f12;
+  --ops-flame: #ff5722;
+  --ops-flame-strong: #ea580c;
+  --ops-ready: #10b981;
+  --ops-warn: #f59e0b;
+  --ops-critical: #ef4444;
+  --ops-logistics: #38bdf8;
+  --ops-idle: #64748b;
+  --ops-ready-well: rgba(16, 185, 129, 0.12);
+  --ops-warn-well: rgba(245, 158, 11, 0.12);
+  --ops-critical-well: rgba(239, 68, 68, 0.12);
+  --ops-logistics-well: rgba(56, 189, 248, 0.12);
+  --ops-amber-well: rgba(254, 179, 0, 0.08);
+  --ops-shadow-2: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --ops-shadow-3: 0 8px 32px rgba(0, 0, 0, 0.7);
+  --ops-radius-xs: 0.125rem;
+  --ops-radius-sm: 0.25rem;
+  --ops-space-xxs: 0.125rem;
+  --ops-space-xs: 0.25rem;
+  --ops-space-sm: 0.5rem;
+  --ops-space-md: 0.75rem;
+  --ops-space-lg: 1rem;
+  --ops-space-xl: 1.5rem;
+  --ops-gutter: 0.75rem;
+  --ops-gutter-desktop: 1rem;
+  --ops-rail-collapsed: 64px;
+  --ops-rail-expanded: 240px;
+  --ops-topbar: 48px;
+  --ops-row: 36px;
+  --ops-row-default: 44px;
+  --ops-control: 34px;
+  --ops-font-anton: var(--font-anton), Anton, sans-serif;
+  --ops-font-sans: var(--font-inter), Inter, ui-sans-serif, sans-serif;
+  --ops-font-mono: var(--font-jetbrains), 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--ops-on-surface);
+  background: var(--ops-canvas);
+  font-family: var(--ops-font-sans);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+html[data-color-mode='dark'] {
+  color-scheme: dark;
+  --surface-canvas: #0d0f12;
+  --surface-card: #161b22;
+  --surface-subtle: #1f242d;
+  --surface-elevated: #262c36;
+  --surface-overlay: rgba(8, 10, 13, 0.72);
+  --text-primary: #e0e2ea;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-inverse: #0d0f12;
+  --border-default: #3e4656;
+  --border-subtle: #2d333f;
+  --border-strong: #647084;
+  --action-primary-background: #feb300;
+  --action-primary-hover: #f59e0b;
+  --action-primary-text: #171c23;
+  --action-primary-subtle: rgba(254, 179, 0, 0.12);
+  --action-primary-subtle-text: #ffd16a;
+  --action-secondary-background: #1f242d;
+  --action-secondary-hover: #262c36;
+  --action-secondary-text: #e0e2ea;
+  --action-secondary-border: #3e4656;
+  --action-save-background: #10b981;
+  --action-danger-background: #ef4444;
+  --focus-ring: #feb300;
+  --status-success-background: rgba(16, 185, 129, 0.12);
+  --status-success-text: #6ee7b7;
+  --status-warning-background: rgba(245, 158, 11, 0.14);
+  --status-warning-text: #ffd16a;
+  --status-danger-background: rgba(239, 68, 68, 0.12);
+  --status-danger-text: #fca5a5;
+  --status-info-background: rgba(56, 189, 248, 0.12);
+  --status-info-text: #7dd3fc;
+  --ops-amber-text: #feb300;
+  --ops-amber-fill: #feb300;
+  --ops-amber-border: #feb300;
+}
+
+html[data-color-mode='light'] {
+  color-scheme: light;
+  --surface-canvas: #f3f5f6;
+  --surface-card: #ffffff;
+  --surface-subtle: #f4f7f8;
+  --surface-elevated: #ffffff;
+  --surface-overlay: rgba(18, 31, 38, 0.5);
+  --text-primary: #1b252a;
+  --text-secondary: #42535b;
+  --text-muted: #62747d;
+  --text-inverse: #ffffff;
+  --border-default: #d5dfe4;
+  --border-subtle: #e6ecef;
+  --border-strong: #b8c6cd;
+  --action-primary-background: #feb300;
+  --action-primary-hover: #e8a000;
+  --action-primary-text: #171c23;
+  --action-primary-subtle: #fff3d1;
+  --action-primary-subtle-text: #714f00;
+  --action-secondary-background: #ffffff;
+  --action-secondary-hover: #f1f5f6;
+  --action-secondary-text: #253239;
+  --action-secondary-border: #ccd7dd;
+  --action-save-background: #117d59;
+  --action-danger-background: #bb2e3d;
+  --focus-ring: #805800;
+  --status-success-background: #e5f6ee;
+  --status-success-text: #126b4c;
+  --status-warning-background: #fff4d6;
+  --status-warning-text: #785500;
+  --status-danger-background: #fdebed;
+  --status-danger-text: #992735;
+  --status-info-background: #e7f3f8;
+  --status-info-text: #145d78;
+  --ops-amber-text: #805800;
+  --ops-amber-fill: #feb300;
+  --ops-amber-border: #a87300;
+}
+
+html[data-color-mode='light'] [data-admin-theme='kitchen-fleet'] {
+  --ops-canvas: #f3f5f6;
+  --ops-canvas-sub: #e9eef0;
+  --ops-surface-1: #ffffff;
+  --ops-surface-2: #f5f7f8;
+  --ops-surface-3: #edf1f3;
+  --ops-bg-elev: #ffffff;
+  --ops-bg-scrim: rgba(18, 31, 38, 0.5);
+  --ops-shadow-drawer: -12px 0 36px rgba(25, 42, 50, 0.14);
+  --ops-keyline: #d5dfe4;
+  --ops-keyline-strong: #b8c6cd;
+  --ops-on-surface: #1b252a;
+  --ops-on-muted: #62747d;
+  --ops-on-variant: #6e4c00;
+  --ops-amber: #feb300;
+  --ops-amber-hover: #e8a000;
+  --ops-amber-ink: #171c23;
+  --ops-flame: #d94a20;
+  --ops-flame-strong: #bd3917;
+  --ops-ready: #117d59;
+  --ops-warn: #956600;
+  --ops-critical: #bb2e3d;
+  --ops-logistics: #176b88;
+  --ops-idle: #647682;
+  --ops-ready-well: #e5f6ee;
+  --ops-warn-well: #fff4d6;
+  --ops-critical-well: #fdebed;
+  --ops-logistics-well: #e7f3f8;
+  --ops-amber-well: #fff3d1;
+  --ops-shadow-2: 0 4px 16px rgba(25, 42, 50, 0.08);
+  --ops-shadow-3: 0 8px 32px rgba(25, 42, 50, 0.12);
+  color: var(--ops-on-surface);
+  background: var(--ops-canvas);
+  color-scheme: light;
+}
+
+html[data-color-mode='light'] [data-admin-theme='kitchen-fleet'] a {
+  color: var(--ops-amber-text);
+}
+
+[data-admin-theme='kitchen-fleet'] *,
+[data-admin-theme='kitchen-fleet'] *::before,
+[data-admin-theme='kitchen-fleet'] *::after {
+  box-sizing: border-box;
+}
+
+[data-admin-theme='kitchen-fleet'] a {
+  color: var(--ops-amber);
+}
+
+[data-admin-theme='kitchen-fleet'] :focus-visible {
+  outline: 1px solid var(--ops-amber);
+  outline-offset: 1px;
+}
+
+[data-admin-theme='kitchen-fleet'] .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: 400;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  display: inline-block;
+  white-space: nowrap;
+  direction: ltr;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 20;
+}
