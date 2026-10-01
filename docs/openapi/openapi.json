@@ -2833,8 +2833,8 @@
   },
   "info": {
     "title": "FASTFOOD API",
-    "description": "FASTFOOD canonical OpenAPI document. Generated from the Nest app definition. The response envelope follows document 40 (success / list / error) and the canonical error code groups from packages/contracts/error-codes.",
-    "version": "0.0.0-phase3",
+    "description": "Canonical OpenAPI document, generated from the Nest application definition. The response envelope follows document 40 (success / list / error) and the canonical error code groups from @fastfood/contracts. Health probes and this document are served outside the versioned prefix.",
+    "version": "1.0.0",
     "contact": {}
   },
   "tags": [],

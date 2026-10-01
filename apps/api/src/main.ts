@@ -4,10 +4,11 @@ import { API_PREFIX } from '@fastfood/contracts';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule, AppExceptionFilter } from './app.module.js';
 import { getAppConfig } from './bootstrap/app-config.js';
+import { buildOpenApiDocument } from './bootstrap/openapi-document.js';
 
 /**
  * FASTFOOD API entry point. Phase 0 boots the modular monolith foundation
@@ -77,13 +78,7 @@ async function bootstrap(): Promise<void> {
   // We deliberately do NOT call `setNotFoundHandler` here — Nest 12 throws
   // "Not found handler already set" if it is invoked a second time.
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('FASTFOOD API')
-    .setDescription('Foundation OpenAPI document — populated by feature modules in later phases.')
-    .setVersion('0.0.0-phase0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  const document = buildOpenApiDocument(app);
   // OpenAPI UI stays outside /api/v1 for the same operational reason as
   // health endpoints (document 40 §9, document 45 §6).
   SwaggerModule.setup('api/docs', app, document);

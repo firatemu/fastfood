@@ -25,9 +25,9 @@ import { fileURLToPath } from 'node:url';
 
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from '../src/app.module.js';
+import { buildOpenApiDocument } from '../src/bootstrap/openapi-document.js';
 
 if (!process.env['DATABASE_URL']) {
   process.env['DATABASE_URL'] = 'postgresql://stub:stub@127.0.0.1:5432/stub';
@@ -45,16 +45,7 @@ async function main(): Promise<void> {
       logger: false,
     },
   );
-  const config = new DocumentBuilder()
-    .setTitle('FASTFOOD API')
-    .setDescription(
-      'FASTFOOD canonical OpenAPI document. Generated from the Nest app definition. The response envelope follows document 40 (success / list / error) and the canonical error code groups from packages/contracts/error-codes.',
-    )
-    .setVersion('0.0.0-phase3')
-    .addBearerAuth()
-    .addApiKey({ type: 'apiKey', name: 'Idempotency-Key', in: 'header' }, 'Idempotency-Key')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const document = buildOpenApiDocument(app);
   const out = join(outDir, 'openapi.json');
   writeFileSync(out, JSON.stringify(document, null, 2));
   process.stderr.write(`Wrote ${out}\n`);
