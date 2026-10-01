@@ -225,6 +225,96 @@ yine de eşzamanlı isteklerde yarışa açık).
 6. `§3.5`, `§3.6`, `§3.7` — PostGIS routing, tabanlı medya URL'si, bellek
    fallback'lerinin veri katmanına taşınması.
 
+## 6. Devam eden kalite borcu
+
+Bu bölüm, bu denetim sırasında keşfedilen ve **bu çalışma kapsamında
+düzeltilmeyen** önceden var olan durumları listeler. Hepsi değişiklikten
+önce de mevcuttu; değişiklik öncesi/sonrası karşılaştırmasıyla doğrulandı.
+
+### 6.1 `pnpm format:check` kırmızı — 220 dosya
+
+`.prettierignore`, `.gitignore`'ı yansıtmadığı için `graft/` ve
+`.fastfood-dev/` gibi üretilmiş çıktılar taranıyordu; bu turda
+`.prettierignore` düzeltildi ve 274 → 220 dosyaya indi. Kalan 220 dosya gerçek
+biçim borcudur:
+
+| Uzantı  | Dosya |
+| ------- | ----- |
+| `.tsx`  | 114   |
+| `.ts`   | 79    |
+| `.md`   | 16    |
+| `.mjs`  | 6     |
+| `.json` | 4     |
+| `.cjs`  | 1     |
+
+Dağılımın çoğu `apps/storefront-web/src` (56), `apps/customer-mobile`
+(app 24 + lib 22 + components 9), `apps/admin-web/src` (24),
+`apps/api/src` (20) ve `tests/e2e/tests` (10).
+
+Bu, CI'ın 2. adımını kırmızı tutuyor. Düzeltmek mekanik bir
+`prettier --write` işidir ve ayrı bir commit'e konmalıdır; ilk commit'i
+okunabilir tutmak için bilerek bu kapsam dışında bırakıldı.
+
+### 6.2 `pnpm lint` kırmızı — 3 paket
+
+| Paket                       | Sonuç                       |
+| --------------------------- | --------------------------- |
+| `@fastfood/api`             | temiz                       |
+| `@fastfood/worker`          | temiz                       |
+| `@fastfood/courier-web`     | temiz                       |
+| `@fastfood/storefront-web`  | 7 sorun (1 hata, 6 uyarı)   |
+| `@fastfood/customer-mobile` | 1 uyarı                     |
+| `@fastfood/admin-web`       | 37 sorun (9 hata, 28 uyarı) |
+
+`admin-web` en ağır olanı. Bunların tümü bu denetimle ilgisiz dosyalarda ve
+baseline karşılaştırmasıyla birebir aynı.
+
+### 6.3 `pnpm test:unit` — 5 dosya / 18 test kırmızı (yalnızca API)
+
+Hepsi izin ve kapsam (guard) testlerinde, ve hepsi ADR-014/015/016'nın
+getirdiği kullanıcı-bazlı sayfa izin modeliyle ilgili görünüyor: yetkilendirme
+kodu değişmiş, testler güncellenmemiş.
+
+- `apps/api/test/unit/guards/auth-guards.test.ts`
+- `apps/api/test/unit/catalog-branch.test.ts`
+- `apps/api/test/unit/storefront-customer-authz.test.ts`
+- `tests/api/negative-test-matrix.test.ts`
+- `tests/api/admin-negative-test-matrix.test.ts`
+
+Bu testleri zayıflatmak veya `skip` etmek yasaktır. Doğru çözüm, ya
+beklenen davranışın güncel `RbacGuard` / `BranchScopePolicy` ile hizalanması
+ya da testin yakaladığı bir regresyonun düzeltilmesidir; ikisi de ayrı bir
+çalışma gerektirir.
+
+### 6.4 Yerel veritabanında şema sapması
+
+`prisma migrate status` "Database schema is up to date!" diyor, ancak
+`prisma migrate diff` canlı veritabanı ile `schema.prisma` arasında iki fark
+buluyor. Yani migration'lar uygulanmış; veritabanı sonradan elle düzenlenmiş
+veya migration SQL'i şemayla örtüşmüyor:
+
+- `addresses_province_id_district_id_neighborhood_id_idx` indeksi yok.
+- `orders.display_number` kolonunda şemadaki `'SP00001'` varsayılanı yok.
+
+Bu düzeltme, belge 49 §9'un yasakladığı "ad-hoc şema düzenlemesi" olurdu;
+migration geçmişiyle ilgili bir karar gerektirdiği için bu çalışmada
+dokunulmadı.
+
+### 6.5 Diğer gözlemler
+
+- Dev API süreci denetim altında değil. `pnpm --filter @fastfood/api start`
+  ile başlatıldığında gözetimsiz kalıyor ve bir noktada düştü; sağlık
+  uçları tekrar elle başlatılmak zorunda kaldı.
+- `apps/api/prisma/generated/` artık sürüm kontrolünde değil ve CI'da
+  `pnpm db:generate` ile üretiliyor. Bu doğru; ancak paket `dist/` çıktısı
+  (`@fastfood/config`) de aynı şekilde tüketiciye derlenmiş halde sunuluyor.
+  `ServerEnv` tipini kullanan bir paket, kaynak değişiminden sonra
+  `pnpm --filter <paket> build` çalıştırmadan tip hatası verir. Turbo sırası
+  doğru çalışıyor; elle paket filtresiyle komut verirken dikkat gerekir.
+- Depo kökünde `vitessst.config.ts` adlı bir dosya var; muhtemelen
+  `vitest.config.base.mjs` veya kök `vitest.config.*` için yazım hatası.
+  Hiçbir yapılandırma bunu okumuyor.
+
 ## 6. Doğrulama komutları
 
 ```bash
@@ -244,6 +334,5 @@ pnpm db:seed
 pnpm test:integration
 ```
 
-> Not: `pnpm format:check` bu raporun yazıldığı sırada **kırmızıdır**. Bu,
-> bu denetimden kaynaklanan bir sorun değildir; ayrıntı için kök dizindeki
-> commit geçmişindeki `chore: establish version control baseline` kaydına bakın.
+> Not: `pnpm format:check` bu raporun yazıldığı sırada **kırmızıdır** ve bu bir
+> denetimden kaynaklanan sorun değildir. Ayrıntı ve ölçümler için §6.1'e bakın.
