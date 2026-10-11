@@ -24,6 +24,8 @@ services:
       POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=C.UTF-8'
     volumes:
       - fastfood-postgres-data:/var/lib/postgresql
+      # Daily pg_dump target of the Coolify scheduled task "postgres-backup".
+      - fastfood-postgres-backups:/backups
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U fastfood -d fastfood']
       interval: 10s
@@ -190,5 +192,6 @@ services:
 
 volumes:
   fastfood-postgres-data:
+  fastfood-postgres-backups:
   fastfood-redis-data:
   fastfood-minio-data:
