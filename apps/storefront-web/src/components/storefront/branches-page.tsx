@@ -1,58 +1,52 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { deviceLocationMessage, getDeviceLocation } from '../../lib/device-location';
 import { errorMessage } from '../../lib/load-state';
+import {
+  DEFAULT_FINDER,
+  applyFinder,
+  buildBranchViews,
+  cityGroups,
+  finderSearch,
+  nearestBranchId,
+  networkFacts,
+  readFinderState,
+  type Branch,
+  type BranchPoint,
+  type FinderState,
+} from '../../lib/storefront/branch-finder';
 import {
   fetchContentBySlug,
   fetchCustomerBranches,
-  type CustomerBranch,
   type StorefrontContent,
 } from '../../lib/storefront/discover';
-import { groupOperatingHours } from '../../lib/storefront/hours';
 import { useDeferredLoad } from '../../lib/use-deferred-load';
 
-import { BranchCard, type BranchCardData } from './branches/branch-card';
-import { BranchHero } from './branches/branch-hero';
+import { BranchFinderBar } from './branches/branch-finder-bar';
+import { BranchPass } from './branches/branch-pass';
 import { BranchStory, ContactCta } from './branches/branch-story';
-import { CityFilter, type CityOption } from './branches/city-filter';
+import { BranchTicket } from './branches/branch-ticket';
+import { OrderFacts } from './branches/order-facts';
 import { MaterialIcon } from './material-icon';
 import { ShopError, ShopSkeleton } from './shop-states';
 
-const CITY_ORDER = ['ADANA', 'OSMANİYE', 'GAZİANTEP', 'MERSİN', 'İSTANBUL'] as const;
-
-function branchCity(branch: CustomerBranch): string {
-  const m = branch.addressLine.match(/\/([A-Za-zÇĞİÖŞÜçğıöşü]+)\s*$/);
-  if (!m || !m[1]) return '';
-  return m[1].toUpperCase();
-}
-
-function toCardData(branch: CustomerBranch, city: string): BranchCardData {
-  return {
-    id: branch.id,
-    code: branch.code,
-    name: branch.name,
-    city,
-    addressLine: branch.addressLine,
-    phone: branch.phone ?? null,
-    latitude: branch.latitude,
-    longitude: branch.longitude,
-    isAcceptingOrders: branch.isAcceptingOrders,
-    deliveryEnabled: branch.deliveryEnabled !== false,
-    pickupEnabled: branch.pickupEnabled !== false,
-    estimatedDeliveryMinutesMin: branch.estimatedDeliveryMinutesMin,
-    estimatedDeliveryMinutesMax: branch.estimatedDeliveryMinutesMax,
-    hours: groupOperatingHours(branch.hours ?? []),
-  };
-}
+const CLOCK_INTERVAL_MS = 60_000;
 
 export function BranchesPage(): React.ReactElement {
-  const [branches, setBranches] = useState<CustomerBranch[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [story, setStory] = useState<StorefrontContent | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
-  const [activeCity, setActiveCity] = useState<string>('TÜMÜ');
+  const [clock, setClock] = useState(() => new Date());
+  const [origin, setOrigin] = useState<BranchPoint | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [finder, setFinder] = useState<FinderState>(() =>
+    typeof window === 'undefined' ? DEFAULT_FINDER : readFinderState(window.location.search),
+  );
 
   useDeferredLoad(() => {
     void (async () => {
@@ -72,38 +66,53 @@ export function BranchesPage(): React.ReactElement {
     })();
   }, [nonce]);
 
-  const grouped = useMemo(() => {
-    const m = new Map<string, CustomerBranch[]>();
-    for (const b of branches) {
-      const c = branchCity(b) || 'DİĞER';
-      const arr = m.get(c) ?? [];
-      arr.push(b);
-      m.set(c, arr);
+  // Live countdowns need a ticking clock, not a value frozen at first render.
+  useEffect(() => {
+    const timer = setInterval(() => setClock(new Date()), CLOCK_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Filters live in the URL so a filtered view survives reload and can be shared.
+  useEffect(() => {
+    const search = finderSearch(finder);
+    if (window.location.search !== search) {
+      window.history.replaceState(null, '', `${window.location.pathname}${search}`);
     }
-    return m;
-  }, [branches]);
+  }, [finder]);
 
-  const cityOptions: CityOption[] = useMemo(() => {
-    const out: CityOption[] = [{ key: 'TÜMÜ', label: 'Tümü', count: branches.length }];
-    for (const c of CITY_ORDER) {
-      if (grouped.has(c)) {
-        out.push({
-          key: c,
-          label: c.charAt(0) + c.slice(1).toLowerCase(),
-          count: grouped.get(c)!.length,
-        });
-      }
+  const views = useMemo(() => buildBranchViews(branches, clock, origin), [branches, clock, origin]);
+  const visible = useMemo(() => applyFinder(views, finder), [views, finder]);
+  const facts = useMemo(() => networkFacts(views), [views]);
+  const cities = useMemo(() => cityGroups(branches), [branches]);
+  const sharedEta = useMemo(() => views.find((view) => view.eta)?.eta ?? null, [views]);
+  const nearestId = useMemo(() => nearestBranchId(views), [views]);
+
+  useEffect(() => {
+    if (!finder.focusId) return;
+    document.getElementById(`branch-${finder.focusId}`)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
+  }, [finder.focusId, visible.length]);
+
+  const patch = useCallback((next: Partial<FinderState>) => {
+    setFinder((current) => ({ ...current, ...next }));
+  }, []);
+
+  async function locateNearest() {
+    if (locating) return;
+    setLocating(true);
+    setLocationError(null);
+    try {
+      const point = await getDeviceLocation();
+      setOrigin(point);
+      patch({ sort: 'distance' });
+    } catch (err) {
+      setLocationError(deviceLocationMessage(err));
+    } finally {
+      setLocating(false);
     }
-    return out;
-  }, [grouped, branches.length]);
-
-  const visibleCards = useMemo(() => {
-    const list = activeCity === 'TÜMÜ' ? branches : grouped.get(activeCity) ?? [];
-    return list.map((b) => toCardData(b, branchCity(b)));
-  }, [activeCity, branches, grouped]);
-
-  const cityCount = grouped.size;
-  const openCount = branches.filter((b) => b.isActive && b.isAcceptingOrders).length;
+  }
 
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'error') {
@@ -116,38 +125,77 @@ export function BranchesPage(): React.ReactElement {
     );
   }
 
+  const hint =
+    locationError ??
+    (finder.sort === 'distance' && !origin
+      ? 'Yakınlık sıralaması için Yakınımdakini bul düğmesini kullan.'
+      : null);
+
   return (
-    <main className="w-full pt-20 bg-background min-h-screen" data-ff-surface="branches">
-      <BranchHero
-        story={story}
-        branchCount={branches.length}
-        cityCount={cityCount}
-        openCount={openCount}
+    <main className="min-h-screen w-full bg-background pt-20" data-ff-surface="branches">
+      <BranchPass
+        views={views}
+        facts={facts}
+        focusId={finder.focusId}
+        located={origin !== null}
+        onPick={(id) => patch({ focusId: id })}
       />
 
-      <CityFilter
-        options={cityOptions}
-        active={activeCity}
-        onSelect={setActiveCity}
+      <BranchFinderBar
+        cities={cities}
+        city={finder.city}
+        query={finder.q}
+        onQuery={(q) => patch({ q })}
+        onCity={(city) => patch({ city, focusId: null })}
+        openOnly={finder.openOnly}
+        onOpenOnly={(openOnly) => patch({ openOnly })}
+        deliveryOnly={finder.deliveryOnly}
+        onDeliveryOnly={(deliveryOnly) => patch({ deliveryOnly })}
+        pickupOnly={finder.pickupOnly}
+        onPickupOnly={(pickupOnly) => patch({ pickupOnly })}
+        sort={finder.sort}
+        onSort={(sort) => patch({ sort })}
+        locating={locating}
+        located={origin !== null}
+        onLocate={() => void locateNearest()}
+        total={views.length}
+        shown={visible.length}
+        hint={hint}
       />
 
-      <div className="max-w-7xl mx-auto px-margin-sm lg:px-margin py-space-xl flex flex-col gap-space-xl">
-        {visibleCards.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-outline-variant/30 bg-surface-container py-space-2xl text-center">
+      <div className="mx-auto flex max-w-7xl flex-col gap-space-lg px-margin-sm py-space-xl lg:px-margin">
+        {visible.length === 0 ? (
+          <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-outline-variant/40 bg-surface-container/40 p-space-lg">
             <MaterialIcon name="search_off" className="text-4xl text-on-surface-variant" />
-            <p className="font-headline-sm uppercase">Bu şehirde şube yok</p>
-            <p className="font-body-md max-w-sm text-on-surface-variant">
-              Şehir filtresini değiştirerek diğer şubeleri görüntüleyebilirsiniz.
+            <p className="font-headline-sm text-headline-sm uppercase text-on-surface">
+              Bu filtrelerde şube yok
             </p>
+            <p className="max-w-sm font-body-md text-on-surface-variant">
+              Aramayı kısalt, şehir filtresini temizle ya da şu an açık seçimini kaldır.
+            </p>
+            <button
+              type="button"
+              onClick={() => patch({ ...DEFAULT_FINDER })}
+              className="rounded-xl border border-outline-variant/40 px-4 py-2.5 font-label-md uppercase tracking-[0.08em] text-on-surface transition-colors hover:border-secondary-container/50 hover:text-secondary-container"
+            >
+              Filtreleri temizle
+            </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-space-md xl:grid-cols-2">
-            {visibleCards.map((branch) => (
-              <BranchCard key={branch.id} branch={branch} />
+          <div className="grid grid-cols-1 gap-space-md lg:grid-cols-2">
+            {visible.map((branch) => (
+              <BranchTicket
+                key={branch.id}
+                branch={branch}
+                nearest={origin !== null && branch.id === nearestId}
+                focused={finder.focusId === branch.id}
+                located={origin !== null}
+              />
             ))}
           </div>
         )}
 
+        <OrderFacts facts={facts} eta={sharedEta} />
         <BranchStory story={story} />
         <ContactCta />
       </div>

@@ -1,12 +1,12 @@
 .page {
   --line: light-dark(#d3d6d9, #303946);
   --muted: light-dark(#58636f, #9caab9);
-  --amber: light-dark(#a57709, #feb300);
+  --amber: var(--ff-primary);
   width: 100%;
-  max-width: 1390px;
+  /* Full width by design — no max-width cap (A9-21). */
   margin: auto;
   padding: 24px clamp(16px, 2vw, 30px) 34px;
-  color: light-dark(#24292e, #e8ebee);
+  color: var(--ff-on-surface);
   font-family: var(--ops-font-sans, Inter, sans-serif);
 }
 .pageHeader {
@@ -25,11 +25,11 @@
 }
 .breadcrumb span {
   margin: 0 8px;
-  color: light-dark(#3f4650, #627084);
+  color: var(--ff-on-surface-variant);
 }
 .pageHeader h1 {
   margin: 0;
-  font: 400 clamp(29px, 2.5vw, 38px) / 1.1 var(--ops-font-anton, Anton, sans-serif);
+  font: 800 clamp(24px, 2vw, 32px) / 1.2 var(--ff-font-headline);
   letter-spacing: 0.025em;
 }
 .pageHeader p {
@@ -42,21 +42,21 @@
 .statePanel button {
   min-height: 36px;
   padding: 0 12px;
-  border: 1px solid light-dark(#d3d6d9, #46505e);
-  background: light-dark(#f8f9f9, #202630);
-  color: light-dark(#24292e, #d3dce5);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
   cursor: pointer;
   font: 700 11px var(--ops-font-sans, Inter, sans-serif);
 }
 .refreshButton:hover,
 .toolButton:hover,
 .statePanel button:hover {
-  border-color: light-dark(#d6bd8a, #f0be56);
-  color: light-dark(#292929, #ffffff);
+  border-color: var(--ff-primary-container);
+  color: var(--ff-on-surface);
 }
 .panel {
   border: 1px solid var(--line);
-  background: light-dark(#fcfcfd, #161b22);
+  background: var(--ff-surface-container);
 }
 .panelHeader {
   display: flex;
@@ -94,9 +94,9 @@
   align-items: center;
   gap: 7px;
   padding: 0 9px;
-  border: 1px solid light-dark(#d3d6d9, #46505e);
+  border: 1px solid var(--ff-keyline);
   background: light-dark(#eef1f4, #10161d);
-  color: light-dark(#58636f, #9bacbf);
+  color: var(--ff-on-surface-variant);
 }
 .search:focus-within {
   border-color: var(--ops-amber-border);
@@ -111,7 +111,7 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: light-dark(#2e5984, #eaf0f6);
+  color: var(--ff-on-surface);
   font: 12px var(--ops-font-sans, Inter, sans-serif);
 }
 .search input::placeholder {
@@ -120,7 +120,7 @@
 .search button {
   border: 0;
   background: transparent;
-  color: light-dark(#58626f, #aab7c7);
+  color: var(--ff-on-surface-variant);
   cursor: pointer;
   font-size: 17px;
 }
@@ -135,8 +135,8 @@
   display: grid;
   min-width: 180px;
   padding: 5px;
-  border: 1px solid light-dark(#d3d6d9, #536172);
-  background: light-dark(#f8f9f9, #202832);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
   box-shadow: 0 20px 35px light-dark(rgba(27, 42, 49, 0.149), rgba(0, 0, 0, 0.533));
 }
 .columnMenuPanel label {
@@ -144,12 +144,12 @@
   align-items: center;
   gap: 8px;
   padding: 8px;
-  color: light-dark(#2e5984, #dbe3eb);
+  color: var(--ff-on-surface);
   font-size: 11px;
   cursor: pointer;
 }
 .columnMenuPanel label:hover {
-  background: light-dark(#f3f3f4, #303b48);
+  background: var(--ff-surface-container-high);
 }
 .columnMenuPanel input {
   accent-color: var(--amber);
@@ -162,8 +162,8 @@
   flex-wrap: wrap;
   padding: 7px 16px;
   border-bottom: 1px solid var(--line);
-  background: light-dark(#eef1f4, #121820);
-  color: light-dark(#58636f, #9caab9);
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .segmented {
@@ -206,8 +206,8 @@
 .table th {
   height: 40px;
   padding: 0 13px;
-  border-bottom: 1px solid light-dark(#d3d6d9, #414b58);
-  background: light-dark(#f8f9f9, #1d242d);
+  border-bottom: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
   color: light-dark(#58626f, #aebaca);
   font-size: 10px;
   white-space: nowrap;
@@ -215,9 +215,9 @@
 .table td {
   height: 69px;
   padding: 9px 13px;
-  border-bottom: 1px solid light-dark(#d3d6d9, #303945);
+  border-bottom: 1px solid var(--ff-keyline);
   background: light-dark(#fcfcfd, #192029);
-  color: light-dark(#2e5984, #d7e0e9);
+  color: var(--ff-on-surface);
   font-size: 12px;
   transition: background 0.13s;
 }
@@ -246,13 +246,13 @@
   font: inherit;
 }
 .sortButton:not(:disabled):hover {
-  color: light-dark(#a0720d, #ffd16d);
+  color: var(--ff-primary);
 }
 .sortButton:disabled {
   cursor: default;
 }
 .sortButton span {
-  color: light-dark(#58636f, #8595a5);
+  color: var(--ff-on-surface-variant);
   font-size: 14px;
 }
 .orderIdentity {
@@ -260,7 +260,7 @@
   min-width: 190px;
   align-items: center;
   gap: 10px;
-  color: light-dark(#242a2e, #eef1f3);
+  color: var(--ff-on-surface);
 }
 .orderIdentity > span:last-child {
   display: grid;
@@ -271,7 +271,7 @@
   font-weight: 750;
 }
 .orderIdentity small {
-  color: light-dark(#58636f, #95a5b5);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .paymentMark {
@@ -279,10 +279,10 @@
   width: 35px;
   height: 35px;
   place-items: center;
-  border: 1px solid light-dark(#d5bc8b, #6b5427);
+  border: 1px solid var(--ff-primary-container);
   background: light-dark(#f4f2ee, #302718);
   color: light-dark(#a06f0d, #ffc757);
-  font: 800 11px var(--ops-font-sans, Inter, sans-serif);
+  font: 400 11px var(--ops-font-sans, Inter, sans-serif);
 }
 .amount {
   color: light-dark(#242e26, #d7e8da);
@@ -290,12 +290,12 @@
   white-space: nowrap;
 }
 .date {
-  color: light-dark(#2e5984, #bbcad9);
+  color: var(--ff-on-surface-variant);
   font: 11px var(--ops-font-mono, 'JetBrains Mono', monospace);
   white-space: nowrap;
 }
 .method {
-  color: light-dark(#2e5384, #d6dfeb);
+  color: var(--ff-status-info-text);
   font-size: 12px;
   font-weight: 650;
   white-space: nowrap;
@@ -319,9 +319,9 @@
   background: currentColor;
 }
 .paid {
-  border-color: light-dark(#9ac6b2, #37624e);
-  background: light-dark(#f8f9f9, #1a2d26);
-  color: light-dark(#2d864e, #aee4c2);
+  border-color: var(--ff-keyline);
+  background: var(--ff-surface-container);
+  color: var(--ff-status-ready-text);
 }
 .failed {
   border-color: light-dark(#c89a98, #75413e);
@@ -345,7 +345,7 @@
   font-size: 12px;
 }
 .statePanel strong {
-  color: light-dark(#242a2e, #ecf0f2);
+  color: var(--ff-on-surface);
   font-size: 14px;
 }
 .statePanel button {
@@ -360,7 +360,7 @@
   gap: 10px;
   padding: 8px 16px;
   border-top: 1px solid var(--line);
-  color: light-dark(#58636f, #a2afbe);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .footer > div,
@@ -372,9 +372,9 @@
 .footer select,
 .footer button {
   height: 28px;
-  border: 1px solid light-dark(#d3d6d9, #46515f);
-  background: light-dark(#f8f9f9, #222a34);
-  color: light-dark(#24282e, #e5eaf0);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
   cursor: pointer;
 }
 .footer select {
@@ -407,3 +407,264 @@
     min-width: 760px;
   }
 }
+
+/* @block:navy-a8-shared */
+/* ==========================================================================
+   FASTFOOD Admin — Navy list-page language (ADR-019, phase A8)
+
+   These screens have no frame in the design set, so this block carries the
+   list-page grammar established by the catalog screens in A7: label-role
+   headers, divide-y rows instead of zebra, mono identifiers, `surface-container
+   -low` panels with `shadow-sm`, and a 2px/4px/8px/12px shape scale.
+
+   Class names differ per module (`gridPanel` vs `panel`, `sortMark` vs
+   `sortIndicator`, ...), so the block is applied with **selector-level
+   pruning**: a selector is emitted only if that stylesheet defines it.
+   ========================================================================== */
+/* --- page shell --- */
+
+:global([data-admin-theme='fastfood-navy']) .pageHeader h1 {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-xl);
+  font-weight: var(--ff-weight-headline-xl);
+  line-height: var(--ff-leading-headline-xl);
+  letter-spacing: var(--ff-tracking-headline-xl);
+  text-transform: none;
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .pageHeader p {
+  font: 400 13px/18px var(--ff-font-body);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .breadcrumb {
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .eyebrow {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- panel --- */
+
+:global([data-admin-theme='fastfood-navy']) .panel {
+  background: var(--ff-surface-container-low);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .panelHeader,
+:global([data-admin-theme='fastfood-navy']) .footer {
+  padding: var(--ff-space-md);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+/* --- search well --- */
+
+:global([data-admin-theme='fastfood-navy']) .search {
+  background: var(--ff-surface-container-lowest);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search:focus-within {
+  border-color: var(--ff-primary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search input {
+  font: 400 12px/16px var(--ff-font-body);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search input::placeholder {
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- filter chips / segmented control --- */
+
+:global([data-admin-theme='fastfood-navy']) .filterButton {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  border-radius: var(--ff-radius-lg);
+  padding: 4px var(--ff-space-sm);
+  color: var(--ff-on-surface-variant);
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+:global([data-admin-theme='fastfood-navy']) .filterButton:hover {
+  color: var(--ff-on-surface);
+  background: var(--ff-surface-container-high);
+}
+
+:global([data-admin-theme='fastfood-navy']) .filterActive {
+  background: var(--ff-primary-container);
+  border-color: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+  font-weight: 700;
+}
+
+:global([data-admin-theme='fastfood-navy']) .segmented {
+  background: var(--ff-surface-container);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  padding: 2px;
+}
+
+:global([data-admin-theme='fastfood-navy']) .resultCount {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- table: label header, divide-y, no zebra --- */
+
+:global([data-admin-theme='fastfood-navy']) .table th {
+  background: var(--ff-surface-container-low);
+  border-bottom-color: var(--ff-keyline);
+  color: var(--ff-on-surface-variant);
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+:global([data-admin-theme='fastfood-navy']) .table th:first-child,
+:global([data-admin-theme='fastfood-navy']) .table td:first-child {
+  background: var(--ff-surface-container-low);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table td {
+  background: var(--ff-surface-container-low);
+  border-bottom-color: var(--ff-surface-container-high);
+  color: var(--ff-on-surface);
+  font: 400 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(even) td,
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(2n) td {
+  background: var(--ff-surface-container-low);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:hover td {
+  background: var(--ff-surface-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+:global([data-admin-theme='fastfood-navy']) .tableScroll {
+  background: var(--ff-surface-container-low);
+  border-color: var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .sortButton {
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  color: inherit;
+}
+
+:global([data-admin-theme='fastfood-navy']) .sortButton:hover {
+  color: var(--ff-primary-container);
+}
+
+/* --- identity columns --- */
+
+:global([data-admin-theme='fastfood-navy']) .paymentMark {
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  border-radius: var(--ff-radius-lg);
+}
+
+/* --- mono identifier columns --- */
+
+:global([data-admin-theme='fastfood-navy']) .amount {
+  font-family: var(--ff-font-label);
+  font-variant-numeric: tabular-nums;
+}
+
+:global([data-admin-theme='fastfood-navy']) .amount {
+  font-size: var(--ff-text-label-lg);
+  font-weight: 600;
+  color: var(--ff-on-surface);
+}
+
+/* --- status + scope badges --- */
+
+:global([data-admin-theme='fastfood-navy']) .status {
+  font: 600 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-status-ready-wash);
+  color: var(--ff-tertiary);
+  border: 1px solid var(--ff-status-ready-border);
+}
+
+:global([data-admin-theme='fastfood-navy']) .failed {
+  background: var(--ff-status-critical-wash);
+  color: var(--ff-status-critical-text);
+  border-color: var(--ff-status-critical-border);
+}
+
+:global([data-admin-theme='fastfood-navy']) .pending {
+  background: var(--ff-status-info-wash);
+  color: var(--ff-status-info);
+  border-color: var(--ff-status-info-border);
+}
+
+/* --- buttons --- */
+
+:global([data-admin-theme='fastfood-navy']) .toolButton,
+:global([data-admin-theme='fastfood-navy']) .refreshButton {
+  min-height: 32px;
+  padding: 0 var(--ff-space-sm);
+  border-radius: var(--ff-radius-lg);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  font: 500 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .tools {
+  background: var(--ff-surface-container-high);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+}
+
+/* --- forms --- */
+
+/* --- notices, states, overlays --- */
+
+:global([data-admin-theme='fastfood-navy']) .statePanel {
+  background: var(--ff-surface-container-low);
+  border: 0;
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+  color: var(--ff-on-surface-variant);
+  font: 400 13px/18px var(--ff-font-body);
+}
+
+/* --- dialogs --- */
+
+/* --- column menu --- */
+
+:global([data-admin-theme='fastfood-navy']) .columnMenuPanel {
+  background: var(--ff-surface-container-high);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  box-shadow: var(--ff-shadow-overlay);
+}
+
+/* --- misc --- */
+/* @end:navy-a8-shared */

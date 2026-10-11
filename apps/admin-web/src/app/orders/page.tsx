@@ -2,7 +2,7 @@
 
 import { formatTryMinor } from '@fastfood/contracts';
 import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { z } from 'zod';
 
 import { type LoadState } from '../../components/async-boundary';
@@ -13,11 +13,11 @@ import {
   useColumnVisibility,
 } from '../../components/ops/column-visibility-menu';
 import { OpsBoundary } from '../../components/ops/ops-boundary';
+import { useOpsSync } from '../../components/ops/ops-sync';
+import { ActionButton, KeylineCard, OperationalMetric } from '../../components/ops/ops-ui';
 import { OrderItemsDialog } from '../../components/ops/order-items-dialog';
 import { OrderReceipt } from '../../components/ops/order-receipt';
 import { OrdersDataGrid } from '../../components/ops/orders-data-grid';
-import { useOpsSync } from '../../components/ops/ops-sync';
-import { ActionButton, KeylineCard, OperationalMetric } from '../../components/ops/ops-ui';
 import { createAdminClient } from '../../lib/api';
 import {
   STATUS_GROUPS,
@@ -106,7 +106,8 @@ export default function OrdersPage() {
     mounted: columnsMounted,
     setVisibility: setColumnVisibility,
   } = useColumnVisibility();
-  const columnsMenu = useColumnMenuAnchor();
+  const columnsTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const columnsMenu = useColumnMenuAnchor(columnsTriggerRef);
 
   const openReceipt = useCallback(async (order: Order) => {
     setReceiptOrder(order);
@@ -468,7 +469,7 @@ export default function OrdersPage() {
         <div className="orders-toolbar__actions">
           <ActionButton onClick={() => void load(cursor)}>Yenile</ActionButton>
           <button
-            ref={columnsMenu.triggerRef}
+            ref={columnsTriggerRef}
             type="button"
             className="orders-toolbar__columns-trigger"
             aria-haspopup="dialog"

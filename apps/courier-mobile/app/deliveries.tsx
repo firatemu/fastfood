@@ -6,7 +6,6 @@ import {
   Spinner,
   StatusBadge,
   defaultTheme,
-  type StatusTone,
 } from '@fastfood/ui-native';
 import { Link, Redirect, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -16,16 +15,22 @@ import type { z } from 'zod';
 import { formatApiError, getApiClient } from '../lib/api';
 import { deliveriesResponseSchema, type deliverySchema } from '../lib/schemas';
 import { clearCourierSession, getCourierSession, subscribeSession } from '../lib/session';
+import { statusLabel, toneForStatus } from '../lib/status';
 
 type Delivery = z.infer<typeof deliverySchema>;
 
-function toneForStatus(status: string): StatusTone {
-  const s = status.toUpperCase();
-  if (s === 'DELIVERED') return 'completed';
-  if (s === 'CANCELLED') return 'cancelled';
-  if (s === 'ON_THE_WAY' || s === 'PICKED_UP') return 'in_progress';
-  if (s === 'ASSIGNED') return 'ready';
-  return 'pending';
+/** Statuses that are still actionable appear first; terminal ones sink. */
+const ACTIVE_FIRST = ['ON_THE_WAY', 'PICKED_UP', 'ASSIGNED', 'UNASSIGNED'];
+
+function byUrgency(a: Delivery, b: Delivery): number {
+  const ai = ACTIVE_FIRST.indexOf(a.status);
+  const bi = ACTIVE_FIRST.indexOf(b.status);
+  if (ai !== bi) {
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  }
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 }
 
 /**
@@ -55,7 +60,7 @@ export default function DeliveriesScreen() {
           schema: deliveriesResponseSchema,
         });
         if (cancelled) return;
-        setItems(res.data);
+        setItems([...res.data].sort(byUrgency));
         setError(null);
       } catch (err) {
         if (cancelled) return;
@@ -90,12 +95,22 @@ export default function DeliveriesScreen() {
             <Text style={styles.navText}>QR claim</Text>
           </Pressable>
         </Link>
+        <Link href="/performance" asChild>
+          <Pressable style={styles.navLink}>
+            <Text style={styles.navText}>Performans</Text>
+          </Pressable>
+        </Link>
+        <Link href="/history" asChild>
+          <Pressable style={styles.navLink}>
+            <Text style={styles.navText}>Geçmiş</Text>
+          </Pressable>
+        </Link>
         <Button
           theme={theme}
           size="sm"
           variant="secondary"
           onPress={() => {
-            clearCourierSession();
+            void clearCourierSession();
             router.replace('/login');
           }}
         >
@@ -130,7 +145,7 @@ export default function DeliveriesScreen() {
               theme={theme}
               footer={
                 <StatusBadge tone={toneForStatus(d.status)} theme={theme}>
-                  {d.status}
+                  {statusLabel(d.status)}
                 </StatusBadge>
               }
             />

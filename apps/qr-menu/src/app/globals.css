@@ -1,0 +1,151 @@
+@import 'tailwindcss';
+
+/*
+ * BURGER HOME QR Menü — independent customer visual system.
+ *
+ * Light, paper-like surface. The QR menu is read at a table in daylight, so it
+ * deliberately inverts the dark Storefront theme: white canvas, warm greys,
+ * brand yellow as the only strong accent.
+ *
+ * Not derived from Admin/Operations design tokens (see eslint.config.mjs).
+ */
+@theme {
+  --color-brand: #feb300;
+  --color-brand-deep: #e0a000;
+  --color-flame: #ff5722;
+
+  --color-paper: #ffffff;
+  --color-shell: #faf6ef;
+  --color-shell-deep: #f3ece0;
+  --color-line: #ece3d6;
+  --color-line-strong: #ddcfb9;
+  --color-ink: #17140f;
+  --color-ink-soft: #6c6257;
+  --color-ink-faint: #9a9084;
+
+  --font-headline: var(--font-anton), 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  --font-body: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --radius-card: 1.25rem;
+  --radius-tile: 0.875rem;
+  --radius-pill: 9999px;
+
+  --shadow-lift: 0 1px 2px rgb(23 20 15 / 0.04), 0 8px 24px -12px rgb(23 20 15 / 0.18);
+  --shadow-float: 0 2px 4px rgb(23 20 15 / 0.05), 0 24px 48px -24px rgb(23 20 15 / 0.28);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Category rail is sticky; keep anchored sections clear of it. */
+    scroll-padding-top: 9.5rem;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-brand);
+    color: var(--color-ink);
+  }
+
+  /* Keyboard focus stays visible on this white surface. */
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+}
+
+@layer components {
+  /* Condensed brand display face, used for the wordmark and section titles. */
+  .qr-display {
+    font-family: var(--font-headline);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 0.95;
+  }
+
+  /* Prices and counters must not jitter while filtering. */
+  .qr-numeric {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  /* Horizontal rails: no visible scrollbar chrome, still scrollable. */
+  .qr-rail {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .qr-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .qr-fade-up {
+    animation: qr-fade-up 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .qr-sheet-in {
+    animation: qr-sheet-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes qr-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes qr-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .qr-fade-up,
+  .qr-sheet-in {
+    animation: none;
+  }
+}
+
+/*
+ * A QR menu doubles as a printed table tent. Printing drops the chrome and
+ * keeps the product information, which is the only reason to print it.
+ */
+@media print {
+  .qr-no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .qr-section {
+    break-inside: avoid-page;
+    padding-top: 0.75rem;
+  }
+
+  .qr-print-compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

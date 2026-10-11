@@ -92,11 +92,12 @@ export default function BranchesRoute(): React.ReactElement {
       { key: 'TÜMÜ', label: 'Tümü', count: branches.length },
     ];
     for (const c of CITY_ORDER) {
-      if (grouped.has(c)) {
+      const items = grouped.get(c);
+      if (items) {
         out.push({
           key: c,
           label: c.charAt(0) + c.slice(1).toLowerCase(),
-          count: grouped.get(c)!.length,
+          count: items.length,
         });
       }
     }

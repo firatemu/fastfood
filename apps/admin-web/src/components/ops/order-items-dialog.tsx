@@ -40,7 +40,7 @@ export function OrderItemsDialog(props: { order: Order | null; onClose: () => vo
     <dialog
       ref={dialogRef}
       className={styles.dialog}
-      data-admin-theme="kitchen-fleet"
+      data-admin-theme="fastfood-navy"
       aria-labelledby="order-items-title"
       onClose={props.onClose}
       onClick={(event) => {

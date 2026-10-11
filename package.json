@@ -38,6 +38,7 @@
     "dev:admin": "pnpm --filter @fastfood/admin-web start",
     "dev:admin:watch": "bash scripts/dev-admin-watch.sh",
     "dev:storefront:watch": "bash scripts/dev-frontend-watch.sh storefront",
+    "dev:qr:watch": "bash scripts/dev-frontend-watch.sh qr",
     "dev:api:watch": "bash scripts/dev-frontend-watch.sh api",
     "dev:full:watch": "bash scripts/dev-frontend-watch.sh api & bash scripts/dev-frontend-watch.sh storefront & bash scripts/dev-admin-watch.sh",
     "e2e:web": "pnpm --filter @fastfood/e2e-web exec playwright test",

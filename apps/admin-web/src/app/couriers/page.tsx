@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { z } from 'zod';
 
 import { errorMessage, type LoadState } from '../../components/async-boundary';
 import { useBranchContext } from '../../components/ops/branch-context';
@@ -10,10 +9,20 @@ import { OpsBoundary } from '../../components/ops/ops-boundary';
 import { OpsIcon } from '../../components/ops/ops-icon';
 import { useOpsSync } from '../../components/ops/ops-sync';
 import { ActionButton } from '../../components/ops/ops-ui';
+import { useStaffAccess } from '../../components/ops/staff-access-context';
 import { createAdminClient } from '../../lib/api';
-import { canDispatchAssign, isUuid } from '../../lib/fulfillment-ops';
 import {
-  courierCreateSchema,
+  createRequestFromDraft,
+  filterCouriers,
+  passwordPolicyState,
+  rosterSummary,
+  type Courier,
+  type CourierDraft,
+  type CourierFilter,
+  type CourierMetrics,
+} from '../../lib/courier-admin';
+import {
+  courierResponseSchema,
   couriersResponseSchema,
   deliveriesCreateSchema,
   reportCouriersSchema,
@@ -21,79 +30,198 @@ import {
 } from '../../lib/schemas';
 import { useDeferredLoad } from '../../lib/use-deferred-load';
 
+import { CourierCreateDialog } from './courier-create-dialog';
+import { CourierDetail } from './courier-detail';
+import { CourierRoster } from './courier-roster';
 import styles from './couriers.module.css';
 
-type Courier = z.infer<typeof couriersResponseSchema>['data'][number];
-type CourierMetrics = { activeCount: number; deliveredCount: number };
-type Filter = 'all' | 'active' | 'paused';
-const EMPTY_COURIERS: Courier[] = [];
+const EMPTY_METRICS: Record<string, CourierMetrics> = {};
+const EMPTY_ROSTER: Courier[] = [];
 
-function initials(value: string): string {
-  const parts = value.trim().split(/\s+/).filter(Boolean);
+type MetricTone = 'ready' | 'paused' | 'muted';
+
+const METRIC_TONE_CLASS: Record<MetricTone, string> = {
+  ready: 'metricReady',
+  paused: 'metricPaused',
+  muted: 'metricMuted',
+};
+
+function MetricCell(props: {
+  label: string;
+  value: number;
+  hint: string;
+  tone?: MetricTone;
+  testId?: string;
+}) {
+  const toneClass = props.tone ? styles[METRIC_TONE_CLASS[props.tone]] : undefined;
   return (
-    parts.length > 1 ? `${parts[0]?.[0] ?? ''}${parts[1]?.[0] ?? ''}` : value.slice(0, 2)
-  ).toUpperCase();
+    <div
+      className={toneClass ? `${styles.metricCell} ${toneClass}` : styles.metricCell}
+      data-ff-metric={props.testId}
+    >
+      <dt>{props.label}</dt>
+      <dd>{props.value}</dd>
+      <span>{props.hint}</span>
+    </div>
+  );
 }
 
-function courierName(courier: Courier): string {
-  return courier.displayName?.trim() || 'İsimsiz kurye';
-}
+function PasswordDialog(props: {
+  courier: Courier;
+  busy: boolean;
+  error: string | null;
+  onCancel: () => void;
+  onSubmit: (password: string) => void;
+}) {
+  const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const state = passwordPolicyState(password);
+  const mismatch = confirmation.length > 0 && password !== confirmation;
+  const ready = state.met && !mismatch && password === confirmation;
 
-function capacityLabel(courier: Courier, metrics: CourierMetrics | undefined): string {
-  return `${metrics?.activeCount ?? 0} / ${courier.maxActiveDeliveries ?? 3}`;
+  return (
+    <div className={styles.modalBackdrop} role="presentation" onMouseDown={props.onCancel}>
+      <section
+        className={`${styles.modal} ${styles.modalNarrow}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="courier-password-title"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <header className={styles.modalHeader}>
+          <div>
+            <span className={styles.kicker}>GİRİŞ BİLGİSİ</span>
+            <h2 id="courier-password-title">Şifre sıfırla</h2>
+            <p>
+              {props.courier.displayName} · @{props.courier.username}
+            </p>
+          </div>
+          <button
+            type="button"
+            className={styles.iconButton}
+            aria-label="Pencereyi kapat"
+            onClick={props.onCancel}
+            disabled={props.busy}
+          >
+            <OpsIcon name="close" />
+          </button>
+        </header>
+        <div className={styles.modalBody}>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel} htmlFor="courier-new-password">
+              Yeni şifre
+            </label>
+            <input
+              id="courier-new-password"
+              className={styles.input}
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="new-password"
+              aria-describedby="courier-new-password-hint"
+            />
+            <span
+              className={state.met ? styles.fieldHintOk : styles.fieldHint}
+              id="courier-new-password-hint"
+            >
+              {state.met
+                ? 'Uzunluk kuralı karşılandı.'
+                : `En az 12 karakter · ${state.remaining} eksik`}
+            </span>
+          </div>
+          <div className={styles.field}>
+            <label className={styles.fieldLabel} htmlFor="courier-new-password-confirm">
+              Yeni şifre tekrar
+            </label>
+            <input
+              id="courier-new-password-confirm"
+              className={styles.input}
+              type="password"
+              value={confirmation}
+              onChange={(event) => setConfirmation(event.target.value)}
+              autoComplete="new-password"
+              aria-describedby={mismatch ? 'courier-new-password-confirm-hint' : undefined}
+            />
+            {mismatch ? (
+              <span className={styles.fieldHint} id="courier-new-password-confirm-hint">
+                Şifreler aynı değil.
+              </span>
+            ) : null}
+          </div>
+          {props.error ? (
+            <p className={styles.formError} role="alert">
+              <OpsIcon name="error" /> {props.error}
+            </p>
+          ) : null}
+        </div>
+        <footer className={styles.modalFooter}>
+          <button
+            type="button"
+            className={styles.cancelButton}
+            onClick={props.onCancel}
+            disabled={props.busy}
+          >
+            Vazgeç
+          </button>
+          <ActionButton
+            variant="primary"
+            disabled={props.busy || !ready}
+            onClick={() => props.onSubmit(password)}
+          >
+            {props.busy ? 'Sıfırlanıyor' : 'Şifreyi kaydet'}
+          </ActionButton>
+        </footer>
+      </section>
+    </div>
+  );
 }
 
 export default function CouriersPage() {
   const branch = useBranchContext();
+  const access = useStaffAccess();
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+
   const [state, setState] = useState<LoadState<Courier[]>>({ status: 'loading' });
-  const [metrics, setMetrics] = useState<Record<string, CourierMetrics>>({});
+  const [metrics, setMetrics] = useState<Record<string, CourierMetrics>>(EMPTY_METRICS);
   const [selectedId, setSelectedId] = useState('');
-  const [filter, setFilter] = useState<Filter>('all');
-  const [search, setSearch] = useState('');
-  const [registerOpen, setRegisterOpen] = useState(false);
-  const [displayName, setDisplayName] = useState('');
-  const [userId, setUserId] = useState('');
-  const [phone, setPhone] = useState('');
-  const [orderId, setOrderId] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<CourierFilter>('all');
+  const [branchScope, setBranchScope] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [passwordFor, setPasswordFor] = useState<Courier | null>(null);
+  const [deliveryFor, setDeliveryFor] = useState<{ courier: Courier; orderId: string } | null>(
+    null,
+  );
+  const [busyAction, setBusyAction] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [confirmAssign, setConfirmAssign] = useState(false);
-  const [lastDeliveryId, setLastDeliveryId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setState({ status: 'loading' });
     try {
       const client = createAdminClient();
-      const courierResponse = await client.request({
+      const roster = await client.request({
         path: 'admin/couriers',
         schema: couriersResponseSchema,
       });
-
       let reportMetrics: Record<string, CourierMetrics> = {};
       try {
-        const reportResponse = await client.request({
+        const report = await client.request({
           path: 'admin/reports/couriers',
           schema: reportCouriersSchema,
         });
         reportMetrics = Object.fromEntries(
-          reportResponse.data.map((row) => [
+          report.data.map((row) => [
             row.courierId,
             { activeCount: row.activeCount ?? 0, deliveredCount: row.deliveredCount ?? 0 },
           ]),
         );
       } catch {
-        // The roster remains useful when the optional reporting permission is absent.
+        // Reporting needs a separate permission; the roster works without it.
       }
-
       setMetrics(reportMetrics);
-      setSelectedId((prev) => prev || courierResponse.data[0]?.id || '');
-      setState(
-        courierResponse.data.length
-          ? { status: 'ready', data: courierResponse.data }
-          : { status: 'empty' },
-      );
+      setSelectedId((previous) => previous || roster.data[0]?.id || '');
+      setState(roster.data.length ? { status: 'ready', data: roster.data } : { status: 'empty' });
       markSynced();
     } catch (error) {
       setState({ status: 'error', error });
@@ -108,105 +236,113 @@ export default function CouriersPage() {
 
   useDeferredLoad(() => void load(), [load]);
 
-  const rows = state.status === 'ready' ? state.data : EMPTY_COURIERS;
-  const filteredRows = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase('tr-TR');
-    return rows.filter((courier) => {
-      const name = courierName(courier).toLocaleLowerCase('tr-TR');
-      const matchesSearch = !query || name.includes(query) || courier.phone?.includes(query);
-      const matchesFilter =
-        filter === 'all' ||
-        (filter === 'active' ? courier.isActive !== false : courier.isActive === false);
-      return matchesSearch && matchesFilter;
-    });
-  }, [filter, rows, search]);
+  const rows = useMemo(() => (state.status === 'ready' ? state.data : EMPTY_ROSTER), [state]);
+  const summary = useMemo(() => rosterSummary(rows, metrics), [rows, metrics]);
+  const visible = useMemo(
+    () => filterCouriers(rows, { query, filter, branchId: branchScope }),
+    [branchScope, filter, query, rows],
+  );
+  // The detail column must always describe a row the operator can actually see.
+  // Searching or filtering can hide the previously selected courier; falling
+  // through to the first visible row keeps the two columns in step instead of
+  // showing a profile that is not in the list.
+  const selected = useMemo(() => {
+    const stillVisible = visible.find((courier) => courier.id === selectedId);
+    return stillVisible ?? visible[0] ?? rows[0];
+  }, [rows, selectedId, visible]);
 
-  const selected = rows.find((courier) => courier.id === selectedId) ?? filteredRows[0] ?? rows[0];
-  const selectedMetrics = selected ? metrics[selected.id] : undefined;
-  const activeCount = rows.filter((courier) => courier.isActive !== false).length;
-  const pausedCount = rows.length - activeCount;
-  const totalCapacity = rows.reduce((sum, courier) => sum + (courier.maxActiveDeliveries ?? 3), 0);
-  const activeDeliveries = rows.reduce(
-    (sum, courier) => sum + (metrics[courier.id]?.activeCount ?? 0),
-    0,
+  const lockedBranchId = access.isSuperAdmin ? null : (access.branchIds[0] ?? null);
+  const branchOptions = useMemo(
+    () => branch.branches.map((option) => ({ id: option.id, name: option.name })),
+    [branch.branches],
   );
 
-  async function registerCourier() {
-    setBusy(true);
+  async function run(action: string, task: () => Promise<string>): Promise<void> {
+    setBusyAction(action);
     setFormError(null);
     setFlash(null);
-    if (!displayName.trim() || !isUuid(userId)) {
-      setFormError('Kurye adı ve geçerli personel hesabı UUID bilgisi zorunlu.');
-      setBusy(false);
-      return;
-    }
     try {
-      await createAdminClient().request({
-        method: 'POST',
-        path: 'admin/couriers',
-        body: {
-          userId: userId.trim(),
-          displayName: displayName.trim(),
-          phone: phone.trim() || undefined,
-        },
-        schema: courierCreateSchema,
-      });
-      setFlash('Kurye filosuna yeni kayıt eklendi.');
-      setDisplayName('');
-      setUserId('');
-      setPhone('');
-      setRegisterOpen(false);
+      setFlash(await task());
       await load();
     } catch (error) {
       setFormError(errorMessage(error));
     } finally {
-      setBusy(false);
+      setBusyAction(null);
     }
   }
 
-  async function assignDelivery() {
-    if (!selected) {
-      setFormError('Önce atanacak bir kurye seçin.');
-      setConfirmAssign(false);
-      return;
-    }
-    const payload = {
-      orderId: orderId.trim(),
-      courierId: selected.id,
-      branchId: branch.branchId,
-    };
-    if (!canDispatchAssign(payload)) {
-      setFormError('Sipariş, kurye ve teslimat şubesi bilgilerini kontrol edin.');
-      setConfirmAssign(false);
-      return;
-    }
-    setBusy(true);
-    setFormError(null);
-    setFlash(null);
-    try {
+  function createCourier(draft: CourierDraft): void {
+    void run('create', async () => {
+      await createAdminClient().request({
+        method: 'POST',
+        path: 'admin/couriers',
+        body: createRequestFromDraft(draft),
+        schema: courierResponseSchema,
+      });
+      setCreateOpen(false);
+      return `${draft.displayName.trim()} kurye olarak eklendi.`;
+    });
+  }
+
+  function toggleActive(courier: Courier): void {
+    void run('active', async () => {
+      const next = await createAdminClient().request({
+        method: 'PATCH',
+        path: `admin/couriers/${courier.id}`,
+        body: { isActive: !courier.isActive },
+        schema: courierResponseSchema,
+      });
+      return `${next.data.displayName} ${next.data.isActive ? 'uygun' : 'beklemeye'} alındı.`;
+    });
+  }
+
+  function saveBranches(courier: Courier, branchIds: string[]): void {
+    void run('branches', async () => {
+      const next = await createAdminClient().request({
+        method: 'PUT',
+        path: `admin/couriers/${courier.id}/branches`,
+        body: { branchIds },
+        schema: courierResponseSchema,
+      });
+      return `${next.data.displayName} için ${next.data.branches.length} şube atandı.`;
+    });
+  }
+
+  function resetPassword(password: string): void {
+    const courier = passwordFor;
+    if (!courier) return;
+    void run('password', async () => {
+      await createAdminClient().request({
+        method: 'POST',
+        path: `admin/couriers/${courier.id}/password`,
+        body: { password },
+        schema: courierResponseSchema,
+      });
+      setPasswordFor(null);
+      return `${courier.displayName} için yeni şifre tanımlandı.`;
+    });
+  }
+
+  function assignDelivery(): void {
+    const target = deliveryFor;
+    if (!target) return;
+    void run('delivery', async () => {
       const client = createAdminClient();
       const created = await client.request({
         method: 'POST',
         path: 'admin/deliveries',
-        body: { orderId: payload.orderId, branchId: payload.branchId },
+        body: { orderId: target.orderId, branchId: branch.branchId },
         schema: deliveriesCreateSchema,
       });
       await client.request({
         method: 'POST',
         path: `admin/deliveries/${created.data.id}/assign`,
-        body: { courierId: payload.courierId },
+        body: { courierId: target.courier.id },
         schema: unknownDataSchema,
       });
-      setLastDeliveryId(created.data.id);
-      setFlash(`${courierName(selected)} için teslimat görevi oluşturuldu.`);
-      setOrderId('');
-      setConfirmAssign(false);
-      await load();
-    } catch (error) {
-      setFormError(errorMessage(error));
-    } finally {
-      setBusy(false);
-    }
+      setDeliveryFor(null);
+      return `${target.courier.displayName} için teslimat görevi oluşturuldu.`;
+    });
   }
 
   return (
@@ -216,21 +352,24 @@ export default function CouriersPage() {
           <div className={styles.eyebrow}>
             <OpsIcon name="two_wheeler" /> Operasyon / Teslimat
           </div>
-          <h1>Kurye kontrol kulesi</h1>
-          <p>Filonun uygunluğunu, kapasitesini ve teslimat atamalarını tek akışta yönetin.</p>
+          <h1>Kurye filosu</h1>
+          <p>
+            Her kurye bir hesaptır: giriş bilgileri, şube ataması ve anlık yükü tek ekrandan
+            yönetin.
+          </p>
         </div>
         <div className={styles.headerActions}>
           <span className={styles.liveState}>
             <i /> Canlı filo görünümü
           </span>
-          <ActionButton variant="primary" onClick={() => setRegisterOpen(true)}>
+          <ActionButton variant="primary" onClick={() => setCreateOpen(true)}>
             Yeni kurye
           </ActionButton>
         </div>
       </header>
 
       {flash ? (
-        <div className={styles.notice} role="status">
+        <div className={styles.notice} role="status" data-ff-flash>
           <OpsIcon name="check_circle" /> {flash}
           <button type="button" aria-label="Bildirimi kapat" onClick={() => setFlash(null)}>
             <OpsIcon name="close" />
@@ -238,7 +377,7 @@ export default function CouriersPage() {
         </div>
       ) : null}
       {formError ? (
-        <div className={`${styles.notice} ${styles.noticeError}`} role="alert">
+        <div className={`${styles.notice} ${styles.noticeError}`} role="alert" data-ff-error>
           <OpsIcon name="error" /> {formError}
           <button
             type="button"
@@ -250,27 +389,39 @@ export default function CouriersPage() {
         </div>
       ) : null}
 
-      <dl className={styles.metrics} aria-label="Kurye özet metrikleri">
-        <div className={styles.metric}>
-          <dt>Toplam filo</dt>
-          <dd>{rows.length}</dd>
-          <span>kayıtlı kurye</span>
-        </div>
-        <div className={`${styles.metric} ${styles.metricGreen}`}>
-          <dt>Uygun</dt>
-          <dd>{activeCount}</dd>
-          <span>aktif profil</span>
-        </div>
-        <div className={`${styles.metric} ${styles.metricBlue}`}>
-          <dt>Aktif görev</dt>
-          <dd>{activeDeliveries}</dd>
-          <span>{totalCapacity || 0} toplam kapasite</span>
-        </div>
-        <div className={`${styles.metric} ${styles.metricMuted}`}>
-          <dt>Beklemede</dt>
-          <dd>{pausedCount}</dd>
-          <span>pasif profil</span>
-        </div>
+      <dl className={styles.metricRail} aria-label="Kurye özet metrikleri">
+        <MetricCell
+          label="Toplam kurye"
+          value={summary.total}
+          hint="kayıtlı hesap"
+          testId="total"
+        />
+        <MetricCell
+          label="Uygun"
+          value={summary.ready}
+          hint="girişe hazır"
+          tone="ready"
+          testId="ready"
+        />
+        <MetricCell
+          label="Beklemede"
+          value={summary.paused}
+          hint="duraklatılmış"
+          tone="paused"
+          testId="paused"
+        />
+        <MetricCell
+          label="Şubesiz"
+          value={summary.unassigned}
+          hint="atanması gerekiyor"
+          testId="unassigned"
+        />
+        <MetricCell
+          label="Aktif görev"
+          value={summary.activeDeliveries}
+          hint={`${summary.capacity} toplam kapasite`}
+          testId="load"
+        />
       </dl>
 
       <OpsBoundary
@@ -281,314 +432,76 @@ export default function CouriersPage() {
       >
         {() => (
           <div className={styles.workspace}>
-            <section className={styles.roster} aria-label="Kurye filosu">
-              <header className={styles.sectionHeader}>
-                <div>
-                  <span className={styles.sectionKicker}>FİLO GÖRÜNÜMÜ</span>
-                  <h2>Kurye filosu</h2>
-                  <p>{filteredRows.length} kayıt · kapasite ve durum özeti</p>
-                </div>
-                <button type="button" className={styles.refreshButton} onClick={() => void load()}>
-                  <OpsIcon name="refresh" /> Yenile
-                </button>
-              </header>
-              <div className={styles.rosterTools}>
-                <label className={styles.search}>
-                  <OpsIcon name="search" />
-                  <input
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    placeholder="İsim veya telefon ara"
-                    aria-label="İsim veya telefon ara"
-                  />
-                  {search ? (
-                    <button
-                      type="button"
-                      aria-label="Aramayı temizle"
-                      onClick={() => setSearch('')}
-                    >
-                      <OpsIcon name="close" />
-                    </button>
-                  ) : null}
-                </label>
-                <div
-                  className={styles.filterGroup}
-                  role="tablist"
-                  aria-label="Kurye durumu filtresi"
-                >
-                  {(
-                    [
-                      ['all', 'Tümü'],
-                      ['active', 'Uygun'],
-                      ['paused', 'Beklemede'],
-                    ] as const
-                  ).map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      role="tab"
-                      aria-selected={filter === value}
-                      className={filter === value ? styles.filterActive : undefined}
-                      onClick={() => setFilter(value)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className={styles.rosterList}>
-                {filteredRows.length === 0 ? (
-                  <div className={styles.listEmpty}>
-                    <OpsIcon name="manage_search" />
-                    <strong>Sonuç bulunamadı</strong>
-                    <span>Arama veya durum filtresini değiştirin.</span>
-                  </div>
-                ) : (
-                  filteredRows.map((courier) => {
-                    const courierMetrics = metrics[courier.id];
-                    const max = courier.maxActiveDeliveries ?? 3;
-                    const loadPercent = Math.min(
-                      100,
-                      ((courierMetrics?.activeCount ?? 0) / max) * 100,
-                    );
-                    const active = courier.isActive !== false;
-                    return (
-                      <button
-                        type="button"
-                        key={courier.id}
-                        className={
-                          selected?.id === courier.id
-                            ? `${styles.courierRow} ${styles.courierRowSelected}`
-                            : styles.courierRow
-                        }
-                        onClick={() => setSelectedId(courier.id)}
-                      >
-                        <span className={styles.avatar}>{initials(courierName(courier))}</span>
-                        <span className={styles.courierIdentity}>
-                          <strong>{courierName(courier)}</strong>
-                          <small>{courier.phone || 'Telefon bilgisi yok'}</small>
-                        </span>
-                        <span className={styles.courierLoad}>
-                          <span>
-                            <b>{capacityLabel(courier, courierMetrics)}</b> görev
-                          </span>
-                          <i>
-                            <em style={{ width: `${loadPercent}%` }} />
-                          </i>
-                        </span>
-                        <span className={active ? styles.statusReady : styles.statusPaused}>
-                          <i /> {active ? 'Uygun' : 'Beklemede'}
-                        </span>
-                        <OpsIcon name="chevron_right" />
-                      </button>
-                    );
-                  })
-                )}
-              </div>
-            </section>
-
-            <aside className={styles.detail} aria-label="Seçili kurye ayrıntıları">
-              {selected ? (
-                <>
-                  <header className={styles.detailHeader}>
-                    <div className={styles.detailProfile}>
-                      <span className={styles.avatarLarge}>{initials(courierName(selected))}</span>
-                      <div>
-                        <span className={styles.sectionKicker}>SEÇİLİ KURYE</span>
-                        <h2>{courierName(selected)}</h2>
-                        <p>{selected.phone || 'Telefon bilgisi yok'}</p>
-                      </div>
-                    </div>
-                    <span
-                      className={
-                        selected.isActive === false ? styles.statusPaused : styles.statusReady
-                      }
-                    >
-                      <i /> {selected.isActive === false ? 'Beklemede' : 'Uygun'}
-                    </span>
-                  </header>
-                  <div className={styles.detailStats}>
-                    <div>
-                      <span>Aktif görev</span>
-                      <strong>{selectedMetrics?.activeCount ?? 0}</strong>
-                    </div>
-                    <div>
-                      <span>Kapasite</span>
-                      <strong>{selected.maxActiveDeliveries ?? 3}</strong>
-                    </div>
-                    <div>
-                      <span>Tamamlanan</span>
-                      <strong>{selectedMetrics?.deliveredCount ?? 0}</strong>
-                    </div>
-                  </div>
-                  <section className={styles.assignment}>
-                    <header>
-                      <div>
-                        <span className={styles.sectionKicker}>HIZLI ATAMA</span>
-                        <h3>Yeni teslimat görevi</h3>
-                      </div>
-                      <OpsIcon name="assignment_ind" />
-                    </header>
-                    <p>
-                      Seçili şubeden bir siparişi {courierName(selected)} için teslimat kuyruğuna
-                      alın.
-                    </p>
-                    <label>
-                      Sipariş numarası veya ID
-                      <input
-                        className={styles.input}
-                        value={orderId}
-                        onChange={(event) => setOrderId(event.target.value)}
-                        placeholder="Örn. SP00030 veya UUID"
-                      />
-                    </label>
-                    <div className={styles.assignmentMeta}>
-                      <span>
-                        <OpsIcon name="storefront" /> {branch.selected?.name ?? 'Seçili şube'}
-                      </span>
-                      <span>
-                        <OpsIcon name="speed" /> {capacityLabel(selected, selectedMetrics)} görev
-                      </span>
-                    </div>
-                    <ActionButton
-                      variant="primary"
-                      disabled={
-                        busy ||
-                        selected.isActive === false ||
-                        !canDispatchAssign({
-                          orderId,
-                          courierId: selected.id,
-                          branchId: branch.branchId,
-                        })
-                      }
-                      onClick={() => setConfirmAssign(true)}
-                    >
-                      Teslimatı ata
-                    </ActionButton>
-                    {lastDeliveryId ? (
-                      <small className={styles.lastDelivery}>
-                        Son görev: {lastDeliveryId.slice(0, 8)}…
-                      </small>
-                    ) : null}
-                  </section>
-                  <section className={styles.profileFacts}>
-                    <header>
-                      <span className={styles.sectionKicker}>PROFİL BİLGİSİ</span>
-                      <OpsIcon name="verified_user" />
-                    </header>
-                    <div>
-                      <span>Personel hesabı</span>
-                      <strong>Bağlı</strong>
-                    </div>
-                    <div>
-                      <span>Azami aktif görev</span>
-                      <strong>{selected.maxActiveDeliveries ?? 3} teslimat</strong>
-                    </div>
-                    <div>
-                      <span>Kurye kimliği</span>
-                      <strong>{selected.id.slice(0, 8)}…</strong>
-                    </div>
-                  </section>
-                </>
-              ) : null}
-            </aside>
+            <CourierRoster
+              couriers={visible}
+              metrics={metrics}
+              selectedId={selected?.id ?? ''}
+              query={query}
+              filter={filter}
+              branchOptions={branchOptions}
+              branchScope={branchScope}
+              canPickBranch={access.isSuperAdmin}
+              onQueryChange={setQuery}
+              onFilterChange={setFilter}
+              onBranchScopeChange={setBranchScope}
+              onSelect={setSelectedId}
+              onRefresh={() => void load()}
+              refreshing={state.status === 'loading'}
+            />
+            {selected ? (
+              <CourierDetail
+                key={selected.id}
+                courier={selected}
+                metrics={metrics[selected.id]}
+                branchOptions={branchOptions}
+                canEditBranches={access.isSuperAdmin}
+                busyAction={busyAction}
+                deliveryBranchName={branch.selected?.name ?? 'Seçili şube'}
+                onToggleActive={toggleActive}
+                onSaveBranches={saveBranches}
+                onResetPassword={setPasswordFor}
+                onRequestDelivery={(courier, orderId) => setDeliveryFor({ courier, orderId })}
+              />
+            ) : null}
           </div>
         )}
       </OpsBoundary>
 
-      {registerOpen ? (
-        <div
-          className={styles.modalBackdrop}
-          role="presentation"
-          onMouseDown={() => setRegisterOpen(false)}
-        >
-          <section
-            className={styles.modal}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="courier-register-title"
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            <header className={styles.modalHeader}>
-              <div>
-                <span className={styles.sectionKicker}>FİLOYA EKLE</span>
-                <h2 id="courier-register-title">Yeni kurye profili</h2>
-                <p>Personel hesabını teslimat operasyonuna bağlayın.</p>
-              </div>
-              <button
-                type="button"
-                className={styles.iconButton}
-                aria-label="Pencereyi kapat"
-                onClick={() => setRegisterOpen(false)}
-              >
-                <OpsIcon name="close" />
-              </button>
-            </header>
-            <div className={styles.modalBody}>
-              <label>
-                Kurye adı
-                <input
-                  className={styles.input}
-                  value={displayName}
-                  onChange={(event) => setDisplayName(event.target.value)}
-                  placeholder="Örn. Deniz Yılmaz"
-                />
-              </label>
-              <label>
-                Personel hesabı UUID
-                <input
-                  className={`${styles.input} ${styles.inputMono}`}
-                  value={userId}
-                  onChange={(event) => setUserId(event.target.value)}
-                  placeholder="Hesap UUID bilgisini girin"
-                />
-              </label>
-              <label>
-                Telefon <span>isteğe bağlı</span>
-                <input
-                  className={styles.input}
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  placeholder="05xx xxx xx xx"
-                />
-              </label>
-              <div className={styles.formHint}>
-                <OpsIcon name="info" /> Aktif görev kapasitesi sistem varsayılanı olan 3 teslimatla
-                başlar.
-              </div>
-            </div>
-            <footer className={styles.modalFooter}>
-              <button
-                type="button"
-                className={styles.cancelButton}
-                onClick={() => setRegisterOpen(false)}
-              >
-                Vazgeç
-              </button>
-              <ActionButton
-                variant="primary"
-                disabled={busy}
-                onClick={() => void registerCourier()}
-              >
-                {busy ? 'Kaydediliyor' : 'Kurye oluştur'}
-              </ActionButton>
-            </footer>
-          </section>
-        </div>
+      {createOpen ? (
+        <CourierCreateDialog
+          branches={branchOptions}
+          lockedBranchId={lockedBranchId}
+          busy={busyAction === 'create'}
+          onClose={() => setCreateOpen(false)}
+          onSubmit={createCourier}
+        />
+      ) : null}
+
+      {passwordFor ? (
+        <PasswordDialog
+          courier={passwordFor}
+          busy={busyAction === 'password'}
+          error={busyAction === 'password' ? formError : null}
+          onCancel={() => {
+            setPasswordFor(null);
+            setFormError(null);
+          }}
+          onSubmit={resetPassword}
+        />
       ) : null}
 
       <ConfirmDialog
-        open={confirmAssign}
+        open={deliveryFor !== null}
         title="Teslimat görevi oluştur"
         body={
-          selected
-            ? `${courierName(selected)} için ${orderId.trim()} siparişine yeni teslimat kaydı oluşturulacak ve kurye atanacak.`
-            : 'Seçili kurye bulunamadı.'
+          deliveryFor
+            ? `${deliveryFor.orderId} siparişi ${deliveryFor.courier.displayName} için teslimat kuyruğuna alınacak.`
+            : ''
         }
         confirmLabel="Görevi oluştur"
-        busy={busy}
-        onCancel={() => setConfirmAssign(false)}
-        onConfirm={() => void assignDelivery()}
+        busy={busyAction === 'delivery'}
+        onCancel={() => setDeliveryFor(null)}
+        onConfirm={assignDelivery}
       />
     </div>
   );

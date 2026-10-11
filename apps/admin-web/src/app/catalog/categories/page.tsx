@@ -1029,7 +1029,7 @@ export default function CatalogCategoriesPage() {
                   ) : null}
                 </form>
               ) : (
-                <div className={styles.relations}>
+                <div>
                   <div className={styles.relationHeader}>
                     <div>
                       <span>KATEGORİ BAĞLANTILARI</span>

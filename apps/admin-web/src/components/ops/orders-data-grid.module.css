@@ -4,8 +4,8 @@
   --grid-surface: var(--ops-surface-1, light-dark(#fcfcfd, #161b22));
   --grid-surface-raised: var(--ops-surface-2, light-dark(#f8f9f9, #1f242d));
   --grid-ink: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
-  --grid-muted: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
-  --grid-amber: var(--ops-amber, light-dark(#a57709, #feb300));
+  --grid-muted: var(--ff-on-surface-variant);
+  --grid-amber: var(--ff-primary);
   min-width: 0;
   overflow: hidden;
   color: var(--grid-ink);
@@ -21,12 +21,7 @@
   gap: 20px;
   padding: 12px 18px;
   border-bottom: 1px solid var(--grid-line);
-  background: linear-gradient(
-      90deg,
-      light-dark(rgba(244, 187, 52, 0.045), rgba(254, 179, 0, 0.045)),
-      transparent 37%
-    ),
-    var(--grid-surface);
+  background: var(--ff-surface-container-high);
 }
 
 .gridTitle {
@@ -139,7 +134,7 @@
   height: 46px;
   padding: 0;
   color: var(--grid-muted);
-  background: light-dark(#fcfcfd, #13171c);
+  background: var(--ff-surface-container-low);
   border-bottom: 1px solid var(--grid-line-strong);
   text-align: left;
   font-size: 11px;
@@ -184,7 +179,7 @@
 .sortButton[data-ff-sort-state='asc'],
 .sortButton[data-ff-sort-state='desc'] {
   color: var(--grid-ink);
-  background: light-dark(rgba(252, 252, 253, 0.035), rgba(23, 30, 38, 0.035));
+  background: var(--ff-surface-container-low-alpha);
 }
 
 .sortButton:focus-visible,
@@ -246,7 +241,7 @@
 }
 
 .table tbody tr:nth-child(odd) td {
-  background: light-dark(#fcfcfd, #161b22);
+  background: var(--ff-surface-container);
 }
 
 .table tbody tr:nth-child(even) td {
@@ -285,7 +280,7 @@
 }
 
 .table tbody tr:nth-child(odd) td:first-child {
-  background: light-dark(#fcfcfd, #161b22);
+  background: var(--ff-surface-container);
 }
 
 .table tbody tr:nth-child(even) td:first-child {
@@ -363,15 +358,15 @@
 }
 
 .status[data-tone='warn'] {
-  color: light-dark(#a0750e, #f1c65e);
-  background: light-dark(rgba(244, 173, 52, 0.1), rgba(245, 158, 11, 0.1));
-  border-color: light-dark(rgba(146, 160, 170, 0.25), rgba(245, 158, 11, 0.25));
+  color: var(--ff-status-warn-text);
+  background: var(--ff-status-warn-wash);
+  border-color: var(--ff-status-warn-border);
 }
 
 .status[data-tone='amber'] {
-  color: light-dark(#a0730d, #ffd067);
-  background: light-dark(rgba(244, 187, 52, 0.1), rgba(254, 179, 0, 0.1));
-  border-color: light-dark(rgba(146, 160, 170, 0.25), rgba(254, 179, 0, 0.25));
+  color: var(--ff-primary);
+  background: var(--ff-status-warn-wash);
+  border-color: var(--ff-status-warn-border);
 }
 
 .status[data-tone='logistics'] {
@@ -404,11 +399,11 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  color: light-dark(#24282e, #c6cdd8);
+  color: var(--ff-on-surface);
 }
 
 .flowIcon {
-  color: light-dark(#1b7798, #72c8e6);
+  color: var(--ff-status-info-text);
   font-family: 'Material Symbols Outlined';
   font-size: 16px;
   line-height: 1;
@@ -417,7 +412,7 @@
 .customer {
   display: block;
   overflow: hidden;
-  color: light-dark(#24282e, #e1e5eb);
+  color: var(--ff-on-surface);
   font-weight: 600;
   text-overflow: ellipsis;
 }
@@ -427,9 +422,9 @@
   min-width: 26px;
   height: 26px;
   place-items: center;
-  color: light-dark(#24282e, #d9dfe8);
-  background: light-dark(rgba(247, 247, 248, 0.09), rgba(148, 163, 184, 0.09));
-  border: 1px solid light-dark(rgba(146, 160, 170, 0.13), rgba(148, 163, 184, 0.13));
+  color: var(--ff-on-surface);
+  background: var(--ff-surface-container-low-alpha);
+  border: 1px solid var(--ff-keyline);
   font-size: 11px;
 }
 
@@ -438,13 +433,13 @@
 }
 
 .amount {
-  color: light-dark(#242e24, #dbe6db) !important;
+  color: var(--ff-on-surface) !important;
   font-weight: 700 !important;
   text-align: right;
 }
 
 .amount > span:first-child {
-  color: light-dark(#2e8439, #b9d9bd);
+  color: var(--ff-status-ready-text);
   font-size: 12px;
 }
 
@@ -453,7 +448,7 @@
   grid-template-columns: 7px auto;
   align-items: center;
   column-gap: 7px;
-  color: light-dark(#2e6f84, #c6dce3);
+  color: var(--ff-status-info-text);
 }
 
 .elapsedMarker {
@@ -476,7 +471,7 @@
 }
 
 .muted {
-  color: light-dark(#58626f, #7f8a99);
+  color: var(--ff-on-surface-variant);
 }
 
 .actionCell {
@@ -491,7 +486,7 @@
   place-items: center;
   border: 1px solid transparent;
   border-radius: 3px;
-  color: light-dark(#58626f, #aab4c1);
+  color: var(--ff-on-surface-variant);
   background: transparent;
   cursor: pointer;
 }
@@ -499,8 +494,8 @@
 .actionTrigger:hover,
 .actionTrigger[aria-expanded='true'] {
   color: var(--ops-amber-text);
-  background: light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08));
-  border-color: light-dark(rgba(146, 160, 170, 0.22), rgba(254, 179, 0, 0.22));
+  background: var(--ff-status-warn-wash);
+  border-color: var(--ff-status-warn-border);
 }
 
 .actionTrigger:disabled {
@@ -568,9 +563,9 @@
   max-height: min(360px, calc(100dvh - 24px));
   overflow: auto;
   padding: 0 7px 7px;
-  color: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
-  background: light-dark(#fcfcfd, #171c23);
-  border: 1px solid var(--ops-keyline-strong, light-dark(#d3d5d9, #3e4656));
+  color: var(--ff-on-surface);
+  background: var(--ff-surface-container);
+  border: 1px solid var(--ff-keyline);
   border-radius: 5px;
   box-shadow: 0 12px 34px light-dark(rgba(27, 42, 49, 0.154), rgba(0, 0, 0, 0.55));
   pointer-events: auto;
@@ -587,7 +582,7 @@
   min-height: 50px;
   margin: 0 -7px 2px;
   padding: 6px 7px;
-  background: light-dark(#fcfcfd, #171c23);
+  background: var(--ff-surface-container);
   border-bottom: 1px solid var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
 }
 
@@ -612,7 +607,7 @@
 
 .menuCaption,
 .menuGroupLabel {
-  color: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 
@@ -623,7 +618,7 @@
   flex: 0 0 auto;
   place-items: center;
   border: 0;
-  color: light-dark(#58626f, #aab4c1);
+  color: var(--ff-on-surface-variant);
   background: transparent;
   cursor: pointer;
 }
@@ -635,7 +630,7 @@
 }
 
 .menuGroup + .menuGroup {
-  border-top: 1px solid var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
+  border-top: 1px solid var(--ff-keyline);
 }
 
 .menuGroupLabel {
@@ -651,7 +646,7 @@
   gap: 8px;
   padding: 5px 7px;
   border: 1px solid transparent;
-  color: light-dark(#24282e, #d5dbe4);
+  color: var(--ff-on-surface);
   background: transparent;
   font: inherit;
   font-size: 12px;
@@ -662,28 +657,28 @@
 .menuItem:hover:not(:disabled) {
   color: light-dark(#292929, #ffffff);
   background: light-dark(#f3f3f4, #242b35);
-  border-color: light-dark(#d3d6d9, #343d49);
+  border-color: var(--ff-keyline);
 }
 
 .menuItem > :global(.material-symbols-outlined),
 .menuItemWarning > :global(.material-symbols-outlined) {
   width: 16px;
-  color: light-dark(#58626f, #9ba8b8);
+  color: var(--ff-on-surface-variant);
   font-size: 17px;
   text-align: center;
 }
 
 .menuItemWarning {
-  color: light-dark(#9d7110, #f0c66b);
+  color: var(--ff-status-warn-text);
 }
 
 .menuItemWarning:hover:not(:disabled) {
   background: light-dark(rgba(246, 233, 233, 0.1), rgba(239, 68, 68, 0.1));
-  border-color: light-dark(rgba(146, 160, 170, 0.22), rgba(239, 68, 68, 0.22));
+  border-color: var(--ff-status-critical-border);
 }
 
 .menuItemWarning > :global(.material-symbols-outlined) {
-  color: light-dark(#9f1e13, #ef847b);
+  color: var(--ff-status-critical-text);
 }
 
 .menuItem:disabled,
@@ -694,7 +689,7 @@
 
 .warningTag {
   margin-left: auto;
-  color: light-dark(#912c21, #e8a29b);
+  color: var(--ff-status-critical-text);
   font-size: 9px;
   letter-spacing: 0.03em;
 }
@@ -720,4 +715,300 @@
   .table tbody td {
     transition: none;
   }
+}
+
+/* ==========================================================================
+   FASTFOOD Admin — Navy orders data grid (ADR-019, phase A3)
+   Source: stitch_fastfood_admin_dashboard_prompts/sipari_ler_fastfood/code.html
+
+   The design table uses `divide-y` row separation rather than zebra
+   striping, a 36px monospaced header, and a solid `primary-container` accent
+   on the order number. These overrides replace the legacy `light-dark()`
+   hardcodes that predate the Navy palette.
+   ========================================================================== */
+
+:global([data-admin-theme='fastfood-navy']) .grid {
+  --grid-line: var(--ff-keyline);
+  --grid-line-strong: var(--ff-outline-variant);
+  --grid-surface: var(--ff-surface-container-low);
+  --grid-surface-raised: var(--ff-surface-container-high);
+  --grid-ink: var(--ff-on-surface);
+  --grid-muted: var(--ff-on-surface-variant);
+  --grid-amber: var(--ff-primary-container);
+  color: var(--ff-on-surface);
+  background: var(--ff-surface-container-low);
+  border-color: var(--ff-keyline);
+}
+
+/* --- toolbar strip above the table --- */
+:global([data-admin-theme='fastfood-navy']) .gridBar {
+  min-height: 44px;
+  padding: 10px 14px;
+  background: var(--ff-surface-container-high);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .gridMark {
+  height: 20px;
+  background: var(--ff-primary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .gridTitle h2 {
+  font: 600 15px/20px var(--ff-font-headline);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .gridTitle p,
+:global([data-admin-theme='fastfood-navy']) .gridMeta,
+:global([data-admin-theme='fastfood-navy']) .count {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  color: var(--ff-on-surface-variant);
+  text-transform: uppercase;
+}
+
+/* --- header row: label role, monospaced, 36px --- */
+:global([data-admin-theme='fastfood-navy']) .table thead th {
+  height: 36px;
+  color: var(--ff-on-surface-variant);
+  background: var(--ff-surface-container-low);
+  border-bottom: 1px solid var(--ff-keyline);
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+:global([data-admin-theme='fastfood-navy']) .table thead th:first-child {
+  background: var(--ff-surface-container-low);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table thead th[data-col='status'],
+:global([data-admin-theme='fastfood-navy']) .table thead th[data-col='amount'],
+:global([data-admin-theme='fastfood-navy']) .table thead th[data-col='elapsed'] {
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .sortButton {
+  min-height: 36px;
+  padding: 0 10px;
+}
+
+:global([data-admin-theme='fastfood-navy']) .sortButton:hover,
+:global([data-admin-theme='fastfood-navy']) .sortButton[data-ff-sort-state='asc'],
+:global([data-admin-theme='fastfood-navy']) .sortButton[data-ff-sort-state='desc'] {
+  color: var(--ff-on-surface);
+  background: var(--ff-hover-wash);
+}
+
+:global([data-admin-theme='fastfood-navy'])
+  .sortButton[data-ff-sort-state='asc']
+  > .material-symbols-outlined,
+:global([data-admin-theme='fastfood-navy'])
+  .sortButton[data-ff-sort-state='desc']
+  > .material-symbols-outlined {
+  color: var(--ff-primary-container);
+}
+
+/* --- body rows: divide-y, no zebra --- */
+:global([data-admin-theme='fastfood-navy']) .table tbody tr {
+  height: 48px;
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr + tr td {
+  border-top: 1px solid var(--ff-surface-container-high);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(odd) td,
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(even) td,
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(odd) td:first-child,
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(even) td:first-child {
+  background: var(--ff-surface-container-low);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:hover td,
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:hover td:first-child,
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:focus-visible td,
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:focus-visible td:first-child {
+  background: var(--ff-surface-container-high);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody td {
+  padding: 4px 10px;
+  color: var(--ff-on-surface);
+  background: var(--ff-surface-container-low);
+  font: 400 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody td:first-child {
+  background: var(--ff-surface-container-low);
+  box-shadow: 1px 0 0 var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:focus-visible td {
+  box-shadow:
+    inset 0 1px var(--ff-primary-container),
+    inset 0 -1px var(--ff-primary-container);
+}
+
+/* --- order number: label role, solid primary accent --- */
+:global([data-admin-theme='fastfood-navy']) .orderCell {
+  padding-left: 16px !important;
+}
+
+:global([data-admin-theme='fastfood-navy']) .orderCell::before {
+  background: var(--ff-primary-container);
+  opacity: 1;
+}
+
+:global([data-admin-theme='fastfood-navy']) .orderId {
+  color: var(--ff-primary);
+  font: 600 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+}
+
+:global([data-admin-theme='fastfood-navy']) .secondary {
+  color: var(--ff-on-surface-variant);
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+}
+
+/* --- status pill: label role, uppercase, 8px radius --- */
+:global([data-admin-theme='fastfood-navy']) .status {
+  min-height: 22px;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: var(--ff-radius-xl);
+  font: 600 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+:global([data-admin-theme='fastfood-navy']) .statusDot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+}
+
+:global([data-admin-theme='fastfood-navy']) .status[data-tone='ready'] {
+  color: var(--ff-tertiary);
+  background: var(--ff-status-ready-wash);
+  border-color: var(--ff-status-ready-border);
+}
+
+:global([data-admin-theme='fastfood-navy']) .status[data-tone='warn'],
+:global([data-admin-theme='fastfood-navy']) .status[data-tone='amber'] {
+  color: var(--ff-primary-container);
+  background: var(--ff-status-warn-wash);
+  border-color: var(--ff-status-warn-border);
+}
+
+:global([data-admin-theme='fastfood-navy']) .status[data-tone='logistics'] {
+  color: var(--ff-status-info);
+  background: var(--ff-status-info-wash);
+  border-color: var(--ff-status-info-border);
+}
+
+:global([data-admin-theme='fastfood-navy']) .status[data-tone='critical'] {
+  color: var(--ff-error);
+  background: var(--ff-status-critical-wash);
+  border-color: var(--ff-status-critical-border);
+}
+
+:global([data-admin-theme='fastfood-navy']) .status[data-tone='idle'] {
+  color: var(--ff-on-surface-variant);
+  background: var(--ff-surface-container-high);
+  border-color: var(--ff-keyline);
+}
+
+/* --- amount and SLA: label role, monospaced numerals --- */
+:global([data-admin-theme='fastfood-navy']) .amount > span:first-child {
+  color: var(--ff-primary);
+  font: 600 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+}
+
+:global([data-admin-theme='fastfood-navy']) .elapsed > span:first-of-type {
+  font: 600 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+}
+
+:global([data-admin-theme='fastfood-navy']) .elapsedCaption {
+  color: var(--ff-on-surface-variant);
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+:global([data-admin-theme='fastfood-navy']) .elapsedMarker {
+  background: var(--ff-surface-container-highest);
+}
+
+:global([data-admin-theme='fastfood-navy']) .elapsed[data-state='completed'] .elapsedMarker {
+  background: var(--ff-tertiary-container);
+}
+
+/* --- row action trigger --- */
+:global([data-admin-theme='fastfood-navy']) .actionTrigger {
+  min-height: 28px;
+  min-width: 28px;
+  padding: 6px;
+  border-radius: var(--ff-radius-lg);
+  color: var(--ff-on-surface-variant);
+  background: var(--ff-surface-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .actionTrigger:hover {
+  color: var(--ff-primary);
+  background: var(--ff-surface-bright);
+}
+
+/* --- action menu (rendered in a portal, carries its own theme attribute) --- */
+:global([data-admin-theme='fastfood-navy']) .actionMenu {
+  background: var(--ff-surface-container-high);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-overlay);
+}
+
+:global([data-admin-theme='fastfood-navy']) .menuHeader {
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .menuCaption {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .menuItem:hover:not(:disabled) {
+  background: var(--ff-surface-container-highest);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .menuItemWarning:hover:not(:disabled) {
+  background: var(--ff-status-critical-wash);
+  color: var(--ff-error);
+}
+
+/* --- empty state --- */
+:global([data-admin-theme='fastfood-navy']) .emptyRow td,
+:global([data-admin-theme='fastfood-navy']) .emptyRow td:first-child {
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .empty {
+  color: var(--ff-on-surface-variant);
+  font: 400 13px/18px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .empty strong {
+  font: 600 15px/20px var(--ff-font-headline);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .emptyIcon {
+  color: var(--ff-on-surface-variant);
+  background: var(--ff-surface-container-high);
 }

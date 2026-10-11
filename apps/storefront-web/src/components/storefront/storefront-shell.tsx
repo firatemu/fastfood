@@ -8,13 +8,19 @@ import { StorefrontFooter } from './storefront-footer';
 import { StorefrontHeader } from './storefront-header';
 
 function ShellFrame({ children }: { children: ReactNode }) {
-  const { home, status, cartCount, setQuery, query } = useStorefrontChrome();
+  const { home, status, cartCount, setQuery, query, setBranchId } = useStorefrontChrome();
   return (
     <>
       <a href="#storefront-main" className="ff-skip-link">
         İçeriğe geç
       </a>
-      <StorefrontHeader home={home} cartCount={cartCount} onSearch={setQuery} searchValue={query} />
+      <StorefrontHeader
+        home={home}
+        cartCount={cartCount}
+        onSearch={setQuery}
+        searchValue={query}
+        onSelectBranch={setBranchId}
+      />
       <DiningContextBanner />
       <div id="storefront-main">{children}</div>
       <StorefrontFooter home={home} homeStatus={status} />

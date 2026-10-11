@@ -14,20 +14,27 @@ import {
 import type { ReactElement } from 'react';
 import { z } from 'zod';
 
-import { AsyncBoundary, errorMessage, type LoadState } from '../../../components/async-boundary';
+import { errorMessage, type LoadState } from '../../../components/async-boundary';
+import { OpsBoundary } from '../../../components/ops/ops-boundary';
 import { OpsIcon } from '../../../components/ops/ops-icon';
-import { ProductsDataGrid } from '../../../components/ops/products-data-grid';
 import { useOpsSync } from '../../../components/ops/ops-sync';
 import { ActionButton, OpsEmpty } from '../../../components/ops/ops-ui';
+import { ProductsDataGrid } from '../../../components/ops/products-data-grid';
 import { createAdminClient } from '../../../lib/api';
 import {
   filterCatalogProducts,
   parseTryMajorToMinor,
   slugFromName,
   type ProductActiveFilter,
-  type ProductSort,
 } from '../../../lib/catalog-ops';
-import { uploadProductImage } from '../../../lib/product-media-upload';
+import {
+  PRODUCT_FORM_FIELD_ORDER,
+  firstInvalidField,
+  validateProductForm,
+  visibleProductFormErrors,
+  type ProductFormField,
+} from '../../../lib/product-form-validation';
+import { MAX_ADMIN_IMAGE_BYTES, uploadProductImage } from '../../../lib/product-media-upload';
 import {
   adminCategoriesSchema,
   adminMediaListSchema,
@@ -37,6 +44,7 @@ import {
   productCreateSchema,
 } from '../../../lib/schemas';
 import { useDeferredLoad } from '../../../lib/use-deferred-load';
+
 import styles from './products.module.css';
 
 // ---------------------------------------------------------------------------
@@ -100,6 +108,12 @@ function makeEmptyEditMedia(): EditMediaState {
   return { rows: [], busy: false, url: '', alt: '', file: null, flash: null };
 }
 
+function formatImageBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 // ---------------------------------------------------------------------------
 // Top-level page
 // ---------------------------------------------------------------------------
@@ -120,10 +134,6 @@ export default function CatalogProductsPage(): ReactElement {
   const [active, setActive] = useState<ProductActiveFilter>(
     () => (searchParams?.get('active') as ProductActiveFilter | null) ?? '',
   );
-  const [sort, setSort] = useState<ProductSort>(
-    () => (searchParams?.get('sort') as ProductSort | null) ?? 'order',
-  );
-
   const [modal, setModal] = useState<ModalState>({ kind: 'closed' });
   const [editForm, setEditForm] = useState<EditFormState>(() => ({
     categoryId: '',
@@ -193,13 +203,12 @@ export default function CatalogProductsPage(): ReactElement {
     if (debouncedQ) params.set('q', debouncedQ);
     if (categoryFilter) params.set('category', categoryFilter);
     if (active) params.set('active', active);
-    if (sort !== 'order') params.set('sort', sort);
     const qs = params.toString();
     const next = qs ? `?${qs}` : window.location.pathname;
     if (`${window.location.search}` !== (qs ? `?${qs}` : '')) {
       startTransition(() => router.replace(next, { scroll: false }));
     }
-  }, [debouncedQ, categoryFilter, active, sort, router, startTransition]);
+  }, [debouncedQ, categoryFilter, active, router, startTransition]);
 
   // -------------------------------------------------------------------------
   // Derived data
@@ -211,9 +220,9 @@ export default function CatalogProductsPage(): ReactElement {
       q: debouncedQ,
       categoryId: categoryFilter,
       active,
-      sort,
+      sort: 'order',
     });
-  }, [active, categoryFilter, debouncedQ, sort, state]);
+  }, [active, categoryFilter, debouncedQ, state]);
 
   const metrics = useMemo(() => {
     if (state.status !== 'ready') {
@@ -258,9 +267,7 @@ export default function CatalogProductsPage(): ReactElement {
       }
     });
     const topCategory =
-      topCategoryId === null
-        ? null
-        : categories.find((c) => c.id === topCategoryId) ?? null;
+      topCategoryId === null ? null : (categories.find((c) => c.id === topCategoryId) ?? null);
     return {
       total: list.length,
       active: activeCount,
@@ -316,52 +323,58 @@ export default function CatalogProductsPage(): ReactElement {
   // Drawer open / save handlers
   // -------------------------------------------------------------------------
 
-  const loadEditMedia = useCallback(async (productId: string): Promise<void> => {
-    setEditMedia((prev) => ({ ...prev, busy: true, flash: null }));
-    try {
-      const client = createAdminClient();
-      const res = await client.request({
-        path: `admin/products/${productId}/media`,
-        schema: adminMediaListSchema,
-      });
-      setEditMedia((prev) => ({ ...prev, rows: res.data }));
-    } catch (error) {
-      setEditMedia((prev) => ({ ...prev, flash: { tone: 'err', text: errorMessage(error) } }));
-    } finally {
-      setEditMedia((prev) => ({ ...prev, busy: false }));
-    }
-  }, [setEditMedia]);
-
-  const openEdit = useCallback((row: Product): void => {
-    setFlash(null);
-    const minor = row.basePriceMinor ?? '0';
-    let major = '99,90';
-    try {
-      const n = Number(minor);
-      if (Number.isFinite(n)) {
-        const sign = n < 0 ? '-' : '';
-        const abs = Math.abs(n);
-        const whole = Math.trunc(abs / 100).toString();
-        const frac = (abs % 100).toString().padStart(2, '0');
-        major = `${sign}${whole},${frac}`;
+  const loadEditMedia = useCallback(
+    async (productId: string): Promise<void> => {
+      setEditMedia((prev) => ({ ...prev, busy: true, flash: null }));
+      try {
+        const client = createAdminClient();
+        const res = await client.request({
+          path: `admin/products/${productId}/media`,
+          schema: adminMediaListSchema,
+        });
+        setEditMedia((prev) => ({ ...prev, rows: res.data }));
+      } catch (error) {
+        setEditMedia((prev) => ({ ...prev, flash: { tone: 'err', text: errorMessage(error) } }));
+      } finally {
+        setEditMedia((prev) => ({ ...prev, busy: false }));
       }
-    } catch {
-      /* keep default */
-    }
-    setEditForm({
-      categoryId: row.categoryId ?? '',
-      slug: row.slug ?? '',
-      name: row.name,
-      description: row.description ?? '',
-      basePriceMajor: major,
-      isActive: row.isActive !== false,
-      displayOrder: row.displayOrder?.toString() ?? '0',
-    });
-    setEditMedia(makeEmptyEditMedia());
-    setConfirmDeactivate(false);
-    setArchiveAcknowledged(false);
-    setModal({ kind: 'edit', productId: row.id, initialActive: row.isActive !== false });
-  }, [setEditMedia]);
+    },
+    [setEditMedia],
+  );
+
+  const openEdit = useCallback(
+    (row: Product): void => {
+      setFlash(null);
+      const minor = row.basePriceMinor ?? '0';
+      let major = '99,90';
+      try {
+        const n = Number(minor);
+        if (Number.isFinite(n)) {
+          const sign = n < 0 ? '-' : '';
+          const abs = Math.abs(n);
+          const whole = Math.trunc(abs / 100).toString();
+          const frac = (abs % 100).toString().padStart(2, '0');
+          major = `${sign}${whole},${frac}`;
+        }
+      } catch {
+        /* keep default */
+      }
+      setEditForm({
+        categoryId: row.categoryId ?? '',
+        slug: row.slug ?? '',
+        name: row.name,
+        description: row.description ?? '',
+        basePriceMajor: major,
+        isActive: row.isActive !== false,
+        displayOrder: row.displayOrder?.toString() ?? '0',
+      });
+      setEditMedia(makeEmptyEditMedia());
+      setConfirmDeactivate(false);
+      setArchiveAcknowledged(false);
+      setModal({ kind: 'edit', productId: row.id, initialActive: row.isActive !== false });
+    },
+    [setEditMedia],
+  );
 
   // When the edit drawer opens, fetch its media list.
   useEffect(() => {
@@ -755,18 +768,6 @@ export default function CatalogProductsPage(): ReactElement {
             <option value="inactive">Arşivde</option>
           </select>
         </label>
-        <label className={styles.filterField}>
-          <span>Sırala</span>
-          <select
-            aria-label="Sıralama"
-            value={sort}
-            onChange={(e) => setSort(e.target.value as ProductSort)}
-          >
-            <option value="order">Gösterim sırası</option>
-            <option value="name">Ürün adı</option>
-            <option value="price">Fiyat</option>
-          </select>
-        </label>
       </section>
 
       {selectedInView > 0 ? (
@@ -820,7 +821,7 @@ export default function CatalogProductsPage(): ReactElement {
         </p>
       ) : null}
 
-      <AsyncBoundary
+      <OpsBoundary
         state={state}
         emptyTitle="Henüz ürün eklenmemiş"
         emptyDescription="İlk ürününüzü oluşturarak kataloğu kurmaya başlayın."
@@ -853,21 +854,24 @@ export default function CatalogProductsPage(): ReactElement {
               onToggleSelectAll={toggleSelectAll}
               onToggleSelected={toggleSelected}
               onEdit={(productId) => {
-                const product = state.status === 'ready'
-                  ? state.data.find((candidate) => candidate.id === productId)
-                  : undefined;
+                const product =
+                  state.status === 'ready'
+                    ? state.data.find((candidate) => candidate.id === productId)
+                    : undefined;
                 if (product) openEdit(product);
               }}
             />
           );
         }}
-      </AsyncBoundary>
+      </OpsBoundary>
 
       {modal.kind === 'edit' ? (
         <ProductEditExperience
-          product={state.status === 'ready'
-            ? state.data.find((candidate) => candidate.id === modal.productId)
-            : undefined}
+          product={
+            state.status === 'ready'
+              ? state.data.find((candidate) => candidate.id === modal.productId)
+              : undefined
+          }
           productId={modal.productId}
           categories={categories}
           form={editForm}
@@ -960,9 +964,10 @@ function ProductEditExperience(props: {
   const featuredMedia = props.media.rows[0];
   const currentPrice = parseTryMajorToMinor(props.form.basePriceMajor);
   const originalPrice = props.product?.basePriceMinor ?? '';
-  const priceDirty = currentPrice === null
-    ? props.form.basePriceMajor.trim() !== '' || originalPrice !== ''
-    : currentPrice !== originalPrice;
+  const priceDirty =
+    currentPrice === null
+      ? props.form.basePriceMajor.trim() !== '' || originalPrice !== ''
+      : currentPrice !== originalPrice;
   const isDirty = props.product
     ? props.form.name !== props.product.name ||
       props.form.description !== (props.product.description ?? '') ||
@@ -973,16 +978,51 @@ function ProductEditExperience(props: {
     : false;
   const hasPendingMedia = Boolean(props.media.file || props.media.url.trim());
 
+  const { busy, onClose } = props;
+
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !props.busy) props.onClose();
+      if (event.key === 'Escape' && !busy) onClose();
     };
     window.addEventListener('keydown', closeOnEscape);
     return () => window.removeEventListener('keydown', closeOnEscape);
-  }, [props.busy, props.onClose]);
+  }, [busy, onClose]);
 
   const updateField = <Key extends keyof EditFormState>(key: Key, value: EditFormState[Key]) => {
     props.setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  // Live validation. Errors stay hidden until a field has been visited, so the
+  // form never opens red; after that every keystroke re-checks just that field.
+  const [touched, setTouched] = useState<ReadonlySet<ProductFormField>>(() => new Set());
+  const fieldErrors = useMemo(() => validateProductForm(props.form), [props.form]);
+  const visibleErrors = useMemo(
+    () => visibleProductFormErrors(fieldErrors, touched),
+    [fieldErrors, touched],
+  );
+  const fieldRefs = useRef<
+    Partial<Record<ProductFormField, HTMLInputElement | HTMLSelectElement | null>>
+  >({});
+
+  const markTouched = (field: ProductFormField) => {
+    setTouched((current) => {
+      if (current.has(field)) return current;
+      const next = new Set(current);
+      next.add(field);
+      return next;
+    });
+  };
+
+  // Gate the save: surface every problem and put the caret on the first one.
+  const submit = () => {
+    const currentErrors = validateProductForm(props.form);
+    const first = firstInvalidField(currentErrors);
+    if (first) {
+      setTouched(new Set(PRODUCT_FORM_FIELD_ORDER));
+      fieldRefs.current[first]?.focus();
+      return;
+    }
+    props.onSave();
   };
 
   return (
@@ -1002,8 +1042,12 @@ function ProductEditExperience(props: {
       >
         <header className={styles.editorHeader}>
           <div className={styles.editorBrand}>
-            <span className={styles.editorBrandIcon}><OpsIcon name="fastfood" /></span>
-            <span>Katalog <i>/</i> Ürün kartı</span>
+            <span className={styles.editorBrandIcon}>
+              <OpsIcon name="fastfood" />
+            </span>
+            <span>
+              Katalog <i>/</i> Ürün kartı
+            </span>
           </div>
           <div className={styles.editorHeaderActions}>
             <code>{props.productId}</code>
@@ -1020,27 +1064,45 @@ function ProductEditExperience(props: {
         </header>
 
         <div className={styles.editorTitlebar}>
-          <div className={styles.editorTitleCopy}>
-            <span className={styles.editorEyebrow}>ÜRÜN YÖNETİMİ <i /> DÜZENLEME</span>
-            <h2 id="product-editor-title">{productName}</h2>
-            <p>Ürün kartı, fiyatlandırma ve mağaza görünürlüğü</p>
+          <h2 id="product-editor-title" title={productName}>
+            {productName}
+          </h2>
+          <div className={styles.editorTitleMeta}>
+            <span className={styles.editorTitleFacts}>
+              {categoryName}
+              {props.form.slug ? (
+                <>
+                  <i />
+                  {props.form.slug}
+                </>
+              ) : null}
+            </span>
+            <span
+              className={`${styles.editorStatus} ${props.form.isActive ? styles.editorStatusLive : styles.editorStatusPaused}`}
+            >
+              <i /> {props.form.isActive ? 'Mağazada yayında' : 'Arşivde'}
+            </span>
           </div>
-          <span className={`${styles.editorStatus} ${props.form.isActive ? styles.editorStatusLive : styles.editorStatusPaused}`}>
-            <i /> {props.form.isActive ? 'Mağazada yayında' : 'Arşivde'}
-          </span>
         </div>
 
         <div className={styles.editorWorkspace}>
           <aside className={styles.editorRail}>
             <span className={styles.editorRailCaption}>ÜRÜN KARTI</span>
             <div className={styles.editorRailIdentity}>
-              <span><OpsIcon name="fastfood" /></span>
+              <span>
+                <OpsIcon name="fastfood" />
+              </span>
               <div>
                 <strong>{productName}</strong>
                 <small>{categoryName}</small>
               </div>
             </div>
-            <nav className={styles.editorNav} aria-label="Ürün düzenleme bölümleri" role="tablist" aria-orientation="vertical">
+            <nav
+              className={styles.editorNav}
+              aria-label="Ürün düzenleme bölümleri"
+              role="tablist"
+              aria-orientation="vertical"
+            >
               <button
                 type="button"
                 role="tab"
@@ -1050,7 +1112,10 @@ function ProductEditExperience(props: {
                 onClick={() => setSection('details')}
               >
                 <OpsIcon name="inventory_2" />
-                <span><strong>Ürün bilgileri</strong><small>Kimlik, fiyat ve yayın</small></span>
+                <span>
+                  <strong>Ürün bilgileri</strong>
+                  <small>Kimlik, fiyat ve yayın</small>
+                </span>
                 <i>01</i>
               </button>
               <button
@@ -1062,20 +1127,29 @@ function ProductEditExperience(props: {
                 onClick={() => setSection('media')}
               >
                 <OpsIcon name="image" />
-                <span><strong>Ürün görselleri</strong><small>Yükle veya bağlantı ekle</small></span>
+                <span>
+                  <strong>Ürün görselleri</strong>
+                  <small>Yükle veya bağlantı ekle</small>
+                </span>
                 <i>{String(props.media.rows.length).padStart(2, '0')}</i>
               </button>
             </nav>
 
             <div className={styles.editorRailNote}>
               <OpsIcon name="info" />
-              <p>Bu kart, katalog API’sinin sunduğu kategori, ürün içeriği, baz fiyat, sıralama, yayın durumu ve ürün görsellerini yönetir.</p>
+              <p>
+                Bu kart, katalog API’sinin sunduğu kategori, ürün içeriği, baz fiyat, sıralama,
+                yayın durumu ve ürün görsellerini yönetir.
+              </p>
             </div>
           </aside>
 
           <div className={styles.editorMain}>
             {props.notice ? (
-              <p className={`${styles.editorNotice} ${props.notice.tone === 'ok' ? styles.editorNoticeSuccess : styles.editorNoticeError}`} role="status">
+              <p
+                className={`${styles.editorNotice} ${props.notice.tone === 'ok' ? styles.editorNoticeSuccess : styles.editorNoticeError}`}
+                role="status"
+              >
                 {props.notice.text}
               </p>
             ) : null}
@@ -1098,39 +1172,240 @@ function ProductEditExperience(props: {
 
             {section === 'details' ? (
               <div className={styles.editorDetailsGrid} role="tabpanel">
-                <div className={styles.editorFormColumn}>
-                  <section className={styles.editorCard}>
+                <div className={styles.editorBento}>
+                  <section className={`${styles.editorCard} ${styles.bentoIdentity}`}>
                     <div className={styles.editorSectionHeading}>
                       <span>01</span>
-                      <div><h3>Ürün bilgileri</h3><p>Müşterinin göreceği katalog içeriği</p></div>
+                      <div>
+                        <h3>Kimlik</h3>
+                        <p>Listede ve bağlantıda görünen ad</p>
+                      </div>
                     </div>
                     <div className={styles.editorFields}>
-                      <label className={`${styles.editorField} ${styles.fieldWide}`}>
-                        <span>Ürün adı <i>*</i></span>
+                      <label
+                        className={`${styles.editorField} ${styles.fieldWide}`}
+                        data-invalid={visibleErrors.name ? 'true' : undefined}
+                      >
+                        <span>
+                          Ürün adı <i>*</i>
+                        </span>
                         <input
+                          ref={(node) => {
+                            fieldRefs.current.name = node;
+                          }}
                           autoFocus
                           value={props.form.name}
                           maxLength={128}
                           disabled={props.busy}
+                          aria-invalid={visibleErrors.name ? true : undefined}
+                          aria-describedby={
+                            visibleErrors.name ? 'product-error-name product-hint-name' : undefined
+                          }
                           onChange={(event) => updateField('name', event.target.value)}
+                          onBlur={() => markTouched('name')}
                           placeholder="Örn. Double Smash Burger"
                         />
-                        <small>{props.form.name.length}/128 karakter</small>
+                        {visibleErrors.name ? (
+                          <small className={styles.fieldError} id="product-error-name" role="alert">
+                            <OpsIcon name="error" />
+                            {visibleErrors.name}
+                          </small>
+                        ) : null}
+                        <small className={styles.fieldHint} id="product-hint-name">
+                          {props.form.name.length}/128 karakter
+                        </small>
                       </label>
-                      <label className={styles.editorField}>
-                        <span>Kategori <i>*</i></span>
-                        <select value={props.form.categoryId} disabled={props.busy} onChange={(event) => updateField('categoryId', event.target.value)}>
-                          <option value="" disabled>Kategori seçin</option>
-                          {props.categories.map((category) => (
-                            <option key={category.id} value={category.id}>{category.name}</option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className={styles.editorField}>
+                      <label className={`${styles.editorField} ${styles.fieldWide}`}>
                         <span>Ürün adresi</span>
                         <code className={styles.editorReadonly}>{props.form.slug || '—'}</code>
-                        <small>Ürün bağlantı anahtarı API tarafından düzenlenemez.</small>
+                        <small className={styles.fieldHint}>
+                          Ürün bağlantı anahtarı API tarafından düzenlenemez.
+                        </small>
                       </label>
+                    </div>
+                  </section>
+
+                  <section className={`${styles.editorCard} ${styles.bentoPublish}`}>
+                    <div className={styles.editorSectionHeading}>
+                      <span>02</span>
+                      <div>
+                        <h3>Yayın durumu</h3>
+                        <p>Mağazada görünür mü</p>
+                      </div>
+                    </div>
+                    <div className={styles.publishToggle}>
+                      <div>
+                        <strong>
+                          {props.form.isActive ? 'Mağazada görünür' : 'Mağazada gizli'}
+                        </strong>
+                        <small>
+                          {props.form.isActive
+                            ? 'Müşteriler bu ürünü görüntüleyebilir.'
+                            : 'Yayınladığınızda ürün tekrar mağazada gösterilir.'}
+                        </small>
+                      </div>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={props.form.isActive}
+                        aria-label="Ürün yayın durumunu değiştir"
+                        className={`${styles.editorSwitch} ${props.form.isActive ? styles.editorSwitchOn : ''}`}
+                        disabled={props.busy}
+                        onClick={() => {
+                          const nextActive = !props.form.isActive;
+                          updateField('isActive', nextActive);
+                          props.setConfirmDeactivate(false);
+                          props.setArchiveAcknowledged(false);
+                        }}
+                      >
+                        <i />
+                      </button>
+                    </div>
+                  </section>
+
+                  <section className={`${styles.editorCard} ${styles.bentoTaxonomy}`}>
+                    <div className={styles.editorSectionHeading}>
+                      <span>03</span>
+                      <div>
+                        <h3>Sınıflandırma</h3>
+                        <p>Katalogda yeri ve sırası</p>
+                      </div>
+                    </div>
+                    <div className={styles.editorFields}>
+                      <label
+                        className={styles.editorField}
+                        data-invalid={visibleErrors.categoryId ? 'true' : undefined}
+                      >
+                        <span>
+                          Kategori <i>*</i>
+                        </span>
+                        <select
+                          ref={(node) => {
+                            fieldRefs.current.categoryId = node;
+                          }}
+                          value={props.form.categoryId}
+                          disabled={props.busy}
+                          aria-invalid={visibleErrors.categoryId ? true : undefined}
+                          aria-describedby={
+                            visibleErrors.categoryId ? 'product-error-categoryId' : undefined
+                          }
+                          onChange={(event) => updateField('categoryId', event.target.value)}
+                          onBlur={() => markTouched('categoryId')}
+                        >
+                          <option value="" disabled>
+                            Kategori seçin
+                          </option>
+                          {props.categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                        {visibleErrors.categoryId ? (
+                          <small
+                            className={styles.fieldError}
+                            id="product-error-categoryId"
+                            role="alert"
+                          >
+                            <OpsIcon name="error" />
+                            {visibleErrors.categoryId}
+                          </small>
+                        ) : null}
+                      </label>
+                      <label
+                        className={styles.editorField}
+                        data-invalid={visibleErrors.displayOrder ? 'true' : undefined}
+                      >
+                        <span>Gösterim sırası</span>
+                        <input
+                          ref={(node) => {
+                            fieldRefs.current.displayOrder = node;
+                          }}
+                          value={props.form.displayOrder}
+                          inputMode="numeric"
+                          disabled={props.busy}
+                          aria-invalid={visibleErrors.displayOrder ? true : undefined}
+                          aria-describedby={
+                            visibleErrors.displayOrder ? 'product-error-displayOrder' : undefined
+                          }
+                          onChange={(event) => updateField('displayOrder', event.target.value)}
+                          onBlur={() => markTouched('displayOrder')}
+                          placeholder="0"
+                        />
+                        {visibleErrors.displayOrder ? (
+                          <small
+                            className={styles.fieldError}
+                            id="product-error-displayOrder"
+                            role="alert"
+                          >
+                            <OpsIcon name="error" />
+                            {visibleErrors.displayOrder}
+                          </small>
+                        ) : (
+                          <small className={styles.fieldHint}>Küçük değer önce gösterilir.</small>
+                        )}
+                      </label>
+                    </div>
+                  </section>
+
+                  <section className={`${styles.editorCard} ${styles.bentoPrice}`}>
+                    <div className={styles.editorSectionHeading}>
+                      <span>04</span>
+                      <div>
+                        <h3>Fiyatlandırma</h3>
+                        <p>Katalogdaki baz fiyat</p>
+                      </div>
+                    </div>
+                    <label
+                      className={styles.editorField}
+                      data-invalid={visibleErrors.basePriceMajor ? 'true' : undefined}
+                    >
+                      <span>Baz fiyat</span>
+                      <div className={styles.editorMoneyField}>
+                        <b>₺</b>
+                        <input
+                          ref={(node) => {
+                            fieldRefs.current.basePriceMajor = node;
+                          }}
+                          value={props.form.basePriceMajor}
+                          inputMode="decimal"
+                          disabled={props.busy}
+                          aria-invalid={visibleErrors.basePriceMajor ? true : undefined}
+                          aria-describedby={
+                            visibleErrors.basePriceMajor
+                              ? 'product-error-basePriceMajor'
+                              : undefined
+                          }
+                          onChange={(event) => updateField('basePriceMajor', event.target.value)}
+                          onBlur={() => markTouched('basePriceMajor')}
+                          placeholder="0,00"
+                        />
+                        <small>TRY</small>
+                      </div>
+                      {visibleErrors.basePriceMajor ? (
+                        <small
+                          className={styles.fieldError}
+                          id="product-error-basePriceMajor"
+                          role="alert"
+                        >
+                          <OpsIcon name="error" />
+                          {visibleErrors.basePriceMajor}
+                        </small>
+                      ) : (
+                        <small className={styles.fieldHint}>Boş bırakılabilir.</small>
+                      )}
+                    </label>
+                  </section>
+
+                  <section className={`${styles.editorCard} ${styles.bentoContent}`}>
+                    <div className={styles.editorSectionHeading}>
+                      <span>05</span>
+                      <div>
+                        <h3>Sunum</h3>
+                        <p>Müşteriye gösterilen açıklama</p>
+                      </div>
+                    </div>
+                    <div className={styles.editorFields}>
                       <label className={`${styles.editorField} ${styles.fieldWide}`}>
                         <span>Açıklama</span>
                         <textarea
@@ -1141,41 +1416,9 @@ function ProductEditExperience(props: {
                           onChange={(event) => updateField('description', event.target.value)}
                           placeholder="Ürünün içeriğini ve öne çıkan özelliklerini açıklayın."
                         />
-                        <small>{props.form.description.length}/2048 karakter</small>
-                      </label>
-                    </div>
-                  </section>
-
-                  <section className={styles.editorCard}>
-                    <div className={styles.editorSectionHeading}>
-                      <span>02</span>
-                      <div><h3>Ticari bilgiler</h3><p>Fiyat ve katalog içindeki konumu</p></div>
-                    </div>
-                    <div className={styles.editorFields}>
-                      <label className={styles.editorField}>
-                        <span>Baz fiyat</span>
-                        <div className={styles.editorMoneyField}>
-                          <b>₺</b>
-                          <input
-                            value={props.form.basePriceMajor}
-                            inputMode="decimal"
-                            disabled={props.busy}
-                            onChange={(event) => updateField('basePriceMajor', event.target.value)}
-                            placeholder="0,00"
-                          />
-                          <small>TRY</small>
-                        </div>
-                      </label>
-                      <label className={styles.editorField}>
-                        <span>Gösterim sırası</span>
-                        <input
-                          value={props.form.displayOrder}
-                          inputMode="numeric"
-                          disabled={props.busy}
-                          onChange={(event) => updateField('displayOrder', event.target.value)}
-                          placeholder="0"
-                        />
-                        <small>Küçük değer önce gösterilir.</small>
+                        <small className={styles.fieldHint}>
+                          {props.form.description.length}/2048 karakter
+                        </small>
                       </label>
                     </div>
                   </section>
@@ -1185,64 +1428,89 @@ function ProductEditExperience(props: {
                   <span className={styles.editorPreviewLabel}>MAĞAZA ÖNİZLEMESİ</span>
                   <div className={styles.editorPreviewCard}>
                     <div className={styles.editorPreviewImage}>
-                      {featuredMedia?.url ? <img src={featuredMedia.url} alt={featuredMedia.altText?.trim() || productName} /> : <OpsIcon name="fastfood" />}
+                      {featuredMedia?.url ? (
+                        <img
+                          src={featuredMedia.url}
+                          alt={featuredMedia.altText?.trim() || productName}
+                        />
+                      ) : (
+                        <OpsIcon name="fastfood" />
+                      )}
                     </div>
                     <span className={styles.editorPreviewCategory}>{categoryName}</span>
                     <h3>{productName}</h3>
                     <p>{props.form.description.trim() || 'Ürün açıklaması burada görüntülenir.'}</p>
                     <div className={styles.editorPreviewPrice}>
-                      <strong>{currentPrice !== null ? formatTryMinor(currentPrice, 'TRY') : 'Fiyat girin'}</strong>
+                      <strong>
+                        {currentPrice !== null
+                          ? formatTryMinor(currentPrice, 'TRY')
+                          : 'Fiyat girin'}
+                      </strong>
                       <span>baz fiyat</span>
                     </div>
                   </div>
                   <div className={styles.editorRecordFacts}>
-                    <span><i>ÜRÜN KİMLİĞİ</i><code>{props.productId.slice(0, 8)}…</code></span>
-                    <span><i>GÖSTERİM SIRASI</i><code>{String(props.form.displayOrder || '0').padStart(2, '0')}</code></span>
-                    <span><i>GÖRSEL SAYISI</i><code>{props.media.rows.length}</code></span>
-                  </div>
-                  <div className={styles.editorVisibility}>
-                    <div>
-                      <span>Yayın kontrolü</span>
-                      <strong>{props.form.isActive ? 'Mağazada görünür' : 'Mağazada gizli'}</strong>
-                    </div>
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={props.form.isActive}
-                      aria-label="Ürün yayın durumunu değiştir"
-                      className={`${styles.editorSwitch} ${props.form.isActive ? styles.editorSwitchOn : ''}`}
-                      disabled={props.busy}
-                      onClick={() => {
-                        const nextActive = !props.form.isActive;
-                        updateField('isActive', nextActive);
-                        props.setConfirmDeactivate(false);
-                        props.setArchiveAcknowledged(false);
-                      }}
-                    >
-                      <i />
-                    </button>
-                    <p>{props.form.isActive ? 'Müşteriler bu ürünü görüntüleyebilir.' : 'Yayınladığınızda ürün tekrar mağazada gösterilir.'}</p>
+                    <span>
+                      <i>ÜRÜN KİMLİĞİ</i>
+                      <code>{props.productId.slice(0, 8)}…</code>
+                    </span>
+                    <span>
+                      <i>GÖSTERİM SIRASI</i>
+                      <code>{String(props.form.displayOrder || '0').padStart(2, '0')}</code>
+                    </span>
+                    <span>
+                      <i>GÖRSEL SAYISI</i>
+                      <code>{props.media.rows.length}</code>
+                    </span>
                   </div>
                 </aside>
               </div>
             ) : (
-              <ProductMediaWorkspace media={props.media} setMedia={props.setMedia} onAttach={props.onAttachMedia} />
+              <ProductMediaWorkspace
+                media={props.media}
+                setMedia={props.setMedia}
+                onAttach={props.onAttachMedia}
+              />
             )}
           </div>
         </div>
 
         <footer className={styles.editorFooter}>
           <div className={styles.editorFooterLeading}>
-            <button type="button" className={styles.editorArchive} onClick={props.onArchive} disabled={props.busy}>
+            <button
+              type="button"
+              className={styles.editorArchive}
+              onClick={props.onArchive}
+              disabled={props.busy}
+            >
               <OpsIcon name="archive" /> Ürünü arşivle
             </button>
-            <span className={isDirty || hasPendingMedia ? styles.editorUnsaved : styles.editorSaved}>
-              <i /> {isDirty ? 'Kaydedilmemiş ürün bilgileri' : hasPendingMedia ? 'Eklenmeyi bekleyen görsel' : 'Tüm değişiklikler kaydedildi'}
+            <span
+              className={isDirty || hasPendingMedia ? styles.editorUnsaved : styles.editorSaved}
+            >
+              <i />{' '}
+              {isDirty
+                ? 'Kaydedilmemiş ürün bilgileri'
+                : hasPendingMedia
+                  ? 'Eklenmeyi bekleyen görsel'
+                  : 'Tüm değişiklikler kaydedildi'}
             </span>
           </div>
           <div className={styles.editorFooterActions}>
-            <button type="button" className={styles.editorCancel} onClick={props.onClose} disabled={props.busy}>Vazgeç</button>
-            <button type="button" className={styles.editorSave} onClick={props.onSave} disabled={props.busy}>
+            <button
+              type="button"
+              className={styles.editorCancel}
+              onClick={props.onClose}
+              disabled={props.busy}
+            >
+              Vazgeç
+            </button>
+            <button
+              type="button"
+              className={styles.editorSave}
+              onClick={submit}
+              disabled={props.busy}
+            >
               {props.busy ? 'Kaydediliyor…' : 'Değişiklikleri kaydet'}
               {!props.busy ? <OpsIcon name="arrow_forward" /> : null}
             </button>
@@ -1259,10 +1527,84 @@ function ProductMediaWorkspace(props: {
   onAttach: () => void;
 }): ReactElement {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const previewUrlRef = useRef<string | null>(null);
+  const dragDepthRef = useRef(0);
+  const [source, setSource] = useState<'file' | 'url'>('file');
+  const [dragging, setDragging] = useState(false);
+  const [rejection, setRejection] = useState<string | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [zoomed, setZoomed] = useState<MediaRow | null>(null);
 
   useEffect(() => {
     if (!props.media.file && fileInputRef.current) fileInputRef.current.value = '';
   }, [props.media.file]);
+
+  // Object URLs live for the lifetime of the component; revoke the last one on unmount.
+  useEffect(
+    () => () => {
+      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    },
+    [],
+  );
+
+  // The edit drawer also closes on Escape. A capture-phase listener that stops
+  // immediate propagation keeps Escape scoped to the lightbox while it is open.
+  useEffect(() => {
+    if (!zoomed) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      setZoomed(null);
+    };
+    window.addEventListener('keydown', closeOnEscape, true);
+    return () => window.removeEventListener('keydown', closeOnEscape, true);
+  }, [zoomed]);
+
+  function releaseFilePreview(): void {
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    previewUrlRef.current = null;
+    setFilePreview(null);
+  }
+
+  function acceptFile(file: File | null | undefined): void {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setRejection('Yalnızca JPEG, PNG, WebP veya GIF yükleyebilirsiniz.');
+      return;
+    }
+    if (file.size > MAX_ADMIN_IMAGE_BYTES) {
+      setRejection('Görsel en fazla 10 MB olabilir.');
+      return;
+    }
+    setRejection(null);
+    releaseFilePreview();
+    const next = URL.createObjectURL(file);
+    previewUrlRef.current = next;
+    setFilePreview(next);
+    props.setMedia((current) => ({ ...current, file, url: '' }));
+  }
+
+  function clearFile(): void {
+    setRejection(null);
+    releaseFilePreview();
+    props.setMedia((current) => ({ ...current, file: null }));
+  }
+
+  // The upload and attach paths are mutually exclusive, so switching the source
+  // clears the other one instead of silently submitting the wrong one.
+  function selectSource(next: 'file' | 'url'): void {
+    setSource(next);
+    setRejection(null);
+    if (next === 'url') {
+      releaseFilePreview();
+      props.setMedia((current) => ({ ...current, file: null }));
+    } else {
+      props.setMedia((current) => ({ ...current, url: '' }));
+    }
+  }
+
+  const altLength = props.media.alt.length;
 
   return (
     <section className={styles.mediaWorkspace} role="tabpanel">
@@ -1270,35 +1612,67 @@ function ProductMediaWorkspace(props: {
         <div>
           <span className={styles.editorEyebrow}>KATALOG VARLIKLARI</span>
           <h3>Ürün görselleri</h3>
-          <p>Ürün kartıyla ilişkili görselleri yönetin. Dosya yükleyin veya mevcut bir görsel adresi ekleyin.</p>
+          <p>
+            Ürün kartıyla ilişkili görselleri yönetin. İlk sıradaki görsel mağazada, QR menüde ve
+            ürün tablosunda ana görsel olarak kullanılır.
+          </p>
         </div>
-        <span className={styles.mediaCount}><OpsIcon name="image" /> {props.media.rows.length} görsel</span>
+        <span className={styles.mediaCount}>
+          <OpsIcon name="image" /> {props.media.rows.length} görsel
+        </span>
       </header>
 
       {props.media.flash ? (
-        <p className={`${styles.editorNotice} ${props.media.flash.tone === 'ok' ? styles.editorNoticeSuccess : styles.editorNoticeError}`} role="status">
+        <p
+          className={`${styles.editorNotice} ${props.media.flash.tone === 'ok' ? styles.editorNoticeSuccess : styles.editorNoticeError}`}
+          role="status"
+        >
           {props.media.flash.text}
         </p>
       ) : null}
 
       {props.media.rows.length > 0 ? (
         <div className={styles.mediaGallery}>
-          {props.media.rows.map((row, index) => (
-            <article key={row.id} className={styles.mediaCard}>
-              <div className={styles.mediaImageFrame}>
-                {row.url ? <img src={row.url} alt={row.altText?.trim() || 'Ürün görseli'} /> : <OpsIcon name="image" />}
-                <span>{String((row.displayOrder ?? index) + 1).padStart(2, '0')}</span>
-              </div>
-              <div className={styles.mediaCardCaption}>
-                <strong>{row.altText || `Ürün görseli ${index + 1}`}</strong>
-                <small>{row.altText ? 'Alternatif metin tanımlı' : 'Alternatif metin eklenmemiş'}</small>
-              </div>
-            </article>
-          ))}
+          {props.media.rows.map((row, index) => {
+            const alt = row.altText?.trim() || '';
+            return (
+              <button
+                key={row.id}
+                type="button"
+                className={styles.mediaCard}
+                data-primary={index === 0 ? 'true' : 'false'}
+                onClick={() => setZoomed(row)}
+                aria-label={`${alt || `${index + 1}. ürün görseli`} — büyük önizleme`}
+              >
+                <span className={styles.mediaImageFrame}>
+                  {row.url ? (
+                    <img src={row.url} alt="" loading="lazy" decoding="async" />
+                  ) : (
+                    <OpsIcon name="image" />
+                  )}
+                  {index === 0 ? (
+                    <span className={styles.mediaPrimaryBadge}>Ana görsel</span>
+                  ) : null}
+                  <span className={styles.mediaIndex}>
+                    {String((row.displayOrder ?? index) + 1).padStart(2, '0')}
+                  </span>
+                </span>
+                <span className={styles.mediaCardCaption}>
+                  <strong>{alt || `Ürün görseli ${index + 1}`}</strong>
+                  <small className={alt ? styles.mediaAltOk : styles.mediaAltMissing}>
+                    <OpsIcon name={alt ? 'check_circle' : 'error'} />
+                    {alt ? 'Alternatif metin tanımlı' : 'Alternatif metin eklenmemiş'}
+                  </small>
+                </span>
+              </button>
+            );
+          })}
         </div>
       ) : (
         <div className={styles.mediaEmpty}>
-          <span><OpsIcon name="image" /></span>
+          <span>
+            <OpsIcon name="image" />
+          </span>
           <strong>Bu ürün için henüz görsel yok</strong>
           <p>Bir görsel ekleyerek mağaza önizlemesini zenginleştirin.</p>
         </div>
@@ -1306,51 +1680,172 @@ function ProductMediaWorkspace(props: {
 
       <section className={styles.mediaAddCard}>
         <div className={styles.editorSectionHeading}>
-          <span><OpsIcon name="add" /></span>
-          <div><h3>Görsel ekle</h3><p>JPEG, PNG, WebP veya GIF · en fazla 10 MB</p></div>
+          <span>
+            <OpsIcon name="add" />
+          </span>
+          <div>
+            <h3>Görsel ekle</h3>
+            <p>JPEG, PNG, WebP veya GIF · en fazla 10 MB</p>
+          </div>
         </div>
-        <div className={styles.mediaAddFields}>
-          <label className={styles.editorField}>
-            <span>Görsel dosyası</span>
+
+        <div className={styles.mediaSource} role="group" aria-label="Görsel kaynağı">
+          <button
+            type="button"
+            aria-pressed={source === 'file'}
+            disabled={props.media.busy}
+            onClick={() => selectSource('file')}
+          >
+            <OpsIcon name="image" />
+            Dosyadan
+          </button>
+          <button
+            type="button"
+            aria-pressed={source === 'url'}
+            disabled={props.media.busy}
+            onClick={() => selectSource('url')}
+          >
+            <OpsIcon name="open_in_new" />
+            Bağlantıyla
+          </button>
+        </div>
+
+        {source === 'file' ? (
+          <div
+            className={styles.mediaDropzone}
+            data-dragging={dragging ? 'true' : 'false'}
+            data-filled={props.media.file ? 'true' : 'false'}
+            onDragEnter={(event) => {
+              event.preventDefault();
+              dragDepthRef.current += 1;
+              setDragging(true);
+            }}
+            onDragOver={(event) => {
+              event.preventDefault();
+              event.dataTransfer.dropEffect = 'copy';
+            }}
+            onDragLeave={(event) => {
+              event.preventDefault();
+              dragDepthRef.current -= 1;
+              if (dragDepthRef.current <= 0) {
+                dragDepthRef.current = 0;
+                setDragging(false);
+              }
+            }}
+            onDrop={(event) => {
+              event.preventDefault();
+              dragDepthRef.current = 0;
+              setDragging(false);
+              acceptFile(event.dataTransfer.files?.[0]);
+            }}
+          >
             <input
               ref={fileInputRef}
               type="file"
+              className={styles.mediaFileInput}
               accept="image/jpeg,image/png,image/webp,image/gif"
               disabled={props.media.busy}
-              onChange={(event) => props.setMedia((current) => ({ ...current, file: event.target.files?.[0] ?? null, url: '' }))}
+              onChange={(event) => acceptFile(event.target.files?.[0])}
             />
-            {props.media.file ? (
-              <small className={styles.selectedFile}>
-                {props.media.file.name}
-                <button type="button" onClick={() => props.setMedia((current) => ({ ...current, file: null }))} disabled={props.media.busy}>Seçimi kaldır</button>
-              </small>
-            ) : <small>Dosyanızı seçin veya görsel URL’si kullanın.</small>}
-          </label>
-          <label className={styles.editorField}>
+            {props.media.file && filePreview ? (
+              <div className={styles.mediaFileCard}>
+                <span className={styles.mediaFileThumb}>
+                  <img src={filePreview} alt="" />
+                </span>
+                <span className={styles.mediaFileFacts}>
+                  <strong>{props.media.file.name}</strong>
+                  <small>
+                    {formatImageBytes(props.media.file.size)} · {props.media.file.type || 'görsel'}
+                  </small>
+                </span>
+                <span className={styles.mediaFileActions}>
+                  <button
+                    type="button"
+                    disabled={props.media.busy}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Değiştir
+                  </button>
+                  <button type="button" disabled={props.media.busy} onClick={clearFile}>
+                    Kaldır
+                  </button>
+                </span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={styles.mediaDropPrompt}
+                disabled={props.media.busy}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <span className={styles.mediaDropIcon}>
+                  <OpsIcon name="image" />
+                </span>
+                <strong>Görseli buraya sürükleyin</strong>
+                <small>
+                  veya dosya seçmek için tıklayın · JPEG, PNG, WebP, GIF · en fazla 10 MB
+                </small>
+              </button>
+            )}
+          </div>
+        ) : (
+          <label className={`${styles.editorField} ${styles.mediaUrlField}`}>
             <span>Görsel URL’si</span>
             <input
               type="url"
               value={props.media.url}
-              disabled={props.media.busy || Boolean(props.media.file)}
-              onChange={(event) => props.setMedia((current) => ({ ...current, url: event.target.value }))}
+              disabled={props.media.busy}
+              onChange={(event) =>
+                props.setMedia((current) => ({ ...current, url: event.target.value }))
+              }
               placeholder="https://..."
             />
-            <small>Güvenli bir görsel adresi girin.</small>
+            <small>Doğrudan erişilebilen, güvenli bir görsel adresi girin.</small>
           </label>
+        )}
+
+        {rejection ? (
+          <p className={styles.mediaRejection} role="alert">
+            <OpsIcon name="error" />
+            {rejection}
+          </p>
+        ) : null}
+
+        <div className={styles.mediaAltField}>
           <label className={styles.editorField}>
-            <span>Alternatif metin <i>opsiyonel</i></span>
+            <span>
+              Alternatif metin <i>opsiyonel</i>
+            </span>
             <input
               value={props.media.alt}
               maxLength={255}
               disabled={props.media.busy}
-              onChange={(event) => props.setMedia((current) => ({ ...current, alt: event.target.value }))}
+              onChange={(event) =>
+                props.setMedia((current) => ({ ...current, alt: event.target.value }))
+              }
               placeholder="Örn. Double Smash Burger"
             />
-            <small>Ekran okuyucular için kısa görsel açıklaması.</small>
           </label>
+          <span className={styles.mediaAltMeta}>
+            <small>Ekran okuyucular için kısa görsel açıklaması.</small>
+            <span
+              className={styles.mediaAltCounter}
+              data-near-limit={altLength >= 240 ? 'true' : 'false'}
+            >
+              {altLength}/255
+            </span>
+          </span>
         </div>
+
         <div className={styles.mediaAddFooter}>
-          <span>Görseller ürün kaydına bağlı olarak saklanır.</span>
+          <span>
+            <OpsIcon name="info" />
+            {props.media.file
+              ? 'Seçili dosya yüklenecek.'
+              : props.media.url.trim()
+                ? 'Girilen bağlantı kaydedilecek.'
+                : 'Dosya seçin veya bir bağlantı girin.'}
+          </span>
           <button
             type="button"
             className={styles.editorSave}
@@ -1362,6 +1857,39 @@ function ProductMediaWorkspace(props: {
           </button>
         </div>
       </section>
+
+      {zoomed?.url ? (
+        <div
+          className={styles.mediaLightbox}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Görsel önizleme"
+        >
+          <button
+            type="button"
+            className={styles.mediaLightboxBackdrop}
+            aria-label="Önizlemeyi kapat"
+            onClick={() => setZoomed(null)}
+          />
+          <figure className={styles.mediaLightboxPanel}>
+            <img src={zoomed.url} alt={zoomed.altText?.trim() || 'Ürün görseli'} />
+            <figcaption>
+              <span>
+                <strong>{zoomed.altText?.trim() || 'Alternatif metin eklenmemiş'}</strong>
+                <small>{zoomed.url}</small>
+              </span>
+              <button
+                type="button"
+                className={styles.mediaLightboxClose}
+                aria-label="Önizlemeyi kapat"
+                onClick={() => setZoomed(null)}
+              >
+                <OpsIcon name="close" />
+              </button>
+            </figcaption>
+          </figure>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -1437,7 +1965,9 @@ function ProductDrawer(props: {
                 <span>Sipariş Etkisi</span>
               </div>
               <p className="ops-page__lede" style={{ margin: 0 }}>
-                <strong>{modal.productIds.length}</strong> ürünü arşivleyebilir veya ilişkili katalog kayıtlarıyla birlikte kalıcı olarak silebilirsiniz. Sipariş geçmişiyle ilişkili ürünler için API ek onay ister.
+                <strong>{modal.productIds.length}</strong> ürünü arşivleyebilir veya ilişkili
+                katalog kayıtlarıyla birlikte kalıcı olarak silebilirsiniz. Sipariş geçmişiyle
+                ilişkili ürünler için API ek onay ister.
               </p>
             </div>
             <div className="ops-drawer__section">
@@ -1447,7 +1977,10 @@ function ProductDrawer(props: {
               <ul className="ops-delete-summary">
                 {modal.productIds.map((id) => (
                   <li key={id}>
-                    <strong>{props.products.find((product) => product.id === id)?.name ?? 'Ürün bulunamadı'}</strong>
+                    <strong>
+                      {props.products.find((product) => product.id === id)?.name ??
+                        'Ürün bulunamadı'}
+                    </strong>
                     <code>{id}</code>
                   </li>
                 ))}
@@ -1596,10 +2129,15 @@ function CreateForm(props: {
         <div className="ops-drawer__section-head">
           <span>Fiyatlandırma</span>
         </div>
-        <div className="ops-field" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--ops-space-sm)' }}>
+        <div
+          className="ops-field"
+          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--ops-space-sm)' }}
+        >
           <label className="ops-drawer__price">
             <span>Baz Fiyat</span>
-            <span className="ops-drawer__price-prefix" aria-hidden="true">₺</span>
+            <span className="ops-drawer__price-prefix" aria-hidden="true">
+              ₺
+            </span>
             <input
               className="ops-input"
               value={c.priceMajor}

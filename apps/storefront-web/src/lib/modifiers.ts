@@ -7,9 +7,14 @@ export type ModifierGroup = z.infer<typeof storefrontModifierGroupSchema>;
 export function defaultModifierSelection(groups: ModifierGroup[]): Record<string, string[]> {
   const out: Record<string, string[]> = {};
   for (const group of groups) {
-    if (group.selectionMin > 0 && group.modifiers[0]) {
-      out[group.id] = [group.modifiers[0].id];
-    }
+    if (group.selectionMin <= 0) continue;
+    // Modifiers arrive ordered by name, so `modifiers[0]` can be a paid
+    // upgrade and would silently inflate the customer's price. Default to the
+    // cheapest option instead.
+    const cheapest = [...group.modifiers].sort(
+      (a, b) => Number(a.priceDeltaMinor) - Number(b.priceDeltaMinor),
+    )[0];
+    if (cheapest) out[group.id] = [cheapest.id];
   }
   return out;
 }

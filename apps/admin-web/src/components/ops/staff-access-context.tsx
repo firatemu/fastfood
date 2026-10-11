@@ -64,7 +64,8 @@ export function StaffAccessProvider({
   }, [enabled, token]);
 
   const value = useMemo(
-    () => (token && loaded?.token === token ? loaded.value : { ...emptyAccess, loading: Boolean(token) }),
+    () =>
+      token && loaded?.token === token ? loaded.value : { ...emptyAccess, loading: Boolean(token) },
     [loaded, token],
   );
   return <StaffAccessContext.Provider value={value}>{children}</StaffAccessContext.Provider>;

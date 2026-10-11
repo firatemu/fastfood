@@ -21,6 +21,7 @@ import { colors, fonts, hitSlop, radius, space } from '../theme';
 import { ModifierGroupCard, RemovalChips, VariantGroupCard } from './modifier-group';
 import { QtyStepper } from './qty-stepper';
 import { StickyCta, stickyCtaReserve } from './sticky-cta';
+import { UpsellStrip } from './upsell-strip';
 
 export function ProductConfigure(props: {
   product: ProductDetail;
@@ -32,6 +33,11 @@ export function ProductConfigure(props: {
   favorited?: boolean;
   favoriteBusy?: boolean;
   onToggleFavorite?: () => void;
+  /** Adds a recommended product straight to the cart (web `onAddUpsell`). */
+  onAddRecommendation?: (productId: string) => void;
+  /** Opens a recommended product; omit to hide the browse affordances. */
+  onInspectProduct?: (productId: string) => void;
+  recommendationBusyId?: string | null;
   onAdd: (input: {
     quantity: number;
     variantId: string | null;
@@ -237,6 +243,13 @@ export function ProductConfigure(props: {
             <Text style={styles.summaryLabel}>Adet</Text>
             <QtyStepper value={quantity} onChange={setQuantity} />
           </View>
+
+          <UpsellStrip
+            items={props.product.recommendations ?? []}
+            onAdd={props.onAddRecommendation}
+            onInspect={props.onInspectProduct}
+            busyId={props.recommendationBusyId ?? null}
+          />
         </View>
       </ScrollView>
       <StickyCta

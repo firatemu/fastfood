@@ -3,16 +3,16 @@ body {
   margin: 0;
   padding: 0;
   font-family: ui-sans-serif, system-ui, sans-serif;
-  background: light-dark(#fcfcfd, #11151a);
-  color: light-dark(#24282e, #dae0e7);
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface);
 }
 
 .ff-admin-skip {
   position: absolute;
   left: -999px;
   top: 0;
-  background: light-dark(#fcfcfd, #18181b);
-  color: light-dark(#292929, #ffffff);
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface);
   padding: 0.5rem 0.75rem;
   z-index: 20;
 }
@@ -25,9 +25,9 @@ body {
 .ff-admin-banner {
   margin: 0;
   padding: 0.5rem 1rem;
-  background: light-dark(#f6f4ec, #4b4016);
-  color: light-dark(#9a4413, #78350f);
-  border-bottom: 1px solid light-dark(#d6ba8a, #f59e0b);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-status-warn-text);
+  border-bottom: 1px solid var(--ff-primary-container);
   font-size: 0.8125rem;
   font-weight: 600;
 }
@@ -43,8 +43,8 @@ body {
 }
 
 .ff-admin-scaffold__aside {
-  border-right: 1px solid light-dark(#d3d6d9, #3a4450);
-  background: light-dark(#fcfcfd, #11151a);
+  border-right: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container-low);
   padding: 1rem 0.75rem 1.5rem;
   overflow: auto;
 }
@@ -61,7 +61,7 @@ body {
 
 .ff-admin-scaffold__session {
   margin: 0 0 1rem;
-  color: light-dark(#58626f, #9dacbe);
+  color: var(--ff-on-surface-variant);
   font-size: 0.75rem;
 }
 
@@ -75,7 +75,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: light-dark(#58626f, #9dacbe);
+  color: var(--ff-on-surface-variant);
 }
 
 .ff-admin-scaffold__section ul {
@@ -87,32 +87,32 @@ body {
 .ff-admin-scaffold__link {
   display: block;
   padding: 0.25rem 0.35rem;
-  color: light-dark(#24282e, #dae0e7);
+  color: var(--ff-on-surface);
   text-decoration: none;
   border-radius: 2px;
 }
 
 .ff-admin-scaffold__link:hover,
 .ff-admin-scaffold__link:focus-visible {
-  background: light-dark(#fefefe, #e4e4e7);
+  background: var(--ff-surface-container-high);
 }
 
 .ff-admin-scaffold__link--active {
   font-weight: 700;
-  background: light-dark(#fefefe, #e4e4e7);
+  background: var(--ff-surface-container-high);
 }
 
 .ff-admin-scaffold__footer {
   margin-top: 1.25rem;
   padding-top: 0.75rem;
-  border-top: 1px solid light-dark(#d3d6d9, #3a4450);
+  border-top: 1px solid var(--ff-keyline);
 }
 
 .ff-admin-scaffold__button {
   font: inherit;
   cursor: pointer;
-  border: 1px solid light-dark(#d3d3d9, #a1a1aa);
-  background: light-dark(#f8f9f9, #212831);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
   padding: 0.35rem 0.6rem;
 }
 
@@ -121,29 +121,16 @@ body {
   padding: 1rem 1.25rem 2rem;
 }
 
+/* Standalone auth surfaces (/login, /invite/*, /access-denied) render
+   outside OpsShell, so they carry no data-admin-theme. They own their layout and
+   draw straight from the Navy tokens. Rewritten in B0 — the previous values
+   were the retired palette. */
 .ff-admin-login,
 .ff-admin-standalone {
   min-height: 100vh;
-  padding: 1.5rem;
-  background: light-dark(#fcfcfd, #11151a);
-}
-
-.ff-admin-login-card {
-  max-width: 420px;
-  margin: 2rem auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.ff-admin-login-title {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.ff-admin-login-sub {
-  margin: 0;
-  color: light-dark(#58626f, #9dacbe);
+  background: var(--ff-surface);
+  color: var(--ff-on-surface);
+  font: 400 14px/20px var(--ff-font-body);
 }
 
 @media (max-width: 768px) {

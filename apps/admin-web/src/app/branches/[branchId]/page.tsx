@@ -7,15 +7,11 @@ import type { z } from 'zod';
 import { errorMessage, type LoadState } from '../../../components/async-boundary';
 import { ConfirmDialog } from '../../../components/ops/confirm-dialog';
 import { OpsBoundary } from '../../../components/ops/ops-boundary';
+import { OpsPageHeader } from '../../../components/ops/ops-page-header';
 import { useOpsSync } from '../../../components/ops/ops-sync';
 import { ActionButton, KeylineCard, StatusBadge } from '../../../components/ops/ops-ui';
 import { createAdminClient } from '../../../lib/api';
-import {
-  digitsOnlyMinor,
-  isE164Phone,
-  isHhMm,
-  weekdayLabel,
-} from '../../../lib/fulfillment-ops';
+import { digitsOnlyMinor, isE164Phone, isHhMm, weekdayLabel } from '../../../lib/fulfillment-ops';
 import { adminBranchSchema, operatingHoursSchema } from '../../../lib/schemas';
 import { useDeferredLoad } from '../../../lib/use-deferred-load';
 
@@ -188,147 +184,174 @@ export default function BranchDetailPage() {
 
   return (
     <div className="ops-page">
-      <p className="ops-page__lede">
-        `ROUTE_IDENTIFIED_BRANCH` · rota `{branchId}` · topbar şube seçimi bu kaydı sessizce
-        değiştirmez · pickup/delivery/aktif PATCH yok.
-      </p>
       <OpsBoundary state={state} emptyTitle="Şube yok" onRetry={() => void load()}>
         {(branch) => (
-          <div className="ops-split">
-            <KeylineCard
-              title="Kayıt"
+          <>
+            <OpsPageHeader
+              title={branch.name ?? branch.code ?? 'Şube'}
+              scope={branch.code ?? undefined}
+              lede="Şubenin kimliğini, konumunu, çalışma saatlerini ve sipariş alım durumunu yönetin. Bu kayıt rota ile belirlenir; üstteki şube seçimi bu şubeyi değiştirmez."
               actions={
                 <StatusBadge tone={branch.isAcceptingOrders === false ? 'warn' : 'ready'}>
                   {branch.isAcceptingOrders === false ? 'Sipariş kapalı' : 'Sipariş alıyor'}
                 </StatusBadge>
               }
-            >
-              <div className="ops-form">
-                <p className="ops-page__lede">
-                  Kod <span className="mono">{branch.code ?? '—'}</span> ·{' '}
-                  {branch.latitude != null && branch.longitude != null
-                    ? `${branch.latitude}, ${branch.longitude}`
-                    : 'koordinat yok'}{' '}
-                  · gel-al {branch.pickupEnabled === false ? 'hayır' : 'evet'} · teslimat{' '}
-                  {branch.deliveryEnabled === false ? 'hayır' : 'evet'} · aktif{' '}
-                  {branch.isActive === false ? 'hayır' : 'evet'}
-                  {branch.estimatedDeliveryMinutesMin != null
-                    ? ` · ETA ${branch.estimatedDeliveryMinutesMin}–${branch.estimatedDeliveryMinutesMax ?? '—'} dk`
-                    : ''}
-                </p>
-                <label className="ops-field">
-                  Ad
-                  <input className="ops-input" value={name} onChange={(e) => setName(e.target.value)} />
-                </label>
-                <label className="ops-field">
-                  Adres
-                  <input
-                    className="ops-input"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                  />
-                </label>
-                <label className="ops-field">
-                  Telefon
-                  <input className="ops-input" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                </label>
-                <label className="ops-field">
-                  Min. sipariş (kuruş)
-                  <input
-                    className="ops-input"
-                    value={minOrder}
-                    inputMode="numeric"
-                    onChange={(e) => setMinOrder(e.target.value)}
-                  />
-                </label>
-                <label className="ops-field">
-                  Teslimat ücreti (kuruş)
-                  <input
-                    className="ops-input"
-                    value={deliveryFee}
-                    inputMode="numeric"
-                    onChange={(e) => setDeliveryFee(e.target.value)}
-                  />
-                </label>
-                <div className="ops-form-actions">
-                  <ActionButton variant="primary" onClick={() => void saveProfile()} disabled={busy}>
-                    {busy ? 'Kaydediliyor' : 'Kaydet'}
-                  </ActionButton>
-                  {branch.isAcceptingOrders === false ? (
-                    <ActionButton disabled={busy} onClick={() => void setAccepting(true)}>
-                      Sipariş alımını aç
+            />
+            <div className="ops-split">
+              <KeylineCard title="Kayıt">
+                <div className="ops-form">
+                  <p className="ops-page__lede">
+                    Kod <span className="mono">{branch.code ?? '—'}</span> ·{' '}
+                    {branch.latitude != null && branch.longitude != null
+                      ? `${branch.latitude}, ${branch.longitude}`
+                      : 'koordinat yok'}{' '}
+                    · gel-al {branch.pickupEnabled === false ? 'hayır' : 'evet'} · teslimat{' '}
+                    {branch.deliveryEnabled === false ? 'hayır' : 'evet'} · aktif{' '}
+                    {branch.isActive === false ? 'hayır' : 'evet'}
+                    {branch.estimatedDeliveryMinutesMin != null
+                      ? ` · ETA ${branch.estimatedDeliveryMinutesMin}–${branch.estimatedDeliveryMinutesMax ?? '—'} dk`
+                      : ''}
+                  </p>
+                  <label className="ops-field">
+                    Ad
+                    <input
+                      className="ops-input"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  </label>
+                  <label className="ops-field">
+                    Adres
+                    <input
+                      className="ops-input"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                    />
+                  </label>
+                  <label className="ops-field">
+                    Telefon
+                    <input
+                      className="ops-input"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </label>
+                  <label className="ops-field">
+                    Min. sipariş (kuruş)
+                    <input
+                      className="ops-input"
+                      value={minOrder}
+                      inputMode="numeric"
+                      onChange={(e) => setMinOrder(e.target.value)}
+                    />
+                  </label>
+                  <label className="ops-field">
+                    Teslimat ücreti (kuruş)
+                    <input
+                      className="ops-input"
+                      value={deliveryFee}
+                      inputMode="numeric"
+                      onChange={(e) => setDeliveryFee(e.target.value)}
+                    />
+                  </label>
+                  <div className="ops-form-actions">
+                    <ActionButton
+                      variant="primary"
+                      onClick={() => void saveProfile()}
+                      disabled={busy}
+                    >
+                      {busy ? 'Kaydediliyor' : 'Kaydet'}
                     </ActionButton>
-                  ) : (
-                    <ActionButton variant="danger" disabled={busy} onClick={() => setConfirmAccepting(true)}>
-                      Sipariş alımını kapat
-                    </ActionButton>
-                  )}
+                    {branch.isAcceptingOrders === false ? (
+                      <ActionButton disabled={busy} onClick={() => void setAccepting(true)}>
+                        Sipariş alımını aç
+                      </ActionButton>
+                    ) : (
+                      <ActionButton
+                        variant="danger"
+                        disabled={busy}
+                        onClick={() => setConfirmAccepting(true)}
+                      >
+                        Sipariş alımını kapat
+                      </ActionButton>
+                    )}
+                  </div>
+                  {flash ? (
+                    <p className="ops-flash ops-flash--ok" role="status">
+                      {flash}
+                    </p>
+                  ) : null}
+                  {formError ? (
+                    <p className="ops-flash ops-flash--err" role="alert">
+                      {formError}
+                    </p>
+                  ) : null}
                 </div>
-                {flash ? (
-                  <p className="ops-flash ops-flash--ok" role="status">
-                    {flash}
-                  </p>
-                ) : null}
-                {formError ? (
-                  <p className="ops-flash ops-flash--err" role="alert">
-                    {formError}
-                  </p>
-                ) : null}
-              </div>
-            </KeylineCard>
-            <KeylineCard title="Çalışma saatleri">
-              <div className="ops-form">
-                {hours.map((row) => (
-                  <div className="ops-field" key={row.dayOfWeek}>
-                    <span>{weekdayLabel(row.dayOfWeek)}</span>
-                    <span className="ops-form-actions">
-                      <input
-                        className="ops-input"
-                        value={row.opensAt}
-                        aria-label={`${weekdayLabel(row.dayOfWeek)} açılış`}
-                        onChange={(e) =>
-                          setHours((prev) =>
-                            prev.map((h) =>
-                              h.dayOfWeek === row.dayOfWeek ? { ...h, opensAt: e.target.value } : h,
-                            ),
-                          )
-                        }
-                      />
-                      <input
-                        className="ops-input"
-                        value={row.closesAt}
-                        aria-label={`${weekdayLabel(row.dayOfWeek)} kapanış`}
-                        onChange={(e) =>
-                          setHours((prev) =>
-                            prev.map((h) =>
-                              h.dayOfWeek === row.dayOfWeek ? { ...h, closesAt: e.target.value } : h,
-                            ),
-                          )
-                        }
-                      />
-                      <label>
+              </KeylineCard>
+              <KeylineCard title="Çalışma saatleri">
+                <div className="ops-form">
+                  {hours.map((row) => (
+                    <div className="ops-field" key={row.dayOfWeek}>
+                      <span>{weekdayLabel(row.dayOfWeek)}</span>
+                      <span className="ops-form-actions">
                         <input
-                          type="checkbox"
-                          checked={row.isClosed}
+                          className="ops-input"
+                          value={row.opensAt}
+                          aria-label={`${weekdayLabel(row.dayOfWeek)} açılış`}
                           onChange={(e) =>
                             setHours((prev) =>
                               prev.map((h) =>
-                                h.dayOfWeek === row.dayOfWeek ? { ...h, isClosed: e.target.checked } : h,
+                                h.dayOfWeek === row.dayOfWeek
+                                  ? { ...h, opensAt: e.target.value }
+                                  : h,
                               ),
                             )
                           }
-                        />{' '}
-                        Kapalı
-                      </label>
-                    </span>
-                  </div>
-                ))}
-                <ActionButton variant="primary" onClick={() => void saveHours()} disabled={hoursBusy}>
-                  {hoursBusy ? 'Kaydediliyor' : 'Saatleri kaydet'}
-                </ActionButton>
-              </div>
-            </KeylineCard>
-          </div>
+                        />
+                        <input
+                          className="ops-input"
+                          value={row.closesAt}
+                          aria-label={`${weekdayLabel(row.dayOfWeek)} kapanış`}
+                          onChange={(e) =>
+                            setHours((prev) =>
+                              prev.map((h) =>
+                                h.dayOfWeek === row.dayOfWeek
+                                  ? { ...h, closesAt: e.target.value }
+                                  : h,
+                              ),
+                            )
+                          }
+                        />
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={row.isClosed}
+                            onChange={(e) =>
+                              setHours((prev) =>
+                                prev.map((h) =>
+                                  h.dayOfWeek === row.dayOfWeek
+                                    ? { ...h, isClosed: e.target.checked }
+                                    : h,
+                                ),
+                              )
+                            }
+                          />{' '}
+                          Kapalı
+                        </label>
+                      </span>
+                    </div>
+                  ))}
+                  <ActionButton
+                    variant="primary"
+                    onClick={() => void saveHours()}
+                    disabled={hoursBusy}
+                  >
+                    {hoursBusy ? 'Kaydediliyor' : 'Saatleri kaydet'}
+                  </ActionButton>
+                </div>
+              </KeylineCard>
+            </div>
+          </>
         )}
       </OpsBoundary>
       <ConfirmDialog

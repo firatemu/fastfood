@@ -6,6 +6,7 @@ import type { z } from 'zod';
 import { errorMessage, type LoadState } from '../../components/async-boundary';
 import { ConfirmDialog } from '../../components/ops/confirm-dialog';
 import { OpsBoundary } from '../../components/ops/ops-boundary';
+import { OpsPageHeader } from '../../components/ops/ops-page-header';
 import { useOpsSync } from '../../components/ops/ops-sync';
 import { OperationalTable } from '../../components/ops/ops-table';
 import { ActionButton, KeylineCard, StatusBadge } from '../../components/ops/ops-ui';
@@ -114,10 +115,10 @@ export default function SettingsPage() {
 
   return (
     <div className="ops-page">
-      <p className="ops-page__lede">
-        `SYSTEM_GLOBAL` · `GET admin/settings` · `PATCH :key` yalnızca `mutable` · gizli anahtarlar
-        gösterilmez/düzenlenmez · sağlayıcı sırları yok · ortam değişkenleri burada değil.
-      </p>
+      <OpsPageHeader
+        title="Ayarlar"
+        lede="İş kurallarını çalışma zamanından yönetin. Yalnızca düzenlenebilir olarak işaretlenmiş ayarlar kaydedilebilir; parolalar, sağlayıcı anahtarları ve ortam değişkenleri bu ekrandan yönetilmez."
+      />
       <div className="ops-split">
         <OpsBoundary
           state={state}
@@ -137,7 +138,9 @@ export default function SettingsPage() {
                   header: 'Sınıf',
                   render: (r) => {
                     const kind = classifySetting(r);
-                    return <StatusBadge tone={toneFor(kind)}>{settingClassLabel(kind)}</StatusBadge>;
+                    return (
+                      <StatusBadge tone={toneFor(kind)}>{settingClassLabel(kind)}</StatusBadge>
+                    );
                   },
                 },
                 {

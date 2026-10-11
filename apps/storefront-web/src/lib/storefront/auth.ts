@@ -249,6 +249,10 @@ export async function requestEmailVerification(): Promise<void> {
     method: 'POST',
     path: 'auth/customer/email/verify/request',
     headers: sessionHeaders(),
+    // The endpoint takes no body, but it rejects a request that carries
+    // `content-type: application/json` with an empty body. Sending an empty
+    // object keeps the client's content-type honest and the request valid.
+    body: {},
     schema: okResponseSchema,
   });
 }

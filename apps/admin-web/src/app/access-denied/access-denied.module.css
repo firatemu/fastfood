@@ -1,0 +1,152 @@
+/* ==========================================================================
+   FASTFOOD Admin — /access-denied (ADR-019, phase A9)
+
+   Rebuilt from scratch. The retired page composed `AccessDenied` and `Button`
+   from `@fastfood/ui-web`, the retired design system, which
+   `app/layout.tsx` imports globally. Shares its card grammar with the rebuilt
+   /login and /invite/confirm-email surfaces.
+
+   Backend contract, read before designing (plan §5 step 1):
+
+     `packages/domain-types` builds every page permission as
+     `admin.page.<slug>.<action>` — e.g. `admin.page.users.view` — from
+     ADMIN_PAGE_PERMISSION_SLUGS and ADMIN_PAGE_SUPPORTED_ACTIONS.
+
+     `components/ops/ops-shell.tsx` resolves the current path to a page key via
+     `adminPagePermissionForPath(pathname, 'view')` and computes
+     `pageDenied = Boolean(pagePermission && !hasStaffPermission(access, pagePermission))`.
+     It then redirects here.
+
+     Server side the same decision is enforced independently by
+     `RbacGuard` / `@RequirePermissions`, so this route is presentation, not
+     the control point. A missing `RbacGuard` on the route it guards is the bug;
+     this page cannot create one.
+
+     The shell previously redirected without a query string, so this page had no
+     way to know which permission was missing and rendered the placeholder
+     `required.permission` — invented data. The shell now carries the real code
+     in `?code=`; the page shows it only when present and says nothing when it
+     is not.
+
+   The wrapper `.ff-admin-standalone` in `globals.css` is Navy and owned by this
+   page's parent.
+   ========================================================================== */
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--ff-space-xl);
+}
+
+.card {
+  width: min(100%, 460px);
+  display: grid;
+  gap: var(--ff-space-md);
+  padding: var(--ff-space-lg);
+  background: var(--ff-surface-container-low);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+.eyebrow {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-status-critical-text);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-lg);
+  font-weight: var(--ff-weight-headline-lg);
+  line-height: var(--ff-leading-headline-lg);
+  letter-spacing: var(--ff-tracking-headline-lg);
+  color: var(--ff-on-surface);
+}
+
+.description {
+  margin: 0;
+  color: var(--ff-on-surface-variant);
+  font: 400 13px/18px var(--ff-font-body);
+}
+
+/* --- the required permission, when the shell told us --- */
+
+.code {
+  display: grid;
+  gap: var(--ff-space-xs);
+  margin: 0;
+  padding: var(--ff-space-sm) var(--ff-space-md);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-high);
+}
+
+.codeLabel {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-ink-faint);
+}
+
+.codeValue {
+  font: 500 12px/16px var(--ff-font-label);
+  letter-spacing: 0.02em;
+  color: var(--ff-on-surface);
+  word-break: break-all;
+}
+
+/* --- actions --- */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ff-space-sm);
+}
+
+.button {
+  min-height: 36px;
+  padding: 0 var(--ff-space-md);
+  border: 1px solid var(--ff-primary-container);
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+  font: 600 13px/18px var(--ff-font-body);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--ff-primary);
+  border-color: var(--ff-primary);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ff-primary-container);
+  outline-offset: 2px;
+}
+
+.buttonGhost {
+  min-height: 36px;
+  padding: 0 var(--ff-space-md);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  background: transparent;
+  color: var(--ff-on-surface-variant);
+  font: 500 13px/18px var(--ff-font-body);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.buttonGhost:hover {
+  border-color: var(--ff-keyline-strong);
+  color: var(--ff-on-surface);
+}
+
+.buttonGhost:focus-visible {
+  outline: 2px solid var(--ff-primary-container);
+  outline-offset: 2px;
+}

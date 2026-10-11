@@ -7,10 +7,14 @@ const INITIAL_MAP_CENTER: AddressMapPoint = { latitude: 41.036, longitude: 28.98
  * worker, which browsers reject in an opaque `srcDoc` origin. In development,
  * Next serves the same public assets through map.localhost; deployed setups
  * must configure a dedicated map origin in the same way.
+ *
+ * `interactive = false` renders the same document as a read-only preview: the
+ * stored point stays selected, but taps no longer move the marker.
  */
 export function addressMapHtml(
   initialPoint: AddressMapPoint | null = null,
   center?: AddressMapPoint | null,
+  interactive = true,
 ): string | null {
   const configuredOrigin = process.env.NEXT_PUBLIC_STOREFRONT_MAP_FRAME_ORIGIN;
   const mapOrigin =
@@ -29,5 +33,6 @@ export function addressMapHtml(
   url.searchParams.set('lat', String(mapCenter.latitude));
   url.searchParams.set('lng', String(mapCenter.longitude));
   if (initialPoint) url.searchParams.set('selected', '1');
+  if (!interactive) url.searchParams.set('interactive', '0');
   return url.toString();
 }

@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatBranchLocation, formatDeliveryWindow, formatRatingBps, formatRelativeTr } from './format';
+import {
+  branchEtaLabel,
+  formatBranchLocation,
+  formatDeliveryWindow,
+  formatRatingBps,
+  formatRelativeTr,
+} from './format';
 import { groupOperatingHours } from './hours';
 
 describe('formatDeliveryWindow', () => {
@@ -10,6 +16,17 @@ describe('formatDeliveryWindow', () => {
 
   it('returns null when unset', () => {
     expect(formatDeliveryWindow(0, 0)).toBeNull();
+  });
+});
+
+describe('branchEtaLabel', () => {
+  it('prefixes the delivery window', () => {
+    expect(branchEtaLabel('25-35 dk', true)).toBe('Teslimat: 25-35 dk');
+  });
+
+  it('falls back to the accepting flag', () => {
+    expect(branchEtaLabel(null, true)).toBe('Teslimat açık');
+    expect(branchEtaLabel(null, false)).toBe('Şu an kapalı');
   });
 });
 

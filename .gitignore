@@ -101,3 +101,17 @@ apps/storefront-web/.stitch-html/
 
 # Stray nested copy created by writing through a `\\wsl.localhost\...` path.
 /wsl.localhost/
+
+# Dated source snapshots (e.g. the mobile-rebuild baseline) are recovery copies
+# of this same tree. They would duplicate the whole repository inside itself and
+# grow with every new snapshot, so they stay local. `pg_dump` snapshots are
+# already excluded above.
+/backups/20*/
+
+# Python bytecode from the local tooling. Never source.
+/__pycache__/
+*.pyc
+
+# NTFS alternate data stream left behind when a file is written from Windows
+# onto the WSL mount (`menu_gorsel_indir.py:Zone.Identifier`).
+*:Zone.Identifier

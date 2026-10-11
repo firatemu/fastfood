@@ -6,10 +6,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "scheme": "fastfoodcustomer",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "newArchEnabled": true,
     "plugins": [
       "expo-router",
@@ -23,6 +20,12 @@
           "cameraPermission": "Masa kodunu taramak için kamera gerekir. Kod elle de yazılabilir.",
           "microphonePermission": false,
           "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Adresinizi haritada göstermek ve teslimat noktanızı belirlemek için konum izni gerekir."
         }
       ]
     ],
@@ -44,10 +47,7 @@
               "scheme": "fastfoodcustomer"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },

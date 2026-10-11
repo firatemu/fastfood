@@ -29,14 +29,6 @@ export const HERO_FLOAT_FIRE = {
   body: 'Kusursuz Maillard Reaksiyonu',
 } as const;
 
-export const BUILDER_BANNER = {
-  kicker: 'KENDİ KURALLARINI YAZ',
-  title: 'Kendi Özel Smash Burgerini Oluştur',
-  body: 'Köfte gramajından kömürde eritilen peynir tipine, taze brioche veya patates ekmeğinden 8 farklı ev yapımı şef sosuna kadar her detayı milimetrik tasarla.',
-  perks: ['130 g köfte', 'Ekstra cheddar', 'BBQ sos', 'Glütensiz ekmek'],
-  cta: 'Oluşturucuya Başla',
-} as const;
-
 export const FOOTER_PROMISES = [
   { icon: 'verified', text: '%100 Taze Kuru Dinlendirilmiş Dana Eti' },
   { icon: 'bakery_dining', text: 'Günlük Tereyağlı Brioche Ekmeği' },

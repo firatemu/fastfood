@@ -1,0 +1,2025 @@
+{
+ "_source": "Burger_Home_Menu.xlsx",
+ "_generatedBy": "apps/api/prisma/seed-menu-xlsx.ts tarafından okunur; scripts/regenerate-menu-json.py ile üretilir",
+ "groups": {
+  "İlave Köfte": {
+   "selectionMin": 0,
+   "selectionMax": 1
+  },
+  "Ekstra Peynir": {
+   "selectionMin": 0,
+   "selectionMax": 3
+  },
+  "Ekstra Malzeme": {
+   "selectionMin": 0,
+   "selectionMax": 6
+  },
+  "Soslar": {
+   "selectionMin": 0,
+   "selectionMax": 1
+  },
+  "Patates Boyutu": {
+   "selectionMin": 1,
+   "selectionMax": 1,
+   "required": [
+    {
+     "name": "Standart",
+     "priceMinor": 0
+    }
+   ]
+  }
+ },
+ "categories": [
+  {
+   "slug": "et-burgerler",
+   "name": "ET BURGERLER",
+   "displayOrder": 1
+  },
+  {
+   "slug": "tavuk-burgerler",
+   "name": "TAVUK BURGERLER",
+   "displayOrder": 2
+  },
+  {
+   "slug": "cocuk-burgerler",
+   "name": "ÇOCUK BURGERLER",
+   "displayOrder": 3
+  },
+  {
+   "slug": "hotdog",
+   "name": "HOTDOG",
+   "displayOrder": 4
+  },
+  {
+   "slug": "aperatifler",
+   "name": "APERATİFLER",
+   "displayOrder": 5
+  },
+  {
+   "slug": "soguk-icecekler",
+   "name": "SOĞUK İÇECEKLER",
+   "displayOrder": 6
+  },
+  {
+   "slug": "kampanyali-menuler",
+   "name": "KAMPANYALI MENÜLER",
+   "displayOrder": 7
+  }
+ ],
+ "products": [
+  {
+   "excelName": "1- HOME CLASSIC BURGER",
+   "name": "HOME CLASSIC BURGER",
+   "slug": "1-home-classic-burger",
+   "categorySlug": "et-burgerler",
+   "displayOrder": 1,
+   "description": "100% dana eti, akdeniz yeşillikleri, domates, turşu, home sos, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "100 gr",
+     "priceMinor": 42995
+    },
+    {
+     "label": "130 gr",
+     "priceMinor": 46495
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ],
+    "İlave Köfte": [
+     {
+      "name": "100 gr Dana Köfte",
+      "priceMinor": 11995
+     },
+     {
+      "name": "260 gr Dana Köfte",
+      "priceMinor": 12695
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "2- HOME CHEESE BURGER",
+   "name": "HOME CHEESE BURGER",
+   "slug": "2-home-cheese-burger",
+   "categorySlug": "et-burgerler",
+   "displayOrder": 2,
+   "description": "100% dana eti, çift cheddar peyniri, akdeniz yeşillikleri, domates, turşu, karamelize soğan, home sos, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "100 gr",
+     "priceMinor": 44495
+    },
+    {
+     "label": "130 gr",
+     "priceMinor": 47995
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ],
+    "İlave Köfte": [
+     {
+      "name": "100 gr Dana Köfte",
+      "priceMinor": 11995
+     },
+     {
+      "name": "260 gr Dana Köfte",
+      "priceMinor": 12695
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "3- HOME BACON BURGER",
+   "name": "HOME BACON BURGER",
+   "slug": "3-home-bacon-burger",
+   "categorySlug": "et-burgerler",
+   "displayOrder": 3,
+   "description": "100% dana eti, dana bacon, cheddar peyniri, karamelize soğan, turşu, home sos, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "100 gr",
+     "priceMinor": 45895
+    },
+    {
+     "label": "130 gr",
+     "priceMinor": 49395
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ],
+    "İlave Köfte": [
+     {
+      "name": "100 gr Dana Köfte",
+      "priceMinor": 11995
+     },
+     {
+      "name": "260 gr Dana Köfte",
+      "priceMinor": 12695
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "4- HOME MUSHROOM BURGER",
+   "name": "HOME MUSHROOM BURGER",
+   "slug": "4-home-mushroom-burger",
+   "categorySlug": "et-burgerler",
+   "displayOrder": 4,
+   "description": "100% dana eti, özel soslu mantar, cheddar peyniri, karamelize soğan, akdeniz yeşillikleri, domates, turşu, home sos, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "100 gr",
+     "priceMinor": 44895
+    },
+    {
+     "label": "130 gr",
+     "priceMinor": 48395
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ],
+    "İlave Köfte": [
+     {
+      "name": "100 gr Dana Köfte",
+      "priceMinor": 11995
+     },
+     {
+      "name": "260 gr Dana Köfte",
+      "priceMinor": 12695
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "5- HOME FIRE BURGER",
+   "name": "HOME FIRE BURGER",
+   "slug": "5-home-fire-burger",
+   "categorySlug": "et-burgerler",
+   "displayOrder": 5,
+   "description": "100% dana eti, mix biber, cheddar peyniri, acı sos, jalapeno biber, karamelize soğan, akdeniz yeşillikleri, domates, turşu, home sos, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "100 gr",
+     "priceMinor": 45795
+    },
+    {
+     "label": "130 gr",
+     "priceMinor": 49295
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ],
+    "İlave Köfte": [
+     {
+      "name": "100 gr Dana Köfte",
+      "priceMinor": 11995
+     },
+     {
+      "name": "260 gr Dana Köfte",
+      "priceMinor": 12695
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "6- HOME 3 SHOT BURGER",
+   "name": "HOME 3 SHOT BURGER",
+   "slug": "6-home-3-shot-burger",
+   "categorySlug": "et-burgerler",
+   "displayOrder": 6,
+   "description": "100% dana eti, [40gr X 3 adet dana eti], [classic, cheese, lui], özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "480.95 ₺",
+     "priceMinor": 48095
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "7- HOME DIET BURGER",
+   "name": "HOME DIET BURGER",
+   "slug": "7-home-diet-burger",
+   "categorySlug": "et-burgerler",
+   "displayOrder": 7,
+   "description": "100% dana eti, iceberg marul içerisinde(tercihe göre kepekli ekmek ile), taze nane, ızgara hellim peyniri, domates, mix biber, turşu, home sos, mevsim sebzeleri",
+   "prices": [
+    {
+     "label": "100 gr",
+     "priceMinor": 46495
+    },
+    {
+     "label": "130 gr",
+     "priceMinor": 49995
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ],
+    "İlave Köfte": [
+     {
+      "name": "100 gr Dana Köfte",
+      "priceMinor": 11995
+     },
+     {
+      "name": "260 gr Dana Köfte",
+      "priceMinor": 12695
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "9- HOME LUI BURGER",
+   "name": "HOME LUI BURGER",
+   "slug": "9-home-lui-burger",
+   "categorySlug": "et-burgerler",
+   "displayOrder": 8,
+   "description": "100% dana eti, çift cheddar peyniri, coleslaw salata, domates, turşu, kibrit patates, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "100 gr",
+     "priceMinor": 46295
+    },
+    {
+     "label": "130 gr",
+     "priceMinor": 49795
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ],
+    "İlave Köfte": [
+     {
+      "name": "100 gr Dana Köfte",
+      "priceMinor": 11995
+     },
+     {
+      "name": "260 gr Dana Köfte",
+      "priceMinor": 12695
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "11- HOME PEAK BURGER",
+   "name": "HOME PEAK BURGER",
+   "slug": "11-home-peak-burger",
+   "categorySlug": "et-burgerler",
+   "displayOrder": 9,
+   "description": "100% dana eti, trüff sos, cheddar peyniri, turşu, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "100 gr",
+     "priceMinor": 45795
+    },
+    {
+     "label": "130 gr",
+     "priceMinor": 49295
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ],
+    "İlave Köfte": [
+     {
+      "name": "100 gr Dana Köfte",
+      "priceMinor": 11995
+     },
+     {
+      "name": "260 gr Dana Köfte",
+      "priceMinor": 12695
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "12- HOME WARM BURGER",
+   "name": "HOME WARM BURGER",
+   "slug": "12-home-warm-burger",
+   "categorySlug": "et-burgerler",
+   "displayOrder": 10,
+   "description": "100% dana eti, crispy sos, cheddar peyniri, turşu, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "100 gr",
+     "priceMinor": 45795
+    },
+    {
+     "label": "130 gr",
+     "priceMinor": 49295
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ],
+    "İlave Köfte": [
+     {
+      "name": "100 gr Dana Köfte",
+      "priceMinor": 11995
+     },
+     {
+      "name": "260 gr Dana Köfte",
+      "priceMinor": 12695
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "HOME CRAFT BURGER",
+   "name": "HOME CRAFT BURGER",
+   "slug": "home-craft-burger",
+   "categorySlug": "et-burgerler",
+   "displayOrder": 11,
+   "description": "100% dana eti, home craft bbq sos, cheddar peyniri, turşu, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "100 gr",
+     "priceMinor": 45795
+    },
+    {
+     "label": "130 gr",
+     "priceMinor": 49295
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ],
+    "İlave Köfte": [
+     {
+      "name": "100 gr Dana Köfte",
+      "priceMinor": 11995
+     },
+     {
+      "name": "260 gr Dana Köfte",
+      "priceMinor": 12695
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "13- HOME CRISPY CHICKEN BURGER",
+   "name": "HOME CRISPY CHICKEN BURGER",
+   "slug": "13-home-crispy-chicken-burger",
+   "categorySlug": "tavuk-burgerler",
+   "displayOrder": 1,
+   "description": "100% çıtır tavuk fileto, cheddar peyniri, turşu, iceberg marul, mor lahana, home acı sos, (az acı %), özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "130 gr",
+     "priceMinor": 43395
+    },
+    {
+     "label": "200 gr",
+     "priceMinor": 47590
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "14- HOME TRUFFLE CHICKEN BURGER",
+   "name": "HOME TRUFFLE CHICKEN BURGER",
+   "slug": "14-home-truffle-chicken-burger",
+   "categorySlug": "tavuk-burgerler",
+   "displayOrder": 2,
+   "description": "100% çıtır tavuk fileto, cheddar peyniri, turşu, trüff sos, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "130 gr",
+     "priceMinor": 43895
+    },
+    {
+     "label": "200 gr",
+     "priceMinor": 48090
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "15- HOME CHICKEN BURGER",
+   "name": "HOME CHICKEN BURGER",
+   "slug": "15-home-chicken-burger",
+   "categorySlug": "tavuk-burgerler",
+   "displayOrder": 3,
+   "description": "100% tavuk fileto, mozzarella peyniri, mix biber, karamelize soğan, taze nane, akdeniz yeşillikleri, domates, turşu, home sos, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "130 gr",
+     "priceMinor": 42995
+    },
+    {
+     "label": "200 gr",
+     "priceMinor": 47190
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "HOME CRAFT CHICKEN BURGER",
+   "name": "HOME CRAFT CHICKEN BURGER",
+   "slug": "home-craft-chicken-burger",
+   "categorySlug": "tavuk-burgerler",
+   "displayOrder": 4,
+   "description": "100% çıtır tavuk fileto, cheddar peyniri, turşu, iceberg marul, home craft bbq sos, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "130 gr",
+     "priceMinor": 43895
+    },
+    {
+     "label": "200 gr",
+     "priceMinor": 48090
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Yumurta",
+      "priceMinor": 1645
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "17- HOME KIDS CHICKEN BURGER",
+   "name": "HOME KIDS CHICKEN BURGER",
+   "slug": "17-home-kids-chicken-burger",
+   "categorySlug": "cocuk-burgerler",
+   "displayOrder": 1,
+   "description": "100% çıtır tavuk fileto, iceberg marul, domates, turşu, home sos, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "65 gr",
+     "priceMinor": 38795
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "18- HOME KIDS CLASSIC BURGER",
+   "name": "HOME KIDS CLASSIC BURGER",
+   "slug": "18-home-kids-classic-burger",
+   "categorySlug": "cocuk-burgerler",
+   "displayOrder": 2,
+   "description": "100% dana eti, akdeniz yeşillikleri, domates, turşu, home sos, özel burger ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "65 gr",
+     "priceMinor": 40595
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "1- HOME CLASSIC HOTDOG",
+   "name": "HOME CLASSIC HOTDOG",
+   "slug": "1-home-classic-hotdog",
+   "categorySlug": "hotdog",
+   "displayOrder": 1,
+   "description": "100% dana sosis, turşu, home sos, hardal, özel sandviç ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "395.95 ₺",
+     "priceMinor": 39595
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "HOME SPICY HOTDOG",
+   "name": "HOME SPICY HOTDOG",
+   "slug": "home-spicy-hotdog",
+   "categorySlug": "hotdog",
+   "displayOrder": 2,
+   "description": "100% dana sosis, çift cheddar peyniri, turşu, home acı sos (az acı%), özel sandviç ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "429.95 ₺",
+     "priceMinor": 42995
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "HOME CURRY HOTDOG",
+   "name": "HOME CURRY HOTDOG",
+   "slug": "home-curry-hotdog",
+   "categorySlug": "hotdog",
+   "displayOrder": 3,
+   "description": "100% dana sosis, çift cheddar peyniri, turşu, curry sos, yeşil soğan, özel sandviç ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "419.95 ₺",
+     "priceMinor": 41995
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "HOME CRAFT HOTDOG",
+   "name": "HOME CRAFT HOTDOG",
+   "slug": "home-craft-hotdog",
+   "categorySlug": "hotdog",
+   "displayOrder": 4,
+   "description": "100% dana sosis, çift cheddar peyniri, turşu, home craft bbq sos, kibrit patates, özel sandviç ekmeği, patates kızartması",
+   "prices": [
+    {
+     "label": "100 gr",
+     "priceMinor": 42995
+    }
+   ],
+   "modifierGroups": {
+    "Ekstra Malzeme": [
+     {
+      "name": "Bacon",
+      "priceMinor": 3295
+     },
+     {
+      "name": "Coleslaw Salata",
+      "priceMinor": 2145
+     },
+     {
+      "name": "Kibrit Patates",
+      "priceMinor": 1695
+     },
+     {
+      "name": "Kıtır Soğan",
+      "priceMinor": 1845
+     },
+     {
+      "name": "Soslu Mantar",
+      "priceMinor": 2045
+     }
+    ],
+    "Ekstra Peynir": [
+     {
+      "name": "Cheddar Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Hellim Peynir",
+      "priceMinor": 1945
+     },
+     {
+      "name": "Mozzarella Peynir",
+      "priceMinor": 1945
+     }
+    ],
+    "Patates Boyutu": [
+     {
+      "name": "Büyük Boy Patates",
+      "priceMinor": 2345
+     }
+    ],
+    "Soslar": [
+     {
+      "name": "Cheddar Sos",
+      "priceMinor": 4995
+     },
+     {
+      "name": "Crispy Sos",
+      "priceMinor": 2045
+     },
+     {
+      "name": "Trüf Sos",
+      "priceMinor": 2295
+     }
+    ]
+   }
+  },
+  {
+   "excelName": "PATATES KIZARTMASI",
+   "name": "PATATES KIZARTMASI",
+   "slug": "patates-kizartmasi",
+   "categorySlug": "aperatifler",
+   "displayOrder": 1,
+   "description": null,
+   "prices": [
+    {
+     "label": "165.95 ₺",
+     "priceMinor": 16595
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "CHEESE FRIES",
+   "name": "CHEESE FRIES",
+   "slug": "cheese-fries",
+   "categorySlug": "aperatifler",
+   "displayOrder": 2,
+   "description": null,
+   "prices": [
+    {
+     "label": "235.95 ₺",
+     "priceMinor": 23595
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "MIX APERATİF TABAĞI",
+   "name": "MIX APERATİF TABAĞI",
+   "slug": "mix-aperatif-tabagi",
+   "categorySlug": "aperatifler",
+   "displayOrder": 3,
+   "description": "2 mozzarella sticks 4 chicken tenders 4 soğan halkası 4 nugget 4 popcorn",
+   "prices": [
+    {
+     "label": "253.95 ₺",
+     "priceMinor": 25395
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "CHICKEN NUGGETS",
+   "name": "CHICKEN NUGGETS",
+   "slug": "chicken-nuggets",
+   "categorySlug": "aperatifler",
+   "displayOrder": 4,
+   "description": null,
+   "prices": [
+    {
+     "label": "174.95 ₺",
+     "priceMinor": 17495
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "MOZZARELLA STICKS",
+   "name": "MOZZARELLA STICKS",
+   "slug": "mozzarella-sticks",
+   "categorySlug": "aperatifler",
+   "displayOrder": 5,
+   "description": null,
+   "prices": [
+    {
+     "label": "211.95 ₺",
+     "priceMinor": 21195
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "SOĞAN HALKASI",
+   "name": "SOĞAN HALKASI",
+   "slug": "sogan-halkasi",
+   "categorySlug": "aperatifler",
+   "displayOrder": 6,
+   "description": null,
+   "prices": [
+    {
+     "label": "174.95 ₺",
+     "priceMinor": 17495
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "CHICKEN POPCORN",
+   "name": "CHICKEN POPCORN",
+   "slug": "chicken-popcorn",
+   "categorySlug": "aperatifler",
+   "displayOrder": 7,
+   "description": null,
+   "prices": [
+    {
+     "label": "183.95 ₺",
+     "priceMinor": 18395
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "BUFFALO CHICKEN TENDERS",
+   "name": "BUFFALO CHICKEN TENDERS",
+   "slug": "buffalo-chicken-tenders",
+   "categorySlug": "aperatifler",
+   "displayOrder": 8,
+   "description": null,
+   "prices": [
+    {
+     "label": "245.95 ₺",
+     "priceMinor": 24595
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "CHICKEN TENDERS",
+   "name": "CHICKEN TENDERS",
+   "slug": "chicken-tenders",
+   "categorySlug": "aperatifler",
+   "displayOrder": 9,
+   "description": null,
+   "prices": [
+    {
+     "label": "215.95 ₺",
+     "priceMinor": 21595
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "LİMİTSİZ COLA",
+   "name": "LİMİTSİZ COLA",
+   "slug": "limitsiz-cola",
+   "categorySlug": "soguk-icecekler",
+   "displayOrder": 1,
+   "description": null,
+   "prices": [
+    {
+     "label": "84.95 ₺",
+     "priceMinor": 8495
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "COCA COLA",
+   "name": "COCA COLA",
+   "slug": "coca-cola",
+   "categorySlug": "soguk-icecekler",
+   "displayOrder": 2,
+   "description": null,
+   "prices": [
+    {
+     "label": "84.95 ₺",
+     "priceMinor": 8495
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "COCA COLA ZERO",
+   "name": "COCA COLA ZERO",
+   "slug": "coca-cola-zero",
+   "categorySlug": "soguk-icecekler",
+   "displayOrder": 3,
+   "description": null,
+   "prices": [
+    {
+     "label": "84.95 ₺",
+     "priceMinor": 8495
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "FANTA",
+   "name": "FANTA",
+   "slug": "fanta",
+   "categorySlug": "soguk-icecekler",
+   "displayOrder": 4,
+   "description": null,
+   "prices": [
+    {
+     "label": "84.95 ₺",
+     "priceMinor": 8495
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "SPRITE",
+   "name": "SPRITE",
+   "slug": "sprite",
+   "categorySlug": "soguk-icecekler",
+   "displayOrder": 5,
+   "description": null,
+   "prices": [
+    {
+     "label": "84.95 ₺",
+     "priceMinor": 8495
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "FUSETEA (Şeftali,Limon,Mango,Karpuz)",
+   "name": "FUSETEA (Şeftali,Limon,Mango,Karpuz)",
+   "slug": "fusetea-seftali-limon-mango-karpuz",
+   "categorySlug": "soguk-icecekler",
+   "displayOrder": 6,
+   "description": null,
+   "prices": [
+    {
+     "label": "84.95 ₺",
+     "priceMinor": 8495
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "SODA",
+   "name": "SODA",
+   "slug": "soda",
+   "categorySlug": "soguk-icecekler",
+   "displayOrder": 7,
+   "description": null,
+   "prices": [
+    {
+     "label": "38.95 ₺",
+     "priceMinor": 3895
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "MEYVELİ SODA (Limon,Elma)",
+   "name": "MEYVELİ SODA (Limon,Elma)",
+   "slug": "meyveli-soda-limon-elma",
+   "categorySlug": "soguk-icecekler",
+   "displayOrder": 8,
+   "description": null,
+   "prices": [
+    {
+     "label": "38.95 ₺",
+     "priceMinor": 3895
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "AYRAN",
+   "name": "AYRAN",
+   "slug": "ayran",
+   "categorySlug": "soguk-icecekler",
+   "displayOrder": 9,
+   "description": null,
+   "prices": [
+    {
+     "label": "55.95 ₺",
+     "priceMinor": 5595
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "SU",
+   "name": "SU",
+   "slug": "su",
+   "categorySlug": "soguk-icecekler",
+   "displayOrder": 10,
+   "description": null,
+   "prices": [
+    {
+     "label": "28.95 ₺",
+     "priceMinor": 2895
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "HOME CLASSIC BURGER MENÜ",
+   "name": "HOME CLASSIC BURGER MENÜ",
+   "slug": "home-classic-burger-menu",
+   "categorySlug": "kampanyali-menuler",
+   "displayOrder": 1,
+   "description": "1 ADET 100 GR HOME CLASSIC BURGER + PATATES KIZARTMASI + 1 ADET POSMİX İÇECEK",
+   "prices": [
+    {
+     "label": "465.95 ₺",
+     "priceMinor": 46595
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "HOME CHICKEN BURGER MENÜ",
+   "name": "HOME CHICKEN BURGER MENÜ",
+   "slug": "home-chicken-burger-menu",
+   "categorySlug": "kampanyali-menuler",
+   "displayOrder": 2,
+   "description": "1 ADET HOME CHICKEN BURGER + PATATES KIZARTMASI + 1 ADET POSMİX İÇECEK",
+   "prices": [
+    {
+     "label": "445.95 ₺",
+     "priceMinor": 44595
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "HOME SPICY HOTDOG MENÜ",
+   "name": "HOME SPICY HOTDOG MENÜ",
+   "slug": "home-spicy-hotdog-menu",
+   "categorySlug": "kampanyali-menuler",
+   "displayOrder": 3,
+   "description": "1 ADET HOME SPICY HOTDOG + PATATES KIZARTMASI + 1 ADET POSMİX İÇECEK",
+   "prices": [
+    {
+     "label": "465.95 ₺",
+     "priceMinor": 46595
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "2'Lİ HOME CRISPY CHICKEN MENÜ",
+   "name": "2'Lİ HOME CRISPY CHICKEN MENÜ",
+   "slug": "2li-home-crispy-chicken-menu",
+   "categorySlug": "kampanyali-menuler",
+   "displayOrder": 4,
+   "description": "2 ADET HOME CRISPY CHICKEN BURGER + 2 ADET PATATES KIZARTMASI + 2 ADET POSMİX İÇECEK",
+   "prices": [
+    {
+     "label": "919.95 ₺",
+     "priceMinor": 91995
+    }
+   ],
+   "modifierGroups": {}
+  },
+  {
+   "excelName": "2'Lİ HOME WARM MENÜ",
+   "name": "2'Lİ HOME WARM MENÜ",
+   "slug": "2li-home-warm-menu",
+   "categorySlug": "kampanyali-menuler",
+   "displayOrder": 5,
+   "description": "2 ADET 100 GR HOME WARM BURGER + 2 ADET PATATES KIZARTMASI + 2 ADET POSMİX İÇECEK",
+   "prices": [
+    {
+     "label": "991.95 ₺",
+     "priceMinor": 99195
+    }
+   ],
+   "modifierGroups": {}
+  }
+ ]
+}

@@ -10,52 +10,24 @@ import { fetchCustomerProfile, fetchLoyaltyPoints, patchCustomerProfile } from '
 import { formatApiError } from '../../lib/api';
 import { logoutCustomer } from '../../lib/auth';
 import { authErrorMessage } from '../../lib/auth-error';
+import { formatTryMinor } from '../../lib/money';
+import { fetchMyOrders } from '../../lib/orders';
 import { profileFormToPatch, profileToForm, type ProfileForm } from '../../lib/profile-map';
-import type { CustomerProfile } from '../../lib/schemas';
+import type { CustomerOrder, CustomerProfile } from '../../lib/schemas';
 import { restoreSession } from '../../lib/session';
 import { useAuthBootstrap, useCustomerSession } from '../../lib/use-session';
 import { colors, fonts, minTouch, radius, space } from '../../theme';
 
 type AccountIcon = ComponentProps<typeof MaterialCommunityIcons>['name'];
 
-function AccountDestination(props: {
-  icon: AccountIcon;
-  title: string;
-  subtitle?: string;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={props.onPress}
-      style={({ pressed }) => [styles.destination, pressed && styles.destinationPressed]}
-    >
-      <View style={styles.destinationIcon}>
-        <MaterialCommunityIcons name={props.icon} size={20} color={colors.mustard} />
-      </View>
-      <View style={styles.destinationCopy}>
-        <Text style={styles.destinationTitle}>{props.title}</Text>
-        {props.subtitle ? <Text style={styles.destinationSubtitle}>{props.subtitle}</Text> : null}
-      </View>
-      <MaterialCommunityIcons name="chevron-right" size={21} color={colors.outline} />
-    </Pressable>
-  );
-}
-
-function AccountShortcut(props: { icon: AccountIcon; label: string; onPress: () => void }) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={props.onPress}
-      style={({ pressed }) => [styles.shortcut, pressed && styles.destinationPressed]}
-    >
-      <MaterialCommunityIcons name={props.icon} size={22} color={colors.mustard} />
-      <Text style={styles.shortcutLabel}>{props.label}</Text>
-      <MaterialCommunityIcons name="arrow-top-right" size={16} color={colors.ash} />
-    </Pressable>
-  );
-}
-
+/**
+ * Customer account hub.
+ *
+ * Mirrors the Web `/account` information architecture — identity, then a
+ * status strip that says what still needs attention, then the one thing people
+ * edit most often, then membership, then the destinations. Implemented natively
+ * in `StyleSheet` against `theme.ts`; no Web DOM or CSS is shared (ADR-008).
+ */
 export default function AccountRoute() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -63,6 +35,8 @@ export default function AccountRoute() {
   const bootstrap = useAuthBootstrap();
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [points, setPoints] = useState<string | null>(null);
+  const [orders, setOrders] = useState<CustomerOrder[]>([]);
+  const [orderCount, setOrderCount] = useState(0);
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -74,6 +48,8 @@ export default function AccountRoute() {
     if (!session) {
       setProfile(null);
       setPoints(null);
+      setOrders([]);
+      setOrderCount(0);
       setStatus('idle');
       return;
     }
@@ -89,6 +65,17 @@ export default function AccountRoute() {
           setPoints(await fetchLoyaltyPoints());
         } catch {
           setPoints(null);
+        }
+        try {
+          const rows = await fetchMyOrders();
+          // Keep the total for the status tile; the list only renders the
+          // first few, so slicing first and counting the slice would report
+          // "3 orders" to anyone who actually has more.
+          setOrderCount(rows.length);
+          setOrders(rows.slice(0, 3));
+        } catch {
+          setOrders([]);
+          setOrderCount(0);
         }
       } catch (err) {
         setError(formatApiError(err));
@@ -247,6 +234,9 @@ export default function AccountRoute() {
   }
 
   const name = profile.displayName?.trim() || 'BURGER HOME üyesi';
+  const emailVerified = profile.emailVerified === true;
+  const phoneVerified = profile.phoneVerified === true;
+  const recent = orders.slice(0, 3);
 
   return (
     <ScrollView
@@ -257,65 +247,37 @@ export default function AccountRoute() {
     >
       <View style={styles.pageHeading}>
         <Text style={styles.headline}>Hesabın</Text>
-        <Text style={styles.body}>Profilini, siparişlerini ve üyelik avantajlarını yönet.</Text>
+        <Text style={styles.body}>
+          Profilini, siparişlerini ve üyelik avantajlarını yönet.
+        </Text>
       </View>
 
-      <View style={styles.memberPanel}>
-        <View style={styles.memberTop}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarInitial}>{name.charAt(0).toLocaleUpperCase('tr-TR')}</Text>
-          </View>
-          <View style={styles.memberCopy}>
-            <Text style={styles.name} numberOfLines={1}>
-              {name}
-            </Text>
-            <Text style={styles.meta} numberOfLines={1}>
-              {profile.email ?? profile.phone ?? 'İletişim bilgisi ekle'}
-            </Text>
-          </View>
-          <View style={styles.pointsBlock}>
-            <Text style={styles.pointsValue}>{points ?? '—'}</Text>
-            <Text style={styles.pointsLabel}>puan</Text>
-          </View>
-        </View>
-        <View style={styles.memberFooter}>
-          <View style={styles.clubMark}>
-            <MaterialCommunityIcons name="fire" size={16} color={colors.onMustard} />
-          </View>
-          <View style={styles.clubCopy}>
-            <Text style={styles.clubLabel}>BURGER HOME CLUB</Text>
-            <Text style={styles.clubValue}>Ayrıcalıkların seni bekliyor</Text>
-          </View>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => router.push('/account/club')}
-            hitSlop={8}
-            style={styles.clubLink}
-          >
-            <MaterialCommunityIcons name="arrow-top-right" size={19} color={colors.mustard} />
-          </Pressable>
-        </View>
-      </View>
-
-      <View style={styles.shortcuts}>
-        <AccountShortcut
-          icon="map-marker-outline"
-          label="Adreslerim"
-          onPress={() => router.push('/account/addresses')}
+      {/* Status strip — mirrors the Web signature band. */}
+      <View style={styles.statGrid} accessibilityLabel="Hesap durumu">
+        <StatTile label="Sipariş" value={String(orderCount)} onPress={() => router.push('/(tabs)/orders')} />
+        <StatTile
+          label="E-posta"
+          value={profile.email ? (emailVerified ? 'Doğrulandı' : 'Doğrulanmadı') : 'Eklenmedi'}
+          attention={Boolean(profile.email) && !emailVerified}
+          onPress={() => router.push('/account/security')}
         />
-        <AccountShortcut
-          icon="receipt-text-outline"
-          label="Siparişler"
-          onPress={() => router.push('/(tabs)/orders')}
+        <StatTile
+          label="Telefon"
+          value={profile.phone ? (phoneVerified ? 'Doğrulandı' : 'Doğrulanmadı') : 'Eklenmedi'}
+          attention={!profile.phone || !phoneVerified}
+          onPress={() => router.push('/account/security')}
+        />
+        <StatTile
+          label="Puan"
+          value={points ?? '—'}
+          onPress={() => router.push('/account/club')}
         />
       </View>
 
+      {/* Primary region: the thing people edit most often. */}
       {editing ? (
         <View style={styles.profilePanel}>
-          <View style={styles.groupHeading}>
-            <Text style={styles.section}>Kişisel bilgiler</Text>
-            <Text style={styles.groupHint}>Hesap bilgilerini düzenle</Text>
-          </View>
+          <Text style={styles.section}>Kişisel bilgiler</Text>
           <FormField
             label="Görünen ad"
             value={form.displayName}
@@ -337,42 +299,135 @@ export default function AccountRoute() {
           <SecondaryButton label="Vazgeç" onPress={() => setEditing(false)} />
         </View>
       ) : (
-        <View style={styles.menuGroup}>
-          <View style={styles.groupHeading}>
-            <Text style={styles.section}>Hesap tercihleri</Text>
-            <Text style={styles.groupHint}>Kişisel bilgilerin ve güvenliğin</Text>
-          </View>
-          <View style={styles.destinationList}>
-            <AccountDestination
-              icon="account-cog-outline"
-              title="Kişisel bilgiler"
-              subtitle={[profile.phone, profile.email].filter(Boolean).join(' · ') || 'Eksik bilgi'}
-              onPress={() => setEditing(true)}
-            />
-            <AccountDestination
-              icon="cog-outline"
-              title="Bildirim ve iletişim tercihleri"
-              onPress={() => router.push('/account/settings')}
-            />
-            <AccountDestination
-              icon="shield-lock-outline"
-              title="Güvenlik ve şifre"
-              onPress={() => router.push('/account/security')}
-            />
-            <View style={styles.paymentNote}>
-              <MaterialCommunityIcons
-                name="credit-card-lock-outline"
-                size={20}
-                color={colors.ash}
-              />
-              <Text style={styles.paymentText}>Kart bilgileri bu uygulamada saklanmaz.</Text>
+        <View style={styles.profilePanel}>
+          <View style={styles.identityRow}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarInitial}>{name.charAt(0).toLocaleUpperCase('tr-TR')}</Text>
+            </View>
+            <View style={styles.memberCopy}>
+              <Text style={styles.name} numberOfLines={1}>
+                {name}
+              </Text>
+              <Text style={styles.meta} numberOfLines={1}>
+                {profile.email ?? profile.phone ?? 'İletişim bilgisi ekle'}
+              </Text>
             </View>
           </View>
+          <View style={styles.readOnlyRow}>
+            <Text style={styles.meta}>Telefon</Text>
+            <View style={styles.readOnlyLine}>
+              <Text style={styles.body} numberOfLines={1}>
+                {profile.phone ?? 'Telefon eklenmemiş'}
+              </Text>
+              <View style={styles.dotRow}>
+                <View
+                  style={[
+                    styles.dot,
+                    phoneVerified ? styles.dotOn : styles.dotOff,
+                  ]}
+                />
+                <Text style={phoneVerified ? styles.metaOn : styles.metaWarn}>
+                  {profile.phone ? (phoneVerified ? 'Doğrulandı' : 'Doğrulanmadı') : 'Eklenmedi'}
+                </Text>
+              </View>
+            </View>
+          </View>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <MustardButton label="Bilgileri düzenle" onPress={() => setEditing(true)} />
         </View>
       )}
 
+      <View style={styles.ordersPanel}>
+        <View style={styles.panelHead}>
+          <Text style={styles.section}>Son siparişler</Text>
+          <Pressable
+            accessibilityRole="button"
+            hitSlop={8}
+            onPress={() => router.push('/(tabs)/orders')}
+          >
+            <Text style={styles.link}>Tümünü gör</Text>
+          </Pressable>
+        </View>
+        {recent.length === 0 ? (
+          <View style={styles.emptyOrders}>
+            <MaterialCommunityIcons name="receipt-text-outline" size={22} color={colors.mustard} />
+            <Text style={styles.body}>Henüz sipariş yok.</Text>
+            <Pressable accessibilityRole="button" hitSlop={8} onPress={() => router.push('/(tabs)')}>
+              <Text style={styles.link}>Menüye git</Text>
+            </Pressable>
+          </View>
+        ) : (
+          recent.map((order) => (
+            <Pressable
+              key={order.id}
+              accessibilityRole="button"
+              style={styles.orderRow}
+              onPress={() => router.push(`/orders/${order.id}`)}
+            >
+              <View style={styles.copy}>
+                <Text style={styles.label} numberOfLines={1}>
+                  #{order.displayNumber ?? order.id.slice(0, 8)}
+                </Text>
+                <Text style={styles.meta} numberOfLines={1}>
+                  {order.statusLabel ?? order.status}
+                </Text>
+              </View>
+              <Text style={styles.amount}>
+                {order.finalPayableMinor
+                  ? formatTryMinor(order.finalPayableMinor, order.currency ?? 'TRY')
+                  : '—'}
+              </Text>
+            </Pressable>
+          ))
+        )}
+      </View>
+
+      {/* Membership band — mirrors the Web wide band. */}
+      <Pressable
+        accessibilityRole="button"
+        style={styles.clubBand}
+        onPress={() => router.push('/account/club')}
+      >
+        <View style={styles.clubMark}>
+          <MaterialCommunityIcons name="fire" size={20} color={colors.onMustard} />
+        </View>
+        <View style={styles.copy}>
+          <Text style={styles.meta}>BURGER HOME CLUB</Text>
+          <Text style={styles.clubTitle}>Ayrıcalıklarını gör</Text>
+        </View>
+        <View style={styles.clubPoints}>
+          <Text style={styles.clubPointsValue}>{points ?? '—'}</Text>
+          <Text style={styles.meta}>puan</Text>
+        </View>
+      </Pressable>
+
       <View style={styles.menuGroup}>
-        <View style={styles.groupHeading}>
+        <View style={styles.panelHead}>
+          <Text style={styles.section}>Hesap</Text>
+          <Text style={styles.groupHint}>Kişisel bilgilerin ve güvenliğin</Text>
+        </View>
+        <View style={styles.destinationList}>
+          <AccountDestination
+            icon="account-cog-outline"
+            title="Kişisel bilgiler"
+            subtitle={[profile.phone, profile.email].filter(Boolean).join(' · ') || 'Eksik bilgi'}
+            onPress={() => setEditing(true)}
+          />
+          <AccountDestination
+            icon="cog-outline"
+            title="Bildirim ve iletişim tercihleri"
+            onPress={() => router.push('/account/settings')}
+          />
+          <AccountDestination
+            icon="shield-lock-outline"
+            title="Güvenlik ve şifre"
+            onPress={() => router.push('/account/security')}
+          />
+        </View>
+      </View>
+
+      <View style={styles.menuGroup}>
+        <View style={styles.panelHead}>
           <Text style={styles.section}>Ayrıcalıklar ve destek</Text>
           <Text style={styles.groupHint}>Üyelik, keşif ve yardım</Text>
         </View>
@@ -412,40 +467,11 @@ export default function AccountRoute() {
         </View>
       </View>
 
-      <View style={styles.menuGroup}>
-        <View style={styles.groupHeading}>
-          <Text style={styles.section}>Burger Home</Text>
-          <Text style={styles.groupHint}>Şubeler ve bilgilendirme</Text>
-        </View>
-        <View style={styles.destinationList}>
-          <AccountDestination
-            icon="storefront-outline"
-            title="Şubeler & hikâye"
-            onPress={() => router.push('/branches')}
-          />
-          <AccountDestination
-            icon="tag-outline"
-            title="Fırsatlar"
-            onPress={() => router.push('/deals')}
-          />
-          <AccountDestination
-            icon="file-document-outline"
-            title="Yasal bilgiler"
-            onPress={() => router.push('/legal')}
-          />
-          <AccountDestination
-            icon="information-outline"
-            title="Alerjen rehberi"
-            onPress={() => router.push('/legal/allergens')}
-          />
-        </View>
-      </View>
-
       <Pressable
         accessibilityRole="button"
         disabled={loggingOut}
         onPress={() => void onLogout()}
-        style={({ pressed }) => [styles.logout, pressed && styles.destinationPressed]}
+        style={styles.logout}
       >
         <MaterialCommunityIcons name="logout-variant" size={19} color={colors.error} />
         <Text style={styles.logoutLabel}>{loggingOut ? 'Çıkış yapılıyor…' : 'Çıkış yap'}</Text>
@@ -454,17 +480,184 @@ export default function AccountRoute() {
   );
 }
 
+function StatTile(props: {
+  label: string;
+  value: string;
+  attention?: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={props.onPress}
+      style={({ pressed }) => [
+        styles.statTile,
+        props.attention ? styles.statTileAttention : null,
+        pressed ? styles.statTilePressed : null,
+      ]}
+    >
+      <Text style={styles.statLabel}>{props.label}</Text>
+      <Text
+        style={props.attention ? styles.statValueAttention : styles.statValue}
+        numberOfLines={1}
+      >
+        {props.value}
+      </Text>
+      {props.attention ? <Text style={styles.statAction}>Tamamla →</Text> : null}
+    </Pressable>
+  );
+}
+
+function AccountDestination(props: {
+  icon: AccountIcon;
+  title: string;
+  subtitle?: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={props.onPress}
+      style={({ pressed }) => [styles.destination, pressed && styles.destinationPressed]}
+    >
+      <View style={styles.destinationIcon}>
+        <MaterialCommunityIcons name={props.icon} size={20} color={colors.mustard} />
+      </View>
+      <View style={styles.destinationCopy}>
+        <Text style={styles.destinationTitle}>{props.title}</Text>
+        {props.subtitle ? <Text style={styles.destinationSubtitle}>{props.subtitle}</Text> : null}
+      </View>
+      <MaterialCommunityIcons name="chevron-right" size={21} color={colors.outline} />
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.canvas, justifyContent: 'center' },
   scroll: { paddingHorizontal: space.gutter, gap: space.lg },
   pageHeading: { gap: 5 },
   brand: { fontFamily: fonts.anton, fontSize: 27, color: colors.mustard, letterSpacing: 0.4 },
-  headline: { fontFamily: fonts.anton, fontSize: 32, lineHeight: 38, color: colors.onSurface },
+  headline: { fontFamily: fonts.jakartaBold, fontSize: 20, lineHeight: 28, color: colors.onSurface },
   body: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.ash, lineHeight: 20 },
+
+  statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  statTile: {
+    flexGrow: 1,
+    flexBasis: '46%',
+    gap: 4,
+    padding: space.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+  },
+  statTileAttention: { borderColor: colors.warnBorder },
+  statTilePressed: { backgroundColor: colors.surfaceHigh },
+  statLabel: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 10,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    color: colors.ash,
+  },
+  statValue: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 18,
+    color: colors.onSurface,
+  },
+  statValueAttention: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 18,
+    color: colors.mustard,
+  },
+  statAction: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.mustard },
+
+  profilePanel: {
+    gap: space.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    backgroundColor: colors.surface,
+    padding: space.md,
+  },
+  identityRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  avatar: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: colors.mustard,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarInitial: { fontFamily: fonts.anton, fontSize: 22, color: colors.onMustard },
+  memberCopy: { flex: 1, minWidth: 0, gap: 3 },
+  name: { fontFamily: fonts.jakartaBold, fontSize: 16, color: colors.onSurface },
+  meta: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },
+  metaOn: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },
+  metaWarn: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.warn },
+  readOnlyRow: {
+    gap: 4,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceLow,
+    padding: space.md,
+  },
+  readOnlyLine: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  dotRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  dot: { width: 6, height: 6, borderRadius: 3 },
+  dotOn: { backgroundColor: colors.info },
+  dotOff: { borderWidth: 1, borderColor: colors.outline },
+
+  ordersPanel: {
+    gap: space.sm,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    backgroundColor: colors.surface,
+    padding: space.md,
+  },
+  panelHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
+  emptyOrders: { gap: 8, paddingVertical: space.md },
+  orderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    minHeight: minTouch,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.outlineVariant,
+  },
+  copy: { flex: 1, minWidth: 0, gap: 3 },
+  label: { fontFamily: fonts.jakartaSemibold, fontSize: 14, color: colors.onSurface },
+  amount: { fontFamily: fonts.jakartaBold, fontSize: 14, color: colors.onSurface },
+  link: { fontFamily: fonts.jakartaBold, fontSize: 12, color: colors.mustard },
+
+  clubBand: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    backgroundColor: colors.surface,
+    padding: space.md,
+  },
+  clubMark: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: colors.mustard,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clubTitle: { fontFamily: fonts.jakartaBold, fontSize: 15, color: colors.onSurface },
+  clubPoints: { alignItems: 'flex-end' },
+  clubPointsValue: { fontFamily: fonts.jakartaBold, fontSize: 17, color: colors.mustard },
+
   guestPanel: {
-    borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.hairline,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
     backgroundColor: colors.surface,
     padding: space.lg,
     gap: space.md,
@@ -479,101 +672,15 @@ const styles = StyleSheet.create({
   },
   guestCopy: { gap: 4 },
   guestTitle: { fontFamily: fonts.jakartaBold, fontSize: 16, color: colors.onSurface },
-  memberPanel: {
-    borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.hairline,
-    backgroundColor: colors.surface,
-    padding: space.md,
-    gap: space.md,
-  },
-  memberTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: colors.mustard,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarInitial: { fontFamily: fonts.anton, fontSize: 23, color: colors.onMustard },
-  memberCopy: { flex: 1, minWidth: 0, gap: 4 },
-  name: { fontFamily: fonts.jakartaBold, fontSize: 16, color: colors.onSurface },
-  meta: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },
-  pointsBlock: {
-    minWidth: 58,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceHigh,
-    paddingHorizontal: 8,
-    paddingVertical: 7,
-  },
-  pointsValue: {
-    fontFamily: fonts.jakartaBold,
-    fontSize: 16,
-    color: colors.mustard,
-    fontVariant: ['tabular-nums'],
-  },
-  pointsLabel: { fontFamily: fonts.jakarta, fontSize: 10, color: colors.ash },
-  memberFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.hairline,
-    paddingTop: 12,
-  },
-  clubMark: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: colors.mustard,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  clubCopy: { flex: 1, gap: 2 },
-  clubLabel: {
-    fontFamily: fonts.jakartaBold,
-    fontSize: 10,
-    color: colors.onSurfaceVariant,
-    letterSpacing: 0.4,
-  },
-  clubValue: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },
-  clubLink: { width: minTouch, height: minTouch, alignItems: 'center', justifyContent: 'center' },
-  shortcuts: { flexDirection: 'row', gap: 10 },
-  shortcut: {
-    flex: 1,
-    minHeight: 68,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.hairline,
-    backgroundColor: colors.surfaceLow,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  shortcutLabel: {
-    flex: 1,
-    fontFamily: fonts.jakartaSemibold,
-    fontSize: 12,
-    color: colors.onSurface,
-  },
+
   menuGroup: { gap: 10 },
-  groupHeading: { gap: 3 },
-  section: {
-    fontFamily: fonts.jakartaBold,
-    fontSize: 16,
-    color: colors.onSurface,
-  },
+  section: { fontFamily: fonts.jakartaBold, fontSize: 16, color: colors.onSurface },
   groupHint: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },
   destinationList: {
     overflow: 'hidden',
-    borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.hairline,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
     backgroundColor: colors.surface,
   },
   destination: {
@@ -581,8 +688,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.hairline,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.outlineVariant,
     paddingHorizontal: space.md,
     paddingVertical: 10,
   },
@@ -603,29 +710,7 @@ const styles = StyleSheet.create({
     lineHeight: 17,
     color: colors.ash,
   },
-  profilePanel: {
-    gap: space.md,
-    borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.hairline,
-    backgroundColor: colors.surface,
-    padding: space.md,
-  },
-  paymentNote: {
-    minHeight: 48,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: space.md,
-    paddingVertical: 12,
-  },
-  paymentText: { flex: 1, fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },
-  error: {
-    fontFamily: fonts.jakarta,
-    fontSize: 13,
-    color: colors.error,
-    paddingHorizontal: space.md,
-  },
+  error: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.error },
   logout: {
     minHeight: minTouch,
     flexDirection: 'row',
@@ -634,7 +719,7 @@ const styles = StyleSheet.create({
     gap: 9,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.hairline,
+    borderColor: colors.outlineVariant,
     backgroundColor: colors.surfaceLow,
   },
   logoutLabel: { fontFamily: fonts.jakartaBold, fontSize: 13, color: colors.error },

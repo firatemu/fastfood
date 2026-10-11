@@ -156,57 +156,36 @@ export class DeliveryService {
     };
   }
 
+  /**
+   * Seeds the in-memory roster used when the API runs without a database.
+   *
+   * This is *not* how couriers are created: provisioning a real account —
+   * username, password and the branch roster — belongs to
+   * `CourierAdminService`, which owns the `users` / `staff_profiles` /
+   * `courier_profiles` / `courier_branches` write. Reaching the database
+   * from here would produce a courier that cannot sign in.
+   */
   async registerCourier(input: {
     userId: string;
     displayName: string;
     phone?: string;
     maxActiveDeliveries?: number;
   }): Promise<CourierProfileDto> {
-    if (!this.prisma) {
-      const existing = this.#byUser.get(input.userId);
-      if (existing) return this.getCourier(existing);
-      const id = this.#newId('c');
-      const profile: CourierProfileDto = {
-        id,
-        userId: input.userId,
-        displayName: input.displayName,
-        phone: input.phone ?? null,
-        isActive: true,
-        maxActiveDeliveries: input.maxActiveDeliveries ?? 3,
-      };
-      this.#couriers.set(id, profile);
-      this.#byUser.set(input.userId, id);
-      return this.#cloneCourier(profile);
-    }
-    const existing = await this.prisma.courierProfile.findUnique({
-      where: { userId: input.userId },
-    });
-    if (existing) {
-      return {
-        id: existing.id,
-        userId: existing.userId,
-        displayName: existing.displayName,
-        phone: existing.phone,
-        isActive: existing.isActive,
-        maxActiveDeliveries: existing.maxActiveDeliveries,
-      };
-    }
-    const row = await this.prisma.courierProfile.create({
-      data: {
-        userId: input.userId,
-        displayName: input.displayName,
-        phone: input.phone ?? null,
-        maxActiveDeliveries: input.maxActiveDeliveries ?? 3,
-      },
-    });
-    return {
-      id: row.id,
-      userId: row.userId,
-      displayName: row.displayName,
-      phone: row.phone,
-      isActive: row.isActive,
-      maxActiveDeliveries: row.maxActiveDeliveries,
+    if (this.prisma) throw new Error('DATABASE_REQUIRED');
+    const existing = this.#byUser.get(input.userId);
+    if (existing) return this.getCourier(existing);
+    const id = this.#newId('c');
+    const profile: CourierProfileDto = {
+      id,
+      userId: input.userId,
+      displayName: input.displayName,
+      phone: input.phone ?? null,
+      isActive: true,
+      maxActiveDeliveries: input.maxActiveDeliveries ?? 3,
     };
+    this.#couriers.set(id, profile);
+    this.#byUser.set(input.userId, id);
+    return this.#cloneCourier(profile);
   }
 
   async getCourier(courierId: string): Promise<CourierProfileDto> {
@@ -265,14 +244,7 @@ export class DeliveryService {
         .map((courier) => this.#cloneCourier(courier));
     }
     const rows = await this.prisma.courierProfile.findMany({
-      where: branchId
-        ? {
-            OR: [
-              { deliveries: { some: { branchId } } },
-              { assignments: { some: { delivery: { branchId } } } },
-            ],
-          }
-        : undefined,
+      where: branchId ? { branchScopes: { some: { branchId } } } : undefined,
     });
     return rows.map((c) => ({
       id: c.id,
@@ -293,17 +265,11 @@ export class DeliveryService {
             delivery.assignments.some((assignment) => assignment.courierId === courierId)),
       );
     }
-    const courier = await this.prisma.courierProfile.findFirst({
-      where: {
-        id: courierId,
-        OR: [
-          { deliveries: { some: { branchId } } },
-          { assignments: { some: { delivery: { branchId } } } },
-        ],
-      },
-      select: { id: true },
+    const assignment = await this.prisma.courierBranch.findUnique({
+      where: { courierId_branchId: { courierId, branchId } },
+      select: { courierId: true },
     });
-    return courier !== null;
+    return assignment !== null;
   }
 
   async createDelivery(input: CreateDeliveryInput): Promise<DeliveryDto> {

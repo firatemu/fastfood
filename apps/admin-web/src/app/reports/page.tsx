@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { type LoadState } from '../../components/async-boundary';
 import { OpsBoundary } from '../../components/ops/ops-boundary';
+import { OpsPageHeader } from '../../components/ops/ops-page-header';
 import { useOpsSync } from '../../components/ops/ops-sync';
 import { OperationalTable } from '../../components/ops/ops-table';
 import { ActionButton, OperationalMetric } from '../../components/ops/ops-ui';
@@ -50,7 +51,10 @@ export default function ReportsPage() {
     try {
       const client = createAdminClient();
       if (tab === 'sales') {
-        const res = await client.request({ path: 'admin/reports/sales', schema: reportSalesSchema });
+        const res = await client.request({
+          path: 'admin/reports/sales',
+          schema: reportSalesSchema,
+        });
         setSales(res.data);
         const rows: ReportRow[] = res.data.map((row) => ({
           key: row.day ?? '—',
@@ -123,10 +127,10 @@ export default function ReportsPage() {
 
   return (
     <div className="ops-page">
-      <p className="ops-page__lede">
-        `GLOBAL_ANALYTICS` · `GET admin/reports/sales|branches|products|couriers` · tarih/şube
-        sorgusu yok · gün alanı UTC `YYYY-MM-DD` (backend) · dışa aktarma API yok · grafik yok.
-      </p>
+      <OpsPageHeader
+        title="Raporlar"
+        lede="Satış, şube, ürün ve kurye bazlı özetleri tek ekranda karşılaştırın. Raporlar gün bazlıdır ve gün sınırı UTC olarak hesaplanır; tarih aralığı ve şube süzgeci uç tarafından desteklenmez."
+      />
       <div className="ops-filters" role="tablist" aria-label="Rapor türü">
         {REPORT_TABS.map((item) => (
           <ActionButton
@@ -175,9 +179,19 @@ export default function ReportsPage() {
               rowKey={(r) => r.key}
               columns={[
                 { key: 'day', header: 'Gün (UTC)', mono: true, render: (r) => r.day ?? '—' },
-                { key: 'orders', header: 'Sipariş', numeric: true, render: (r) => r.orderCount ?? '—' },
+                {
+                  key: 'orders',
+                  header: 'Sipariş',
+                  numeric: true,
+                  render: (r) => r.orderCount ?? '—',
+                },
                 { key: 'gross', header: 'Brüt', numeric: true, render: (r) => r.gross ?? '—' },
-                { key: 'refunded', header: 'İade', numeric: true, render: (r) => r.refunded ?? '—' },
+                {
+                  key: 'refunded',
+                  header: 'İade',
+                  numeric: true,
+                  render: (r) => r.refunded ?? '—',
+                },
                 { key: 'net', header: 'Net', numeric: true, render: (r) => r.net ?? '—' },
               ]}
               rows={rows}
@@ -193,7 +207,12 @@ export default function ReportsPage() {
                   mono: true,
                   render: (r) => shortId(r.branchId ?? ''),
                 },
-                { key: 'orders', header: 'Sipariş', numeric: true, render: (r) => r.orderCount ?? '—' },
+                {
+                  key: 'orders',
+                  header: 'Sipariş',
+                  numeric: true,
+                  render: (r) => r.orderCount ?? '—',
+                },
                 { key: 'gross', header: 'Brüt', numeric: true, render: (r) => r.gross ?? '—' },
               ]}
               rows={rows}
@@ -225,7 +244,12 @@ export default function ReportsPage() {
                   mono: true,
                   render: (r) => shortId(r.courierId ?? ''),
                 },
-                { key: 'delivered', header: 'Teslim', numeric: true, render: (r) => r.delivered ?? '—' },
+                {
+                  key: 'delivered',
+                  header: 'Teslim',
+                  numeric: true,
+                  render: (r) => r.delivered ?? '—',
+                },
                 { key: 'active', header: 'Aktif', numeric: true, render: (r) => r.active ?? '—' },
               ]}
               rows={rows}

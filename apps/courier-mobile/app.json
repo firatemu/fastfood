@@ -6,9 +6,23 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "fastfoodcourier",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "newArchEnabled": true,
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Şubedeki QR teslimat kodunu okutmak için kamera gerekir.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     },

@@ -16,7 +16,12 @@ export function ActionButton(props: {
 }) {
   const { children, onClick, disabled, variant = 'ghost', type = 'button' } = props;
   return (
-    <button type={type} className={`ops-btn ops-btn--${variant}`} onClick={onClick} disabled={disabled}>
+    <button
+      type={type}
+      className={`ops-btn ops-btn--${variant}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
       {children}
     </button>
   );
@@ -69,7 +74,13 @@ export function SyncIndicator(props: {
   );
 }
 
-export function OpsLoading({ title = 'Yükleniyor', description = 'Veriler getiriliyor…' }: { title?: string; description?: string }) {
+export function OpsLoading({
+  title = 'Yükleniyor',
+  description = 'Veriler getiriliyor…',
+}: {
+  title?: string;
+  description?: string;
+}) {
   return (
     <div className="ops-state" role="status">
       <h2>{title}</h2>

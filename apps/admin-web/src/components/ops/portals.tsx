@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useSyncExternalStore, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 /**
@@ -9,11 +9,19 @@ import { createPortal } from 'react-dom';
  * they can position themselves relative to the viewport rather than
  * the datagrid scroll container.
  */
+/**
+ * `document.body` is stable for the whole document lifetime, so this
+ * store has nothing to subscribe to and the empty subscribe pair is
+ * enough. The server snapshot stays `null`, which keeps SSR and the
+ * hydration pass portal-free; the client snapshot hands back the body
+ * on the first client render.
+ */
+const subscribeToBody = () => () => {};
+const getBodySnapshot = (): HTMLElement => document.body;
+const getServerBodySnapshot = (): HTMLElement | null => null;
+
 export function ClientPortal({ children }: { children: ReactNode }) {
-  const [host, setHost] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    setHost(document.body);
-  }, []);
+  const host = useSyncExternalStore(subscribeToBody, getBodySnapshot, getServerBodySnapshot);
   if (!host) return null;
   return createPortal(children, host);
 }

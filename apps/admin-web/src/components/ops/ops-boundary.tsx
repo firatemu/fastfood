@@ -11,10 +11,11 @@ export function OpsBoundary<T>(props: {
   state: LoadState<T>;
   emptyTitle?: string;
   emptyDescription?: string;
+  emptyAction?: ReactNode;
   onRetry?: () => void;
   children: (data: T) => ReactNode;
 }): ReactNode {
-  const { state, emptyTitle, emptyDescription, onRetry, children } = props;
+  const { state, emptyTitle, emptyDescription, emptyAction, onRetry, children } = props;
   if (state.status === 'loading') return <OpsLoading />;
   if (state.status === 'error') {
     if (isUnauthorized(state.error)) {
@@ -37,7 +38,13 @@ export function OpsBoundary<T>(props: {
     return <OpsError description={errorMessage(state.error)} onRetry={onRetry} />;
   }
   if (state.status === 'empty') {
-    return <OpsEmpty title={emptyTitle ?? 'Kayıt yok'} description={emptyDescription} />;
+    return (
+      <OpsEmpty
+        title={emptyTitle ?? 'Kayıt yok'}
+        description={emptyDescription}
+        action={emptyAction}
+      />
+    );
   }
   return children(state.data);
 }

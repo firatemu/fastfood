@@ -28,9 +28,7 @@ export function OrderSummaryHero({
       <div className="order-summary-hero__main">
         <div className="order-summary-hero__breadcrumbs">
           <Link href="/orders">← Siparişler</Link>
-          <span className="ops-scope-tag">
-            Şube · {branchName ?? '—'}
-          </span>
+          <span className="ops-scope-tag">Şube · {branchName ?? '—'}</span>
           <StatusBadge tone={orderStatusTone(order.status)}>
             {orderStatusLabel(order.status)}
           </StatusBadge>
@@ -56,9 +54,7 @@ export function OrderSummaryHero({
         <button
           type="button"
           className="ops-btn ops-btn--ghost"
-          onClick={() =>
-            window.open(`/orders/${order.id}/tracking`, '_blank', 'noopener')
-          }
+          onClick={() => window.open(`/orders/${order.id}/tracking`, '_blank', 'noopener')}
           disabled={!order.checkoutSessionId}
         >
           Müşteri takibi

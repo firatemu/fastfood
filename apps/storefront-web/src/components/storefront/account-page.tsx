@@ -1,365 +1,522 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
-
 import { ApiError } from '@fastfood/api-client';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
 
-import { isCustomerAuthenticated } from '../../lib/api';
+import { clearCustomerSession, isCustomerAuthenticated } from '../../lib/api';
 import { errorMessage } from '../../lib/load-state';
 import { formatTryMinor } from '../../lib/money';
-import {
-  fetchCustomerProfile,
-  fetchLoyaltyPoints,
-  fetchMyOrders,
-  patchCustomerProfile,
-  type CustomerOrder,
-  type CustomerProfile,
-} from '../../lib/storefront/account';
-import { clearCustomerSession } from '../../lib/api';
+import { fetchMyOrders, patchCustomerProfile, type CustomerOrder } from '../../lib/storefront/account';
+import { useSubmitLock } from '../../lib/storefront/account-hooks';
 import { fetchLinkedIdentities } from '../../lib/storefront/auth';
 import { LOYALTY_PROGRAM_NAME } from '../../lib/storefront/brand-copy';
+import { clubProgress } from '../../lib/storefront/club-progress';
 import { fetchClub, type ClubSnapshot } from '../../lib/storefront/engagement';
 import { useDeferredLoad } from '../../lib/use-deferred-load';
 
-import { AccountNav } from './account-nav';
+import { AccountShell } from './account-shell';
+import { useAccountUi } from './account-ui';
 import { MaterialIcon } from './material-icon';
 import { ShopError, ShopSkeleton } from './shop-states';
 
-export function RequireCustomer({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const params = useSearchParams();
-  const [ready, setReady] = useState(false);
-  useDeferredLoad(() => {
-    if (!isCustomerAuthenticated()) {
-      const next = params.get('next') || window.location.pathname;
-      router.replace(`/auth?next=${encodeURIComponent(next)}`);
-      return;
-    }
-    setReady(true);
-  }, [params, router]);
-  if (!ready) return <ShopSkeleton />;
-  return children;
-}
-
+/**
+ * Account overview.
+ *
+ * This screen answers three questions and nothing more: who am I, what still
+ * needs my attention, and what did I order last. Everything else belongs on its
+ * own route. That is why there is no metric grid here — order count, points
+ * and verification state are three rows in a ledger, not four hero tiles.
+ */
 export function AccountPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState<CustomerProfile | null>(null);
-  const [points, setPoints] = useState<string | null>(null);
+  const { profile, refreshProfile, setDirty, toast } = useAccountUi();
+
   const [club, setClub] = useState<ClubSnapshot | null>(null);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
-  const [error, setError] = useState<string | null>(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [saved, setSaved] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [verified, setVerified] = useState<{ email: boolean; phone: boolean }>({
+    email: false,
+    phone: false,
+  });
+  const [pageState, setPageState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  async function load() {
+  /*
+   * The form reads straight from the server profile until the first keystroke,
+   * then from the draft. Seeding local state from an async value would need an
+   * effect, and this repo's lint rules forbid setState-in-effect; deriving it
+   * removes both the effect and the "stale copy of the profile" bug.
+   */
+  const [draft, setDraft] = useState<{ name: string; email: string } | null>(null);
+
+  const ready = profile.status === 'ready' ? profile.profile : null;
+  const savedName = ready?.displayName ?? '';
+  const savedEmail = ready?.email ?? '';
+  const name = draft?.name ?? savedName;
+  const email = draft?.email ?? savedEmail;
+  const dirty = draft !== null && (draft.name !== savedName || draft.email !== savedEmail);
+
+  const redirectToAuth = useCallback(() => {
+    clearCustomerSession();
+    const next = encodeURIComponent(window.location.pathname + window.location.search);
+    router.replace(`/auth?next=${next}`);
+  }, [router]);
+
+  const load = useCallback(async () => {
     try {
-      const [nextProfile, nextPoints, nextOrders, identity, nextClub] = await Promise.all([
-        fetchCustomerProfile(),
-        fetchLoyaltyPoints().catch(() => null),
-        fetchMyOrders().catch(() => []),
+      // Club is a nice-to-have on this screen: a failure here must not take
+      // the profile and order history down with it.
+      const [nextOrders, identity, nextClub] = await Promise.all([
+        fetchMyOrders(),
         fetchLinkedIdentities().catch(() => null),
         fetchClub().catch(() => null),
       ]);
-      setProfile(nextProfile);
-      setName(nextProfile.displayName ?? '');
-      setEmail(nextProfile.email ?? '');
-      setPoints(nextPoints);
-      setClub(nextClub);
       setOrders(nextOrders);
-      setEmailVerified(identity?.emailVerified ?? nextProfile.emailVerified === true);
-      setPhoneVerified(identity?.phoneVerified ?? nextProfile.phoneVerified === true);
-      setStatus('ready');
+      setClub(nextClub);
+      setVerified({
+        email: identity?.emailVerified ?? false,
+        phone: identity?.phoneVerified ?? false,
+      });
+      setLoadError(null);
+      setPageState('ready');
     } catch (err) {
-      // Oturum süresi dolmuşsa kullanıcıyı girişe yönlendir.
-      if (
-        err instanceof ApiError &&
-        (err.status === 401 || err.envelope.error.code === 'AUTH_UNAUTHENTICATED')
-      ) {
-        clearCustomerSession();
-        const next = encodeURIComponent(window.location.pathname + window.location.search);
-        router.replace(`/auth?next=${next}`);
+      if (err instanceof ApiError && (err.status === 401 || err.envelope.error.code === 'AUTH_UNAUTHENTICATED')) {
+        redirectToAuth();
         return;
       }
-      setError(errorMessage(err));
-      setStatus('error');
+      setLoadError(errorMessage(err));
+      setPageState('error');
     }
-  }
+  }, [redirectToAuth]);
 
   useDeferredLoad(() => {
     if (!isCustomerAuthenticated()) return;
     void load();
-  }, []);
+  }, [load]);
 
-  async function save(event: React.FormEvent) {
-    event.preventDefault();
-    setSaving(true);
-    setSaved(false);
-    try {
-      const next = await patchCustomerProfile({
-        displayName: name.trim() || undefined,
-        email: email.trim() || undefined,
+  const save = useSubmitLock(
+    useCallback(async (nextName: string, nextEmail: string) => {
+      const updated = await patchCustomerProfile({
+        displayName: nextName.trim() || undefined,
+        email: nextEmail.trim() || undefined,
       });
-      setProfile(next);
-      setSaved(true);
-    } catch (err) {
-      setError(errorMessage(err));
-    } finally {
-      setSaving(false);
-    }
-  }
+      setDraft({ name: updated.displayName ?? '', email: updated.email ?? '' });
+      setDirty(false);
+      refreshProfile();
+    }, [setDirty, refreshProfile]),
+  );
 
-  if (status === 'loading') {
+  const onSubmit = useCallback(
+    async (event: React.FormEvent) => {
+      event.preventDefault();
+      if (!dirty) return;
+      try {
+        await save.run(name, email);
+        toast.ok('Profil kaydedildi.');
+      } catch (err) {
+        toast.error('Profil kaydedilemedi.', errorMessage(err));
+      }
+    },
+    [dirty, email, name, save, toast],
+  );
+
+  if (profile.status === 'loading' || pageState === 'loading') {
+    return <ShopSkeleton />;
+  }
+  if (profile.status === 'error' || !ready) {
     return (
-      <RequireCustomer>
-        <ShopSkeleton />
-      </RequireCustomer>
+      <ShopError
+        title="Hesap"
+        message={profile.status === 'error' ? profile.message : 'Profil yüklenemedi.'}
+        onRetry={() => void load()}
+      />
     );
   }
-  if (status === 'error' || !profile) {
+  if (pageState === 'error') {
     return (
-      <RequireCustomer>
-        <ShopError
-          title="Hesap"
-          message={error ?? 'Profil yüklenemedi.'}
-          onRetry={() => void load()}
-        />
-      </RequireCustomer>
+      <ShopError
+        title="Hesap"
+        message={loadError ?? 'Sipariş geçmişi yüklenemedi.'}
+        onRetry={() => void load()}
+      />
     );
   }
 
-  const orderCount = orders.length;
-  const recent = orders.slice(0, 3);
+  const displayName = ready.displayName?.trim() || 'BURGER HOME üyesi';
+  const points = club?.points ?? null;
+  const progress = club
+    ? clubProgress({
+        progressBps: club.progressBps,
+        pointsToNextTier: club.pointsToNextTier,
+        hasNextTier: club.nextTier !== null,
+      })
+    : null;
 
   return (
-    <RequireCustomer>
-      <div className="min-h-screen w-full bg-background pt-20" data-ff-surface="account">
-        <main className="mx-auto flex w-full max-w-7xl flex-col gap-space-lg px-margin-sm py-space-lg lg:px-margin lg:py-space-xl">
-          <header className="flex flex-col gap-space-md border-b border-outline-variant/40 pb-space-lg sm:flex-row sm:items-end sm:justify-between">
-            <div className="min-w-0">
-              <h1 className="font-headline-lg text-headline-lg text-on-surface">Hesabın</h1>
-              <p className="mt-1 max-w-2xl font-body-md text-on-surface-variant">
-                Merhaba {profile.displayName?.trim() || 'BURGER HOME üyesi'}. Profilini ve
-                siparişlerini buradan yönet.
-              </p>
-            </div>
-            <Link
-              href="/"
-              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-secondary-container px-space-lg font-label-md text-on-secondary-container transition-colors hover:bg-secondary-container/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-container"
-            >
-              <MaterialIcon name="restaurant_menu" />
-              Menüyü keşfet
-            </Link>
-          </header>
+    <AccountShell
+        surface="account"
+        eyebrow="Hesap"
+        title="Hesabın"
+        description={`${displayName}, iletişim bilgilerini, sipariş geçmişini ve üyelik durumunu buradan yönet.`}
+        actions={
+          <Link href="/orders" className="ff-btn ff-btn-outline">
+            <MaterialIcon name="receipt_long" />
+            Siparişler
+          </Link>
+        }
+      >
 
-          <div className="grid items-start gap-space-lg lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)]">
-            <aside className="flex min-w-0 flex-col gap-space-md lg:sticky lg:top-24">
-              <section className="rounded-xl border border-outline-variant/35 bg-surface-container p-space-md">
-                <div className="flex min-w-0 items-center gap-space-md">
-                  <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-secondary-container text-xl font-headline-sm text-on-secondary-container">
-                    {profile.displayName?.trim().charAt(0).toLocaleUpperCase('tr-TR') || 'B'}
+        <StatusLedger
+          email={ready.email ?? null}
+          emailVerified={verified.email ?? ready.emailVerified === true}
+          phone={ready.phone ?? null}
+          phoneVerified={verified.phone ?? ready.phoneVerified === true}
+          tierName={club?.currentTier.displayName ?? null}
+          points={points}
+          createdAt={ready.createdAt ?? null}
+        />
+
+        <form className="ff-section" onSubmit={onSubmit} data-ff-profile-form>
+          <div className="ff-section-head">
+            <h2 className="ff-section-title">Profil</h2>
+            <p className="ff-section-desc">Ad ve e-posta siparişlerinde senin adınla görünür.</p>
+          </div>
+          <div className="ff-section-body">
+            <div className="ff-stack">
+              <label className="ff-field">
+                <span className="ff-field-label">Ad</span>
+                <input
+                  className="ff-input"
+                  value={name}
+                  autoComplete="name"
+                  onChange={(event) => {
+                    const next = event.target.value;
+                    setDraft({ name: next, email });
+                    setDirty(true);
+                  }}
+                />
+              </label>
+              <label className="ff-field">
+                <span className="ff-field-label">E-posta</span>
+                <input
+                  className="ff-input"
+                  type="email"
+                  value={email}
+                  autoComplete="email"
+                  onChange={(event) => {
+                    const next = event.target.value;
+                    setDraft({ name, email: next });
+                    setDirty(true);
+                  }}
+                />
+                <span className="ff-field-hint">
+                  Sipariş onayları ve kampanya haberleri bu adrese gider.
+                </span>
+              </label>
+
+              <div className="ff-rows">
+                <div className="ff-row">
+                  <div className="ff-row-key">
+                    <div className="ff-row-label">Telefon</div>
+                    <div className="ff-row-hint">Telefon güvenlik ekranından değiştirilir.</div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="truncate font-label-lg text-on-surface">
-                      {profile.displayName?.trim() || 'BURGER HOME üyesi'}
-                    </p>
-                    <p className="mt-1 truncate font-body-sm text-on-surface-variant">
-                      {profile.email || profile.phone || 'İletişim bilgisi ekle'}
-                    </p>
+                  <div className="ff-row-value">{ready.phone ?? 'Eklenmemiş'}</div>
+                  <div className="ff-row-actions">
+                    <VerifyTag verified={verified.phone ?? ready.phoneVerified === true} present={Boolean(ready.phone)} />
                   </div>
                 </div>
-                <Link
-                  href="/account/club"
-                  className="mt-space-md flex items-center justify-between gap-3 rounded-lg bg-surface-container-lowest px-space-md py-3 transition-colors hover:bg-surface-container-high focus-visible:outline focus-visible:outline-2 focus-visible:outline-secondary-container"
-                >
-                  <span className="min-w-0">
-                    <span className="block font-label-sm text-on-surface-variant">
-                      {LOYALTY_PROGRAM_NAME}
-                    </span>
-                    <span className="mt-1 block truncate font-label-md text-secondary">
-                      {club?.currentTier.displayName || 'Üyelik bilgilerin'}
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-right">
-                    <span className="block font-headline-sm tabular-nums text-secondary">
-                      {points ?? '—'}
-                    </span>
-                    <span className="block font-label-sm text-on-surface-variant">puan</span>
-                  </span>
-                </Link>
-                <div className="mt-3 grid grid-cols-2 gap-2 border-t border-outline-variant/35 pt-3">
-                  <div>
-                    <p className="font-headline-sm text-headline-sm tabular-nums text-on-surface">
-                      {orderCount}
-                    </p>
-                    <p className="font-body-sm text-on-surface-variant">Sipariş</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-label-md text-on-surface">
-                      {emailVerified ? 'Doğrulandı' : profile.email ? 'Doğrulanmadı' : 'Eklenmemiş'}
-                    </p>
-                    <p className="font-body-sm text-on-surface-variant">E-posta</p>
-                  </div>
-                </div>
-              </section>
-
-              <div className="rounded-xl border border-outline-variant/25 bg-surface-container-low p-space-sm">
-                <AccountNav />
               </div>
-            </aside>
 
-            <div className="grid min-w-0 gap-space-md xl:grid-cols-[minmax(0,1.08fr)_minmax(19rem,0.92fr)]">
-              <form
-                onSubmit={(event) => void save(event)}
-                className="flex min-w-0 flex-col gap-space-md rounded-xl border border-outline-variant/35 bg-surface-container p-space-md lg:p-space-lg"
-                data-ff-profile-form
-              >
-                <div className="flex items-start justify-between gap-4 border-b border-outline-variant/30 pb-space-md">
-                  <div>
-                    <h2 className="font-headline-sm text-headline-sm text-on-surface">
-                      Kişisel bilgiler
-                    </h2>
-                    <p className="mt-1 font-body-sm text-on-surface-variant">
-                      Hesap iletişim bilgilerini güncel tut.
-                    </p>
-                  </div>
-                  <MaterialIcon name="manage_accounts" className="text-2xl text-secondary" />
-                </div>
-                <label className="flex flex-col gap-1.5">
-                  <span className="font-label-sm text-on-surface-variant">Adın</span>
-                  <input
-                    className="h-12 rounded-lg border border-outline-variant/50 bg-surface-container-lowest px-4 text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-secondary-container focus-visible:ring-2 focus-visible:ring-secondary-container/30"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="font-label-sm text-on-surface-variant">E-posta</span>
-                  <input
-                    className="h-12 rounded-lg border border-outline-variant/50 bg-surface-container-lowest px-4 text-on-surface outline-none transition-colors placeholder:text-on-surface-variant focus:border-secondary-container focus-visible:ring-2 focus-visible:ring-secondary-container/30"
-                    type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                  />
-                </label>
-                <div className="rounded-lg bg-surface-container-lowest px-space-md py-3">
-                  <p className="font-label-sm text-on-surface-variant">Telefon</p>
-                  <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-body-md text-on-surface">
-                      {profile.phone || 'Telefon eklenmemiş'}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 font-label-sm text-on-surface-variant">
-                      <span
-                        className={`h-1.5 w-1.5 rounded-full ${phoneVerified ? 'bg-secondary-container' : 'bg-outline'}`}
-                      />
-                      {phoneVerified ? 'Doğrulandı' : 'Doğrulanmadı'}
-                    </span>
-                  </div>
-                </div>
-                {error ? (
-                  <p className="font-body-sm text-error" role="alert">
-                    {error}
-                  </p>
-                ) : null}
-                {saved ? (
-                  <p className="font-body-sm text-secondary" role="status">
-                    Profil kaydedildi.
-                  </p>
-                ) : null}
+              <div className="ff-cluster ff-cluster-end">
                 <button
                   type="submit"
-                  disabled={saving}
-                  className="mt-1 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-secondary-container px-space-lg font-label-md text-on-secondary-container transition-colors hover:bg-secondary-container/90 disabled:cursor-wait disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-container"
+                  className="ff-btn ff-btn-primary"
+                  disabled={save.pending || !dirty}
                   data-ff-profile-save
                 >
-                  {saving ? 'Kaydediliyor…' : 'Değişiklikleri kaydet'}
+                  {save.pending ? 'Kaydediliyor' : 'Değişiklikleri kaydet'}
                 </button>
-              </form>
-
-              <section className="flex min-w-0 flex-col rounded-xl border border-outline-variant/35 bg-surface-container p-space-md lg:p-space-lg">
-                <div className="flex items-start justify-between gap-4 border-b border-outline-variant/30 pb-space-md">
-                  <div>
-                    <h2 className="font-headline-sm text-headline-sm text-on-surface">
-                      Son siparişler
-                    </h2>
-                    <p className="mt-1 font-body-sm text-on-surface-variant">
-                      {orderCount
-                        ? `${orderCount} sipariş hesabında kayıtlı`
-                        : 'Sipariş geçmişin burada görünür'}
-                    </p>
-                  </div>
-                  <Link
-                    href="/orders"
-                    className="shrink-0 rounded-md px-2 py-1 font-label-sm text-secondary hover:bg-surface-container-high focus-visible:outline focus-visible:outline-2 focus-visible:outline-secondary-container"
-                  >
-                    Tümünü gör
-                  </Link>
-                </div>
-                {recent.length === 0 ? (
-                  <div className="flex flex-1 flex-col items-start justify-center gap-3 py-space-xl">
-                    <span className="grid h-11 w-11 place-items-center rounded-full bg-surface-container-high text-secondary">
-                      <MaterialIcon name="receipt_long" className="text-xl" />
-                    </span>
-                    <div>
-                      <p className="font-label-md text-on-surface">Henüz sipariş yok</p>
-                      <p className="mt-1 max-w-xs font-body-sm text-on-surface-variant">
-                        İlk burgerini seçtiğinde siparişini buradan takip edebilirsin.
-                      </p>
-                    </div>
-                    <Link
-                      href="/"
-                      className="font-label-sm text-secondary underline-offset-4 hover:underline"
-                    >
-                      Menüye git
-                    </Link>
-                  </div>
-                ) : (
-                  <ul className="divide-y divide-outline-variant/25">
-                    {recent.map((order) => (
-                      <li key={order.id}>
-                        <Link
-                          href={`/orders/${order.id}`}
-                          className="flex min-h-16 items-center justify-between gap-3 py-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-secondary-container"
-                        >
-                          <span className="min-w-0">
-                            <span className="block truncate font-label-md text-on-surface">
-                              #{order.displayNumber ?? order.id.slice(0, 8)}
-                            </span>
-                            <span className="mt-1 block truncate font-body-sm text-on-surface-variant">
-                              {order.statusLabel ?? order.status}
-                            </span>
-                          </span>
-                          <span className="shrink-0 text-right">
-                            <span className="block font-label-md tabular-nums text-on-surface">
-                              {order.finalPayableMinor
-                                ? formatTryMinor(order.finalPayableMinor, order.currency ?? 'TRY')
-                                : '—'}
-                            </span>
-                            <MaterialIcon
-                              name="chevron_right"
-                              className="text-lg text-on-surface-variant"
-                            />
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <p className="mt-auto flex items-start gap-2 border-t border-outline-variant/30 pt-3 font-body-sm text-on-surface-variant">
-                  <MaterialIcon name="info" className="mt-0.5 shrink-0 text-base" />
-                  Ödeme kartı bilgileri bu hesapta saklanmaz.
-                </p>
-              </section>
+              </div>
             </div>
           </div>
-        </main>
-      </div>
-    </RequireCustomer>
+        </form>
+
+        <RecentOrders orders={orders} />
+
+        <ClubSection
+          programName={club?.programName ?? LOYALTY_PROGRAM_NAME}
+          tierName={club?.currentTier.displayName ?? '—'}
+          nextTierName={club?.nextTier?.displayName ?? null}
+          points={points}
+          pointsRemaining={progress?.pointsRemaining ?? null}
+          percent={progress?.percent ?? 0}
+          showRail={progress?.showRail ?? false}
+        />
+    </AccountShell>
   );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Status — a ledger, not a metric grid                                         */
+/* -------------------------------------------------------------------------- */
+
+function StatusLedger(props: {
+  email: string | null;
+  emailVerified: boolean;
+  phone: string | null;
+  phoneVerified: boolean;
+  tierName: string | null;
+  points: string | null;
+  createdAt: string | null;
+}) {
+  return (
+    <section className="ff-section" aria-label="Hesap durumu">
+      <div className="ff-section-head">
+        <h2 className="ff-section-title">Durum</h2>
+        <p className="ff-section-desc">
+          {props.createdAt ? `${formatDate(props.createdAt)} tarihinden beri üyesin.` : 'Hesap bilgilerin.'}
+        </p>
+      </div>
+      <div className="ff-section-body">
+        <div className="ff-rows">
+          <div className="ff-row">
+            <div className="ff-row-key">
+              <div className="ff-row-label">E-posta</div>
+              <div className="ff-row-hint">Sipariş onayları için kullanılır.</div>
+            </div>
+            <div className="ff-row-value">{props.email ?? 'Eklenmemiş'}</div>
+            <div className="ff-row-actions">
+              <VerifyTag verified={props.emailVerified} present={Boolean(props.email)} />
+              <Link href="/account/security" className="ff-btn ff-btn-ghost ff-btn-sm">
+                Güvenlik
+              </Link>
+            </div>
+          </div>
+
+          <div className="ff-row">
+            <div className="ff-row-key">
+              <div className="ff-row-label">Telefon</div>
+              <div className="ff-row-hint">Teslimat adresi doğrulaması için gerekli.</div>
+            </div>
+            <div className="ff-row-value">{props.phone ?? 'Eklenmemiş'}</div>
+            <div className="ff-row-actions">
+              <VerifyTag verified={props.phoneVerified} present={Boolean(props.phone)} />
+              <Link href="/account/security" className="ff-btn ff-btn-ghost ff-btn-sm">
+                Güvenlik
+              </Link>
+            </div>
+          </div>
+
+          <div className="ff-row">
+            <div className="ff-row-key">
+              <div className="ff-row-label">Üyelik</div>
+              <div className="ff-row-hint">Kademe ve mevcut puan.</div>
+            </div>
+            <div className="ff-row-value">
+              {props.tierName ?? '—'}
+              {props.points !== null ? (
+                <span className="ff-row-hint" style={{ textAlign: 'right' }}>
+                  {props.points} puan
+                </span>
+              ) : null}
+            </div>
+            <div className="ff-row-actions">
+              <Link href="/account/club" className="ff-btn ff-btn-ghost ff-btn-sm">
+                Kulüp
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function VerifyTag({ verified, present }: { verified: boolean; present: boolean }) {
+  if (!present) return <span className="ff-tag" data-tone="warn">Eksik</span>;
+  if (!verified) return <span className="ff-tag" data-tone="warn">Doğrulanmadı</span>;
+  return <span className="ff-tag" data-tone="ok">Doğrulandı</span>;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Recent orders — a table, because these are records                          */
+/* -------------------------------------------------------------------------- */
+
+function RecentOrders({ orders }: { orders: CustomerOrder[] }) {
+  const recent = orders.slice(0, 4);
+  return (
+    <section className="ff-section">
+      <div className="ff-section-head">
+        <h2 className="ff-section-title">Son siparişler</h2>
+        <p className="ff-section-desc">
+          {orders.length > 0
+            ? `${orders.length} sipariş kayıtlı.`
+            : 'Henüz siparişin yok.'}
+        </p>
+      </div>
+      <div className="ff-section-body">
+        {recent.length === 0 ? (
+          <div className="ff-empty">
+            <MaterialIcon name="receipt_long" />
+            <p className="ff-empty-title">Sipariş geçmişi boş</p>
+            <p className="ff-empty-text">
+              İlk siparişini verdiğinde burada sipariş numarası, durum ve tutar listelenir.
+            </p>
+            <Link href="/" className="ff-btn ff-btn-outline ff-btn-sm">
+              Menüye git
+            </Link>
+          </div>
+        ) : (
+          <div className="ff-table-wrap">
+            <div className="ff-table-scroll ff-scroll">
+              <table className="ff-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Sipariş</th>
+                    <th scope="col">Tarih</th>
+                    <th scope="col">Durum</th>
+                    <th scope="col" className="num">
+                      Tutar
+                    </th>
+                    <th scope="col" className="col-actions">
+                      <span className="ff-sr-only">Aç</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recent.map((order) => (
+                    <tr key={order.id}>
+                      <td>
+                        <Link href={`/orders/${order.id}`} className="ff-row-label">
+                          #{order.displayNumber ?? order.id.slice(0, 8)}
+                        </Link>
+                      </td>
+                      <td style={{ color: 'var(--color-on-surface-variant)' }}>
+                        {order.createdAt ? formatDate(order.createdAt) : '—'}
+                      </td>
+                      <td>
+                        <OrderTag status={order.status} label={order.statusLabel} />
+                      </td>
+                      <td className="num">
+                        {order.finalPayableMinor
+                          ? formatTryMinor(order.finalPayableMinor, order.currency ?? 'TRY')
+                          : '—'}
+                      </td>
+                      <td className="col-actions">
+                        <Link
+                          href={`/orders/${order.id}`}
+                          className="ff-icon-btn"
+                          aria-label={`Sipariş ${order.displayNumber ?? ''} detayını aç`}
+                        >
+                          <MaterialIcon name="chevron_right" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+        {recent.length > 0 ? (
+          <div className="ff-cluster ff-cluster-end" style={{ marginTop: '0.625rem' }}>
+            <Link href="/orders" className="ff-btn ff-btn-ghost ff-btn-sm">
+              Tüm siparişler
+              <MaterialIcon name="arrow_forward" />
+            </Link>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+const ORDER_TONES: Record<string, 'ok' | 'warn' | 'danger' | 'info'> = {
+  DELIVERED: 'ok',
+  COMPLETED: 'ok',
+  CANCELLED: 'danger',
+  REJECTED: 'danger',
+  PREPARING: 'info',
+  ACCEPTED: 'info',
+  PENDING: 'warn',
+};
+
+function OrderTag({ status, label }: { status: string; label?: string }) {
+  const tone = ORDER_TONES[status] ?? 'info';
+  return (
+    <span className="ff-tag" data-tone={tone}>
+      {label ?? status}
+    </span>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Membership — the one hero figure on this screen                             */
+/* -------------------------------------------------------------------------- */
+
+function ClubSection(props: {
+  programName: string;
+  tierName: string;
+  nextTierName: string | null;
+  points: string | null;
+  pointsRemaining: number | null;
+  percent: number;
+  showRail: boolean;
+}) {
+  return (
+    <section className="ff-section">
+      <div className="ff-section-head">
+        <h2 className="ff-section-title">Üyelik</h2>
+        <p className="ff-section-desc">{props.programName}</p>
+      </div>
+      <div className="ff-section-body">
+        <div className="ff-rows">
+          <div className="ff-row" style={{ minHeight: '5rem', alignItems: 'center' }}>
+            <div className="ff-row-key">
+              <div className="ff-figure" style={{ fontSize: '2.5rem' }}>
+                {props.points ?? '—'}
+              </div>
+              <div className="ff-row-hint" style={{ marginTop: '0.5rem' }}>
+                {props.tierName} kademesi
+              </div>
+            </div>
+            <div className="ff-row-key" style={{ flex: '1 1 14rem', maxWidth: '22rem' }}>
+              {props.showRail ? (
+                <>
+                  <div className="ff-meter" role="progressbar" aria-valuenow={props.percent} aria-valuemin={0} aria-valuemax={100}>
+                    <div className="ff-meter-fill" style={{ width: `${props.percent}%` }} />
+                  </div>
+                  <div className="ff-cluster" style={{ marginTop: '0.5rem' }}>
+                    <span className="ff-row-hint">
+                      {props.nextTierName} kademesine {props.pointsRemaining ?? 0} puan kaldı
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <p className="ff-row-hint">En yüksek kademedesin.</p>
+              )}
+            </div>
+            <div className="ff-row-actions">
+              <Link href="/account/club" className="ff-btn ff-btn-outline ff-btn-sm">
+                Ayrıntılar
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+
+function formatDate(value: string | Date): string {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return new Intl.DateTimeFormat('tr-TR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
 }

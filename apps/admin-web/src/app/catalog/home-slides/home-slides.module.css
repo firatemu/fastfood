@@ -5,7 +5,7 @@
   --slide-line: light-dark(#d3d5d9, #2d333f);
   --slide-ink: light-dark(#24262e, #e0e2ea);
   --slide-muted: light-dark(#58616f, #99a4b4);
-  --slide-amber: light-dark(#a57709, #feb300);
+  --slide-amber: var(--ff-primary);
   display: grid;
   gap: 18px;
   color: var(--slide-ink);
@@ -18,7 +18,7 @@
   justify-content: space-between;
   gap: 24px;
   padding: 4px 0 2px 18px;
-  border-left: 3px solid var(--ops-amber-border, #feb300);
+  border-left: 3px solid var(--ff-primary-container);
 }
 
 .headingCopy {
@@ -27,7 +27,7 @@
 
 .kicker,
 .panelEyebrow {
-  color: var(--ops-amber-text, #feb300);
+  color: var(--ff-primary);
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 0.1em;
@@ -51,7 +51,7 @@
 .heading h1 {
   margin: 0;
   color: var(--slide-ink);
-  font-family: var(--ops-font-anton, Inter, sans-serif);
+  font-family: var(--ff-font-headline);
   font-size: clamp(27px, 3vw, 36px);
   font-weight: 400;
   letter-spacing: 0.025em;
@@ -94,7 +94,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #10b981;
+  background: var(--ff-status-ready);
   content: '';
 }
 
@@ -114,10 +114,10 @@
   justify-content: center;
   gap: 8px;
   padding: 0 13px;
-  border: 1px solid var(--ops-amber-border, #feb300);
+  border: 1px solid var(--ff-keyline);
   border-radius: 3px;
-  background: var(--ops-amber-fill, #feb300);
-  color: light-dark(#4b390e, #17140c);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-status-warn-text);
   cursor: pointer;
   font: 700 12px/1 var(--ops-font-sans, Inter, sans-serif);
   transition:
@@ -512,14 +512,14 @@
 }
 .previewCopy > span {
   display: block;
-  color: #feb300;
+  color: var(--ff-primary);
   font: 700 9px/1.3 var(--ops-font-mono, 'JetBrains Mono', monospace);
   letter-spacing: 0.1em;
 }
 .previewCopy strong {
   display: block;
   margin-top: 7px;
-  font: 400 22px/1.05 var(--ops-font-anton, Inter, sans-serif);
+  font: 800 22px/1.05 var(--ff-font-headline);
   text-transform: uppercase;
 }
 .previewCopy p {
@@ -543,8 +543,8 @@
   border-radius: 50%;
 }
 .previewDots .activeDot {
-  border-color: #feb300;
-  background: #feb300;
+  border-color: var(--ff-primary-container);
+  background: var(--ff-primary-container);
 }
 .previewEmpty {
   margin: 0;
@@ -563,12 +563,12 @@
 .inlineError {
   border-color: color-mix(in srgb, #ef4444 35%, var(--slide-line));
   background: color-mix(in srgb, #ef4444 8%, var(--slide-surface));
-  color: light-dark(#a50909, #fca5a5);
+  color: var(--ff-status-critical-text);
 }
 .inlineSuccess {
-  border-color: color-mix(in srgb, #10b981 35%, var(--slide-line));
-  background: color-mix(in srgb, #10b981 8%, var(--slide-surface));
-  color: light-dark(#08734e, #6ee7b7);
+  border-color: color-mix(in srgb, var(--ff-status-ready) 35%, var(--slide-line));
+  background: color-mix(in srgb, var(--ff-status-ready) 8%, var(--slide-surface));
+  color: var(--ff-status-ready-text);
 }
 .durationSetting {
   display: grid;
@@ -620,7 +620,7 @@
   gap: 4px;
 }
 .loopCopy strong {
-  color: var(--slide-text);
+  color: var(--slide-ink);
   font-size: 12px;
 }
 .loopCopy span,
@@ -773,4 +773,120 @@
   .saveButton {
     flex: 1;
   }
+}
+
+/* ==========================================================================
+   FASTFOOD Admin — Navy catalog: modifiers / allergens / home-slides (A7)
+
+   These three screens have no dedicated frame in the design set. They inherit
+   the catalog visual language from `r_nler_fastfood` (Ürünler), which is the
+   design-set source for this domain: label-role headers, divide-y rows, mono
+   code columns, `surface-container-low` panels with `shadow-sm`.
+
+   Selectors are pruned per file — a rule is only emitted when the class
+   actually exists in that stylesheet, so this block never ships dead rules.
+   ========================================================================== */
+
+:global([data-admin-theme='fastfood-navy']) .heading h1 {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-xl);
+  font-weight: var(--ff-weight-headline-xl);
+  line-height: var(--ff-leading-headline-xl);
+  letter-spacing: var(--ff-tracking-headline-xl);
+  text-transform: none;
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .heading p {
+  font: 400 13px/18px var(--ff-font-body);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .kicker,
+:global([data-admin-theme='fastfood-navy']) .panelEyebrow {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .panel {
+  background: var(--ff-surface-container-low);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .panelHeader {
+  padding: var(--ff-space-md);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .panelHeader h2 {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-sm);
+  font-weight: 600;
+  line-height: var(--ff-leading-headline-sm);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .panelHeader p {
+  font: 400 12px/16px var(--ff-font-body);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search {
+  background: var(--ff-surface-container-lowest);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search:focus-within {
+  border-color: var(--ff-primary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search input {
+  font: 400 12px/16px var(--ff-font-body);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search input::placeholder {
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .secondaryButton {
+  min-height: 32px;
+  padding: 0 var(--ff-space-sm);
+  border-radius: var(--ff-radius-lg);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  font: 500 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .thumbnail {
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-highest);
+  border: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .state,
+:global([data-admin-theme='fastfood-navy']) .emptySelected {
+  background: var(--ff-surface-container-low);
+  border: 0;
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+  color: var(--ff-on-surface-variant);
+  font: 400 13px/18px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .countBadge,
+:global([data-admin-theme='fastfood-navy']) .savedStatus,
+:global([data-admin-theme='fastfood-navy']) .draftStatus {
+  font: 600 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
 }

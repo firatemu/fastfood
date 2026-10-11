@@ -2,9 +2,21 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useCallback, useState } from 'react';
 
 import { logoutCustomer } from '../../lib/storefront/auth';
 
+import { initialsOf, useOptionalAccountUi } from './account-ui';
+import { MaterialIcon } from './material-icon';
+
+/**
+ * The account rail.
+ *
+ * Structure, not decoration: an identity block, four labelled groups separated
+ * by hairlines, and a logout that asks first. The accent appears exactly once
+ * per item — a 2px bar on the active row — so "where am I" is answered without
+ * a filled block competing with the page's own primary action.
+ */
 const GROUPS = [
   {
     label: 'Hesap',
@@ -16,13 +28,15 @@ const GROUPS = [
     ],
   },
   {
-    label: 'Sipariş ve ayrıcalıklar',
+    label: 'Sipariş',
+    items: [{ href: '/orders', label: 'Siparişler', icon: 'receipt_long' }],
+  },
+  {
+    label: 'Ayrıcalıklar',
     items: [
-      { href: '/orders', label: 'Siparişler', icon: 'receipt_long' },
-      { href: '/account/club', label: 'BURGER HOME CLUB', icon: 'local_fire_department' },
-      { href: '/account/spin', label: 'Ateş Çarkı', icon: 'stars' },
+      { href: '/account/club', label: 'Burger Home Club', icon: 'local_fire_department' },
+      { href: '/account/spin', label: 'Ateş Çarkıfelek', icon: 'stars' },
       { href: '/account/favorites', label: 'Favoriler', icon: 'favorite' },
-      { href: '/account/table', label: 'Masa Kodu', icon: 'qr_code_2' },
     ],
   },
   {
@@ -34,68 +48,81 @@ const GROUPS = [
   },
 ] as const;
 
-export function AccountNav({ onLogout }: { onLogout?: () => void }) {
-  const pathname = usePathname();
+/** `/account` itself is a prefix of every child route, so it needs exactness. */
+function isActive(pathname: string, href: string): boolean {
+  return href === '/account' ? pathname === '/account' : pathname.startsWith(href);
+}
 
-  async function handleLogout() {
+export function AccountNav() {
+  const pathname = usePathname();
+  const ui = useOptionalAccountUi();
+  const [leaving, setLeaving] = useState(false);
+
+  const handleLogout = useCallback(async () => {
+    setLeaving(true);
     await logoutCustomer();
-    onLogout?.();
     window.location.href = '/';
-  }
+  }, []);
+
+  // Null outside <AccountUiProvider> — see useOptionalAccountUi. `/orders`
+  // mounts this nav without the account surface, and its own header already
+  // carries the customer badge, so the rail simply omits the identity block.
+  const profile = ui?.profile;
+  const identity =
+    profile?.status === 'ready'
+      ? {
+          name: profile.profile.displayName ?? 'Misafir',
+          meta: profile.profile.email ?? profile.profile.phone ?? '',
+        }
+      : null;
 
   return (
-    <nav aria-label="Hesap menüsü" className="flex flex-col gap-space-md" data-ff-account-nav>
-      {GROUPS.map((group) => (
-        <section key={group.label} aria-label={group.label} className="flex flex-col gap-1">
-          <h2 className="px-space-md font-label-sm text-on-surface-variant">{group.label}</h2>
+    <nav aria-label="Hesap menüsü" data-ff-account-nav>
+      {identity ? (
+        <div className="ff-identity">
+          <span className="ff-identity-mark" aria-hidden>
+            {initialsOf(identity.name)}
+          </span>
+          <span className="ff-identity-text">
+            <span className="ff-identity-name">{identity.name}</span>
+            <span className="ff-identity-meta">{identity.meta}</span>
+          </span>
+        </div>
+      ) : null}
+
+      {GROUPS.map((group, index) => (
+        <div key={group.label}>
+          {index > 0 ? <div className="ff-rail-divider" aria-hidden /> : null}
+          <div className="ff-rail-label">{group.label}</div>
           {group.items.map((item) => {
-            const active = pathname === item.href;
+            const active = isActive(pathname, item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
-                className={[
-                  'group relative flex min-h-11 items-center gap-3 rounded-xl px-space-md py-2.5 transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-container',
-                  active
-                    ? 'bg-surface-container-high text-on-surface'
-                    : 'text-on-surface-variant hover:bg-surface-container-high/70 hover:text-on-surface',
-                ].join(' ')}
+                className="ff-rail-item"
               >
-                {active ? (
-                  <span
-                    aria-hidden
-                    className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-secondary-container"
-                  />
-                ) : null}
-                <span
-                  aria-hidden
-                  className={`material-symbols-outlined text-xl ${active ? 'text-secondary' : 'text-on-surface-variant group-hover:text-secondary'}`}
-                >
-                  {item.icon}
-                </span>
-                <span className="min-w-0 flex-1 truncate font-label-md">{item.label}</span>
-                {active ? (
-                  <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-secondary-container" />
-                ) : null}
+                <MaterialIcon name={item.icon} />
+                <span>{item.label}</span>
               </Link>
             );
           })}
-        </section>
+        </div>
       ))}
-      <div className="mt-1 border-t border-outline-variant/35 pt-2">
-        <button
-          type="button"
-          onClick={() => void handleLogout()}
-          className="flex min-h-11 w-full items-center gap-3 rounded-xl px-space-md py-2.5 text-left text-error hover:bg-error/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error"
-          data-ff-logout
-        >
-          <span aria-hidden className="material-symbols-outlined text-xl">
-            logout
-          </span>
-          <span className="font-label-md">Çıkış yap</span>
-        </button>
-      </div>
+
+      <div className="ff-rail-divider" aria-hidden />
+      <button
+        type="button"
+        className="ff-rail-item"
+        data-tone="danger"
+        data-ff-logout
+        disabled={leaving}
+        onClick={() => void handleLogout()}
+      >
+        <MaterialIcon name="logout" />
+        <span>{leaving ? 'Çıkılıyor' : 'Çıkış yap'}</span>
+      </button>
     </nav>
   );
 }

@@ -40,7 +40,6 @@ const TITLES: Record<string, string> = {
   '/catalog/categories': 'Kategoriler',
   '/catalog/modifiers': 'Modifier grupları',
   '/catalog/allergens': 'Alerjenler',
-  '/catalog/media': 'Medya',
   '/branches': 'Şubeler',
   '/branches/service-areas': 'Servis alanları',
   '/branches/availability': 'Ürün müsaitliği',
@@ -75,14 +74,28 @@ function a4ScopeTag(pathname: string): string | null {
   return 'Küresel müşteri';
 }
 
+/**
+ * Case- and locale-insensitive rail filter. Turkish dotted/dotless i matters
+ * here: "Kurye" and "ROLE"/"Roller" style labels must match what staff type.
+ */
+function normalizeNavQuery(raw: string): string {
+  return raw
+    .trim()
+    .toLocaleLowerCase('tr-TR')
+    .replace(/[ıİ]/g, 'i')
+    .replace(/[şŞ]/g, 's')
+    .replace(/[ğĞ]/g, 'g')
+    .replace(/[üÜ]/g, 'u')
+    .replace(/[öÖ]/g, 'o')
+    .replace(/[çÇ]/g, 'c');
+}
+
 function subscribeSession(onChange: () => void): () => void {
   if (typeof window === 'undefined') return () => undefined;
   window.addEventListener('storage', onChange);
   return () => window.removeEventListener('storage', onChange);
 }
 
-const NAV_COLLAPSE_KEY = 'fastfood-admin-nav-collapsed';
-const NAV_COLLAPSE_EVENT = 'fastfood-admin-nav-change';
 const OPEN_TABS_KEY = 'fastfood-admin-open-tabs';
 
 function readOpenTabs(): OpsTab[] {
@@ -102,19 +115,6 @@ function readOpenTabs(): OpsTab[] {
   }
 }
 
-function subscribeNavCollapse(onChange: () => void): () => void {
-  window.addEventListener('storage', onChange);
-  window.addEventListener(NAV_COLLAPSE_EVENT, onChange);
-  return () => {
-    window.removeEventListener('storage', onChange);
-    window.removeEventListener(NAV_COLLAPSE_EVENT, onChange);
-  };
-}
-
-function navCollapseSnapshot(): boolean {
-  return window.localStorage.getItem(NAV_COLLAPSE_KEY) === 'true';
-}
-
 export function OpsShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -124,7 +124,7 @@ export function OpsShell({ children }: { children: ReactNode }) {
     () => false,
   );
   const [navOpen, setNavOpen] = useState(false);
-  const navCollapsed = useSyncExternalStore(subscribeNavCollapse, navCollapseSnapshot, () => false);
+  const [navFilter, setNavFilter] = useState('');
   const colorMode = useSyncExternalStore(
     subscribeAdminColorMode,
     getAdminColorModeSnapshot,
@@ -139,17 +139,21 @@ export function OpsShell({ children }: { children: ReactNode }) {
   const sync = useOpsSync();
 
   const access = useStaffAccess();
+  const normalizedNavFilter = useMemo(() => normalizeNavQuery(navFilter), [navFilter]);
   const sections = useMemo(
     () =>
       ADMIN_NAV_SECTIONS.map((section) => ({
         ...section,
         items: section.items.filter((item) => {
           const permission = adminPagePermissionForPath(item.href, 'view');
-          return !permission || hasStaffPermission(access, permission);
+          if (permission && !hasStaffPermission(access, permission)) return false;
+          if (normalizedNavFilter.length === 0) return true;
+          return normalizeNavQuery(`${item.label} ${section.label}`).includes(normalizedNavFilter);
         }),
       })).filter((section) => section.items.length > 0),
-    [access],
+    [access, normalizedNavFilter],
   );
+  const navFilterRef = useRef<HTMLInputElement>(null);
 
   const isStandalone = pathname === '/login' || pathname.startsWith('/invite/');
   const pageKey = adminPageForPath(pathname);
@@ -168,8 +172,20 @@ export function OpsShell({ children }: { children: ReactNode }) {
       router.replace('/login');
       return;
     }
-    if (pageDenied) router.replace('/access-denied');
-  }, [access.error, access.loading, isStandalone, loggedIn, pageDenied, router]);
+    // Eksik izin kodunu da tasi: /access-denied hangi yetkinin eksik oldugunu
+    // bilmedigi icin yer tutucu bir metin gosteriyordu. Kod zarf seviyesinde
+    // butun musterilere doner, hesap durumu tasimaz.
+    if (pageDenied) {
+      const target = pagePermission
+        ? `/access-denied?code=${encodeURIComponent(pagePermission)}`
+        : '/access-denied';
+      router.replace(target);
+    }
+    // `pagePermission` is a real dependency, not noise: without it, moving
+    // between two denied pages (pageDenied stays true) never re-ran this
+    // effect, so the second page was never redirected and could render
+    // content the operator has no permission for.
+  }, [access.error, access.loading, isStandalone, loggedIn, pageDenied, pagePermission, router]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -234,6 +250,45 @@ export function OpsShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [navOpen]);
 
+  // Roving arrow-key navigation across rail links — enterprise consoles let
+  // staff walk the menu without tabbing through 23 stops.
+  useEffect(() => {
+    const handleNavKeys = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) {
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+          event.preventDefault();
+          navFilterRef.current?.focus();
+          navFilterRef.current?.select();
+        }
+        return;
+      }
+      const target = event.target as HTMLElement | null;
+      const insideRail = target ? railRef.current?.contains(target) : false;
+      if (!insideRail) return;
+      if (target?.tagName === 'INPUT' && event.key !== 'Escape') return;
+      if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+
+      const links = Array.from(
+        railRef.current?.querySelectorAll<HTMLElement>('.ops-side__link') ?? [],
+      ).filter((element) => element.getClientRects().length > 0);
+      if (links.length === 0) return;
+
+      const currentIndex = links.indexOf(document.activeElement as HTMLElement);
+      event.preventDefault();
+      const nextIndex =
+        event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? links.length - 1
+            : event.key === 'ArrowDown'
+              ? Math.min(currentIndex + 1, links.length - 1)
+              : Math.max(currentIndex - 1, 0);
+      links[nextIndex]?.focus();
+    };
+    window.addEventListener('keydown', handleNavKeys);
+    return () => window.removeEventListener('keydown', handleNavKeys);
+  }, []);
+
   useEffect(() => {
     const desktop = window.matchMedia('(min-width: 768px)');
     const closeOnDesktop = () => {
@@ -246,11 +301,6 @@ export function OpsShell({ children }: { children: ReactNode }) {
   function closeMobileNav() {
     setNavOpen(false);
     requestAnimationFrame(() => menuButtonRef.current?.focus());
-  }
-
-  function toggleNavCollapse() {
-    window.localStorage.setItem(NAV_COLLAPSE_KEY, String(!navCollapsed));
-    window.dispatchEvent(new Event(NAV_COLLAPSE_EVENT));
   }
 
   function selectTab(href: string) {
@@ -311,8 +361,7 @@ export function OpsShell({ children }: { children: ReactNode }) {
   return (
     <div
       className={navOpen ? 'ops-shell ops-shell--nav' : 'ops-shell'}
-      data-admin-theme="kitchen-fleet"
-      data-nav-collapsed={navCollapsed ? 'true' : 'false'}
+      data-admin-theme="fastfood-navy"
     >
       <a href="#admin-main" className="ops-skip">
         İçeriğe geç
@@ -358,9 +407,55 @@ export function OpsShell({ children }: { children: ReactNode }) {
             <OpsIcon name="close" />
           </button>
         </div>
+        <div className="ops-side__filter">
+          <span className="ops-side__filter-icon">
+            <OpsIcon name="search" />
+          </span>
+          <input
+            ref={navFilterRef}
+            type="search"
+            value={navFilter}
+            onChange={(event) => setNavFilter(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key !== 'Escape' || navFilter.length === 0) return;
+              event.preventDefault();
+              setNavFilter('');
+            }}
+            placeholder="Menüde ara"
+            aria-label="Menüde ara"
+            autoComplete="off"
+            spellCheck={false}
+            data-admin-nav-search
+          />
+          {navFilter.length > 0 ? (
+            <button
+              type="button"
+              className="ops-side__filter-clear"
+              onClick={() => {
+                setNavFilter('');
+                navFilterRef.current?.focus();
+              }}
+              aria-label="Menü filtresini temizle"
+              data-admin-nav-search-clear
+            >
+              <OpsIcon name="close" />
+            </button>
+          ) : null}
+        </div>
         <nav className="ops-side__nav" aria-label="Birincil navigasyon">
+          {sections.length === 0 ? (
+            <p className="ops-side__empty" data-admin-nav-empty>
+              &ldquo;{navFilter}&rdquo; ile eşleşen bir bölüm yok.
+            </p>
+          ) : null}
           {sections.map((section) => (
-            <div key={section.id} className="ops-side__section">
+            <div
+              key={section.id}
+              className={
+                section.pinned ? 'ops-side__section ops-side__section--pinned' : 'ops-side__section'
+              }
+              data-admin-nav-section={section.id}
+            >
               <p className="ops-side__section-label">{section.label}</p>
               <ul className="ops-side__list">
                 {section.items.map((item) => {
@@ -374,7 +469,7 @@ export function OpsShell({ children }: { children: ReactNode }) {
                         }
                         aria-current={active ? 'page' : undefined}
                         aria-label={item.label}
-                        title={item.label}
+                        data-admin-nav-item={item.id}
                         onClick={() => setNavOpen(false)}
                       >
                         <span className="ops-side__icon" aria-hidden="true">
@@ -389,24 +484,6 @@ export function OpsShell({ children }: { children: ReactNode }) {
             </div>
           ))}
         </nav>
-        <div className="ops-side__footer">
-          <button
-            type="button"
-            className="ops-side__collapse"
-            onClick={toggleNavCollapse}
-            aria-controls="admin-rail"
-            aria-expanded={!navCollapsed}
-            aria-label={navCollapsed ? 'Menüyü genişlet' : 'Menüyü daralt'}
-            title={navCollapsed ? 'Menüyü genişlet' : 'Menüyü daralt'}
-          >
-            <span className="ops-side__collapse-icon" aria-hidden="true">
-              <OpsIcon
-                name={navCollapsed ? 'keyboard_double_arrow_right' : 'keyboard_double_arrow_left'}
-              />
-            </span>
-            <span className="ops-side__collapse-text">Menüyü daralt</span>
-          </button>
-        </div>
       </aside>
       <header className="ops-topbar">
         <button

@@ -1,10 +1,8 @@
+import { formatTryMinor } from '@fastfood/contracts';
+
 import type { StatusTone } from './order-status';
 
-export type A4ResourceScope =
-  | 'GLOBAL_MASTER_DATA'
-  | 'CUSTOMER_SCOPED'
-  | 'PAYMENT_SCOPED'
-  | 'MIXED';
+export type A4ResourceScope = 'GLOBAL_MASTER_DATA' | 'CUSTOMER_SCOPED' | 'PAYMENT_SCOPED' | 'MIXED';
 
 export function a4ResourceScope(pathname: string): A4ResourceScope | null {
   if (pathname === '/customers' || pathname === '/loyalty' || pathname === '/promotions') {
@@ -121,8 +119,7 @@ export function remainingRefundableMinor(
   return left > 0n ? left : 0n;
 }
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function isFinanceUuid(value: string): boolean {
   return UUID_RE.test(value.trim());
@@ -146,7 +143,7 @@ export function canSubmitRefund(input: {
 }
 
 export const PROMOTION_KINDS = [
-  { value: 'FIXED_CART_MINOR', label: 'Sabit sepet (kuruş)' },
+  { value: 'FIXED_CART_MINOR', label: 'Sabit sepet' },
   { value: 'PERCENT_CART', label: 'Yüzde sepet' },
   { value: 'DELIVERY_FEE_WAIVER', label: 'Teslimat ücreti muaf' },
 ] as const;
@@ -177,35 +174,27 @@ export function promotionValueSummary(row: {
 }): string {
   if (row.kind === 'DELIVERY_FEE_WAIVER') return 'Teslimat ücreti muaf';
   if (row.kind === 'PERCENT_CART') return bpsToPercentLabel(row.discountPercentBps ?? undefined);
-  if (row.kind === 'FIXED_CART_MINOR' && row.discountMinor) return `${row.discountMinor} kuruş`;
+  if (row.kind === 'FIXED_CART_MINOR' && row.discountMinor)
+    return formatTryMinor(row.discountMinor);
   return '—';
 }
 
 export function filterPromotions<
   T extends { isActive?: boolean; kind?: string; code?: string | null; name?: string },
->(
-  rows: readonly T[],
-  opts: { q: string; active: '' | 'active' | 'inactive'; kind: string },
-): T[] {
+>(rows: readonly T[], opts: { q: string; active: '' | 'active' | 'inactive'; kind: string }): T[] {
   const q = opts.q.trim().toLowerCase();
   return rows.filter((row) => {
     if (opts.kind && row.kind !== opts.kind) return false;
     if (opts.active === 'active' && row.isActive === false) return false;
     if (opts.active === 'inactive' && row.isActive !== false) return false;
     if (!q) return true;
-    return (
-      (row.name ?? '').toLowerCase().includes(q) ||
-      (row.code ?? '').toLowerCase().includes(q)
-    );
+    return (row.name ?? '').toLowerCase().includes(q) || (row.code ?? '').toLowerCase().includes(q);
   });
 }
 
 export function filterPayments<
   T extends { id: string; status?: string; checkoutSessionId?: string; providerPaymentId?: string },
->(
-  rows: readonly T[],
-  opts: { q: string; status: string },
-): T[] {
+>(rows: readonly T[], opts: { q: string; status: string }): T[] {
   const q = opts.q.trim().toLowerCase();
   return rows.filter((row) => {
     if (opts.status && row.status !== opts.status) return false;

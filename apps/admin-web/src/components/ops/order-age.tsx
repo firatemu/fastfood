@@ -38,8 +38,7 @@ export function OrderAge(props: { createdAt: string | undefined; className?: str
   if (now === 0 || !props.createdAt) {
     return (
       <span className={`ops-age ops-age--idle ${props.className ?? ''}`.trim()}>
-        <span aria-hidden className="ops-age__pulse" />
-        —
+        <span aria-hidden className="ops-age__pulse" />—
       </span>
     );
   }
@@ -53,5 +52,3 @@ export function OrderAge(props: { createdAt: string | undefined; className?: str
     </span>
   );
 }
-
-

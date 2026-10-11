@@ -1,0 +1,609 @@
+/* ==========================================================================
+   FASTFOOD Admin — /login (ADR-019, Navy)
+
+   Rebuilt from scratch in A9-18, then composed further in A9-19. Composition,
+   tokens and grammar all come from the Admin visual system; there is no second
+   palette on this page.
+
+   ---------------------------------------------------------------------------
+   Root cause found while redesigning this surface
+   ---------------------------------------------------------------------------
+   Every `--ff-*` token in the system is declared under
+   `[data-admin-theme='fastfood-navy']`; the stylesheet has no `:root` block.
+   `/login`, `/invite/*` and `/access-denied` render through `AdminShell`
+   *outside* `OpsShell`, so they carried no theme attribute — and every
+   declaration below was invalid at computed-value time. A `var()` naming an
+   undefined custom property is not "empty", it invalidates the whole
+   declaration: the card had no padding, no surface, no radius, the inputs had
+   no border or background. This file was already written on `--ff-*` tokens,
+   so it was correct code rendering against no palette at all.
+
+   The fix is in `components/admin-shell.tsx`: the standalone wrappers now
+   carry `data-admin-theme="fastfood-navy"`, which puts the token layer in
+   scope for all three auth surfaces. `globals.css` keeps painting them from
+   the same tokens, and the theme's own rules (`*` box-sizing, `a` colour,
+   `:focus-visible` outline, icon settings) now apply here too.
+
+   ---------------------------------------------------------------------------
+   Backend contract, read before designing
+   ---------------------------------------------------------------------------
+     POST /api/v1/auth/staff/login
+       body   { identifier: 1..255, password: 1..1024 }
+       200 →  { userId, refreshToken, refreshExpiresAt, mfaRequired }
+       400 →  VALIDATION_ERROR + details.fields[] { path, message }
+       401 →  AUTH_INVALID_CREDENTIALS + details.reason
+
+     POST /api/v1/auth/staff/mfa/verify
+       body   { refreshToken?: 1..256, totp: /^\d{6}$/ }
+       200 →  { userId, accessToken }
+       401 →  AUTH_SESSION_EXPIRED  (challenge gone → start over)
+              AUTH_INVALID_CREDENTIALS + details.reason
+
+   Consequences carried into the UI, none of them optional:
+
+   - `StaffAuthService.login` collapses unknown user, wrong actor type,
+     non-ACTIVE account, missing scrypt hash and inactive courier into the
+     single reason `USER_NOT_FOUND`; `PASSWORD_MISMATCH` is the other. That
+     collapse is deliberate — distinct messages would confirm that an account
+     exists. The surface therefore shows ONE failure message and never branches
+     on `details.reason`.
+   - The cookie flow is courier-web only (`isCourierWebRequest` requires the
+     `COURIER_WEB_ORIGIN` origin). Admin receives the refresh token in the
+     response body and sends it back as JSON, which is what this page does.
+   - Validation failures carry `details.fields`; the page maps them onto the
+     offending input. The messages here are written in Turkish from the Zod
+     constraints rather than echoed from the API, which answers in English.
+   - `mfaRequired` is `!mfaBypassEnabled` and bypass needs NODE_ENV !==
+     production plus ALLOW_DEV_MFA_BYPASS === 'true'. Even then the endpoint
+     still demands a syntactically valid six-digit code, so this page asks for
+     one and explains why. It never fabricates a code and never pre-fills
+     credentials.
+
+   ---------------------------------------------------------------------------
+   A9-19 — why the brand rail looks the way it does
+   ---------------------------------------------------------------------------
+   The rail was nearly empty and read as unfinished. Everything added to it is
+   real, not padding:
+
+   - The wordmark is the repository's canonical brand asset. The master is
+     `apps/storefront-web/public/storefront/assets/brand/burger-home-wordmark.png`
+     (1500×500, the file `storefront/lib/brand-copy.ts` exports as
+     `WORDMARK_SRC`); `apps/admin-web/public/brand/burger-home-wordmark.png` is
+     a 600×200 derivative of it, because this rail renders the mark at 208px and
+     the master is 128 KB — that would be the largest byte on the login page's
+     critical path, because the mark is the LCP element and is preloaded. It is
+     not a re-drawn or AI-generated logo: BURGER HOME is the real
+     customer-facing brand (seed copy, `BURGER HOME CLUB`, `Burger Home Alev
+     Teknolojiler A.Ş.`); FASTFOOD is the platform code name.
+   - The scope list is derived from `ADMIN_NAV_SECTIONS` at render time — the
+     same constant the sidebar renders — and the counts are counted from the
+     array, not typed in. A hardcoded "23 ekran" would have been a second
+     source of truth that silently rots the moment a nav entry is added.
+   - The hero photograph is a generated brand visual, deliberately kept free of
+     any text or signage. It is decorative and carries no product claim; it is
+     a drop-in replacement slot for a real branch photograph.
+
+   Nothing in the rail is an interactive control. ADR-019 §7 forbids rendering
+   controls the backend cannot back, so no nav entry became a link here — an
+   unauthenticated visitor following `/orders` would only ever land on the
+   access-denied surface.
+
+   ---------------------------------------------------------------------------
+   A9-19 — the step rail bug was in the markup, not the stylesheet
+   ---------------------------------------------------------------------------
+   Step 1 was rendering as `styles.stepActive` *alone* while step 2 rendered as
+   `styles.step` (+ modifier). `.stepActive` only sets `color`, so step 1 lost
+   `display: flex` and its items stacked — the reported "1 above Kimlik"
+   wrap. `.step` is now always present and only the modifier varies. The
+   `flex: 0 0 auto` / `white-space: nowrap` below are a backstop, not the fix.
+
+   Design reference: the Navy token layer and the panel grammar, shared with
+   every refreshed Admin route.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Shell
+   -------------------------------------------------------------------------- */
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-areas:
+    'rail'
+    'pane';
+  grid-template-rows: auto 1fr;
+  background: var(--ff-surface);
+  color: var(--ff-on-surface);
+  font: 400 var(--ff-text-body-md) / var(--ff-leading-body-md) var(--ff-font-body);
+}
+
+@media (min-width: 900px) {
+  .page {
+    grid-template-areas: 'rail pane';
+    grid-template-columns: minmax(0, 1fr) minmax(400px, 480px);
+    grid-template-rows: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Brand rail — compact bar on narrow, full-height column from 900px.
+   Not decorative: it carries the brand, what the console is for, and what it
+   covers. The photographic panel and the scope table are desktop-only; on a
+   phone they would push the form below the fold for decoration.
+   -------------------------------------------------------------------------- */
+
+.rail {
+  grid-area: rail;
+  display: grid;
+  align-content: center;
+  padding: var(--ff-space-xl);
+  border-bottom: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container-lowest);
+}
+
+.railInner {
+  display: grid;
+  gap: var(--ff-space-lg);
+  max-width: 460px;
+}
+
+@media (min-width: 900px) {
+  .rail {
+    align-content: start;
+    padding: 48px;
+    border-right: 1px solid var(--ff-keyline);
+    border-bottom: 0;
+    /* `overflow: auto` also drops the grid item's automatic minimum size, so
+       a short viewport scrolls the rail instead of stretching the page. */
+    overflow-y: auto;
+  }
+
+  .railInner {
+    gap: var(--ff-space-xl);
+    max-width: 520px;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  display: block;
+  width: 148px;
+  height: auto;
+}
+
+@media (min-width: 900px) {
+  .logo {
+    width: 208px;
+  }
+}
+
+.railCopy {
+  display: grid;
+  gap: var(--ff-space-sm);
+}
+
+.railEyebrow {
+  font: 500 var(--ff-text-label-sm) / var(--ff-leading-label-sm) var(--ff-font-label);
+  letter-spacing: var(--ff-tracking-label-sm);
+  text-transform: uppercase;
+  color: var(--ff-primary-container);
+}
+
+.railName {
+  margin: 0;
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-lg);
+  font-weight: var(--ff-weight-headline-lg);
+  line-height: var(--ff-leading-headline-lg);
+  letter-spacing: var(--ff-tracking-headline-lg);
+  color: var(--ff-on-surface);
+}
+
+.railText {
+  margin: 0;
+  max-width: 42ch;
+  color: var(--ff-on-surface-variant);
+  font: 400 var(--ff-text-body-sm) / var(--ff-leading-body-lg) var(--ff-font-body);
+}
+
+.hero,
+.scope,
+.railMeta {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .hero,
+  .scope {
+    display: grid;
+    gap: var(--ff-space-sm);
+  }
+
+  .railMeta {
+    display: block;
+  }
+}
+
+.hero {
+  margin: 0;
+}
+
+.heroImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  background: var(--ff-surface-container-low);
+}
+
+.heroCaption {
+  color: var(--ff-ink-faint);
+  font: 500 var(--ff-text-label-sm) / var(--ff-leading-label-sm) var(--ff-font-label);
+  letter-spacing: var(--ff-tracking-label-sm);
+  text-transform: uppercase;
+}
+
+.scopeLabel {
+  color: var(--ff-ink-faint);
+  font: 500 var(--ff-text-label-sm) / var(--ff-leading-label-sm) var(--ff-font-label);
+  letter-spacing: var(--ff-tracking-label-sm);
+  text-transform: uppercase;
+}
+
+.scopeList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--ff-keyline);
+}
+
+.scopeRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ff-space-lg);
+  padding: var(--ff-space-sm) 0;
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+.scopeName {
+  color: var(--ff-on-surface);
+  font: 400 var(--ff-text-body-sm) / var(--ff-leading-body-lg) var(--ff-font-body);
+}
+
+.scopeCount {
+  color: var(--ff-tertiary);
+  font: 500 var(--ff-text-label-md) / var(--ff-leading-label-md) var(--ff-font-label);
+  letter-spacing: var(--ff-tracking-label-md);
+}
+
+.railMeta {
+  margin: 0;
+  color: var(--ff-ink-faint);
+  font: 400 var(--ff-text-label-sm) / var(--ff-leading-label-sm) var(--ff-font-body);
+}
+
+/* --------------------------------------------------------------------------
+   Auth pane and card
+   -------------------------------------------------------------------------- */
+
+.pane {
+  grid-area: pane;
+  display: grid;
+  align-content: center;
+  justify-items: stretch;
+  padding: var(--ff-space-xl) var(--ff-space-lg);
+}
+
+@media (min-width: 900px) {
+  .pane {
+    padding: var(--ff-space-xl);
+  }
+}
+
+.card {
+  width: min(100%, 420px);
+  justify-self: center;
+  display: grid;
+  gap: var(--ff-space-lg);
+  padding: var(--ff-space-xl);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  background: var(--ff-surface-container);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+@media (min-width: 900px) {
+  .card {
+    justify-self: start;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Card head
+   -------------------------------------------------------------------------- */
+
+.head {
+  display: grid;
+  gap: var(--ff-space-xs);
+}
+
+.eyebrow {
+  font: 500 var(--ff-text-label-sm) / var(--ff-leading-label-sm) var(--ff-font-label);
+  letter-spacing: var(--ff-tracking-label-sm);
+  text-transform: uppercase;
+  color: var(--ff-primary-container);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-lg);
+  font-weight: var(--ff-weight-headline-lg);
+  line-height: var(--ff-leading-headline-lg);
+  letter-spacing: var(--ff-tracking-headline-lg);
+  color: var(--ff-on-surface);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--ff-on-surface-variant);
+  font: 400 var(--ff-text-body-sm) / var(--ff-leading-body-lg) var(--ff-font-body);
+}
+
+/* --------------------------------------------------------------------------
+   Step rail — the flow really is two steps, so it says so
+   -------------------------------------------------------------------------- */
+
+.steps {
+  display: flex;
+  align-items: center;
+  gap: var(--ff-space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--ff-space-sm);
+  white-space: nowrap;
+  color: var(--ff-ink-faint);
+  font: 500 var(--ff-text-label-sm) / var(--ff-leading-label-sm) var(--ff-font-label);
+  letter-spacing: var(--ff-tracking-label-md);
+  text-transform: uppercase;
+}
+
+.stepActive {
+  color: var(--ff-on-surface);
+}
+
+.stepIndex {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--ff-outline-variant);
+  border-radius: var(--ff-radius-full);
+  color: var(--ff-on-surface-variant);
+  font: 600 var(--ff-text-label-sm) / var(--ff-leading-label-sm) var(--ff-font-label);
+}
+
+.stepActive .stepIndex {
+  border-color: var(--ff-primary-container);
+  background: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+}
+
+.stepDone .stepIndex {
+  border-color: var(--ff-tertiary);
+  color: var(--ff-tertiary);
+}
+
+.stepDivider {
+  flex: 1 1 auto;
+  min-width: var(--ff-space-lg);
+  height: 1px;
+  background: var(--ff-keyline);
+}
+
+/* --------------------------------------------------------------------------
+   Form
+   -------------------------------------------------------------------------- */
+
+.form {
+  display: grid;
+  gap: var(--ff-space-lg);
+  margin: 0;
+}
+
+.field {
+  display: grid;
+  gap: var(--ff-space-sm);
+}
+
+.label {
+  font: 500 var(--ff-text-label-sm) / var(--ff-leading-label-sm) var(--ff-font-label);
+  letter-spacing: var(--ff-tracking-label-md);
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+.control {
+  position: relative;
+  display: grid;
+}
+
+.input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--ff-space-lg);
+  border: 1px solid var(--ff-outline-variant);
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface);
+  font: 400 var(--ff-text-body-md) / var(--ff-leading-body-md) var(--ff-font-body);
+}
+
+.input:hover:not(:focus-visible) {
+  border-color: var(--ff-outline);
+}
+
+.input:focus-visible {
+  border-color: var(--ff-primary-container);
+  outline: 2px solid var(--ff-outline);
+  outline-offset: 1px;
+}
+
+.inputInvalid,
+.inputInvalid:hover {
+  border-color: var(--ff-status-critical);
+}
+
+.inputHasToggle {
+  padding-inline-end: 76px;
+}
+
+.toggle {
+  position: absolute;
+  inset-inline-end: 5px;
+  top: 50%;
+  translate: 0 -50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 var(--ff-space-sm);
+  border: 1px solid transparent;
+  border-radius: var(--ff-radius-lg);
+  background: transparent;
+  color: var(--ff-on-surface-variant);
+  font: 500 var(--ff-text-label-sm) / var(--ff-leading-label-sm) var(--ff-font-label);
+  letter-spacing: var(--ff-tracking-label-sm);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.toggle:hover {
+  border-color: var(--ff-keyline);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--ff-outline);
+  outline-offset: 1px;
+}
+
+.hint {
+  color: var(--ff-ink-faint);
+  font: 400 var(--ff-text-label-sm) / var(--ff-leading-body-sm) var(--ff-font-body);
+}
+
+.fieldError {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--ff-status-critical-text);
+  font: 400 var(--ff-text-label-sm) / var(--ff-leading-body-sm) var(--ff-font-body);
+}
+
+.fieldError > :global(.material-symbols-outlined) {
+  flex: 0 0 auto;
+  font-size: 15px;
+}
+
+/* --------------------------------------------------------------------------
+   Actions
+   -------------------------------------------------------------------------- */
+
+.actions {
+  display: grid;
+  gap: var(--ff-space-sm);
+}
+
+.button {
+  min-height: 40px;
+  padding: 0 var(--ff-space-lg);
+  border: 1px solid var(--ff-primary-container);
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+  font: 600 var(--ff-text-body-md) / var(--ff-leading-body-md) var(--ff-font-body);
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  border-color: var(--ff-primary);
+  background: var(--ff-primary);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonGhost {
+  min-height: 36px;
+  padding: 0 var(--ff-space-md);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  background: transparent;
+  color: var(--ff-on-surface-variant);
+  font: 500 var(--ff-text-label-md) / var(--ff-leading-label-md) var(--ff-font-label);
+  letter-spacing: var(--ff-tracking-label-md);
+  cursor: pointer;
+}
+
+.buttonGhost:hover:not(:disabled) {
+  border-color: var(--ff-outline);
+  color: var(--ff-on-surface);
+}
+
+.buttonGhost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   Notices
+   -------------------------------------------------------------------------- */
+
+.notice {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: var(--ff-space-sm);
+  margin: 0;
+  padding: var(--ff-space-md) var(--ff-space-lg);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface-variant);
+  font: 400 var(--ff-text-label-sm) / var(--ff-leading-body-lg) var(--ff-font-body);
+}
+
+.notice > :global(.material-symbols-outlined) {
+  font-size: 17px;
+}
+
+.noticeError {
+  border-color: var(--ff-status-critical-border);
+  background: var(--ff-status-critical-wash);
+  color: var(--ff-status-critical-text);
+}
+
+.noticeError > :global(.material-symbols-outlined) {
+  color: var(--ff-status-critical-text);
+}

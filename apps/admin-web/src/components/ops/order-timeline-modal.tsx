@@ -2,8 +2,14 @@
 
 import { useEffect, useRef } from 'react';
 
-import { type TimelineRow, buildTimelineRows, formatDuration } from './orders-data-grid.helpers';
 import { orderStatusLabel } from '../../lib/order-status';
+
+import {
+  type TimelineEntry,
+  type TimelineRow,
+  buildTimelineRows,
+  formatDuration,
+} from './orders-data-grid.helpers';
 
 export interface OrderTimelineModalOrder {
   id: string;
@@ -20,16 +26,17 @@ export interface OrderTimelineModalProps {
 }
 
 export function OrderTimelineModal(props: OrderTimelineModalProps) {
+  const { open, onClose } = props;
   const dialogRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!props.open) return;
+    if (!open) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') props.onClose();
+      if (event.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [props.open, props.onClose]);
+  }, [open, onClose]);
 
   if (!props.open || !props.order) return null;
 
@@ -37,9 +44,7 @@ export function OrderTimelineModal(props: OrderTimelineModalProps) {
   // The shape coming in is a loose Zod-inferred object; the runtime
   // contract is the TimelineEntry shape used by the rest of the helper
   // layer. Cast at the boundary so the rest of the file stays typed.
-  const events = (order.events ?? undefined) as unknown as
-    | readonly import('./orders-data-grid.helpers').TimelineEntry[]
-    | undefined;
+  const events = (order.events ?? undefined) as unknown as readonly TimelineEntry[] | undefined;
   const rows: TimelineRow[] = events ? buildTimelineRows(events) : [];
   const createdMs = order.createdAt ? new Date(order.createdAt).getTime() : NaN;
   const firstTerminal = events?.find(

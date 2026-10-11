@@ -4,7 +4,7 @@
   align-items: center;
   gap: 7px;
   padding: 0 10px;
-  border: 1px solid light-dark(#d3d6d9, #435363);
+  border: 1px solid var(--ff-keyline);
   background: light-dark(#f8f9f9, #1d2730);
   color: light-dark(#2e6185, #b9d4e7);
   font-size: 11px;
@@ -22,9 +22,9 @@
 .area {
   display: inline-block;
   padding: 5px 8px;
-  border: 1px solid light-dark(#d3d5d9, #43516a);
+  border: 1px solid var(--ff-keyline);
   background: light-dark(#f8f9f9, #202936);
-  color: light-dark(#2e5e84, #acc8de);
+  color: var(--ff-status-info-text);
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
@@ -44,12 +44,8 @@
   gap: 16px;
   margin: 15px 0 17px;
   padding: 19px;
-  border: 1px solid light-dark(#d9d8d3, #5d563d);
-  background: linear-gradient(
-    105deg,
-    light-dark(#f9f9f8, #302b1f),
-    light-dark(#f8f9f9, #232a32) 78%
-  );
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container-low);
 }
 .hero > div {
   display: grid;
@@ -58,24 +54,24 @@
 }
 .hero strong {
   overflow-wrap: anywhere;
-  color: light-dark(#a0700d, #ffe2a6);
-  font-family: var(--ops-font-anton, Anton, sans-serif);
+  color: var(--ff-primary);
+  font-family: var(--ff-font-headline);
   font-size: 27px;
   font-weight: 400;
   letter-spacing: 0.02em;
 }
 .hero small {
-  color: light-dark(#2e5c84, #b5c6d5);
+  color: var(--ff-status-info-text);
   font-size: 11px;
 }
 .hero :global(.material-symbols-outlined) {
-  color: light-dark(#916a1d, #e2bb6c);
+  color: var(--ff-status-warn-text);
   font-size: 37px;
 }
 .permissionList,
 .staffList {
   display: grid;
-  border-top: 1px solid light-dark(#d3d6d9, #33404c);
+  border-top: 1px solid var(--ff-keyline);
 }
 .permissionList > div {
   display: flex;
@@ -83,13 +79,13 @@
   justify-content: space-between;
   gap: 12px;
   padding: 10px 12px;
-  border-right: 1px solid light-dark(#d3d6d9, #33404c);
-  border-bottom: 1px solid light-dark(#d3d6d9, #33404c);
-  border-left: 1px solid light-dark(#d3d6d9, #33404c);
-  background: light-dark(#f8f9f9, #1d252e);
+  border-right: 1px solid var(--ff-keyline);
+  border-bottom: 1px solid var(--ff-keyline);
+  border-left: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
 }
 .permissionList > div:nth-child(even) {
-  background: light-dark(#f8f9f9, #1a222a);
+  background: var(--ff-surface-container);
 }
 .permissionList span,
 .staffList > div {
@@ -102,11 +98,11 @@
 }
 .permissionList small,
 .staffList small {
-  color: light-dark(#58636f, #94a6b8);
+  color: var(--ff-on-surface-variant);
   font: 10px var(--ops-font-mono, 'JetBrains Mono', monospace);
 }
 .permissionList em {
-  color: light-dark(#856929, #d9bf83);
+  color: var(--ff-status-warn-text);
   font-size: 10px;
   font-style: normal;
   white-space: nowrap;
@@ -117,13 +113,13 @@
 }
 .staffList > div {
   padding: 10px 12px;
-  border-right: 1px solid light-dark(#d3d6d9, #33404c);
-  border-bottom: 1px solid light-dark(#d3d6d9, #33404c);
-  border-left: 1px solid light-dark(#d3d6d9, #33404c);
-  background: light-dark(#f8f9f9, #1d252e);
+  border-right: 1px solid var(--ff-keyline);
+  border-bottom: 1px solid var(--ff-keyline);
+  border-left: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
 }
 .staffList > div:nth-child(even) {
-  background: light-dark(#f8f9f9, #1a222a);
+  background: var(--ff-surface-container);
 }
 .assignRow {
   display: flex;
@@ -160,9 +156,9 @@
   --access-line: var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
   --access-line-strong: var(--ops-keyline-strong, light-dark(#d3d5d9, #3e4656));
   --access-text: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
-  --access-muted: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
-  --access-amber: var(--ops-amber, light-dark(#a57709, #feb300));
-  --access-ready: var(--ops-ready, light-dark(#0ea06f, #10b981));
+  --access-muted: var(--ff-on-surface-variant);
+  --access-amber: var(--ff-primary);
+  --access-ready: var(--ff-status-ready);
   --access-ready-well: var(
     --ops-ready-well,
     light-dark(rgba(233, 246, 242, 0.12), rgba(16, 185, 129, 0.12))
@@ -173,10 +169,10 @@
 }
 
 .rolesPage {
-  --roles-amber: var(--ops-amber, light-dark(#a57709, #feb300));
+  --roles-amber: var(--ff-primary);
   --roles-line: var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
   --roles-text: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
-  --roles-muted: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
+  --roles-muted: var(--ff-on-surface-variant);
 }
 
 .rolesHeader {
@@ -213,17 +209,7 @@
   overflow: hidden;
   padding: 22px 24px;
   border: 1px solid var(--access-line-strong);
-  background: radial-gradient(
-      ellipse at 100% 0%,
-      var(--ops-amber-well, light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08))),
-      transparent 35%
-    ),
-    linear-gradient(
-      110deg,
-      var(--access-raised) 0%,
-      var(--access-surface) 58%,
-      var(--access-base) 100%
-    );
+  background: var(--ff-surface-container-low);
   box-shadow: inset 3px 0 var(--access-amber);
 }
 
@@ -339,11 +325,7 @@
 
 .roleCardSelected {
   border-color: var(--ops-amber-border);
-  background: linear-gradient(
-    105deg,
-    var(--ops-amber-well, light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08))),
-    var(--access-surface) 66%
-  );
+  background: var(--ff-surface-container-highest);
   box-shadow: inset 2px 0 var(--access-amber);
 }
 
@@ -407,7 +389,7 @@
 
 .roleCardSelected .roleCardIcon {
   border-color: color-mix(in srgb, var(--ops-amber-border) 40%, transparent);
-  background: var(--ops-amber-well, light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08)));
+  background: var(--ff-status-warn-wash);
   color: var(--ops-amber-text);
 }
 
@@ -676,3 +658,237 @@
     transition: none;
   }
 }
+
+/* @block:navy-a8-shared */
+/* ==========================================================================
+   FASTFOOD Admin — Navy list-page language (ADR-019, phase A8)
+
+   These screens have no frame in the design set, so this block carries the
+   list-page grammar established by the catalog screens in A7: label-role
+   headers, divide-y rows instead of zebra, mono identifiers, `surface-container
+   -low` panels with `shadow-sm`, and a 2px/4px/8px/12px shape scale.
+
+   Class names differ per module (`gridPanel` vs `panel`, `sortMark` vs
+   `sortIndicator`, ...), so the block is applied with **selector-level
+   pruning**: a selector is emitted only if that stylesheet defines it.
+   ========================================================================== */
+/* --- page shell --- */
+
+:global([data-admin-theme='fastfood-navy']) .rolesBreadcrumb {
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- panel --- */
+
+/* --- search well --- */
+
+/* --- filter chips / segmented control --- */
+
+:global([data-admin-theme='fastfood-navy']) .count {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- table: label header, divide-y, no zebra --- */
+
+/* --- identity columns --- */
+
+:global([data-admin-theme='fastfood-navy']) .catalogMark {
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  border-radius: var(--ff-radius-lg);
+}
+
+/* --- mono identifier columns --- */
+
+/* --- status + scope badges --- */
+
+/* --- buttons --- */
+
+/* --- forms --- */
+
+/* --- notices, states, overlays --- */
+
+/* --- dialogs --- */
+
+/* --- column menu --- */
+
+/* --- misc --- */
+/* @end:navy-a8-shared */
+
+/* @block:navy-a8-domain */
+/* ==========================================================================
+   FASTFOOD Admin — Navy domain blocks (ADR-019, phase A8)
+
+   Follow-up to the shared list-page block for the five screens whose class
+   vocabulary barely overlapped: roles, invite, order-items-dialog,
+   column-visibility-menu and customer-detail. Applied with the same
+   selector-level pruning.
+   ========================================================================== */
+/* ---------------------------------------------------------------- roles --- */
+
+:global([data-admin-theme='fastfood-navy']) .rolesHeader {
+  padding: var(--ff-space-lg);
+  background: var(--ff-surface-container-low);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .hero {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-xl);
+  font-weight: var(--ff-weight-headline-xl);
+  line-height: var(--ff-leading-headline-xl);
+  letter-spacing: var(--ff-tracking-headline-xl);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .modelKicker {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-primary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .modelIntro,
+:global([data-admin-theme='fastfood-navy']) .modelCopy,
+:global([data-admin-theme='fastfood-navy']) .description,
+:global([data-admin-theme='fastfood-navy']) .scopeNote,
+:global([data-admin-theme='fastfood-navy']) .matrixNote {
+  font: 400 13px/18px var(--ff-font-body);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .modelGlyph {
+  background: var(--ff-surface-container-highest);
+  color: var(--ff-primary-container);
+  border-radius: var(--ff-radius-xl);
+}
+
+:global([data-admin-theme='fastfood-navy']) .modelStats {
+  gap: var(--ff-space-sm);
+}
+
+:global([data-admin-theme='fastfood-navy']) .modelStats > div {
+  padding: var(--ff-space-sm) var(--ff-space-md);
+  background: var(--ff-surface-container);
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .modelStats strong,
+:global([data-admin-theme='fastfood-navy']) .roleCardCount,
+:global([data-admin-theme='fastfood-navy']) .count {
+  font-family: var(--ff-font-label);
+  font-size: var(--ff-text-headline-md);
+  font-weight: 700;
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .roleCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--ff-space-md);
+}
+
+:global([data-admin-theme='fastfood-navy']) .roleCard {
+  padding: var(--ff-space-md);
+  background: var(--ff-surface-container-low);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .roleCard:hover {
+  border-color: var(--ff-outline-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .roleCardSelected {
+  border-color: var(--ff-primary-container);
+  background: var(--ff-accent-wash);
+}
+
+:global([data-admin-theme='fastfood-navy']) .roleCardText,
+:global([data-admin-theme='fastfood-navy']) .roleCardDescription {
+  font: 400 12px/16px var(--ff-font-body);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .roleCardIcon {
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .matrixPanel {
+  background: var(--ff-surface-container-low);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .matrixHeader,
+:global([data-admin-theme='fastfood-navy']) .matrixHeader th {
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface-variant);
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-bottom-color: var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .matrixTable td {
+  background: var(--ff-surface-container-low);
+  border-bottom-color: var(--ff-surface-container-high);
+  font: 400 12px/16px var(--ff-font-body);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .matrixGrant {
+  color: var(--ff-tertiary);
+}
+
+:global([data-admin-theme='fastfood-navy']) .matrixDenied {
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .matrixAllowed {
+  color: var(--ff-tertiary);
+}
+
+:global([data-admin-theme='fastfood-navy']) .matrixUnsupported,
+:global([data-admin-theme='fastfood-navy']) .matrixUnknown {
+  color: var(--ff-ink-faint);
+}
+
+:global([data-admin-theme='fastfood-navy']) .matrixScroll,
+:global([data-admin-theme='fastfood-navy']) .permissionList,
+:global([data-admin-theme='fastfood-navy']) .staffList,
+:global([data-admin-theme='fastfood-navy']) .accessModel {
+  background: var(--ff-surface-container-low);
+  border-color: var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .area,
+:global([data-admin-theme='fastfood-navy']) .assignRow {
+  padding: var(--ff-space-sm) var(--ff-space-md);
+  background: var(--ff-surface-container);
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .confirmIcon {
+  color: var(--ff-primary-container);
+}
+
+/* --------------------------------------------------------------- invite --- */
+
+/* ---------------------------------------------------- order items dialog --- */
+
+/* ------------------------------------------------- column visibility menu --- */
+
+/* -------------------------------------------------------- customer detail --- */
+/* @end:navy-a8-domain */

@@ -1,12 +1,15 @@
-import { Anton, Inter, JetBrains_Mono } from 'next/font/google';
+import { Anton, Inter, JetBrains_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
 
-import '@fastfood/ui-web/styles.css';
-
+// `@fastfood/ui-web/styles.css` kaldirildi (ADR-019). Bu paket emekli tasarim
+// sistemidir ve global yuklenerek tum admin sayfalarina 335 `ff-*` kurali ile
+// 136 eski token enjekte ediyordu; 32 tanesi admin'in kendi token adiyla
+// cakisiyordu. Hiçbir admin yuzeyi artik onun sinifini kullanmiyor.
 import { AdminShell } from '../components/admin-shell';
 import './globals.css';
 import '../styles/admin-stitch-tokens.css';
+import '../styles/admin-fastfood-tokens.css';
 import '../styles/admin-ops.css';
 import '../styles/admin-sidebar.css';
 
@@ -29,6 +32,13 @@ const jetbrains = JetBrains_Mono({
   display: 'swap',
 });
 
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['600', '700', '800'],
+  variable: '--font-jakarta',
+  display: 'swap',
+});
+
 export const metadata = {
   title: 'FASTFOOD Admin',
   description: 'Şube ve merkez operasyon paneli.',
@@ -40,7 +50,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="tr"
       data-theme="operations"
       data-color-mode="dark"
-      className={`${anton.variable} ${inter.variable} ${jetbrains.variable}`}
+      className={`${anton.variable} ${inter.variable} ${jetbrains.variable} ${plusJakarta.variable}`}
       suppressHydrationWarning
     >
       <head>

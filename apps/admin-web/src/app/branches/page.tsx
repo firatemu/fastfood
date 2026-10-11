@@ -24,13 +24,17 @@ import { useOpsSync } from '../../components/ops/ops-sync';
 import { hasStaffPermission, useStaffAccess } from '../../components/ops/staff-access-context';
 import { createAdminClient } from '../../lib/api';
 import {
-  isE164Phone,
+  PROFILE_FIELDS,
+  PROFILE_LIMITS,
+  checkProfile,
+  coordinateReadout,
   isHhMm,
-  isValidLatitude,
-  isValidLongitude,
-  parseCoordinate,
+  majorToMinor,
   parsePolygonGeoJson,
   weekdayLabel,
+  type BranchDraft,
+  type ProfileErrors,
+  type ProfileField,
 } from '../../lib/fulfillment-ops';
 import {
   adminBranchSchema,
@@ -49,17 +53,6 @@ type Hour = z.infer<typeof operatingHoursSchema>['data'][number];
 type Area = z.infer<typeof serviceAreasSchema>['data'][number];
 type Dialog = { kind: 'create' } | { kind: 'edit'; branch: Branch } | null;
 type Tab = 'profile' | 'hours' | 'coverage';
-type Draft = {
-  code: string;
-  name: string;
-  address: string;
-  latitude: string;
-  longitude: string;
-  phone: string;
-  minOrder: string;
-  deliveryFee: string;
-  accepting: boolean;
-};
 const PAGE_SIZES = [10, 20, 50];
 const EMPTY_BRANCHES: Branch[] = [];
 
@@ -82,14 +75,7 @@ function minorToMajor(value: string | undefined): string {
   }
 }
 
-function majorToMinor(value: string): string | null {
-  const normalized = value.trim().replace(',', '.');
-  if (!/^\d+(?:\.\d{1,2})?$/.test(normalized)) return null;
-  const [whole, fraction = ''] = normalized.split('.');
-  return (BigInt(whole ?? '0') * 100n + BigInt(fraction.padEnd(2, '0'))).toString();
-}
-
-function freshDraft(): Draft {
+function freshDraft(): BranchDraft {
   return {
     code: '',
     name: '',
@@ -102,7 +88,7 @@ function freshDraft(): Draft {
     accepting: true,
   };
 }
-function draftOf(branch: Branch): Draft {
+function draftOf(branch: Branch): BranchDraft {
   return {
     code: branch.code ?? '',
     name: branch.name,
@@ -144,7 +130,7 @@ export default function BranchesPage() {
   const [columnMenuOpen, setColumnMenuOpen] = useState(false);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [tab, setTab] = useState<Tab>('profile');
-  const [draft, setDraft] = useState<Draft>(freshDraft);
+  const [draft, setDraft] = useState<BranchDraft>(freshDraft);
   const [detail, setDetail] = useState<Branch | null>(null);
   const [hours, setHours] = useState<Hour[] | null>(null);
   const [areas, setAreas] = useState<Area[] | null>(null);
@@ -156,6 +142,8 @@ export default function BranchesPage() {
   const [areaPriority, setAreaPriority] = useState('0');
   const [areaPolygon, setAreaPolygon] = useState('');
   const [confirmPause, setConfirmPause] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<ProfileErrors>({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -245,6 +233,8 @@ export default function BranchesPage() {
     setTab('profile');
     setFormError(null);
     setConfirmPause(false);
+    setFieldErrors({});
+    setSubmitAttempted(false);
     setDialog({ kind: 'create' });
   }, []);
   const openEdit = useCallback(async (branch: Branch) => {
@@ -261,6 +251,8 @@ export default function BranchesPage() {
     setConfirmPause(false);
     setAreaFormOpen(false);
     setTab('profile');
+    setFieldErrors({});
+    setSubmitAttempted(false);
     setDialog({ kind: 'edit', branch });
     const client = createAdminClient();
     const [profile, schedule, coverage] = await Promise.allSettled([
@@ -289,82 +281,77 @@ export default function BranchesPage() {
     requestId.current += 1;
     setDialog(null);
     setConfirmPause(false);
+    setFieldErrors({});
+    setSubmitAttempted(false);
     window.requestAnimationFrame(() => triggerRef.current?.focus());
+  }
+
+  const profileMode: 'create' | 'edit' = dialog?.kind === 'edit' ? 'edit' : 'create';
+  const minOrderMinor = majorToMinor(draft.minOrder);
+  const deliveryFeeMinor = majorToMinor(draft.deliveryFee);
+  const profileSummary = useMemo(() => {
+    const result = checkProfile(draft, profileMode);
+    return {
+      result,
+      coordinate: coordinateReadout(draft, profileMode),
+      missing: PROFILE_FIELDS.filter((field) => result.errors[field]).length,
+    };
+  }, [draft, profileMode]);
+  const coordinateErrorId = fieldErrors.latitude
+    ? 'branch-error-latitude'
+    : fieldErrors.longitude
+      ? 'branch-error-longitude'
+      : undefined;
+
+  function updateField(field: ProfileField, value: string) {
+    const next = { ...draft, [field]: value };
+    setDraft(next);
+    if (!submitAttempted) return;
+    const { errors } = checkProfile(next, profileMode);
+    setFieldErrors((current) => ({ ...current, [field]: errors[field] }));
   }
 
   async function saveProfile(confirmed = false) {
     if (!dialog) return;
-    if (dialog.kind === 'create' ? !canCreateBranch : !canUpdateBranch) return;
-    const name = draft.name.trim(),
-      addressLine = draft.address.trim(),
-      phone = draft.phone.trim();
-    const minOrderMinor = majorToMinor(draft.minOrder),
-      deliveryFeeMinor = majorToMinor(draft.deliveryFee);
-    if (!name || name.length > 128 || !addressLine || addressLine.length > 255) {
-      setFormError('Şube adı ve adresi zorunlu; uzunluklarını kontrol edin.');
+    const creating = dialog.kind === 'create';
+    if (creating ? !canCreateBranch : !canUpdateBranch) return;
+    setSubmitAttempted(true);
+    const result = checkProfile(draft, creating ? 'create' : 'edit');
+    setFieldErrors(result.errors);
+    if (!result.ok) {
+      setFormError(result.errors[result.firstInvalid] ?? null);
+      document.getElementById('branch-field-' + result.firstInvalid)?.focus();
       return;
     }
-    if (minOrderMinor === null || deliveryFeeMinor === null) {
-      setFormError('Tutarları ₺ cinsinden, en fazla iki ondalık basamakla girin.');
-      return;
-    }
-    if (phone && !isE164Phone(phone)) {
-      setFormError('Telefonu ülke koduyla girin (örnek: +905551112233).');
-      return;
-    }
-    const latitude = parseCoordinate(draft.latitude),
-      longitude = parseCoordinate(draft.longitude);
-    if (dialog.kind === 'create') {
-      if (!draft.code.trim() || draft.code.trim().length > 32) {
-        setFormError('Şube kodu 1–32 karakter olmalı.');
-        return;
-      }
-      if (
-        !draft.latitude.trim() ||
-        !draft.longitude.trim() ||
-        latitude === null ||
-        longitude === null ||
-        !isValidLatitude(latitude) ||
-        !isValidLongitude(longitude)
-      ) {
-        setFormError('Geçerli enlem (-90 ile 90) ve boylam (-180 ile 180) girin.');
-        return;
-      }
-    }
-    if (
-      dialog.kind === 'edit' &&
-      detail?.isAcceptingOrders !== false &&
-      !draft.accepting &&
-      !confirmed
-    ) {
+    setFormError(null);
+    if (!creating && detail?.isAcceptingOrders !== false && !draft.accepting && !confirmed) {
       setConfirmPause(true);
       return;
     }
+    const { values } = result;
     setBusy(true);
-    setFormError(null);
     try {
-      const creating = dialog.kind === 'create';
       await createAdminClient().request({
         method: creating ? 'POST' : 'PATCH',
-        path: creating ? 'admin/branches' : `admin/branches/${dialog.branch.id}`,
+        path: creating ? 'admin/branches' : 'admin/branches/' + dialog.branch.id,
         body: creating
           ? {
-              code: draft.code.trim(),
-              name,
-              addressLine,
-              latitude,
-              longitude,
-              ...(phone ? { phone } : {}),
-              minOrderMinor,
-              deliveryFeeMinor,
+              code: values.code,
+              name: values.name,
+              addressLine: values.addressLine,
+              latitude: values.latitude,
+              longitude: values.longitude,
+              ...(values.phone ? { phone: values.phone } : {}),
+              minOrderMinor: values.minOrderMinor,
+              deliveryFeeMinor: values.deliveryFeeMinor,
             }
           : {
-              name,
-              addressLine,
-              phone: phone || null,
+              name: values.name,
+              addressLine: values.addressLine,
+              phone: values.phone || null,
               isAcceptingOrders: draft.accepting,
-              minOrderMinor,
-              deliveryFeeMinor,
+              minOrderMinor: values.minOrderMinor,
+              deliveryFeeMinor: values.deliveryFeeMinor,
             },
         schema: creating ? branchCreateSchema : adminBranchSchema,
       });
@@ -373,6 +360,8 @@ export default function BranchesPage() {
       requestId.current += 1;
       setDialog(null);
       setConfirmPause(false);
+      setSubmitAttempted(false);
+      setFieldErrors({});
       window.requestAnimationFrame(() => triggerRef.current?.focus());
     } catch (error) {
       setFormError(errorMessage(error));
@@ -380,6 +369,7 @@ export default function BranchesPage() {
       setBusy(false);
     }
   }
+
   function submitProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void saveProfile();
@@ -508,7 +498,15 @@ export default function BranchesPage() {
         accessorFn: (row) => (acceptsOrders(row) ? 1 : 0),
         header: 'Sipariş alımı',
         cell: ({ row }) => (
-          <span className={acceptsOrders(row.original) ? styles.statusOpen : styles.statusPaused}>
+          <span
+            className={
+              row.original.isActive === false
+                ? styles.statusInactive
+                : acceptsOrders(row.original)
+                  ? styles.statusOpen
+                  : styles.statusPaused
+            }
+          >
             <i />
             {row.original.isActive === false
               ? 'Kayıt pasif'
@@ -524,16 +522,15 @@ export default function BranchesPage() {
         header: 'Şube yöneticisi',
         cell: ({ row }) => {
           const administrator = row.original.administrator;
+          const active = administrator?.status === 'ACTIVE';
           return (
-            <span
-              className={
-                administrator?.status === 'ACTIVE' ? styles.statusOpen : styles.statusPaused
-              }
-            >
+            <span className={active ? styles.managerCell : styles.managerPending}>
               <i />
-              {administrator
-                ? `${administrator.displayName || 'Ad belirtilmemiş'}${administrator.status === 'ACTIVE' ? '' : ' · Davet bekliyor'}`
-                : 'Atanmadı · Kullanıcılardan davet edin'}
+              <span className={styles.managerLabel}>
+                {administrator
+                  ? `${administrator.displayName || 'Ad belirtilmemiş'}${active ? '' : ' · Davet bekliyor'}`
+                  : 'Atanmadı · Kullanıcılardan davet edin'}
+              </span>
             </span>
           );
         },
@@ -1029,172 +1026,361 @@ export default function BranchesPage() {
                   Güncel şube bilgileri yükleniyor…
                 </div>
               ) : dialog.kind === 'create' || tab === 'profile' ? (
-                <form id="branch-profile-form" onSubmit={submitProfile}>
-                  <div className={styles.sectionHeading}>
-                    <span>ŞUBE PROFİLİ</span>
-                    <h3>{dialog.kind === 'create' ? 'Temel bilgiler' : 'Şube bilgileri'}</h3>
-                    <p>Kimlik, iletişim ve sipariş ücretleri.</p>
-                  </div>
+                <form id="branch-profile-form" onSubmit={submitProfile} noValidate>
                   {detailError ? (
                     <p className={styles.inlineWarning}>
                       Güncel şube bilgileri alınamadı: {detailError}. Kaydetmeden önce yeniden açın.
                     </p>
                   ) : null}
-                  <div className={styles.formGrid}>
-                    <label className={styles.field}>
-                      <span>
-                        Şube adı <b>*</b>
-                      </span>
-                      <input
-                        value={draft.name}
-                        onChange={(event) =>
-                          setDraft((current) => ({ ...current, name: event.target.value }))
+                  <div className={styles.profileLayout}>
+                    <div className={styles.profileSections}>
+                      <section className={styles.formSection}>
+                        <header className={styles.formSectionHead}>
+                          <span className={styles.formSectionIcon}>
+                            <OpsIcon name="badge" />
+                          </span>
+                          <span>
+                            <span className={styles.eyebrow}>KİMLİK</span>
+                            <strong>Ad ve sistem kodu</strong>
+                          </span>
+                        </header>
+                        <div className={styles.formGrid}>
+                          <label className={styles.field}>
+                            <span>
+                              Şube adı <b>*</b>
+                              <small className={styles.fieldCounter}>
+                                {draft.name.length}/{PROFILE_LIMITS.name}
+                              </small>
+                            </span>
+                            <input
+                              id="branch-field-name"
+                              value={draft.name}
+                              onChange={(event) => updateField('name', event.target.value)}
+                              maxLength={PROFILE_LIMITS.name}
+                              required
+                              placeholder="Örn. Kadıköy Merkez"
+                              aria-invalid={Boolean(fieldErrors.name)}
+                              aria-describedby={fieldErrors.name ? 'branch-error-name' : undefined}
+                            />
+                            {fieldErrors.name ? (
+                              <small className={styles.fieldError} id="branch-error-name">
+                                <OpsIcon name="error" />
+                                {fieldErrors.name}
+                              </small>
+                            ) : null}
+                          </label>
+                          <label className={styles.field}>
+                            <span>
+                              Şube kodu <b>*</b>
+                              {profileMode === 'edit' ? (
+                                <small>Değiştirilemez</small>
+                              ) : (
+                                <small className={styles.fieldCounter}>
+                                  {draft.code.length}/{PROFILE_LIMITS.code}
+                                </small>
+                              )}
+                            </span>
+                            <input
+                              id="branch-field-code"
+                              value={draft.code}
+                              onChange={(event) => updateField('code', event.target.value)}
+                              maxLength={PROFILE_LIMITS.code}
+                              readOnly={profileMode === 'edit'}
+                              required
+                              placeholder="KADIKOY-01"
+                              aria-invalid={Boolean(fieldErrors.code)}
+                              aria-describedby={fieldErrors.code ? 'branch-error-code' : undefined}
+                            />
+                            {fieldErrors.code ? (
+                              <small className={styles.fieldError} id="branch-error-code">
+                                <OpsIcon name="error" />
+                                {fieldErrors.code}
+                              </small>
+                            ) : null}
+                          </label>
+                        </div>
+                      </section>
+
+                      <section className={styles.formSection}>
+                        <header className={styles.formSectionHead}>
+                          <span className={styles.formSectionIcon}>
+                            <OpsIcon name="my_location" />
+                          </span>
+                          <span>
+                            <span className={styles.eyebrow}>KONUM VE İLETİŞİM</span>
+                            <strong>Adres, koordinat ve telefon</strong>
+                          </span>
+                        </header>
+                        <div className={styles.formGrid}>
+                          <label className={`${styles.field} ${styles.fieldWide}`}>
+                            <span>
+                              Adres <b>*</b>
+                              <small className={styles.fieldCounter}>
+                                {draft.address.trim().length}/{PROFILE_LIMITS.address}
+                              </small>
+                            </span>
+                            <textarea
+                              id="branch-field-address"
+                              value={draft.address}
+                              onChange={(event) => updateField('address', event.target.value)}
+                              maxLength={PROFILE_LIMITS.address}
+                              rows={2}
+                              required
+                              placeholder="Açık adres"
+                              aria-invalid={Boolean(fieldErrors.address)}
+                              aria-describedby={
+                                fieldErrors.address ? 'branch-error-address' : undefined
+                              }
+                            />
+                            {fieldErrors.address ? (
+                              <small className={styles.fieldError} id="branch-error-address">
+                                <OpsIcon name="error" />
+                                {fieldErrors.address}
+                              </small>
+                            ) : null}
+                          </label>
+                          <div className={`${styles.field} ${styles.fieldWide}`}>
+                            <span>
+                              Koordinat <b>*</b>
+                              <small>
+                                {profileMode === 'edit' ? 'Değiştirilemez' : 'WGS84 derece'}
+                              </small>
+                            </span>
+                            <div className={styles.coordinatePair}>
+                              <label className={styles.coordinateSlot}>
+                                Enlem
+                                <input
+                                  id="branch-field-latitude"
+                                  value={draft.latitude}
+                                  onChange={(event) => updateField('latitude', event.target.value)}
+                                  inputMode="decimal"
+                                  readOnly={profileMode === 'edit'}
+                                  required={profileMode === 'create'}
+                                  placeholder="41.0082"
+                                  aria-invalid={Boolean(fieldErrors.latitude)}
+                                  aria-describedby={coordinateErrorId}
+                                />
+                              </label>
+                              <label className={styles.coordinateSlot}>
+                                Boylam
+                                <input
+                                  id="branch-field-longitude"
+                                  value={draft.longitude}
+                                  onChange={(event) => updateField('longitude', event.target.value)}
+                                  inputMode="decimal"
+                                  readOnly={profileMode === 'edit'}
+                                  required={profileMode === 'create'}
+                                  placeholder="28.9784"
+                                  aria-invalid={Boolean(fieldErrors.longitude)}
+                                  aria-describedby={coordinateErrorId}
+                                />
+                              </label>
+                            </div>
+                            <small
+                              className={
+                                profileSummary.coordinate.ok
+                                  ? styles.coordinateOk
+                                  : styles.fieldError
+                              }
+                              id={coordinateErrorId}
+                            >
+                              {profileSummary.coordinate.ok ? (
+                                <OpsIcon name="check_circle" />
+                              ) : (
+                                <OpsIcon name="error" />
+                              )}
+                              {profileSummary.coordinate.text}
+                            </small>
+                          </div>
+                          <label className={styles.field}>
+                            <span>
+                              Telefon <small>İsteğe bağlı</small>
+                            </span>
+                            <input
+                              id="branch-field-phone"
+                              value={draft.phone}
+                              onChange={(event) => updateField('phone', event.target.value)}
+                              type="tel"
+                              placeholder="+905551112233"
+                              aria-invalid={Boolean(fieldErrors.phone)}
+                              aria-describedby={
+                                fieldErrors.phone ? 'branch-error-phone' : undefined
+                              }
+                            />
+                            {fieldErrors.phone ? (
+                              <small className={styles.fieldError} id="branch-error-phone">
+                                <OpsIcon name="error" />
+                                {fieldErrors.phone}
+                              </small>
+                            ) : (
+                              <small>Ülke koduyla, örnek: +905551112233</small>
+                            )}
+                          </label>
+                        </div>
+                      </section>
+
+                      <section className={styles.formSection}>
+                        <header className={styles.formSectionHead}>
+                          <span className={styles.formSectionIcon}>
+                            <OpsIcon name="payments" />
+                          </span>
+                          <span>
+                            <span className={styles.eyebrow}>SİPARİŞ ÜCRETLERİ</span>
+                            <strong>Min. sipariş ve teslimat bedeli</strong>
+                          </span>
+                        </header>
+                        <div className={styles.formGrid}>
+                          <label className={styles.field}>
+                            <span>
+                              Min. sipariş <b>*</b> <small>₺</small>
+                            </span>
+                            <input
+                              id="branch-field-minOrder"
+                              value={draft.minOrder}
+                              onChange={(event) => updateField('minOrder', event.target.value)}
+                              inputMode="decimal"
+                              placeholder="0,00"
+                              required
+                              aria-invalid={Boolean(fieldErrors.minOrder)}
+                              aria-describedby={
+                                fieldErrors.minOrder ? 'branch-error-minOrder' : undefined
+                              }
+                            />
+                            {fieldErrors.minOrder ? (
+                              <small className={styles.fieldError} id="branch-error-minOrder">
+                                <OpsIcon name="error" />
+                                {fieldErrors.minOrder}
+                              </small>
+                            ) : (
+                              <small>{minOrderMinor} kuruş olarak gönderilir</small>
+                            )}
+                          </label>
+                          <label className={styles.field}>
+                            <span>
+                              Teslimat ücreti <b>*</b> <small>₺</small>
+                            </span>
+                            <input
+                              id="branch-field-deliveryFee"
+                              value={draft.deliveryFee}
+                              onChange={(event) => updateField('deliveryFee', event.target.value)}
+                              inputMode="decimal"
+                              placeholder="0,00"
+                              required
+                              aria-invalid={Boolean(fieldErrors.deliveryFee)}
+                              aria-describedby={
+                                fieldErrors.deliveryFee ? 'branch-error-deliveryFee' : undefined
+                              }
+                            />
+                            {fieldErrors.deliveryFee ? (
+                              <small className={styles.fieldError} id="branch-error-deliveryFee">
+                                <OpsIcon name="error" />
+                                {fieldErrors.deliveryFee}
+                              </small>
+                            ) : (
+                              <small>{deliveryFeeMinor} kuruş olarak gönderilir</small>
+                            )}
+                          </label>
+                        </div>
+                      </section>
+
+                      {profileMode === 'edit' ? (
+                        <section className={styles.formSection}>
+                          <header className={styles.formSectionHead}>
+                            <span className={styles.formSectionIcon}>
+                              <OpsIcon name="toggle_on" />
+                            </span>
+                            <span>
+                              <span className={styles.eyebrow}>SİPARİŞ ALIMI</span>
+                              <strong>Şubenin sipariş kabul durumu</strong>
+                            </span>
+                          </header>
+                          <label className={styles.statusControl}>
+                            <span className={styles.statusControlIcon}>
+                              <OpsIcon name="receipt_long" />
+                            </span>
+                            <span>
+                              <strong>Sipariş alımı</strong>
+                              <small>
+                                {selected?.isActive === false
+                                  ? 'Kayıt pasif; sipariş alımı kullanılamıyor'
+                                  : draft.accepting
+                                    ? 'Şube sipariş kabul ediyor'
+                                    : 'Şube sipariş kabul etmiyor'}
+                              </small>
+                            </span>
+                            <input
+                              type="checkbox"
+                              checked={draft.accepting}
+                              onChange={(event) => {
+                                setDraft((current) => ({
+                                  ...current,
+                                  accepting: event.target.checked,
+                                }));
+                                setConfirmPause(false);
+                              }}
+                            />
+                          </label>
+                        </section>
+                      ) : null}
+                    </div>
+
+                    <aside className={styles.summaryRail} aria-label="Şube özeti">
+                      <span className={styles.summaryTitle}>ÖZET</span>
+                      <dl className={styles.summaryList}>
+                        <div className={styles.summaryRow}>
+                          <dt>Ad</dt>
+                          <dd className={draft.name.trim() ? undefined : styles.summaryMissing}>
+                            {draft.name.trim() || '—'}
+                          </dd>
+                        </div>
+                        <div className={styles.summaryRow}>
+                          <dt>Kod</dt>
+                          <dd
+                            className={
+                              draft.code.trim() ? styles.summaryCode : styles.summaryMissing
+                            }
+                          >
+                            {draft.code.trim() || '—'}
+                          </dd>
+                        </div>
+                        <div className={styles.summaryRow}>
+                          <dt>Min. sipariş</dt>
+                          <dd
+                            className={minOrderMinor === null ? styles.summaryMissing : undefined}
+                          >
+                            {minOrderMinor === null ? '—' : formatTryMinor(minOrderMinor)}
+                          </dd>
+                        </div>
+                        <div className={styles.summaryRow}>
+                          <dt>Teslimat</dt>
+                          <dd
+                            className={
+                              deliveryFeeMinor === null ? styles.summaryMissing : undefined
+                            }
+                          >
+                            {deliveryFeeMinor === null ? '—' : formatTryMinor(deliveryFeeMinor)}
+                          </dd>
+                        </div>
+                      </dl>
+                      <p
+                        className={
+                          profileSummary.missing === 0 ? styles.summaryReady : styles.summaryBlocked
                         }
-                        maxLength={128}
-                        required
-                        placeholder="Örn. Kadıköy Merkez"
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>
-                        Şube kodu <b>*</b>
-                        {dialog.kind === 'edit' ? <small>Değiştirilemez</small> : null}
-                      </span>
-                      <input
-                        value={draft.code}
-                        onChange={(event) =>
-                          setDraft((current) => ({ ...current, code: event.target.value }))
-                        }
-                        maxLength={32}
-                        readOnly={dialog.kind === 'edit'}
-                        required
-                        placeholder="KADIKOY-01"
-                      />
-                    </label>
-                    <label className={`${styles.field} ${styles.fieldWide}`}>
-                      <span>
-                        Adres <b>*</b>
-                      </span>
-                      <textarea
-                        value={draft.address}
-                        onChange={(event) =>
-                          setDraft((current) => ({ ...current, address: event.target.value }))
-                        }
-                        maxLength={255}
-                        rows={2}
-                        required
-                        placeholder="Açık adres"
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>
-                        Enlem <b>*</b>
-                        {dialog.kind === 'edit' ? <small>Değiştirilemez</small> : null}
-                      </span>
-                      <input
-                        value={draft.latitude}
-                        onChange={(event) =>
-                          setDraft((current) => ({ ...current, latitude: event.target.value }))
-                        }
-                        inputMode="decimal"
-                        readOnly={dialog.kind === 'edit'}
-                        required={dialog.kind === 'create'}
-                        placeholder="41.0082"
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>
-                        Boylam <b>*</b>
-                        {dialog.kind === 'edit' ? <small>Değiştirilemez</small> : null}
-                      </span>
-                      <input
-                        value={draft.longitude}
-                        onChange={(event) =>
-                          setDraft((current) => ({ ...current, longitude: event.target.value }))
-                        }
-                        inputMode="decimal"
-                        readOnly={dialog.kind === 'edit'}
-                        required={dialog.kind === 'create'}
-                        placeholder="28.9784"
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>
-                        Telefon <small>İsteğe bağlı · +90…</small>
-                      </span>
-                      <input
-                        value={draft.phone}
-                        onChange={(event) =>
-                          setDraft((current) => ({ ...current, phone: event.target.value }))
-                        }
-                        type="tel"
-                        placeholder="+905551112233"
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      <span>
-                        Min. sipariş <small>₺</small>
-                      </span>
-                      <input
-                        value={draft.minOrder}
-                        onChange={(event) =>
-                          setDraft((current) => ({ ...current, minOrder: event.target.value }))
-                        }
-                        inputMode="decimal"
-                        placeholder="0,00"
-                        required
-                      />
-                      <small>
-                        {majorToMinor(draft.minOrder) !== null
-                          ? formatTryMinor(majorToMinor(draft.minOrder) ?? '0')
-                          : 'Geçerli tutar girin'}
-                      </small>
-                    </label>
-                    <label className={styles.field}>
-                      <span>
-                        Teslimat ücreti <small>₺</small>
-                      </span>
-                      <input
-                        value={draft.deliveryFee}
-                        onChange={(event) =>
-                          setDraft((current) => ({ ...current, deliveryFee: event.target.value }))
-                        }
-                        inputMode="decimal"
-                        placeholder="0,00"
-                        required
-                      />
-                      <small>
-                        {majorToMinor(draft.deliveryFee) !== null
-                          ? formatTryMinor(majorToMinor(draft.deliveryFee) ?? '0')
-                          : 'Geçerli tutar girin'}
-                      </small>
-                    </label>
+                        role="status"
+                      >
+                        <OpsIcon name={profileSummary.missing === 0 ? 'check_circle' : 'error'} />
+                        {profileSummary.missing === 0
+                          ? 'Zorunlu alanlar tamam.'
+                          : profileSummary.missing + ' alan eksik'}
+                      </p>
+                      {profileMode === 'create' ? (
+                        <p className={styles.summaryNote}>
+                          Şube oluşturulduktan sonra çalışma saatleri ve hizmet bölgeleri şube
+                          kaydından tanımlanır.
+                        </p>
+                      ) : null}
+                    </aside>
                   </div>
-                  {dialog.kind === 'edit' ? (
-                    <label className={styles.statusControl}>
-                      <span className={styles.statusControlIcon}>
-                        <OpsIcon name="receipt_long" />
-                      </span>
-                      <span>
-                        <strong>Sipariş alımı</strong>
-                        <small>
-                          {selected?.isActive === false
-                            ? 'Kayıt pasif; sipariş alımı kullanılamıyor'
-                            : draft.accepting
-                              ? 'Şube sipariş kabul ediyor'
-                              : 'Şube sipariş kabul etmiyor'}
-                        </small>
-                      </span>
-                      <input
-                        type="checkbox"
-                        checked={draft.accepting}
-                        onChange={(event) => {
-                          setDraft((current) => ({ ...current, accepting: event.target.checked }));
-                          setConfirmPause(false);
-                        }}
-                      />
-                    </label>
-                  ) : null}
                   {confirmPause && canUpdateBranch ? (
                     <div className={styles.confirmBox}>
                       <OpsIcon name="warning" />

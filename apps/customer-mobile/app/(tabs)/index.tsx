@@ -7,10 +7,12 @@ import { AppHeader } from '../../components/app-header';
 import { CategoryChips } from '../../components/category-chips';
 import { ComboCard } from '../../components/combo-card';
 import { HomeHeroSlider } from '../../components/home-hero-slider';
+import { HomeReviews } from '../../components/home-reviews';
 import { ProductCard } from '../../components/product-card';
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
 import { addComboItemsToCart, addProductToCart } from '../../lib/cart';
+import { reconcileCategoryRail } from '../../lib/category-rail';
 import { fetchStorefrontHome } from '../../lib/home';
 import { formatDeliveryWindow } from '../../lib/money';
 import type { StorefrontHome } from '../../lib/schemas';
@@ -24,6 +26,9 @@ export default function HomeRoute() {
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
   const [busyId, setBusyId] = useState<string | null>(null);
+  // The filtered `/storefront/home` response only carries the selected
+  // category, so the rail is kept from the unfiltered responses instead.
+  const [rail, setRail] = useState<StorefrontHome['categories'] | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -34,6 +39,7 @@ export default function HomeRoute() {
         });
         if (!alive) return;
         setHome(data);
+        setRail((current) => reconcileCategoryRail(current, data.categories, categoryId !== null));
         setStatus('ready');
         setError(null);
       } catch (err) {
@@ -174,7 +180,7 @@ export default function HomeRoute() {
           ) : null}
 
           <CategoryChips
-            categories={home.categories}
+            categories={rail ?? home.categories}
             selectedId={categoryId}
             onSelect={setCategoryId}
           />
@@ -196,11 +202,7 @@ export default function HomeRoute() {
               <View style={styles.grid}>
                 {home.products.map((product) => (
                   <View key={product.id} style={styles.cell}>
-                    <ProductCard
-                      product={product}
-                      busy={busyId === product.id}
-                      onAdd={() => void addProduct(product.id)}
-                    />
+                    <ProductCard product={product} />
                   </View>
                 ))}
               </View>
@@ -226,6 +228,12 @@ export default function HomeRoute() {
             <CraftCell icon="bread-slice" title="Günlük Ekmek" subtitle="Fransız brioche" />
             <CraftCell icon="timer-outline" title="Sıcak & Hızlı" subtitle="Termo-kutu servis" />
           </View>
+
+          <HomeReviews
+            reviews={home.reviews}
+            averageRatingBps={home.socialProof.averageRatingBps}
+            reviewCount={home.socialProof.reviewCount}
+          />
         </ScrollView>
       )}
     </View>

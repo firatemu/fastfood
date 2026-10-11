@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 
 import {
   COLUMNS,
@@ -141,12 +141,14 @@ export function useColumnVisibility(): {
 }
 
 /**
- * Lightweight hook for the menu open/close state. Anchors the menu
- * to the trigger button via a ref.
+ * Lightweight hook for the menu open/close state.
+ *
+ * The trigger ref is owned by the caller and passed in: that keeps the
+ * ref a ref instead of a value read during render, while this hook
+ * only measures it from event handlers and effects to place the menu.
  */
-export function useColumnMenuAnchor() {
+export function useColumnMenuAnchor(triggerRef: RefObject<HTMLButtonElement | null>) {
   const [open, setOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [anchor, setAnchor] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   const toggle = () => {
@@ -213,7 +215,7 @@ export function useColumnMenuAnchor() {
       window.removeEventListener('resize', onReposition);
       window.removeEventListener('scroll', onReposition, true);
     };
-  }, [open]);
+  }, [open, triggerRef]);
 
-  return { open, toggle, close, triggerRef, anchor };
+  return { open, toggle, close, anchor };
 }

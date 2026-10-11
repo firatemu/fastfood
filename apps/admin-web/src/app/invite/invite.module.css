@@ -1,106 +1,128 @@
+/* ==========================================================================
+   FASTFOOD Admin — /invite/confirm-email (ADR-019, phase B0)
+
+   Rebuilt from scratch. The previous stylesheet was the retired design: an
+   Anton display face, gold gradients and a radial page wash, with a Navy
+   override block appended to it. That block never rendered at all — this route
+   is rendered by AdminShell outside OpsShell, and `data-admin-theme` is only
+   set inside OpsShell, so every `:global([data-admin-theme='fastfood-navy'])`
+   rule on this route was unreachable. Because the page is standalone, this
+   stylesheet uses plain class selectors and no theme scope.
+
+   Backend contract (read before designing, plan §5 step 1):
+     POST /api/v1/auth/staff/email/confirm  { token: 32..256 }
+       200 → { data: { userId } }
+       400 → VALIDATION_ERROR (details.fields)
+       401 → AUTH_INVALID_CREDENTIALS — "invalid, expired, or already used"
+
+   The API cannot distinguish those three causes, and must not: reporting them
+   separately would confirm whether a token ever existed. The surface therefore
+   shows one failure state and one neutral recovery action.
+
+   Design reference: docs/admin-rebuild/15_ADMIN_REDESIGN_PLAN.md §3.
+   Class vocabulary is exactly what confirm-email/page.tsx renders — the
+   .form / .field rules the retired stylesheet carried were dead selectors and
+   are gone.
+   ========================================================================== */
+
 .page {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  padding: 24px;
-  background: radial-gradient(
-    ellipse at 50% 0%,
-    light-dark(#f8f9f9, #202936) 0%,
-    light-dark(#eef0f4, #0d1117) 56%
-  );
-  color: light-dark(#2e5984, #e8edf2);
-  font-family: var(--font-inter), Inter, sans-serif;
+  padding: var(--ff-space-xl);
+  background: var(--ff-surface);
+  color: var(--ff-on-surface);
+  font: 400 14px/20px var(--ff-font-body);
 }
+
 .card {
-  width: min(100%, 440px);
-  padding: 30px;
-  border: 1px solid light-dark(#d3d6d9, #394452);
-  background: linear-gradient(
-    150deg,
-    light-dark(rgba(252, 252, 253, 0.96), rgba(34, 42, 53, 0.96)),
-    light-dark(rgba(252, 252, 253, 0.98), rgba(17, 22, 29, 0.98))
-  );
-  box-shadow: 0 24px 80px light-dark(rgba(27, 42, 49, 0.112), rgba(0, 0, 0, 0.4));
+  width: min(100%, 420px);
+  display: grid;
+  gap: var(--ff-space-md);
+  padding: var(--ff-space-lg);
+  background: var(--ff-surface-container-low);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
 }
+
 .eyebrow {
-  color: light-dark(#a0760d, #f4bc31);
-  font-family: var(--font-jetbrains), monospace;
-  font-size: 10px;
-  letter-spacing: 0.15em;
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-primary-container);
 }
+
 .card h1 {
-  margin: 9px 0 8px;
-  color: light-dark(#24282e, #f2f4f7);
-  font-family: var(--font-anton), Anton, Impact, sans-serif;
-  font-size: 31px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
+  margin: 0;
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-xl);
+  font-weight: var(--ff-weight-headline-xl);
+  line-height: var(--ff-leading-headline-xl);
+  letter-spacing: var(--ff-tracking-headline-xl);
+  color: var(--ff-on-surface);
 }
-.card p {
-  color: light-dark(#58626f, #aeb8c4);
-  font-size: 13px;
-  line-height: 1.55;
+
+/* --- state line: the only feedback surface this route has --- */
+
+.message {
+  margin: 0;
+  padding: var(--ff-space-sm) var(--ff-space-md);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  font: 400 13px/18px var(--ff-font-body);
 }
-.form {
-  display: grid;
-  gap: 14px;
-  margin-top: 22px;
+
+.error {
+  border-color: var(--ff-status-critical-border);
+  background: var(--ff-status-critical-wash);
+  color: var(--ff-status-critical-text);
 }
-.field {
-  display: grid;
-  gap: 6px;
-  color: light-dark(#24292e, #c2cbd5);
-  font-size: 11px;
-}
-.field input {
-  min-height: 42px;
-  padding: 0 11px;
-  border: 1px solid light-dark(#d3d6d9, #424c59);
-  border-radius: 2px;
-  background: light-dark(#eef1f4, #0d1218);
-  color: light-dark(#2e5984, #eef2f6);
-  font: inherit;
-  font-size: 13px;
-}
-.field input:focus-visible {
-  border-color: light-dark(#d6c08a, #f4bc31);
-  outline: 2px solid light-dark(rgba(146, 160, 170, 0.15), rgba(244, 188, 49, 0.15));
-}
+
+/* --- actions --- */
+
 .button {
-  min-height: 42px;
-  border: 1px solid light-dark(#d6bf8a, #d79a0b);
-  border-radius: 2px;
-  background: linear-gradient(110deg, light-dark(#fbce5e, #ffd05a), light-dark(#f4b82f, #f2ae12));
-  color: light-dark(#856428, #e0c799);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 750;
+  min-height: 36px;
+  padding: 0 var(--ff-space-md);
+  border: 1px solid var(--ff-primary-container);
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+  font: 600 13px/18px var(--ff-font-body);
   cursor: pointer;
 }
+
+.button:hover:not(:disabled) {
+  background: var(--ff-primary);
+  border-color: var(--ff-primary);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ff-primary-container);
+  outline-offset: 2px;
+}
+
 .button:disabled {
-  opacity: 0.5;
-  cursor: wait;
+  opacity: 0.55;
+  cursor: progress;
 }
-.message {
-  margin: 0 !important;
-  padding: 10px 12px;
-  border: 1px solid light-dark(#94cbb7, #3e8068);
-  background: light-dark(rgba(233, 246, 242, 0.09), rgba(16, 185, 129, 0.09));
-  color: light-dark(#268d5d, #92e2bd) !important;
-  font-size: 11px !important;
-}
-.error {
-  border-color: light-dark(#c99897, #904c4b);
-  background: light-dark(rgba(246, 233, 233, 0.09), rgba(239, 68, 68, 0.09));
-  color: light-dark(#a5190d, #ffb4ae) !important;
-}
+
 .back {
-  display: inline-block;
-  margin-top: 18px;
-  color: light-dark(#a0760d, #f4c44f);
-  font-size: 11px;
+  justify-self: start;
+  color: var(--ff-on-surface-variant);
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
   text-decoration: none;
 }
+
 .back:hover {
+  color: var(--ff-on-surface);
   text-decoration: underline;
+}
+
+.back:focus-visible {
+  outline: 2px solid var(--ff-primary-container);
+  outline-offset: 2px;
 }

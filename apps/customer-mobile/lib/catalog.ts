@@ -10,11 +10,3 @@ export async function fetchProductDetail(idOrSlug: string): Promise<ProductDetai
   return res.data;
 }
 
-export async function fetchBuilderProduct(): Promise<ProductDetail> {
-  const res = await getApiClient().request({
-    method: 'GET',
-    path: '/storefront/catalog/builder',
-    schema: productDetailResponseSchema,
-  });
-  return res.data;
-}

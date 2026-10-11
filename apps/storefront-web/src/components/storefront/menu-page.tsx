@@ -23,14 +23,16 @@ export function MenuPage() {
   const [allProductCount, setAllProductCount] = useState<number | undefined>();
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    if (!home) return;
+  // With no category filter active, `home` is the unfiltered catalog and already
+  // carries both the category list and the total count, so that case is derived
+  // instead of mirrored into state. Copying it into state also latched
+  // `menuCategories`, which then short-circuited the fetch below for the rest of
+  // the session — leaving the per-category counts built against a stale catalog
+  // after the first category switch.
+  const homeCarriesCategories = categoryId === null && (home?.categories.length ?? 0) > 0;
 
-    if (categoryId === null && home.categories.length > 0) {
-      setAllProductCount(home.products.length);
-      setMenuCategories(home.categories);
-      return;
-    }
+  useEffect(() => {
+    if (!home || homeCarriesCategories) return;
     if (menuCategories !== null) return;
 
     let active = true;
@@ -61,9 +63,10 @@ export function MenuPage() {
     return () => {
       active = false;
     };
-  }, [categoryId, home, menuCategories]);
+  }, [home, homeCarriesCategories, menuCategories]);
 
-  const categories = menuCategories ?? home?.categories ?? [];
+  const categories =
+    homeCarriesCategories && home ? home.categories : (menuCategories ?? home?.categories ?? []);
   const activeCategory = categories.find((category) => category.id === categoryId) ?? null;
   const visibleProducts = useMemo(() => {
     const term = searchTerm.trim().toLocaleLowerCase('tr-TR');
@@ -73,7 +76,7 @@ export function MenuPage() {
     );
   }, [home, searchTerm]);
   const totalProductCount =
-    allProductCount ??
+    (homeCarriesCategories && home ? home.products.length : allProductCount) ??
     (categories.reduce((count, category) => count + category.productCount, 0) ||
       (home?.products.length ?? 0));
 

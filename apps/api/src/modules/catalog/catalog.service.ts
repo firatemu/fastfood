@@ -39,6 +39,11 @@ export interface CategoryDto {
 }
 
 export interface ProductDto {
+  /**
+   * Primary product image, resolved from the lowest-sorting ProductMedia row.
+   * Additive and optional: callers that do not need it keep working unchanged.
+   */
+  imageUrl?: string;
   id: string;
   categoryId: string;
   slug: string;
@@ -602,6 +607,9 @@ export class CatalogService {
           : {}),
       },
       orderBy: { displayOrder: 'asc' },
+      include: {
+        media: { orderBy: { displayOrder: 'asc' }, take: 1, select: { url: true } },
+      },
     });
     return rows.map((p) => ({
       id: p.id,
@@ -613,6 +621,7 @@ export class CatalogService {
       currency: p.currency,
       displayOrder: p.displayOrder,
       isActive: p.isActive,
+      imageUrl: p.media[0]?.url,
     }));
   }
 

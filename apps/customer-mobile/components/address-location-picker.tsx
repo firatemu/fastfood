@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 
 import { addressMapHtml, type AddressMapPoint } from '../lib/address-map-html';
-import { colors, fonts, radius } from '../theme';
+import { colors, fonts, radius, space } from '../theme';
 
 type MapState = 'loading' | 'ready' | 'unavailable';
 
@@ -16,16 +16,31 @@ type MapMessage = {
 export function AddressLocationPicker(props: {
   initialPoint?: AddressMapPoint | null;
   center?: AddressMapPoint | null;
-  onSelect: (point: AddressMapPoint) => void;
+  focusPoint?: AddressMapPoint | null;
+  readOnly?: boolean;
+  onSelect?: (point: AddressMapPoint) => void;
 }) {
+  const webRef = useRef<WebView>(null);
   const [mapState, setMapState] = useState<MapState>('loading');
-  const source = addressMapHtml(props.initialPoint, props.center);
+  const readOnly = props.readOnly === true;
+  const source = addressMapHtml(props.initialPoint, props.center, !readOnly);
+  const caption = props.focusPoint ?? props.initialPoint;
 
   useEffect(() => {
     if (mapState !== 'loading') return;
     const timeout = setTimeout(() => setMapState('unavailable'), 30_000);
     return () => clearTimeout(timeout);
   }, [mapState]);
+
+  // Device coordinates are injected into the frame so the map can move to a
+  // point chosen outside the map (for example a GPS fix) without reloading it.
+  useEffect(() => {
+    if (!props.focusPoint || mapState !== 'ready') return;
+    const { latitude, longitude } = props.focusPoint;
+    webRef.current?.injectJavaScript(
+      `window.ffFocusLocation && window.ffFocusLocation(${latitude}, ${longitude});true;`,
+    );
+  }, [props.focusPoint, mapState]);
 
   function onMessage(event: WebViewMessageEvent) {
     try {
@@ -34,6 +49,7 @@ export function AddressLocationPicker(props: {
       if (message.type === 'map-error') setMapState('unavailable');
       if (
         message.type === 'location-selected' &&
+        !readOnly &&
         typeof message.latitude === 'number' &&
         Number.isFinite(message.latitude) &&
         message.latitude >= -90 &&
@@ -43,7 +59,7 @@ export function AddressLocationPicker(props: {
         message.longitude >= -180 &&
         message.longitude <= 180
       ) {
-        props.onSelect({ latitude: message.latitude, longitude: message.longitude });
+        props.onSelect?.({ latitude: message.latitude, longitude: message.longitude });
       }
     } catch {
       setMapState('unavailable');
@@ -51,15 +67,15 @@ export function AddressLocationPicker(props: {
   }
 
   return (
-    <View style={styles.section}>
-      <View style={styles.copy}>
-        <Text style={styles.title}>Haritadan konum seç</Text>
-        <Text style={styles.description}>
-          Teslimatın bırakılacağı bina girişini haritaya dokunarak işaretle.
-        </Text>
+    <View style={styles.section} data-ff-map>
+      <View style={styles.headerTitle}>
+        <View style={styles.pip} />
+        <Text style={styles.title}>{readOnly ? 'Konum önizleme' : 'Teslimat noktası'}</Text>
       </View>
+
       <View style={styles.frame}>
         <WebView
+          ref={webRef}
           source={{ html: source, baseUrl: 'https://map.localhost/' }}
           style={styles.web}
           originWhitelist={['https://*']}
@@ -82,41 +98,44 @@ export function AddressLocationPicker(props: {
           </View>
         ) : null}
       </View>
-      <Text style={styles.attribution}>
-        © OpenStreetMap katkıda bulunanlar · © OpenMapTiles · OpenFreeMap
+
+      <Text style={styles.caption} accessibilityLiveRegion="polite">
+        {caption
+          ? 'Teslimat noktanız haritada işaretlendi.'
+          : readOnly
+            ? 'Bir adres seçtiğinde haritada burada görünür.'
+            : 'Haritaya dokunarak teslimat noktanı işaretle.'}
       </Text>
-      <Text style={styles.report}>Harita hatası: openstreetmap.org/fixthemap</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  section: { gap: 8 },
-  copy: { gap: 4 },
-  title: { fontFamily: fonts.jakartaBold, fontSize: 14, color: colors.onSurface },
-  description: { fontFamily: fonts.jakarta, fontSize: 12, lineHeight: 18, color: colors.ash },
+  section: { gap: space.sm },
+  headerTitle: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  pip: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.mustard,
+  },
+  title: { fontFamily: fonts.jakartaSemibold, fontSize: 14, color: colors.onSurface },
   frame: {
-    height: 300,
+    height: 240,
     borderRadius: radius.lg,
     overflow: 'hidden',
-    backgroundColor: colors.surfaceLow,
-    borderWidth: StyleSheet.hairlineWidth,
+    backgroundColor: colors.surfaceLowest,
+    borderWidth: 1,
     borderColor: colors.hairline,
   },
-  web: { flex: 1, backgroundColor: colors.surfaceLow },
-  mapStatus: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    right: 10,
-    alignItems: 'center',
-  },
+  web: { flex: 1, backgroundColor: colors.surfaceLowest },
+  mapStatus: { position: 'absolute', top: 10, left: 10, right: 10, alignItems: 'center' },
   status: {
     overflow: 'hidden',
     paddingHorizontal: 10,
     paddingVertical: 7,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceHigh,
     fontFamily: fonts.jakarta,
     fontSize: 12,
     color: colors.onSurface,
@@ -125,13 +144,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingHorizontal: 10,
     paddingVertical: 7,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceHigh,
     fontFamily: fonts.jakarta,
     fontSize: 12,
     color: colors.error,
     textAlign: 'center',
   },
-  attribution: { fontFamily: fonts.jakarta, fontSize: 10, color: colors.ash },
-  report: { fontFamily: fonts.jakarta, fontSize: 10, color: colors.ash },
+  caption: { fontFamily: fonts.jakarta, fontSize: 12, lineHeight: 18, color: colors.ash },
 });

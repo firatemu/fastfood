@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 import { addComboItemsToCart, addProductToCart } from '../../lib/storefront/cart';
 
-import { HomeBuilderBanner } from './home-builder-banner';
 import { HomeCatalog } from './home-catalog';
 import { HomeCombo } from './home-combo';
 import { HomeHero } from './home-hero';
@@ -72,7 +71,6 @@ export function GoldenHomePage() {
             </div>
           </section>
         )}
-        {home.builderAvailable ? <HomeBuilderBanner /> : null}
         <HomeReviews home={home} />
       </div>
     </main>

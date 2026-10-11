@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProductCard } from '../../components/product-card';
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
-import { addProductToCart } from '../../lib/cart';
 import { fetchStorefrontHome } from '../../lib/home';
 import type { StorefrontHome } from '../../lib/schemas';
 import { colors, fonts, minTouch, radius, space } from '../../theme';
@@ -19,7 +18,6 @@ export default function SearchRoute() {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
-  const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     const handle = setTimeout(() => setDebounced(query.trim().slice(0, 80)), 300);
@@ -45,23 +43,6 @@ export default function SearchRoute() {
       alive = false;
     };
   }, [debounced, nonce]);
-
-  async function onAdd(productId: string) {
-    const product = home?.products.find((item) => item.id === productId);
-    if (!product) return;
-    setBusyId(productId);
-    try {
-      await addProductToCart({
-        productId: product.id,
-        unitPriceMinorSnapshot: product.basePriceMinor,
-        currencySnapshot: product.currency,
-      });
-    } catch (err) {
-      setError(formatApiError(err));
-    } finally {
-      setBusyId(null);
-    }
-  }
 
   const products = home?.products ?? [];
 
@@ -126,11 +107,7 @@ export default function SearchRoute() {
         >
           {products.map((product) => (
             <View key={product.id} style={styles.cell}>
-              <ProductCard
-                product={product}
-                busy={busyId === product.id}
-                onAdd={() => void onAdd(product.id)}
-              />
+              <ProductCard product={product} />
             </View>
           ))}
         </ScrollView>

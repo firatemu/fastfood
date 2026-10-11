@@ -4,12 +4,12 @@
   --line: light-dark(#d3d5d9, #2d333f);
   --strong: light-dark(#efeff0, #3e4656);
   --muted: light-dark(#58626f, #97a5b6);
-  --amber: light-dark(#a57709, #feb300);
+  --amber: var(--ff-primary);
   width: 100%;
-  max-width: 1320px;
+  /* Full width by design — no max-width cap (A9-21). */
   margin: 0 auto;
   padding: 24px clamp(16px, 2vw, 30px) 32px;
-  color: light-dark(#24282e, #e4e7ec);
+  color: var(--ff-on-surface);
   font-family: var(--ops-font-sans, Inter, sans-serif);
 }
 .pageHeader {
@@ -28,11 +28,11 @@
 }
 .breadcrumb span {
   margin: 0 7px;
-  color: light-dark(#3f4550, #596578);
+  color: var(--ff-on-surface-variant);
 }
 .pageHeader h1 {
   margin: 0;
-  font-family: var(--ops-font-anton, Anton, sans-serif);
+  font-family: var(--ff-font-headline);
   font-size: clamp(28px, 2.5vw, 37px);
   font-weight: 400;
   letter-spacing: 0.025em;
@@ -56,15 +56,15 @@
   gap: 7px;
   padding: 0 13px;
   border: 1px solid var(--strong);
-  background: light-dark(#f8f9f9, #202630);
-  color: light-dark(#24292e, #c7d1dc);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
   cursor: pointer;
   font: 700 12px var(--ops-font-sans, Inter, sans-serif);
   white-space: nowrap;
 }
 .primaryButton {
-  border-color: light-dark(#d6bf8a, #ffc238);
-  background: light-dark(#fabc29, #feb300);
+  border-color: var(--ff-keyline-strong);
+  background: var(--ff-primary-container);
   color: light-dark(#80642d, #d6c5a4);
 }
 .primaryButton:hover:not(:disabled) {
@@ -72,8 +72,8 @@
 }
 .secondaryButton:hover:not(:disabled),
 .toolButton:hover:not(:disabled) {
-  border-color: light-dark(#d3d6d9, #a5b3c3);
-  color: light-dark(#292929, #ffffff);
+  border-color: var(--ff-keyline);
+  color: var(--ff-on-surface);
 }
 .dangerButton {
   border-color: light-dark(#c79c99, #71413e);
@@ -81,7 +81,7 @@
   color: light-dark(#a5230d, #ffc4ba);
 }
 .dangerButton:hover:not(:disabled) {
-  background: light-dark(#f4efee, #51302c);
+  background: var(--ff-surface-container-high);
 }
 .primaryButton:disabled,
 .secondaryButton:disabled,
@@ -100,9 +100,9 @@
   gap: 8px;
   margin-bottom: 12px;
   padding: 10px 12px;
-  border: 1px solid light-dark(#98c7b3, #34604d);
-  background: light-dark(#eef4f2, #172a23);
-  color: light-dark(#2e8450, #a7dfbd);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
+  color: var(--ff-status-ready-text);
   font-size: 12px;
 }
 .flash button {
@@ -154,8 +154,8 @@
   gap: 8px;
   padding: 0 9px;
   border: 1px solid var(--strong);
-  background: light-dark(#fcfcfd, #11161c);
-  color: light-dark(#58636f, #8b9aab);
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface-variant);
 }
 .search:focus-within {
   border-color: var(--ops-amber-border);
@@ -179,7 +179,7 @@
 .search button {
   border: 0;
   background: transparent;
-  color: light-dark(#58626f, #aeb9c7);
+  color: var(--ff-on-surface-variant);
   cursor: pointer;
   font-size: 18px;
 }
@@ -208,12 +208,12 @@
   align-items: center;
   gap: 9px;
   padding: 8px;
-  color: light-dark(#24292e, #d6dfe7);
+  color: var(--ff-on-surface);
   font-size: 11px;
   cursor: pointer;
 }
 .columnMenuPanel label:hover {
-  background: light-dark(#f3f3f4, #303a47);
+  background: var(--ff-surface-container-high);
 }
 .columnMenuPanel input {
   accent-color: var(--amber);
@@ -226,7 +226,7 @@
   flex-wrap: wrap;
   padding: 7px 15px;
   border-bottom: 1px solid var(--line);
-  background: light-dark(#fcfcfd, #13181e);
+  background: var(--ff-surface-container-low);
 }
 .segmented {
   display: flex;
@@ -248,7 +248,7 @@
 .filterActive {
   border-color: light-dark(#d6bb8a, #664e23);
   background: light-dark(#f4f2ee, #302819);
-  color: light-dark(#a0720d, #ffd16d);
+  color: var(--ff-primary);
 }
 .filterDivider {
   width: 1px;
@@ -259,7 +259,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  color: light-dark(#58626f, #9daabb);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .selectLabel select,
@@ -267,8 +267,8 @@
   height: 29px;
   padding: 0 8px;
   border: 1px solid var(--strong);
-  background: light-dark(#f8f9f9, #202630);
-  color: light-dark(#24282e, #e0e5ec);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
   font: 11px var(--ops-font-sans, Inter, sans-serif);
 }
 .tableScroll {
@@ -286,7 +286,7 @@
   height: 39px;
   padding: 0 12px;
   border-bottom: 1px solid var(--strong);
-  background: light-dark(#f8f9f9, #1b2129);
+  background: var(--ff-surface-container);
   color: light-dark(#58636f, #a7b3c1);
   font-size: 10px;
   font-weight: 750;
@@ -299,9 +299,9 @@
 .table td {
   height: 65px;
   padding: 9px 12px;
-  border-bottom: 1px solid light-dark(#d3d6d9, #303945);
+  border-bottom: 1px solid var(--ff-keyline);
   background: light-dark(#fcfcfd, #192029);
-  color: light-dark(#2e5984, #d7e0e9);
+  color: var(--ff-on-surface);
   font-size: 12px;
   transition: background 0.12s;
 }
@@ -326,10 +326,10 @@
   font: inherit;
 }
 .sortButton:hover {
-  color: light-dark(#a0740d, #ffd46f);
+  color: var(--ff-primary);
 }
 .sortButton span {
-  color: light-dark(#58636f, #8192a3);
+  color: var(--ff-on-surface-variant);
   font-size: 14px;
 }
 .nameButton {
@@ -349,14 +349,14 @@
   gap: 4px;
 }
 .nameButton strong {
-  color: light-dark(#24262e, #ecedf1);
+  color: var(--ff-on-surface);
   font-size: 12px;
 }
 .nameButton:hover strong {
-  color: light-dark(#a0720d, #ffd16d);
+  color: var(--ff-primary);
 }
 .nameButton small {
-  color: light-dark(#58636f, #9bacbd);
+  color: var(--ff-on-surface-variant);
   font: 10px var(--ops-font-mono, 'JetBrains Mono', monospace);
 }
 .nameMark {
@@ -364,20 +364,20 @@
   width: 35px;
   height: 35px;
   place-items: center;
-  border: 1px solid light-dark(#d5bf8b, #695526);
+  border: 1px solid var(--ff-primary-container);
   background: light-dark(#f5f2ed, #63522c);
-  color: light-dark(#a0710d, #ffcb5d);
+  color: var(--ff-primary);
 }
 .nameMark :global(.material-symbols-outlined) {
   font-size: 18px;
 }
 .value {
-  color: light-dark(#2e843d, #d6e8d9);
+  color: var(--ff-status-ready-text);
   font: 700 14px var(--ops-font-mono, 'JetBrains Mono', monospace);
   white-space: nowrap;
 }
 .periodCell {
-  color: light-dark(#58636f, #aebbc9);
+  color: var(--ff-on-surface-variant);
   font: 11px var(--ops-font-mono, 'JetBrains Mono', monospace);
   white-space: nowrap;
 }
@@ -387,8 +387,8 @@
   align-items: center;
   gap: 7px;
   padding: 5px 8px;
-  border: 1px solid light-dark(#d3d9d7, #345949);
-  background: light-dark(#f8f9f9, #192a23);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
   color: light-dark(#2e844f, #a8dfbd);
   font-size: 10px;
   font-weight: 750;
@@ -399,15 +399,15 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: light-dark(#ecf6f1, #5fca92);
+  background: var(--ff-surface-container-high);
 }
 .inactive {
-  border-color: light-dark(#d7d3d9, #57515a);
-  background: light-dark(#f9f8f9, #29252b);
+  border-color: var(--ff-keyline);
+  background: var(--ff-surface-container);
   color: light-dark(#6e5960, #c5b7bc);
 }
 .inactive i {
-  background: light-dark(#eeeced, #a999a2);
+  background: var(--ff-surface-container-high);
 }
 .rowAction {
   min-height: 29px;
@@ -418,9 +418,9 @@
   font-size: 10px;
 }
 .rowAction:hover {
-  border-color: light-dark(#d1bb8f, #715b2f);
-  background: light-dark(#f4f2ee, #342b1a);
-  color: light-dark(#a0730d, #ffd16a);
+  border-color: var(--ff-primary-container);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-primary);
 }
 .rowAction :global(.material-symbols-outlined) {
   font-size: 15px;
@@ -437,11 +437,11 @@
   font-size: 12px;
 }
 .statePanel :global(.material-symbols-outlined) {
-  color: light-dark(#966f17, #e5b958);
+  color: var(--ff-status-warn-text);
   font-size: 27px;
 }
 .statePanel strong {
-  color: light-dark(#24292e, #e7ebef);
+  color: var(--ff-on-surface);
   font-size: 14px;
 }
 .statePanel button {
@@ -457,7 +457,7 @@
   gap: 12px;
   padding: 8px 15px;
   border-top: 1px solid var(--line);
-  color: light-dark(#58636f, #9baaba);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .gridFooter > div,
@@ -470,8 +470,8 @@
   width: 28px;
   height: 28px;
   border: 1px solid var(--strong);
-  background: light-dark(#f8f9f9, #202630);
-  color: light-dark(#2e5784, #d5dee8);
+  background: var(--ff-surface-container);
+  color: var(--ff-status-info-text);
   cursor: pointer;
   font-size: 18px;
 }
@@ -507,19 +507,19 @@
   gap: 20px;
   padding: 20px 24px;
   border-bottom: 1px solid var(--line);
-  background: light-dark(#f8f9f9, #1e242c);
+  background: var(--ff-surface-container);
 }
 .dialogHeader h2 {
   margin: 5px 0 0;
-  color: light-dark(#27272a, #f1f1f2);
-  font-family: var(--ops-font-anton, Anton, sans-serif);
+  color: var(--ff-on-surface);
+  font-family: var(--ff-font-headline);
   font-size: 28px;
   font-weight: 400;
   letter-spacing: 0.02em;
 }
 .dialogHeader p {
   margin: 6px 0 0;
-  color: light-dark(#58626f, #9daaba);
+  color: var(--ff-on-surface-variant);
   font-size: 12px;
 }
 .closeButton {
@@ -531,7 +531,7 @@
   cursor: pointer;
 }
 .closeButton:hover {
-  color: light-dark(#292929, #ffffff);
+  color: var(--ff-on-surface);
 }
 .dialog form {
   display: flex;
@@ -551,16 +551,16 @@
   gap: 11px;
   margin: 22px 0 13px;
   padding-bottom: 10px;
-  border-bottom: 1px solid light-dark(#d3d6d9, #303945);
+  border-bottom: 1px solid var(--ff-keyline);
 }
 .sectionTitle > span {
   display: grid;
   width: 29px;
   height: 29px;
   place-items: center;
-  border: 1px solid light-dark(#d3bc8d, #715a2c);
-  background: light-dark(#f4f2ee, #604e2e);
-  color: light-dark(#a0720d, #ffd270);
+  border: 1px solid var(--ff-primary-container);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-primary);
   font: 700 11px var(--ops-font-mono, 'JetBrains Mono', monospace);
 }
 .sectionTitle > div {
@@ -571,7 +571,7 @@
   font-size: 13px;
 }
 .sectionTitle small {
-  color: light-dark(#58636f, #91a1b2);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 .formGrid {
@@ -583,18 +583,18 @@
   display: grid;
   align-content: start;
   gap: 7px;
-  color: light-dark(#24292e, #c3cfda);
+  color: var(--ff-on-surface);
   font-size: 11px;
   font-weight: 700;
 }
 .field small {
   display: inline;
-  color: light-dark(#58636f, #8d9cab);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
   font-weight: 400;
 }
 .field em {
-  color: light-dark(#a0690d, #ffbd50);
+  color: var(--ff-status-warn-text);
   font-style: normal;
 }
 .field input,
@@ -602,7 +602,7 @@
   width: 100%;
   height: 39px;
   padding: 0 10px;
-  border: 1px solid light-dark(#d3d6d9, #455160);
+  border: 1px solid var(--ff-keyline);
   outline: 0;
   background: light-dark(#eef1f4, #11171e);
   color: light-dark(#24282e, #e8ebef);
@@ -611,11 +611,11 @@
 }
 .field input:focus,
 .field select:focus {
-  border-color: light-dark(#d6bf8a, #feb300);
+  border-color: var(--ff-keyline-strong);
   box-shadow: 0 0 0 2px light-dark(rgba(27, 42, 49, 0.031), rgba(254, 179, 0, 0.11));
 }
 .field input::placeholder {
-  color: light-dark(#58626f, #758496);
+  color: var(--ff-on-surface-variant);
 }
 .checkGrid {
   display: grid;
@@ -629,13 +629,13 @@
   align-items: center;
   gap: 10px;
   padding: 11px;
-  border: 1px solid light-dark(#d3d6d9, #374250);
-  background: light-dark(#f8f9f9, #1d252e);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
   cursor: pointer;
 }
 .checkGrid input,
 .branchChoice input {
-  accent-color: light-dark(#a57709, #feb300);
+  accent-color: var(--ff-primary-container);
 }
 .checkGrid span,
 .branchChoice span {
@@ -648,7 +648,7 @@
 }
 .checkGrid small,
 .branchChoice small {
-  color: light-dark(#58636f, #97a7b8);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 .branchGrid {
@@ -687,7 +687,7 @@
   gap: 8px;
   padding: 14px 24px;
   border-top: 1px solid var(--line);
-  background: light-dark(#f8f9f9, #1e242c);
+  background: var(--ff-surface-container);
 }
 .detailLead {
   display: flex;
@@ -695,47 +695,43 @@
   justify-content: space-between;
   margin: 16px 0 20px;
   padding: 18px;
-  border: 1px solid light-dark(#cfb991, #65512c);
-  background: linear-gradient(
-    105deg,
-    light-dark(#f4f2ee, #352b1c),
-    light-dark(#f8f9f9, #22272c) 78%
-  );
+  border: 1px solid var(--ff-primary-container);
+  background: var(--ff-surface-container-low);
 }
 .detailLead > div {
   display: grid;
   gap: 5px;
 }
 .detailLead strong {
-  color: light-dark(#a0700d, #ffe0a0);
-  font-family: var(--ops-font-anton, Anton, sans-serif);
+  color: var(--ff-primary);
+  font-family: var(--ff-font-headline);
   font-size: 31px;
   font-weight: 400;
 }
 .detailLead small {
-  color: light-dark(#2e5984, #c3d0dd);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .detailGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border-top: 1px solid light-dark(#d3d6d9, #303945);
-  border-left: 1px solid light-dark(#d3d6d9, #303945);
+  border-top: 1px solid var(--ff-keyline);
+  border-left: 1px solid var(--ff-keyline);
 }
 .detailGrid > div {
   display: grid;
   gap: 6px;
   min-height: 62px;
   padding: 11px 13px;
-  border-right: 1px solid light-dark(#d3d6d9, #303945);
-  border-bottom: 1px solid light-dark(#d3d6d9, #303945);
+  border-right: 1px solid var(--ff-keyline);
+  border-bottom: 1px solid var(--ff-keyline);
 }
 .detailGrid span {
-  color: light-dark(#58636f, #90a1b2);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 .detailGrid strong {
-  color: light-dark(#2e5984, #dbe3eb);
+  color: var(--ff-on-surface);
   font-size: 12px;
   font-weight: 650;
 }
@@ -749,9 +745,9 @@
 }
 .branchTags span {
   padding: 7px 9px;
-  border: 1px solid light-dark(#d3d6d9, #465264);
-  background: light-dark(#f3f3f4, #222b35);
-  color: light-dark(#2e5984, #d7e0e9);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
   font-size: 11px;
 }
 .confirmOverlay {
@@ -760,12 +756,12 @@
 .confirm {
   width: min(400px, 100%);
   padding: 23px;
-  border: 1px solid light-dark(#d9d4d3, #79504a);
-  background: light-dark(#f8f8f9, #202126);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
   box-shadow: 0 25px 75px light-dark(rgba(27, 42, 49, 0.18), rgba(0, 0, 0, 0.733));
 }
 .dangerIcon {
-  color: light-dark(#9f2113, #f3a49b);
+  color: var(--ff-status-critical-text);
 }
 .dangerIcon :global(.material-symbols-outlined) {
   font-size: 26px;
@@ -776,7 +772,7 @@
 }
 .confirm p {
   margin: 0;
-  color: light-dark(#58636f, #aeb9c4);
+  color: var(--ff-on-surface-variant);
   font-size: 12px;
   line-height: 1.6;
 }
@@ -841,3 +837,344 @@
     display: none;
   }
 }
+
+/* @block:navy-a8-shared */
+/* ==========================================================================
+   FASTFOOD Admin — Navy list-page language (ADR-019, phase A8)
+
+   These screens have no frame in the design set, so this block carries the
+   list-page grammar established by the catalog screens in A7: label-role
+   headers, divide-y rows instead of zebra, mono identifiers, `surface-container
+   -low` panels with `shadow-sm`, and a 2px/4px/8px/12px shape scale.
+
+   Class names differ per module (`gridPanel` vs `panel`, `sortMark` vs
+   `sortIndicator`, ...), so the block is applied with **selector-level
+   pruning**: a selector is emitted only if that stylesheet defines it.
+   ========================================================================== */
+/* --- page shell --- */
+
+:global([data-admin-theme='fastfood-navy']) .pageHeader h1 {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-xl);
+  font-weight: var(--ff-weight-headline-xl);
+  line-height: var(--ff-leading-headline-xl);
+  letter-spacing: var(--ff-tracking-headline-xl);
+  text-transform: none;
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .pageHeader p {
+  font: 400 13px/18px var(--ff-font-body);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .breadcrumb {
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .eyebrow {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .sectionTitle,
+:global([data-admin-theme='fastfood-navy']) .dialogHeader {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-sm);
+  font-weight: 600;
+  line-height: var(--ff-leading-headline-sm);
+  color: var(--ff-on-surface);
+}
+
+/* --- panel --- */
+
+:global([data-admin-theme='fastfood-navy']) .gridPanel {
+  background: var(--ff-surface-container-low);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .gridHeader,
+:global([data-admin-theme='fastfood-navy']) .gridFooter {
+  padding: var(--ff-space-md);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+/* --- search well --- */
+
+:global([data-admin-theme='fastfood-navy']) .search {
+  background: var(--ff-surface-container-lowest);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search:focus-within {
+  border-color: var(--ff-primary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search input {
+  font: 400 12px/16px var(--ff-font-body);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search input::placeholder {
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- filter chips / segmented control --- */
+
+:global([data-admin-theme='fastfood-navy']) .filterButton {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  border-radius: var(--ff-radius-lg);
+  padding: 4px var(--ff-space-sm);
+  color: var(--ff-on-surface-variant);
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+:global([data-admin-theme='fastfood-navy']) .filterButton:hover {
+  color: var(--ff-on-surface);
+  background: var(--ff-surface-container-high);
+}
+
+:global([data-admin-theme='fastfood-navy']) .filterActive {
+  background: var(--ff-primary-container);
+  border-color: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+  font-weight: 700;
+}
+
+:global([data-admin-theme='fastfood-navy']) .filterDivider {
+  background: var(--ff-surface-container-highest);
+}
+
+:global([data-admin-theme='fastfood-navy']) .segmented {
+  background: var(--ff-surface-container);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  padding: 2px;
+}
+
+/* --- table: label header, divide-y, no zebra --- */
+
+:global([data-admin-theme='fastfood-navy']) .table th {
+  background: var(--ff-surface-container-low);
+  border-bottom-color: var(--ff-keyline);
+  color: var(--ff-on-surface-variant);
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+:global([data-admin-theme='fastfood-navy']) .table th:first-child,
+:global([data-admin-theme='fastfood-navy']) .table td:first-child {
+  background: var(--ff-surface-container-low);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table td {
+  background: var(--ff-surface-container-low);
+  border-bottom-color: var(--ff-surface-container-high);
+  color: var(--ff-on-surface);
+  font: 400 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(even) td,
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(2n) td {
+  background: var(--ff-surface-container-low);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:hover td {
+  background: var(--ff-surface-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+:global([data-admin-theme='fastfood-navy']) .tableScroll {
+  background: var(--ff-surface-container-low);
+  border-color: var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .sortButton {
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  color: inherit;
+}
+
+:global([data-admin-theme='fastfood-navy']) .sortButton:hover {
+  color: var(--ff-primary-container);
+}
+
+/* --- identity columns --- */
+
+:global([data-admin-theme='fastfood-navy']) .nameMark {
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  border-radius: var(--ff-radius-lg);
+}
+
+/* --- mono identifier columns --- */
+
+:global([data-admin-theme='fastfood-navy']) .mono,
+:global([data-admin-theme='fastfood-navy']) .value {
+  font-family: var(--ff-font-label);
+  font-variant-numeric: tabular-nums;
+}
+
+:global([data-admin-theme='fastfood-navy']) .active {
+  color: var(--ff-tertiary);
+}
+
+:global([data-admin-theme='fastfood-navy']) .inactive {
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- status + scope badges --- */
+
+/* --- buttons --- */
+
+:global([data-admin-theme='fastfood-navy']) .primaryButton,
+:global([data-admin-theme='fastfood-navy']) .nameButton {
+  min-height: 36px;
+  padding: 0 var(--ff-space-md);
+  border-radius: var(--ff-radius-lg);
+  border: 1px solid var(--ff-primary-container);
+  background: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+  font: 600 13px/18px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .primaryButton:hover:not(:disabled) {
+  background: var(--ff-primary);
+  border-color: var(--ff-primary);
+}
+
+:global([data-admin-theme='fastfood-navy']) .secondaryButton,
+:global([data-admin-theme='fastfood-navy']) .toolButton,
+:global([data-admin-theme='fastfood-navy']) .rowAction,
+:global([data-admin-theme='fastfood-navy']) .closeButton,
+:global([data-admin-theme='fastfood-navy']) .dangerButton {
+  min-height: 32px;
+  padding: 0 var(--ff-space-sm);
+  border-radius: var(--ff-radius-lg);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  font: 500 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .dangerButton {
+  background: var(--ff-status-critical-wash);
+  border-color: var(--ff-status-critical-border);
+  color: var(--ff-status-critical-text);
+}
+
+:global([data-admin-theme='fastfood-navy']) .gridTools {
+  background: var(--ff-surface-container-high);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+}
+
+/* --- forms --- */
+
+:global([data-admin-theme='fastfood-navy']) .selectLabel {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .field {
+  gap: var(--ff-space-xs);
+}
+
+:global([data-admin-theme='fastfood-navy']) .field input,
+:global([data-admin-theme='fastfood-navy']) .field select {
+  background: var(--ff-surface-container);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  color: var(--ff-on-surface);
+  font: 400 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .field input:focus-visible {
+  border-color: var(--ff-primary-container);
+  outline: none;
+}
+
+/* --- notices, states, overlays --- */
+
+:global([data-admin-theme='fastfood-navy']) .formError,
+:global([data-admin-theme='fastfood-navy']) .note {
+  font: 500 11px/14px var(--ff-font-body);
+  padding: var(--ff-space-sm) var(--ff-space-md);
+  border-radius: var(--ff-radius-lg);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .formError {
+  background: var(--ff-status-critical-wash);
+  border-color: var(--ff-status-critical-border);
+  color: var(--ff-status-critical-text);
+}
+
+:global([data-admin-theme='fastfood-navy']) .statePanel {
+  background: var(--ff-surface-container-low);
+  border: 0;
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+  color: var(--ff-on-surface-variant);
+  font: 400 13px/18px var(--ff-font-body);
+}
+
+/* --- dialogs --- */
+
+:global([data-admin-theme='fastfood-navy']) .dialog {
+  background: var(--ff-surface-container-high);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-overlay);
+}
+
+:global([data-admin-theme='fastfood-navy']) .dialogHeader {
+  padding: var(--ff-space-md);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .dialogBody {
+  padding: var(--ff-space-md);
+  font: 400 13px/18px var(--ff-font-body);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .dialogFooter {
+  padding: var(--ff-space-sm) var(--ff-space-md);
+  border-top: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .overlay,
+:global([data-admin-theme='fastfood-navy']) .confirmOverlay {
+  background: var(--ff-shadow-scrim);
+  backdrop-filter: blur(4px);
+}
+
+/* --- column menu --- */
+
+:global([data-admin-theme='fastfood-navy']) .columnMenuPanel {
+  background: var(--ff-surface-container-high);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  box-shadow: var(--ff-shadow-overlay);
+}
+
+/* --- misc --- */
+/* @end:navy-a8-shared */

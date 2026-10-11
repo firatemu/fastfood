@@ -9,6 +9,7 @@ import type { z } from 'zod';
 import { errorMessage, type LoadState } from '../../../components/async-boundary';
 import { ConfirmDialog } from '../../../components/ops/confirm-dialog';
 import { OpsBoundary } from '../../../components/ops/ops-boundary';
+import { OpsPageHeader } from '../../../components/ops/ops-page-header';
 import { useOpsSync } from '../../../components/ops/ops-sync';
 import { OperationalTable } from '../../../components/ops/ops-table';
 import { ActionButton, KeylineCard, StatusBadge } from '../../../components/ops/ops-ui';
@@ -109,137 +110,141 @@ export default function PaymentDetailPage() {
 
   return (
     <div className="ops-page">
-      <p className="ops-page__lede">
-        `PAYMENT_SCOPED` · `GET admin/payments/:id` + refund listesi · iade `POST .../refunds` · PAN
-        yok · kalan bakiye gösterim; otorite backend.
-      </p>
       <OpsBoundary state={state} onRetry={() => void load()}>
         {(p) => (
-          <div className="ops-split">
-            <KeylineCard title="Ödeme">
-              <dl className="ops-form">
-                <div>
-                  <dt>ID</dt>
-                  <dd className="mono">{p.id}</dd>
-                </div>
-                <div>
-                  <dt>Checkout</dt>
-                  <dd className="mono">{p.checkoutSessionId ?? '—'}</dd>
-                </div>
-                <div>
-                  <dt>Tutar</dt>
-                  <dd>
-                    {p.amountMinor ? formatTryMinor(p.amountMinor, p.currency ?? 'TRY') : '—'}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Durum</dt>
-                  <dd>
-                    <StatusBadge tone={paymentStatusTone(p.status)}>
-                      {paymentStatusLabel(p.status)}
-                    </StatusBadge>
-                  </dd>
-                </div>
-                <div>
-                  <dt>Sağlayıcı ref</dt>
-                  <dd className="mono">{p.providerPaymentId ?? '—'}</dd>
-                </div>
-                <div>
-                  <dt>Kalan iade (gösterim)</dt>
-                  <dd className="mono">
-                    {formatTryMinor(remaining.toString(), p.currency ?? 'TRY')}
-                  </dd>
-                </div>
-              </dl>
-              {isPaymentPaid(p.status) ? (
-                <div className="ops-form">
-                  <label className="ops-field">
-                    İade tutarı (kuruş)
-                    <input
-                      className="ops-input"
-                      value={amount}
-                      inputMode="numeric"
-                      onChange={(e) => setAmount(e.target.value)}
-                    />
-                  </label>
-                  <label className="ops-field">
-                    Gerekçe
-                    <input
-                      className="ops-input"
-                      value={reason}
-                      onChange={(e) => setReason(e.target.value)}
-                    />
-                  </label>
-                  <ActionButton
-                    variant="danger"
-                    disabled={
-                      busy ||
-                      !canSubmitRefund({
-                        paymentId,
-                        amountMinor: amount,
-                        paymentStatus: p.status,
-                        remainingMinor: remaining,
-                      })
-                    }
-                    onClick={() => setConfirm(true)}
-                  >
-                    İade başlat
-                  </ActionButton>
-                </div>
-              ) : (
-                <p className="ops-page__lede">Yalnızca PAID ödemeler iade edilir.</p>
-              )}
-              {flash ? (
-                <p className="ops-flash ops-flash--ok" role="status">
-                  {flash}
+          <>
+            <OpsPageHeader
+              title={p.checkoutSessionId ?? p.id}
+              scope={p.providerPaymentId ?? undefined}
+              lede="Ödemenin durumunu, tutarını ve bu ödemeye bağlı iadeleri tek ekranda izleyin. Kart bilgisi saklanmaz; iade uygunluğu ve kalan bakiye backend tarafından belirlenir."
+            />
+            <div className="ops-split">
+              <KeylineCard title="Ödeme">
+                <dl className="ops-form">
+                  <div>
+                    <dt>ID</dt>
+                    <dd className="mono">{p.id}</dd>
+                  </div>
+                  <div>
+                    <dt>Checkout</dt>
+                    <dd className="mono">{p.checkoutSessionId ?? '—'}</dd>
+                  </div>
+                  <div>
+                    <dt>Tutar</dt>
+                    <dd>
+                      {p.amountMinor ? formatTryMinor(p.amountMinor, p.currency ?? 'TRY') : '—'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Durum</dt>
+                    <dd>
+                      <StatusBadge tone={paymentStatusTone(p.status)}>
+                        {paymentStatusLabel(p.status)}
+                      </StatusBadge>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Sağlayıcı ref</dt>
+                    <dd className="mono">{p.providerPaymentId ?? '—'}</dd>
+                  </div>
+                  <div>
+                    <dt>Kalan iade (gösterim)</dt>
+                    <dd className="mono">
+                      {formatTryMinor(remaining.toString(), p.currency ?? 'TRY')}
+                    </dd>
+                  </div>
+                </dl>
+                {isPaymentPaid(p.status) ? (
+                  <div className="ops-form">
+                    <label className="ops-field">
+                      İade tutarı (kuruş)
+                      <input
+                        className="ops-input"
+                        value={amount}
+                        inputMode="numeric"
+                        onChange={(e) => setAmount(e.target.value)}
+                      />
+                    </label>
+                    <label className="ops-field">
+                      Gerekçe
+                      <input
+                        className="ops-input"
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                      />
+                    </label>
+                    <ActionButton
+                      variant="danger"
+                      disabled={
+                        busy ||
+                        !canSubmitRefund({
+                          paymentId,
+                          amountMinor: amount,
+                          paymentStatus: p.status,
+                          remainingMinor: remaining,
+                        })
+                      }
+                      onClick={() => setConfirm(true)}
+                    >
+                      İade başlat
+                    </ActionButton>
+                  </div>
+                ) : (
+                  <p className="ops-page__lede">Yalnızca PAID ödemeler iade edilir.</p>
+                )}
+                {flash ? (
+                  <p className="ops-flash ops-flash--ok" role="status">
+                    {flash}
+                  </p>
+                ) : null}
+                {formError ? (
+                  <p className="ops-flash ops-flash--err" role="alert">
+                    {formError}
+                  </p>
+                ) : null}
+                <p>
+                  <Link href={`/refunds?paymentId=${p.id}`}>İade formu</Link>
                 </p>
-              ) : null}
-              {formError ? (
-                <p className="ops-flash ops-flash--err" role="alert">
-                  {formError}
-                </p>
-              ) : null}
-              <p>
-                <Link href={`/refunds?paymentId=${p.id}`}>İade formu</Link>
-              </p>
-            </KeylineCard>
-            <KeylineCard title="İade geçmişi">
-              {refunds.length === 0 ? (
-                <p className="ops-page__lede">Bu ödemede iade yok.</p>
-              ) : (
-                <OperationalTable<Refund>
-                  ariaLabel="İadeler"
-                  rowKey={(r) => r.id}
-                  columns={[
-                    { key: 'id', header: 'ID', mono: true, render: (r) => r.id.slice(0, 8) },
-                    {
-                      key: 'amount',
-                      header: 'Tutar',
-                      numeric: true,
-                      render: (r) => formatTryMinor(r.amountMinor, r.currency ?? p.currency ?? 'TRY'),
-                    },
-                    {
-                      key: 'status',
-                      header: 'Durum',
-                      render: (r) => (
-                        <StatusBadge tone={refundStatusTone(r.status)}>
-                          {refundStatusLabel(r.status)}
-                        </StatusBadge>
-                      ),
-                    },
-                    { key: 'reason', header: 'Gerekçe', render: (r) => r.reason ?? '—' },
-                  ]}
-                  rows={refunds}
-                />
-              )}
-            </KeylineCard>
-          </div>
+              </KeylineCard>
+              <KeylineCard title="İade geçmişi">
+                {refunds.length === 0 ? (
+                  <p className="ops-page__lede">Bu ödemede iade yok.</p>
+                ) : (
+                  <OperationalTable<Refund>
+                    ariaLabel="İadeler"
+                    rowKey={(r) => r.id}
+                    columns={[
+                      { key: 'id', header: 'ID', mono: true, render: (r) => r.id.slice(0, 8) },
+                      {
+                        key: 'amount',
+                        header: 'Tutar',
+                        numeric: true,
+                        render: (r) =>
+                          formatTryMinor(r.amountMinor, r.currency ?? p.currency ?? 'TRY'),
+                      },
+                      {
+                        key: 'status',
+                        header: 'Durum',
+                        render: (r) => (
+                          <StatusBadge tone={refundStatusTone(r.status)}>
+                            {refundStatusLabel(r.status)}
+                          </StatusBadge>
+                        ),
+                      },
+                      { key: 'reason', header: 'Gerekçe', render: (r) => r.reason ?? '—' },
+                    ]}
+                    rows={refunds}
+                  />
+                )}
+              </KeylineCard>
+            </div>
+          </>
         )}
       </OpsBoundary>
       <ConfirmDialog
         open={confirm}
         title="İade oluştur"
-        body={`${amount} kuruş iade edilecek. Gateway limiti backend’de doğrulanır.`}
+        body={`${formatTryMinor(amount)} iade edilecek. Gateway limiti backend’de doğrulanır.`}
         confirmLabel="İade et"
         danger
         busy={busy}

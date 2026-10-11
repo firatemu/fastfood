@@ -403,7 +403,6 @@ export function OrdersDataGrid(props: OrdersDataGridProps) {
               return (
                 <tr
                   key={row.id}
-                  className={styles.row}
                   tabIndex={0}
                   aria-label={
                     'Sipariş ' +
@@ -522,7 +521,7 @@ export function OrdersDataGrid(props: OrdersDataGridProps) {
             <div
               ref={menuRootRef}
               className={styles.actionMenu}
-              data-admin-theme="kitchen-fleet"
+              data-admin-theme="fastfood-navy"
               role="menu"
               aria-label={'Sipariş ' + orderNoOf(activeOrder) + ' işlemleri'}
               style={{ top: menu.top, left: menu.left, maxHeight: menu.maxHeight }}

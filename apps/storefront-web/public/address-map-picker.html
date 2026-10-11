@@ -17,11 +17,6 @@
         margin: 0;
         background: #1b1b1f;
       }
-      .maplibregl-ctrl-attrib {
-        font:
-          10px Arial,
-          sans-serif;
-      }
       .maplibregl-ctrl-group button {
         color: #222;
       }
@@ -44,6 +39,7 @@
         longitude <= 180;
       const initialPoint =
         validPoint && params.get('selected') === '1' ? { latitude, longitude } : null;
+      const interactive = params.get('interactive') !== '0';
       const center =
         validPoint && (latitude !== 0 || longitude !== 0)
           ? [longitude, latitude]
@@ -65,14 +61,37 @@
         center,
         zoom: initialPoint ? 16 : 12,
         scrollZoom: false,
-        attributionControl: { compact: false },
+        attributionControl: false,
       });
 
-      if (initialPoint) {
-        marker = new maplibregl.Marker({ color: '#d97706' })
-          .setLngLat([initialPoint.longitude, initialPoint.latitude])
-          .addTo(map);
-      }
+      const setMarker = (point) => {
+        if (marker) marker.setLngLat([point.longitude, point.latitude]);
+        else {
+          marker = new maplibregl.Marker({ color: '#d97706' })
+            .setLngLat([point.longitude, point.latitude])
+            .addTo(map);
+        }
+      };
+
+      if (initialPoint) setMarker(initialPoint);
+
+      window.addEventListener('message', (event) => {
+        if (event.origin !== parentOrigin) return;
+        if (event.source !== window.parent) return;
+        let message;
+        try {
+          message = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        } catch {
+          return;
+        }
+        if (message?.type !== 'focus-location') return;
+        const latitude = Number(message.latitude);
+        const longitude = Number(message.longitude);
+        if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90) return;
+        if (!Number.isFinite(longitude) || longitude < -180 || longitude > 180) return;
+        setMarker({ latitude, longitude });
+        map.flyTo({ center: [longitude, latitude], zoom: 16 });
+      });
 
       map.once('load', () => {
         readySent = true;
@@ -81,16 +100,13 @@
       map.on('error', (event) => {
         if (!readySent && event.error) post({ type: 'map-error' });
       });
-      map.on('click', (event) => {
-        const point = { latitude: event.lngLat.lat, longitude: event.lngLat.lng };
-        if (marker) marker.setLngLat([point.longitude, point.latitude]);
-        else {
-          marker = new maplibregl.Marker({ color: '#d97706' })
-            .setLngLat([point.longitude, point.latitude])
-            .addTo(map);
-        }
-        post({ type: 'location-selected', ...point });
-      });
+      if (interactive) {
+        map.on('click', (event) => {
+          const point = { latitude: event.lngLat.lat, longitude: event.lngLat.lng };
+          setMarker(point);
+          post({ type: 'location-selected', ...point });
+        });
+      }
       setTimeout(() => {
         if (!readySent) post({ type: 'map-error' });
       }, 25_000);

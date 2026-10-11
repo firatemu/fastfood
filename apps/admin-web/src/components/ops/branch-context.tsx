@@ -1,5 +1,6 @@
 'use client';
 
+import { adminPagePermission } from '@fastfood/domain-types';
 import {
   createContext,
   useCallback,
@@ -11,7 +12,6 @@ import {
 } from 'react';
 
 import { createAdminClient, DEFAULT_BRANCH_ID } from '../../lib/api';
-import { adminPagePermission } from '@fastfood/domain-types';
 import { BRANCH_STORAGE_KEY, resolveBranchId, type BranchOption } from '../../lib/branch-storage';
 import { adminBranchesSchema } from '../../lib/schemas';
 import { useDeferredLoad } from '../../lib/use-deferred-load';
@@ -101,11 +101,14 @@ export function BranchProvider({ children }: { children: ReactNode }) {
     ? resolveBranchId(stored, branches, DEFAULT_BRANCH_ID)
     : (access.branchIds[0] ?? DEFAULT_BRANCH_ID);
 
-  const setBranchId = useCallback((id: string) => {
-    if (!access.isSuperAdmin && id !== access.branchIds[0]) return;
-    window.localStorage.setItem(BRANCH_STORAGE_KEY, id);
-    window.dispatchEvent(new Event('storage'));
-  }, [access]);
+  const setBranchId = useCallback(
+    (id: string) => {
+      if (!access.isSuperAdmin && id !== access.branchIds[0]) return;
+      window.localStorage.setItem(BRANCH_STORAGE_KEY, id);
+      window.dispatchEvent(new Event('storage'));
+    },
+    [access],
+  );
 
   const value = useMemo<BranchContextValue>(
     () => ({

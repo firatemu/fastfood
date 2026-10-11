@@ -307,7 +307,7 @@ export default function KitchenPage() {
   const total = state.status === 'loading' || state.status === 'error' ? '—' : orders.length;
 
   return (
-    <main className={`${styles.page} ops-kitchen-page`} data-admin-theme="kitchen-fleet">
+    <main className={`${styles.page} ops-kitchen-page`} data-admin-theme="fastfood-navy">
       <section className={styles.commandBar} aria-labelledby="kitchen-title">
         <div className={styles.titleBlock}>
           <span className={styles.titleRule} aria-hidden="true" />

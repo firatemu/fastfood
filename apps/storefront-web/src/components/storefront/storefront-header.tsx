@@ -2,16 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useCallback, useEffect, useState } from 'react';
 
 import { isCustomerAuthenticated } from '../../lib/api';
+import { subscribeNotificationsChanged } from '../../lib/notification-events';
 import { BRAND_NAME, NAV_ITEMS, SEARCH_PLACEHOLDER } from '../../lib/storefront/brand-copy';
 import { fetchNotifications } from '../../lib/storefront/engagement';
-import { formatBranchLocation, formatDeliveryWindow } from '../../lib/storefront/format';
 import type { StorefrontHome } from '../../lib/storefront/home';
 import { useDeferredLoad } from '../../lib/use-deferred-load';
 
 import { BrandLogo } from './brand-logo';
+import { HeaderBranchMenu } from './header-branch-menu';
 import { MaterialIcon } from './material-icon';
 
 export function StorefrontHeader({
@@ -19,27 +20,57 @@ export function StorefrontHeader({
   cartCount,
   onSearch,
   searchValue,
+  onSelectBranch,
 }: {
   home: StorefrontHome | null;
   cartCount: number;
   onSearch?: (q: string) => void;
   searchValue?: string;
+  onSelectBranch: (branchId: string) => void;
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const [query, setQuery] = useState(searchValue ?? '');
   const [authed, setAuthed] = useState(false);
   const [unread, setUnread] = useState(0);
-  useDeferredLoad(() => {
-    setAuthed(isCustomerAuthenticated());
-    if (isCustomerAuthenticated()) {
-      void fetchNotifications()
-        .then((data) => setUnread(data.unreadCount))
-        .catch(() => setUnread(0));
-    } else {
+
+  const refreshUnread = useCallback(async () => {
+    if (!isCustomerAuthenticated()) {
+      setUnread(0);
+      return;
+    }
+    try {
+      const data = await fetchNotifications();
+      setUnread(data.unreadCount);
+    } catch {
       setUnread(0);
     }
-  }, [pathname]);
+  }, []);
+
+  useDeferredLoad(() => {
+    setAuthed(isCustomerAuthenticated());
+    void refreshUnread();
+  }, [pathname, refreshUnread]);
+
+  // Notifications are marked read on another screen, so the badge has to be
+  // told; otherwise it shows the count from first paint until a navigation.
+  useEffect(() => {
+    return subscribeNotificationsChanged(() => {
+      void refreshUnread();
+    });
+  }, [refreshUnread]);
+
+  useEffect(() => {
+    const revalidate = () => {
+      if (document.visibilityState === 'visible') void refreshUnread();
+    };
+    window.addEventListener('focus', revalidate);
+    document.addEventListener('visibilitychange', revalidate);
+    return () => {
+      window.removeEventListener('focus', revalidate);
+      document.removeEventListener('visibilitychange', revalidate);
+    };
+  }, [refreshUnread]);
   useDeferredLoad(() => {
     if (pathname === '/search' && typeof window !== 'undefined') {
       setQuery(new URLSearchParams(window.location.search).get('q') ?? '');
@@ -50,9 +81,6 @@ export function StorefrontHeader({
     }
   }, [pathname, searchValue]);
   const branch = home?.branch;
-  const eta = branch
-    ? formatDeliveryWindow(branch.estimatedDeliveryMinutesMin, branch.estimatedDeliveryMinutesMax)
-    : null;
   const kitchenLive = (home?.kitchenLiveCount ?? 0) > 0;
 
   function navActive(href: string): boolean {
@@ -78,23 +106,7 @@ export function StorefrontHeader({
             <BrandLogo />
             <span className="ff-sr-only">{BRAND_NAME}</span>
           </Link>
-          {branch ? (
-            <Link
-              href="/branches"
-              className="hidden xl:flex items-center gap-space-xs px-space-sm py-1.5 rounded-lg bg-surface-container-low"
-            >
-              <MaterialIcon name="location_on" className="text-primary text-lg" />
-              <div className="flex flex-col text-left">
-                <span className="font-label-sm text-label-sm text-on-surface uppercase leading-none">
-                  {formatBranchLocation(branch.name, branch.addressLine)}
-                </span>
-                <span className="font-label-sm text-[10px] text-primary-container leading-tight mt-0.5">
-                  {eta ? `Teslimat: ${eta}` : branch.isAcceptingOrders ? 'Teslimat açık' : 'Şu an kapalı'}
-                </span>
-              </div>
-              <MaterialIcon name="chevron_right" className="text-on-surface-variant text-base ml-1" />
-            </Link>
-          ) : null}
+          {branch ? <HeaderBranchMenu branch={branch} onSelect={onSelectBranch} /> : null}
         </div>
         <nav className="hidden lg:flex items-center gap-space-lg" aria-label="Birincil">
           {NAV_ITEMS.map((item) => {
@@ -156,10 +168,19 @@ export function StorefrontHeader({
             <MaterialIcon name="shopping_bag" className="text-base" />
             <span className="hidden sm:inline">Sepet</span>
             {cartCount > 0 ? (
-              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary-container text-on-primary-container font-label-sm text-[10px] flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary-container text-on-primary-container font-label-sm text-[10px] flex items-center justify-center" data-ff-cart-count>
                 {cartCount}
               </span>
             ) : null}
+          </Link>
+          <Link
+            href="/account/table"
+            className="flex items-center justify-center w-10 h-10 rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors"
+            aria-label="Masa kodu"
+            title="Masa kodu"
+            data-ff-table-entry
+          >
+            <MaterialIcon name="qr_code_2" className="text-xl" />
           </Link>
           <Link href={authed ? '/account' : '/auth'} className="relative flex items-center ml-1" aria-label={authed ? 'Hesabım' : 'Giriş'}>
             {authed ? (

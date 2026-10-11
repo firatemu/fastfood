@@ -4,10 +4,10 @@
   --line: var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
   --line-strong: var(--ops-keyline-strong, light-dark(#d3d5d9, #3e4656));
   --text: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
-  --muted: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
-  --amber: var(--ops-amber, light-dark(#a57709, #feb300));
+  --muted: var(--ff-on-surface-variant);
+  --amber: var(--ff-primary);
   width: 100%;
-  max-width: 1240px;
+  /* Full width by design — no max-width cap (A9-21). */
   min-width: 0;
   margin: 0 auto;
   padding: 24px clamp(16px, 2vw, 28px) 32px;
@@ -32,12 +32,12 @@
 
 .breadcrumb span {
   margin: 0 7px;
-  color: light-dark(#3f4650, #5c6879);
+  color: var(--ff-on-surface-variant);
 }
 .pageHeader h1 {
   margin: 0;
   color: light-dark(#24272e, #e9ebf0);
-  font-family: var(--ops-font-anton, Anton, sans-serif);
+  font-family: var(--ff-font-headline);
   font-size: clamp(28px, 2.3vw, 35px);
   font-weight: 400;
   letter-spacing: 0.025em;
@@ -55,15 +55,15 @@
   align-items: center;
   gap: 8px;
   padding: 0 10px;
-  border: 1px solid light-dark(#d3d6d9, #3a4654);
-  background: light-dark(#f8f9f9, #1b222a);
-  color: light-dark(#58636f, #aab8c8);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
   font-weight: 650;
   white-space: nowrap;
 }
 .readOnlyMark :global(.material-symbols-outlined) {
-  color: light-dark(#2e6584, #a9c7d8);
+  color: var(--ff-status-info-text);
   font-size: 17px;
 }
 
@@ -87,7 +87,7 @@
 }
 .gridHeader p {
   margin: 3px 0 0;
-  color: light-dark(#58636f, #98a6b6);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .eyebrow {
@@ -109,8 +109,8 @@
   gap: 8px;
   padding: 0 10px;
   border: 1px solid var(--line-strong);
-  background: light-dark(#fcfcfd, #11161c);
-  color: light-dark(#58636f, #8999aa);
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface-variant);
 }
 .search:focus-within {
   border-color: var(--ops-amber-border);
@@ -134,7 +134,7 @@
 .search button {
   border: 0;
   background: transparent;
-  color: light-dark(#24292e, #bac4ce);
+  color: var(--ff-on-surface);
   cursor: pointer;
   font-size: 18px;
 }
@@ -148,16 +148,16 @@
   gap: 6px;
   padding: 0 10px;
   border: 1px solid var(--line-strong);
-  background: light-dark(#f8f9f9, #1d242d);
-  color: light-dark(#24292e, #c3ccd6);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
   cursor: pointer;
   font: 700 11px var(--ops-font-sans, Inter, sans-serif);
   white-space: nowrap;
 }
 .toolButton:hover,
 .statePanel button:hover {
-  border-color: light-dark(#d3d6d9, #8290a1);
-  color: light-dark(#a0730d, #ffd16a);
+  border-color: var(--ff-keyline);
+  color: var(--ff-primary);
 }
 .toolButton :global(.material-symbols-outlined),
 .rowAction :global(.material-symbols-outlined) {
@@ -183,12 +183,12 @@
   align-items: center;
   gap: 9px;
   padding: 0 8px;
-  color: light-dark(#24292e, #d7dfe8);
+  color: var(--ff-on-surface);
   cursor: pointer;
   font-size: 11px;
 }
 .columnMenuPanel label:hover {
-  background: light-dark(#f3f4f4, #2b3540);
+  background: var(--ff-surface-container-high);
 }
 .columnMenuPanel input {
   accent-color: var(--amber);
@@ -202,7 +202,7 @@
   flex-wrap: wrap;
   padding: 6px 15px;
   border-bottom: 1px solid var(--line);
-  background: light-dark(#fcfcfd, #13181e);
+  background: var(--ff-surface-container-low);
 }
 .segmented {
   display: flex;
@@ -226,7 +226,7 @@
 .filterActive {
   border-color: light-dark(rgba(146, 160, 170, 0.28), rgba(254, 179, 0, 0.28));
   background: light-dark(rgba(244, 187, 52, 0.09), rgba(254, 179, 0, 0.09));
-  color: light-dark(#a0730d, #ffd16a);
+  color: var(--ff-primary);
 }
 .filterDivider {
   width: 1px;
@@ -245,8 +245,8 @@
   height: 30px;
   padding: 0 8px;
   border: 1px solid var(--line-strong);
-  background: light-dark(#f8f9f9, #202630);
-  color: light-dark(#24282e, #d6dde6);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
   font: 11px var(--ops-font-sans, Inter, sans-serif);
 }
 .scopeHint {
@@ -271,7 +271,7 @@
   height: 38px;
   padding: 0 12px;
   border-bottom: 1px solid var(--line-strong);
-  background: light-dark(#f8f9f9, #1b2129);
+  background: var(--ff-surface-container);
   color: light-dark(#58636f, #9eacbc);
   font-size: 10px;
   font-weight: 650;
@@ -284,7 +284,7 @@
 .table td {
   height: 58px;
   padding: 8px 12px;
-  border-bottom: 1px solid light-dark(rgba(146, 160, 170, 0.45), rgba(61, 70, 84, 0.48));
+  border-bottom: 1px solid var(--ff-keyline);
   background: light-dark(#fcfcfd, #181e26);
   color: light-dark(#24282e, #dbe1e9);
   font-size: 12px;
@@ -311,10 +311,10 @@
   font: inherit;
 }
 .sortButton:hover {
-  color: light-dark(#a0730d, #ffd16a);
+  color: var(--ff-primary);
 }
 .sortButton span {
-  color: light-dark(#58636f, #78889a);
+  color: var(--ff-on-surface-variant);
   font-size: 13px;
 }
 .identityButton {
@@ -336,7 +336,7 @@
   height: 34px;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid light-dark(rgba(146, 160, 170, 0.27), rgba(56, 189, 248, 0.27));
+  border: 1px solid var(--ff-status-info-border);
   background: light-dark(rgba(233, 242, 246, 0.07), rgba(56, 189, 248, 0.07));
   color: light-dark(#197599, #92d3ed);
   font-size: 12px;
@@ -350,7 +350,7 @@
 .identityText strong {
   overflow: hidden;
   max-width: 210px;
-  color: light-dark(#24272e, #ebedf2);
+  color: var(--ff-on-surface);
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 12px;
@@ -360,7 +360,7 @@
   font: 10px var(--ops-font-mono, 'JetBrains Mono', monospace);
 }
 .identityButton:hover strong {
-  color: light-dark(#a0700d, #ffcf6c);
+  color: var(--ff-primary);
 }
 .contactCell {
   display: grid;
@@ -370,18 +370,18 @@
 .contactCell strong {
   overflow: hidden;
   max-width: 210px;
-  color: light-dark(#24292e, #c8d3df);
+  color: var(--ff-on-surface);
   font-size: 11px;
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .contactCell small {
-  color: light-dark(#58626f, #8493a5);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 .contactCell .verified {
-  color: light-dark(#2e845a, #90d5b3);
+  color: var(--ff-status-ready-text);
 }
 .statusActive,
 .statusPending,
@@ -392,8 +392,8 @@
   align-items: center;
   gap: 7px;
   padding: 0 7px;
-  border: 1px solid light-dark(rgba(146, 160, 170, 0.28), rgba(16, 185, 129, 0.28));
-  background: light-dark(rgba(233, 246, 242, 0.09), rgba(16, 185, 129, 0.09));
+  border: 1px solid var(--ff-status-ready-border);
+  background: var(--ff-status-ready-wash);
   color: light-dark(#2d8656, #a0dfbd);
   font-size: 10px;
   font-weight: 700;
@@ -406,7 +406,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: light-dark(#ebf7f3, #10b981);
+  background: var(--ff-status-ready);
 }
 .statusPending {
   border-color: light-dark(rgba(146, 160, 170, 0.28), rgba(254, 179, 0, 0.28));
@@ -414,7 +414,7 @@
   color: light-dark(#966e17, #eac677);
 }
 .statusPending i {
-  background: light-dark(#fabc29, #feb300);
+  background: var(--ff-primary-container);
 }
 .statusDisabled {
   border-color: light-dark(rgba(146, 160, 170, 0.29), rgba(239, 68, 68, 0.29));
@@ -422,18 +422,18 @@
   color: light-dark(#941e1e, #eda7a7);
 }
 .statusDisabled i {
-  background: light-dark(#f7ebeb, #ef4444);
+  background: var(--ff-surface-container-high);
 }
 .statusOther {
   border-color: light-dark(#d3d6d9, #435064);
-  background: light-dark(#f8f9f9, #222a34);
+  background: var(--ff-surface-container);
   color: light-dark(#24282e, #b0bfd0);
 }
 .statusOther i {
-  background: light-dark(#ecedee, #90a0b3);
+  background: var(--ff-surface-container-high);
 }
 .date {
-  color: light-dark(#58636f, #a9b8c8);
+  color: var(--ff-on-surface-variant);
   font: 11px var(--ops-font-mono, 'JetBrains Mono', monospace);
   white-space: nowrap;
 }
@@ -446,9 +446,9 @@
   font-size: 10px;
 }
 .rowAction:hover {
-  border-color: light-dark(rgba(146, 160, 170, 0.32), rgba(254, 179, 0, 0.32));
-  background: light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08));
-  color: light-dark(#a0710d, #ffce65);
+  border-color: var(--ff-status-warn-border);
+  background: var(--ff-status-warn-wash);
+  color: var(--ff-primary);
 }
 .gridFooter {
   display: flex;
@@ -458,7 +458,7 @@
   gap: 10px;
   padding: 0 15px;
   border-top: 1px solid var(--line);
-  color: light-dark(#58636f, #afbdcc);
+  color: var(--ff-on-surface-variant);
   font: 11px var(--ops-font-mono, 'JetBrains Mono', monospace);
 }
 .pagination,
@@ -468,7 +468,7 @@
   gap: 8px;
 }
 .pagination label {
-  color: light-dark(#58626f, #95a3b4);
+  color: var(--ff-on-surface-variant);
   font-family: var(--ops-font-sans, Inter, sans-serif);
   font-size: 11px;
 }
@@ -478,8 +478,8 @@
   height: 29px;
   place-items: center;
   border: 1px solid var(--line-strong);
-  background: light-dark(#f8f9f9, #202630);
-  color: light-dark(#24282e, #c3ccd8);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
   cursor: pointer;
 }
 .pagination button:disabled {
@@ -496,15 +496,15 @@
   justify-items: center;
   gap: 8px;
   padding: 30px;
-  color: light-dark(#58626f, #95a4b7);
+  color: var(--ff-on-surface-variant);
   text-align: center;
 }
 .statePanel > :global(.material-symbols-outlined) {
-  color: light-dark(#876827, #d2ae63);
+  color: var(--ff-status-warn-text);
   font-size: 30px;
 }
 .statePanel strong {
-  color: light-dark(#24282e, #e5e8ed);
+  color: var(--ff-on-surface);
   font-size: 16px;
 }
 .statePanel span {
@@ -515,9 +515,9 @@
 .statePanel button {
   min-height: 33px;
   margin-top: 5px;
-  border-color: light-dark(rgba(146, 160, 170, 0.38), rgba(254, 179, 0, 0.38));
-  background: light-dark(rgba(244, 187, 52, 0.1), rgba(254, 179, 0, 0.1));
-  color: light-dark(#a0730d, #ffd16a);
+  border-color: var(--ff-status-warn-border);
+  background: var(--ff-status-warn-wash);
+  color: var(--ff-primary);
 }
 
 .overlay {
@@ -540,7 +540,7 @@
   border: 1px solid light-dark(#d3d6d9, #495563);
   border-radius: 8px;
   outline: none;
-  background: light-dark(#fcfcfd, #181e26);
+  background: var(--ff-surface-container);
   box-shadow: 0 25px 80px light-dark(rgba(27, 42, 49, 0.18), rgba(0, 0, 0, 0.68));
 }
 .dialogHeader {
@@ -550,11 +550,7 @@
   gap: 15px;
   padding: 16px 23px;
   border-bottom: 1px solid light-dark(#d3d6d9, #37414d);
-  background: linear-gradient(
-    110deg,
-    light-dark(#f3f3f4, #252e39),
-    light-dark(#f8f9f9, #1c232c) 75%
-  );
+  background: var(--ff-surface-container-high);
 }
 .dialogMark {
   display: grid;
@@ -562,7 +558,7 @@
   height: 45px;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid light-dark(rgba(146, 160, 170, 0.32), rgba(56, 189, 248, 0.32));
+  border: 1px solid var(--ff-status-info-border);
   border-radius: 5px;
   background: light-dark(rgba(233, 242, 246, 0.09), rgba(56, 189, 248, 0.09));
   color: light-dark(#1e7694, #a1d9ec);
@@ -576,7 +572,7 @@
 .dialogHeader h2 {
   overflow: hidden;
   margin: 4px 0 3px;
-  color: light-dark(#24282e, #f0f2f5);
+  color: var(--ff-on-surface);
   font-size: 22px;
   line-height: 1.16;
   text-overflow: ellipsis;
@@ -584,7 +580,7 @@
 }
 .dialogHeader p {
   margin: 0;
-  color: light-dark(#58636f, #a6b2c0);
+  color: var(--ff-on-surface-variant);
   font-size: 12px;
 }
 .closeButton {
@@ -594,23 +590,23 @@
   align-self: flex-start;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid light-dark(#d3d6d9, #48515c);
+  border: 1px solid var(--ff-keyline);
   border-radius: 4px;
-  background: light-dark(#f3f3f4, #28303a);
-  color: light-dark(#24282e, #bac4d0);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface);
   cursor: pointer;
   font-size: 22px;
 }
 .closeButton:hover {
-  background: light-dark(#eff0f0, #343d49);
+  background: var(--ff-surface-container-high);
   color: white;
 }
 .dialogTabs {
   display: flex;
   gap: 3px;
   padding: 0 18px;
-  border-bottom: 1px solid light-dark(#d3d6d9, #37414d);
-  background: light-dark(#fcfcfd, #1a2028);
+  border-bottom: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
 }
 .dialogTab,
 .dialogTabActive {
@@ -622,18 +618,18 @@
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
-  color: light-dark(#58626f, #adb9c8);
+  color: var(--ff-on-surface-variant);
   cursor: pointer;
   font: 650 12px var(--ops-font-sans, Inter, sans-serif);
 }
 .dialogTab:hover {
-  background: light-dark(#f3f4f4, #26303a);
-  color: light-dark(#24282e, #e9ecf0);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface);
 }
 .dialogTabActive {
-  border-bottom-color: light-dark(#d6bf8a, #feb300);
-  background: light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08));
-  color: light-dark(#a0760d, #ffda7d);
+  border-bottom-color: var(--ff-primary-container);
+  background: var(--ff-status-warn-wash);
+  color: var(--ff-primary);
 }
 .dialogTab :global(.material-symbols-outlined),
 .dialogTabActive :global(.material-symbols-outlined) {
@@ -649,12 +645,12 @@
 }
 .sectionHeading h3 {
   margin: 4px 0 0;
-  color: light-dark(#24282e, #f0f2f5);
+  color: var(--ff-on-surface);
   font-size: 19px;
 }
 .sectionHeading p {
   margin: 5px 0 18px;
-  color: light-dark(#58626f, #9daabb);
+  color: var(--ff-on-surface-variant);
   font-size: 12px;
 }
 .profileGrid {
@@ -669,16 +665,16 @@
   gap: 8px;
   min-height: 76px;
   padding: 12px 14px;
-  border: 1px solid light-dark(#d3d6d9, #35404c);
-  background: light-dark(#f8f9f9, #202832);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
 }
 .infoCard > span {
-  color: light-dark(#58646f, #8ea0b1);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 .infoCard strong {
   overflow-wrap: anywhere;
-  color: light-dark(#24292e, #e3e8ed);
+  color: var(--ff-on-surface);
   font-size: 13px;
   font-weight: 650;
 }
@@ -686,14 +682,14 @@
   font: 12px var(--ops-font-mono, 'JetBrains Mono', monospace);
 }
 .infoCard small {
-  color: light-dark(#58646f, #8fa0b0);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 .infoCard .yes {
-  color: light-dark(#2e8457, #9cdbba);
+  color: var(--ff-status-ready-text);
 }
 .infoCard .no {
-  color: light-dark(#956718, #e9bf78);
+  color: var(--ff-status-warn-text);
 }
 .profileWide {
   grid-column: 1 / -1;
@@ -716,55 +712,55 @@
   align-content: center;
   gap: 8px;
   padding: 12px 15px;
-  border: 1px solid light-dark(#d3d6d9, #3a4652);
-  background: light-dark(#f8f9f9, #202832);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
 }
 .clubSummary > div:first-child {
-  border-color: light-dark(rgba(146, 160, 170, 0.34), rgba(254, 179, 0, 0.34));
-  background: light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08));
+  border-color: var(--ff-status-warn-border);
+  background: var(--ff-status-warn-wash);
 }
 .clubSummary span {
-  color: light-dark(#58636f, #9baabb);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 .clubSummary strong {
-  color: light-dark(#2e5984, #e8edf2);
+  color: var(--ff-on-surface);
   font: 700 20px var(--ops-font-mono, 'JetBrains Mono', monospace);
 }
 .clubSummary > div:first-child strong {
-  color: light-dark(#a0730d, #ffd16a);
+  color: var(--ff-primary);
 }
 .clubSummary strong.tierName {
   font: 700 17px var(--ops-font-sans, Inter, sans-serif);
 }
 .tierProgress {
   padding: 13px 15px;
-  border: 1px solid light-dark(#d3d6d9, #35404c);
-  background: light-dark(#f8f9f9, #1c242d);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
 }
 .tierProgress > div:first-child {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  color: light-dark(#24292e, #b9c7d4);
+  color: var(--ff-on-surface);
   font-size: 11px;
 }
 .tierProgress strong {
-  color: light-dark(#24282e, #e6eaef);
+  color: var(--ff-on-surface);
 }
 .progressTrack {
   display: block;
   height: 5px;
   margin: 11px 0 7px;
-  background: light-dark(#eff0f0, #343e49);
+  background: var(--ff-surface-container-high);
 }
 .progressTrack i {
   display: block;
   height: 100%;
-  background: light-dark(#fabc29, #feb300);
+  background: var(--ff-primary-container);
 }
 .tierProgress small {
-  color: light-dark(#58636f, #8f9fb0);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 .activityHead {
@@ -779,11 +775,11 @@
   font-size: 14px;
 }
 .activityHead span {
-  color: light-dark(#58636f, #8e9eaf);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 .activityList {
-  border: 1px solid light-dark(#d3d6d9, #36414c);
+  border: 1px solid var(--ff-keyline);
 }
 .activityRow {
   display: grid;
@@ -792,11 +788,11 @@
   gap: 10px;
   min-height: 51px;
   padding: 8px 13px;
-  border-bottom: 1px solid light-dark(#d3d6d9, #343e49);
-  background: light-dark(#f8f9f9, #1d242d);
+  border-bottom: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
 }
 .activityRow:nth-child(even) {
-  background: light-dark(#f8f9f9, #1a2129);
+  background: var(--ff-surface-container);
 }
 .activityRow:last-child {
   border-bottom: 0;
@@ -808,31 +804,31 @@
 }
 .activityRow strong {
   overflow: hidden;
-  color: light-dark(#2e5c84, #d8e1e9);
+  color: var(--ff-status-info-text);
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .activityRow small {
   overflow: hidden;
-  color: light-dark(#58636f, #8d9eaf);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .activityRow time {
-  color: light-dark(#58646f, #a5b5c3);
+  color: var(--ff-on-surface-variant);
   font: 10px var(--ops-font-mono, 'JetBrains Mono', monospace);
   white-space: nowrap;
 }
 .activityRow > span {
-  color: light-dark(#2e8457, #9bd8b8);
+  color: var(--ff-status-ready-text);
   font: 700 11px var(--ops-font-mono, 'JetBrains Mono', monospace);
   text-align: right;
   white-space: nowrap;
 }
 .activityRow > span.negative {
-  color: light-dark(#992d19, #efaa9d);
+  color: var(--ff-status-critical-text);
 }
 .dialogState {
   display: grid;
@@ -841,21 +837,21 @@
   justify-items: center;
   gap: 8px;
   padding: 25px;
-  border: 1px solid light-dark(#d3d6d9, #35404c);
-  color: light-dark(#58636f, #9cabbc);
+  border: 1px solid var(--ff-keyline);
+  color: var(--ff-on-surface-variant);
   text-align: center;
   font-size: 12px;
 }
 .dialogState strong {
-  color: light-dark(#24292e, #e7ebef);
+  color: var(--ff-on-surface);
   font-size: 14px;
 }
 .dialogState button {
   min-height: 33px;
   padding: 0 10px;
-  border: 1px solid light-dark(rgba(146, 160, 170, 0.38), rgba(254, 179, 0, 0.38));
-  background: light-dark(rgba(244, 187, 52, 0.1), rgba(254, 179, 0, 0.1));
-  color: light-dark(#a0730d, #ffd16a);
+  border: 1px solid var(--ff-status-warn-border);
+  background: var(--ff-status-warn-wash);
+  color: var(--ff-primary);
   cursor: pointer;
   font-size: 11px;
 }
@@ -867,10 +863,10 @@
   gap: 12px;
   padding: 11px 24px;
   border-top: 1px solid light-dark(#d3d6d9, #37414d);
-  background: light-dark(#f8f9f9, #1d242d);
+  background: var(--ff-surface-container);
 }
 .dialogFooter > span {
-  color: light-dark(#58626f, #8291a3);
+  color: var(--ff-on-surface-variant);
   font: 10px var(--ops-font-mono, 'JetBrains Mono', monospace);
 }
 .dialogFooter > div {
@@ -886,22 +882,22 @@
   padding: 0 13px;
   border: 1px solid light-dark(#d3d6d9, #47515e);
   border-radius: 3px;
-  background: light-dark(#f3f3f4, #252d37);
-  color: light-dark(#24282e, #cbd4df);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface);
   cursor: pointer;
   font: 700 12px var(--ops-font-sans, Inter, sans-serif);
   text-decoration: none;
 }
 .secondaryButton:hover {
-  border-color: light-dark(#d3d6d9, #8a98a7);
-  color: light-dark(#24282e, #f3f5f8);
+  border-color: var(--ff-keyline);
+  color: var(--ff-on-surface);
 }
 .page button:focus-visible,
 .page a:focus-visible,
 .dialog button:focus-visible,
 .dialog a:focus-visible,
 .page select:focus-visible {
-  outline: 2px solid light-dark(#d6bd8a, #ffcc66);
+  outline: 2px solid var(--ff-outline);
   outline-offset: 2px;
 }
 
@@ -1000,3 +996,347 @@
     animation-duration: 0.01ms !important;
   }
 }
+
+/* @block:navy-a8-shared */
+/* ==========================================================================
+   FASTFOOD Admin — Navy list-page language (ADR-019, phase A8)
+
+   These screens have no frame in the design set, so this block carries the
+   list-page grammar established by the catalog screens in A7: label-role
+   headers, divide-y rows instead of zebra, mono identifiers, `surface-container
+   -low` panels with `shadow-sm`, and a 2px/4px/8px/12px shape scale.
+
+   Class names differ per module (`gridPanel` vs `panel`, `sortMark` vs
+   `sortIndicator`, ...), so the block is applied with **selector-level
+   pruning**: a selector is emitted only if that stylesheet defines it.
+   ========================================================================== */
+/* --- page shell --- */
+
+:global([data-admin-theme='fastfood-navy']) .pageHeader h1 {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-xl);
+  font-weight: var(--ff-weight-headline-xl);
+  line-height: var(--ff-leading-headline-xl);
+  letter-spacing: var(--ff-tracking-headline-xl);
+  text-transform: none;
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .pageHeader p,
+:global([data-admin-theme='fastfood-navy']) .profileFootnote {
+  font: 400 13px/18px var(--ff-font-body);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .breadcrumb {
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .eyebrow {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .sectionHeading,
+:global([data-admin-theme='fastfood-navy']) .dialogHeader {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-sm);
+  font-weight: 600;
+  line-height: var(--ff-leading-headline-sm);
+  color: var(--ff-on-surface);
+}
+
+/* --- panel --- */
+
+:global([data-admin-theme='fastfood-navy']) .gridPanel,
+:global([data-admin-theme='fastfood-navy']) .infoCard {
+  background: var(--ff-surface-container-low);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .gridHeader,
+:global([data-admin-theme='fastfood-navy']) .gridFooter {
+  padding: var(--ff-space-md);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+/* --- search well --- */
+
+:global([data-admin-theme='fastfood-navy']) .search {
+  background: var(--ff-surface-container-lowest);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search:focus-within {
+  border-color: var(--ff-primary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search input {
+  font: 400 12px/16px var(--ff-font-body);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search input::placeholder {
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- filter chips / segmented control --- */
+
+:global([data-admin-theme='fastfood-navy']) .filterButton {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  border-radius: var(--ff-radius-lg);
+  padding: 4px var(--ff-space-sm);
+  color: var(--ff-on-surface-variant);
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+:global([data-admin-theme='fastfood-navy']) .filterButton:hover {
+  color: var(--ff-on-surface);
+  background: var(--ff-surface-container-high);
+}
+
+:global([data-admin-theme='fastfood-navy']) .filterActive {
+  background: var(--ff-primary-container);
+  border-color: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+  font-weight: 700;
+}
+
+:global([data-admin-theme='fastfood-navy']) .filterDivider {
+  background: var(--ff-surface-container-highest);
+}
+
+:global([data-admin-theme='fastfood-navy']) .segmented {
+  background: var(--ff-surface-container);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  padding: 2px;
+}
+
+:global([data-admin-theme='fastfood-navy']) .scopeHint {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- table: label header, divide-y, no zebra --- */
+
+:global([data-admin-theme='fastfood-navy']) .table th {
+  background: var(--ff-surface-container-low);
+  border-bottom-color: var(--ff-keyline);
+  color: var(--ff-on-surface-variant);
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+:global([data-admin-theme='fastfood-navy']) .table th:first-child,
+:global([data-admin-theme='fastfood-navy']) .table td:first-child {
+  background: var(--ff-surface-container-low);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table td {
+  background: var(--ff-surface-container-low);
+  border-bottom-color: var(--ff-surface-container-high);
+  color: var(--ff-on-surface);
+  font: 400 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(even) td,
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(2n) td {
+  background: var(--ff-surface-container-low);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:hover td {
+  background: var(--ff-surface-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+:global([data-admin-theme='fastfood-navy']) .tableScroll,
+:global([data-admin-theme='fastfood-navy']) .pagination {
+  background: var(--ff-surface-container-low);
+  border-color: var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .sortButton {
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  color: inherit;
+}
+
+:global([data-admin-theme='fastfood-navy']) .sortButton:hover {
+  color: var(--ff-primary-container);
+}
+
+/* --- identity columns --- */
+
+:global([data-admin-theme='fastfood-navy']) .identityText {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-sm);
+  font-weight: 600;
+  line-height: var(--ff-leading-headline-sm);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .identityText small,
+:global([data-admin-theme='fastfood-navy']) .contactCell {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .identityMark,
+:global([data-admin-theme='fastfood-navy']) .dialogMark {
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  border-radius: var(--ff-radius-lg);
+}
+
+/* --- mono identifier columns --- */
+
+:global([data-admin-theme='fastfood-navy']) .mono {
+  font-family: var(--ff-font-label);
+  font-variant-numeric: tabular-nums;
+}
+
+:global([data-admin-theme='fastfood-navy']) .negative {
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- status + scope badges --- */
+
+:global([data-admin-theme='fastfood-navy']) .statusActive,
+:global([data-admin-theme='fastfood-navy']) .verified,
+:global([data-admin-theme='fastfood-navy']) .yes {
+  font: 600 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-status-ready-wash);
+  color: var(--ff-tertiary);
+  border: 1px solid var(--ff-status-ready-border);
+}
+
+:global([data-admin-theme='fastfood-navy']) .statusPending {
+  background: var(--ff-accent-wash);
+  color: var(--ff-primary-container);
+  border-color: var(--ff-status-warn-border);
+}
+
+:global([data-admin-theme='fastfood-navy']) .statusDisabled,
+:global([data-admin-theme='fastfood-navy']) .statusOther {
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  border-color: var(--ff-keyline);
+}
+
+/* --- buttons --- */
+
+:global([data-admin-theme='fastfood-navy']) .identityButton {
+  min-height: 36px;
+  padding: 0 var(--ff-space-md);
+  border-radius: var(--ff-radius-lg);
+  border: 1px solid var(--ff-primary-container);
+  background: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+  font: 600 13px/18px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .secondaryButton,
+:global([data-admin-theme='fastfood-navy']) .toolButton,
+:global([data-admin-theme='fastfood-navy']) .rowAction,
+:global([data-admin-theme='fastfood-navy']) .closeButton,
+:global([data-admin-theme='fastfood-navy']) .pagination button {
+  min-height: 32px;
+  padding: 0 var(--ff-space-sm);
+  border-radius: var(--ff-radius-lg);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  font: 500 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .gridTools {
+  background: var(--ff-surface-container-high);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+}
+
+/* --- forms --- */
+
+:global([data-admin-theme='fastfood-navy']) .verificationSelect {
+  background: var(--ff-surface-container);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  color: var(--ff-on-surface);
+  font: 400 12px/16px var(--ff-font-body);
+}
+
+/* --- notices, states, overlays --- */
+
+:global([data-admin-theme='fastfood-navy']) .statePanel,
+:global([data-admin-theme='fastfood-navy']) .no {
+  background: var(--ff-surface-container-low);
+  border: 0;
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+  color: var(--ff-on-surface-variant);
+  font: 400 13px/18px var(--ff-font-body);
+}
+
+/* --- dialogs --- */
+
+:global([data-admin-theme='fastfood-navy']) .dialog {
+  background: var(--ff-surface-container-high);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-overlay);
+}
+
+:global([data-admin-theme='fastfood-navy']) .dialogHeader {
+  padding: var(--ff-space-md);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .dialogBody {
+  padding: var(--ff-space-md);
+  font: 400 13px/18px var(--ff-font-body);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .dialogFooter {
+  padding: var(--ff-space-sm) var(--ff-space-md);
+  border-top: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .overlay {
+  background: var(--ff-shadow-scrim);
+  backdrop-filter: blur(4px);
+}
+
+/* --- column menu --- */
+
+:global([data-admin-theme='fastfood-navy']) .columnMenuPanel {
+  background: var(--ff-surface-container-high);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  box-shadow: var(--ff-shadow-overlay);
+}
+
+/* --- misc --- */
+/* @end:navy-a8-shared */

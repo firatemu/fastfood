@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Persistent, auto-restarting dev server with HMR for storefront or API.
+# Persistent, auto-restarting dev server with HMR for a customer/admin surface.
 #
 # Usage:
 #   scripts/dev-frontend-watch.sh storefront
@@ -14,7 +14,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 NAME="${1:-}"
 if [[ -z "$NAME" ]]; then
-  echo "usage: $0 <storefront|api>" >&2
+  echo "usage: $0 <storefront|api|admin|qr>" >&2
   exit 2
 fi
 
@@ -22,6 +22,7 @@ case "$NAME" in
   storefront) PORT="${PORT:-3100}"; PKG="${PKG:-@fastfood/storefront-web}"; LOG="${LOG:-/tmp/storefront-web-watch.log}";;
   api)        PORT="${PORT:-4000}"; PKG="${PKG:-@fastfood/api}";          LOG="${LOG:-/tmp/api-watch.log}";;
   admin)      PORT="${PORT:-3101}"; PKG="${PKG:-@fastfood/admin-web}";     LOG="${LOG:-/tmp/admin-web-watch.log}";;
+  qr)         PORT="${PORT:-3104}"; PKG="${PKG:-@fastfood/qr-menu}";       LOG="${LOG:-/tmp/qr-menu-watch.log}";;
   *) echo "unknown surface: $NAME" >&2; exit 2;;
 esac
 

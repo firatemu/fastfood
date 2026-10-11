@@ -7,7 +7,7 @@ import { ProductConfigure } from '../../components/product-configure';
 import { StackHeader } from '../../components/stack-header';
 import { ErrorBlock, LoadingBlock } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
-import { addConfiguredProductToCart } from '../../lib/cart';
+import { addConfiguredProductToCart, addProductToCart } from '../../lib/cart';
 import { fetchProductDetail } from '../../lib/catalog';
 import { favoriteForProduct } from '../../lib/engagement-map';
 import { addFavorite, fetchFavorites, removeFavorite } from '../../lib/favorites';
@@ -26,6 +26,7 @@ export default function ProductDetailRoute() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [favoriteBusy, setFavoriteBusy] = useState(false);
+  const [upsellBusyId, setUpsellBusyId] = useState<string | null>(null);
   const session = useCustomerSession();
 
   useEffect(() => {
@@ -125,6 +126,33 @@ export default function ProductDetailRoute() {
                 setFavoriteBusy(false);
               }
             })();
+          }}
+          onAddRecommendation={(productId) => {
+            if (submitting) return;
+            const rec = product.recommendations?.find((item) => item.id === productId);
+            if (!rec) return;
+            setUpsellBusyId(productId);
+            setFeedback(null);
+            void (async () => {
+              try {
+                await addProductToCart({
+                  productId: rec.id,
+                  unitPriceMinorSnapshot: rec.basePriceMinor,
+                  currencySnapshot: rec.currency,
+                });
+                setFeedback('Sepete eklendi');
+                router.push('/cart');
+              } catch (err) {
+                setFeedback(formatApiError(err));
+              } finally {
+                setUpsellBusyId(null);
+              }
+            })();
+          }}
+          recommendationBusyId={upsellBusyId}
+          onInspectProduct={(productId) => {
+            if (productId === id) return;
+            router.push(`/products/${productId}`);
           }}
           onAdd={(input) => {
             if (submitting) return;

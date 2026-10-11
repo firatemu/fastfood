@@ -72,12 +72,7 @@ export interface UseConfirmAction {
   close: () => void;
 }
 
-export type ConfirmKind =
-  | 'cancel'
-  | 'refund'
-  | 'reassign'
-  | 'courier'
-  | null;
+export type ConfirmKind = 'cancel' | 'refund' | 'reassign' | 'courier' | null;
 
 export function useConfirm(): UseConfirmAction {
   const [state, setState] = useState<ConfirmKind>(null);

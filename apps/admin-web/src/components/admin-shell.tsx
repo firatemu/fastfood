@@ -10,8 +10,8 @@ import { clearStaffSession, getStaffAccessToken } from '../lib/api';
 
 import { BranchProvider } from './ops/branch-context';
 import { OpsShell } from './ops/ops-shell';
-import { StaffAccessProvider } from './ops/staff-access-context';
 import { OpsSyncProvider } from './ops/ops-sync';
+import { StaffAccessProvider } from './ops/staff-access-context';
 
 function subscribe(onStoreChange: () => void): () => void {
   window.addEventListener('storage', onStoreChange);
@@ -34,12 +34,25 @@ export function AdminShell({ children }: { children: ReactNode }) {
   );
   const isLogin = pathname === '/login' || pathname.startsWith('/invite/');
 
+  // Standalone auth surfaces render outside OpsShell, so they carry no theme
+  // attribute of their own. The Navy token layer is scoped to
+  // `[data-admin-theme='fastfood-navy']` with no `:root` fallback, so without
+  // this every `var(--ff-*)` on /login, /invite/* and /access-denied resolves to
+  // nothing and its whole declaration is dropped.
   if (isLogin) {
-    return <div className="ff-admin-login">{children}</div>;
+    return (
+      <div className="ff-admin-login" data-admin-theme="fastfood-navy">
+        {children}
+      </div>
+    );
   }
 
   if (pathname === '/access-denied') {
-    return <div className="ff-admin-standalone">{children}</div>;
+    return (
+      <div className="ff-admin-standalone" data-admin-theme="fastfood-navy">
+        {children}
+      </div>
+    );
   }
 
   if (isOpsShellPath(pathname)) {

@@ -5,13 +5,10 @@ import type { z } from 'zod';
 
 import { type LoadState } from '../../components/async-boundary';
 import { OpsBoundary } from '../../components/ops/ops-boundary';
+import { OpsPageHeader } from '../../components/ops/ops-page-header';
 import { useOpsSync } from '../../components/ops/ops-sync';
 import { OperationalTable } from '../../components/ops/ops-table';
-import {
-  auditActorId,
-  filterAuditLogs,
-  type AuditRow,
-} from '../../lib/access-ops';
+import { auditActorId, filterAuditLogs, type AuditRow } from '../../lib/access-ops';
 import { createAdminClient } from '../../lib/api';
 import { formatOpsDateTime, shortId } from '../../lib/ops-time';
 import { adminAuditSchema } from '../../lib/schemas';
@@ -52,7 +49,9 @@ export default function AuditPage() {
 
   const actions = useMemo(() => {
     if (state.status !== 'ready') return [];
-    return [...new Set(state.data.map((r) => r.action).filter((v): v is string => Boolean(v)))].sort();
+    return [
+      ...new Set(state.data.map((r) => r.action).filter((v): v is string => Boolean(v))),
+    ].sort();
   }, [state]);
 
   const rows = useMemo(() => {
@@ -62,10 +61,10 @@ export default function AuditPage() {
 
   return (
     <div className="ops-page">
-      <p className="ops-page__lede">
-        `SYSTEM_GLOBAL` · `GET admin/audit` (sunucu limiti 50) · detay uç yok · ham payload yok ·
-        filtre istemci · şifre/token alanı API’de yok.
-      </p>
+      <OpsPageHeader
+        title="Denetim kaydı"
+        lede="Sistemdeki kritik işlemlerin kim tarafından, ne zaman ve hangi kaynak üzerinde yapıldığını izleyin. Sunucu en fazla 50 kayıt döndürür; arama ve süzme bu kayıtlar üzerinde çalışır."
+      />
       <div className="ops-filters">
         <label className="ops-field">
           Arama

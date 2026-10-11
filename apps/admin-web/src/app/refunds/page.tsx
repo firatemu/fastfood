@@ -8,6 +8,7 @@ import type { z } from 'zod';
 
 import { errorMessage } from '../../components/async-boundary';
 import { ConfirmDialog } from '../../components/ops/confirm-dialog';
+import { OpsPageHeader } from '../../components/ops/ops-page-header';
 import { useOpsSync } from '../../components/ops/ops-sync';
 import { ActionButton, KeylineCard, StatusBadge } from '../../components/ops/ops-ui';
 import { createAdminClient } from '../../lib/api';
@@ -143,10 +144,10 @@ function RefundsInner() {
 
   return (
     <div className="ops-page">
-      <p className="ops-page__lede">
-        `PAYMENT_SCOPED` · Admin iade listesi yok · `GET admin/refunds/:id` + `GET/POST
-        admin/payments/:id/refunds` · kalan bakiye gösterim; otorite backend.
-      </p>
+      <OpsPageHeader
+        title="İadeler"
+        lede="Bir ödeme kaydını yükleyin; o ödemeye ait iadeleri görüntüleyin ve yeni iade başlatın. Kalan iade edilebilir tutar ile iade uygunluğu backend tarafından belirlenir."
+      />
       <div className="ops-split">
         <KeylineCard title="Ödeme yükle / iade oluştur">
           <div className="ops-form">
@@ -172,7 +173,8 @@ function RefundsInner() {
                   {payment.amountMinor
                     ? formatTryMinor(payment.amountMinor, payment.currency ?? 'TRY')
                     : '—'}{' '}
-                  · kalan (gösterim) {formatTryMinor(remaining.toString(), payment.currency ?? 'TRY')}
+                  · kalan (gösterim){' '}
+                  {formatTryMinor(remaining.toString(), payment.currency ?? 'TRY')}
                 </p>
                 <p>
                   <Link href={`/payments/${payment.id}`}>Ödeme kaydı</Link>
@@ -234,7 +236,8 @@ function RefundsInner() {
             </ActionButton>
             {lookup ? (
               <p>
-                {lookup.id} · {formatTryMinor(lookup.amountMinor)} · {refundStatusLabel(lookup.status)}
+                {lookup.id} · {formatTryMinor(lookup.amountMinor)} ·{' '}
+                {refundStatusLabel(lookup.status)}
               </p>
             ) : null}
           </div>
@@ -253,7 +256,7 @@ function RefundsInner() {
       <ConfirmDialog
         open={confirm}
         title="İade oluştur"
-        body={`${amount} kuruş. Fazla iade backend tarafından reddedilir.`}
+        body={`${formatTryMinor(amount)}. Fazla iade backend tarafından reddedilir.`}
         confirmLabel="İade et"
         danger
         busy={busy}

@@ -189,6 +189,24 @@ export async function fetchLinkedIdentities() {
   return res.data;
 }
 
+/**
+ * Ask the API to (re)send the address-verification email.
+ *
+ * Parity target: Web's `requestEmailVerification` in `src/lib/storefront/auth.ts`.
+ * Both clients hit the same endpoint with the same body, so a change to one of
+ * them has to be made in the other.
+ */
+export async function requestEmailVerification(): Promise<void> {
+  await getApiClient().request({
+    method: 'POST',
+    path: '/auth/customer/email/verify/request',
+    // See the Web note: an empty JSON body is required so the api-client's
+    // content-type header does not trip the API's "body cannot be empty" guard.
+    body: {},
+    schema: okResponseSchema,
+  });
+}
+
 export async function changeCustomerPassword(
   currentPassword: string,
   nextPassword: string,

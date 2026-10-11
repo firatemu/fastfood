@@ -1,5 +1,4 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import type { Tabs } from 'expo-router';
 import type { ComponentProps, ReactElement } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -14,7 +13,6 @@ const ITEMS: {
 }[] = [
   { name: 'index', label: 'Menü', icon: 'food' },
   { name: 'search', label: 'Arama', icon: 'magnify' },
-  { name: 'builder', label: 'Özel Yarat', icon: 'grill' },
   { name: 'orders', label: 'Siparişler', icon: 'shopping' },
   { name: 'account', label: 'Profil', icon: 'account' },
 ];
@@ -33,7 +31,6 @@ export function BurgerTabBar({ state, navigation }: TabBarProps): ReactElement {
       {state.routes.map((route, index) => {
         const meta = ITEMS.find((item) => item.name === route.name) ?? FALLBACK_TAB;
         const focused = state.index === index;
-        const center = route.name === 'builder';
         const onPress = () => {
           const event = navigation.emit({
             type: 'tabPress',
@@ -44,27 +41,6 @@ export function BurgerTabBar({ state, navigation }: TabBarProps): ReactElement {
             navigation.navigate(route.name);
           }
         };
-        if (center) {
-          return (
-            <Pressable
-              key={route.key}
-              accessibilityRole="button"
-              accessibilityState={{ selected: focused }}
-              onPress={onPress}
-              style={styles.centerWrap}
-            >
-              <LinearGradient
-                colors={[colors.mustard, colors.flame]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.centerBtn}
-              >
-                <MaterialCommunityIcons name={meta.icon} size={26} color={colors.onMustard} />
-              </LinearGradient>
-              <Text style={[styles.label, focused && styles.labelActive]}>{meta.label}</Text>
-            </Pressable>
-          );
-        }
         return (
           <Pressable
             key={route.key}
@@ -103,23 +79,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-  },
-  centerWrap: {
-    flex: 1,
-    alignItems: 'center',
-    marginTop: -20,
-    gap: 4,
-  },
-  centerBtn: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.mustard,
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
   },
   label: {
     fontFamily: fonts.jakartaBold,

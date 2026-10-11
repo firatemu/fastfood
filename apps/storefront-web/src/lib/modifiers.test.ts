@@ -34,8 +34,30 @@ const groups: ModifierGroup[] = [
 ];
 
 describe('modifier selection', () => {
-  it('defaults required groups to the first option', () => {
+  it('defaults required groups to the cheapest option, whatever the order', () => {
     expect(defaultModifierSelection(groups)).toEqual({ g1: ['m1'] });
+
+    // Modifiers arrive ordered by name, so the paid upgrade can come first.
+    const nameOrdered: ModifierGroup[] = [
+      {
+        id: 'g1',
+        name: 'Köfte',
+        selectionMin: 1,
+        selectionMax: 1,
+        modifiers: [
+          { id: 'm2', name: 'Üçlü', priceDeltaMinor: '9500' },
+          { id: 'm1', name: 'Çift', priceDeltaMinor: '0' },
+        ],
+      },
+      {
+        id: 'g2',
+        name: 'Ekstra',
+        selectionMin: 0,
+        selectionMax: 3,
+        modifiers: [{ id: 'e1', name: 'Bacon', priceDeltaMinor: '3000' }],
+      },
+    ];
+    expect(defaultModifierSelection(nameOrdered)).toEqual({ g1: ['m1'] });
   });
 
   it('replaces radio selections and accumulates optional extras', () => {

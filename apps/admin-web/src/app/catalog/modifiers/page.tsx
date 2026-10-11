@@ -136,6 +136,12 @@ export default function ModifiersPage() {
 
   useDeferredLoad(() => void load(), [load]);
 
+  const closeEditor = useCallback(() => {
+    if (busy) return;
+    setSelectedGroup(null);
+    window.requestAnimationFrame(() => editTriggerRef.current?.focus());
+  }, [busy]);
+
   useEffect(() => {
     if (!columnMenuOpen) return;
     const closeOnOutsidePress = (event: PointerEvent) => {
@@ -164,11 +170,14 @@ export default function ModifiersPage() {
     };
     document.addEventListener('keydown', closeOnEscape);
     return () => document.removeEventListener('keydown', closeOnEscape);
-  }, [busy, createOpen, selectedGroup]);
+  }, [busy, closeEditor, createOpen, selectedGroup]);
+
+  const selectedGroupId = selectedGroup?.id;
 
   useEffect(() => {
-    if (selectedGroup) editDialogRef.current?.focus();
-  }, [selectedGroup?.id]);
+    if (selectedGroupId === undefined) return;
+    editDialogRef.current?.focus();
+  }, [selectedGroupId]);
 
   const groups = state.status === 'ready' ? state.data : EMPTY_GROUPS;
   const activeGroups = groups.filter((group) => group.isActive !== false);
@@ -351,12 +360,6 @@ export default function ModifiersPage() {
     );
     setFormError(null);
     setNotice(null);
-  }
-
-  function closeEditor() {
-    if (busy) return;
-    setSelectedGroup(null);
-    window.requestAnimationFrame(() => editTriggerRef.current?.focus());
   }
 
   async function refreshSelected(groupId = selectedGroup?.id) {

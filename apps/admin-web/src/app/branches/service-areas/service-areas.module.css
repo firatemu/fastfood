@@ -1,0 +1,656 @@
+/* ==========================================================================
+   FASTFOOD Admin — /branches/service-areas (ADR-019, Navy)
+
+   Rebuilt in A9-22. It was the last service-area surface still living on the
+   shared `ops-*` grammar, which had three problems this composition removes.
+
+   ---------------------------------------------------------------------------
+   What the backend actually supports, read before designing
+   ---------------------------------------------------------------------------
+     GET  admin/branches/:branchId/service-areas
+          -> `branches.read`
+     POST admin/branches/:branchId/service-areas
+          body { name: 1..128,
+                 polygonGeoJson: { type: 'Polygon'|'MultiPolygon', coordinates: unknown },
+                 priority?: int >= 0 }
+          -> `branches.service_areas.write`, 201
+
+   Consequences carried into the UI, none of them optional:
+
+   - **There is no update, delete or activate endpoint.** Only the two calls
+     above exist. So this page renders a create control and a list, and
+     nothing else: no edit button, no delete, no active/inactive toggle. A
+     toggle would be a control the API cannot back (ADR-019 §7).
+   - **The list can never contain an inactive row.** `listServiceAreas` filters
+     `where: { isActive: true }` on both the Prisma and the in-memory path, and
+     `createServiceArea` always writes `isActive: true`. The previous table had
+     an `Aktif` / `Pasif` badge whose second state was unreachable — it looked
+     like the operator could deactivate an area and could not. The status
+     column is gone rather than kept as decoration.
+   - **`coordinates` is `z.unknown()`.** The API checks the envelope and
+     nothing else, so a swapped latitude/longitude or a malformed ring is
+     accepted and only surfaces later, when a customer address falls outside
+     every area. That is why the composer shows the parsed geometry back while
+     it is being typed: ring count, vertex count, bounding box, and whether
+     every pair is inside WGS84 bounds.
+   - **Lower priority wins.** `RoutingService.assign` keeps the candidate when
+     `candidate.priority < winner.priority` (`routing.service.ts:47`). The
+     prose comment above that function still says "higher priority overrides
+     lower priority", which the code contradicts; the copy here follows the
+     code, because the code is what assigns the branch. Note the /branches
+     dialog creates areas too and must keep telling operators the same thing.
+
+   The page states these limits rather than hiding them: an operator who
+   cannot edit an area from here should be able to see that the reason is the
+   API, not a missing button.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Page root — full width, no cap (A9-21)
+   -------------------------------------------------------------------------- */
+
+.page {
+  --surface: var(--ops-surface-1, light-dark(#fcfcfd, #161b22));
+  --raised: var(--ops-surface-2, light-dark(#f8f9f9, #1f242d));
+  --sunken: var(--ops-surface-3, light-dark(#eef0f1, #12171d));
+  --line: var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
+  --line-strong: var(--ops-keyline-strong, light-dark(#c2c6cc, #3e4656));
+  --text: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
+  --muted: var(--ff-on-surface-variant);
+  --faint: var(--ff-ink-faint);
+  --amber: var(--ff-primary-container);
+  --amber-ink: var(--ff-on-primary-container);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  width: 100%;
+  min-width: 0;
+  padding: 24px clamp(16px, 2vw, 28px) 32px;
+  color: var(--text);
+  font-family: var(--ff-font-body, Inter, sans-serif);
+  font-size: var(--ff-text-body-md);
+}
+
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+.breadcrumb {
+  margin-bottom: 7px;
+  color: var(--faint);
+  font-family: var(--ff-font-label);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.breadcrumb span {
+  opacity: 0.6;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--ff-font-headline);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.lede {
+  margin: 8px 0 0;
+  max-width: 78ch;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.scopeTag {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--raised);
+  color: var(--muted);
+  font-family: var(--ff-font-label);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   KPI strip
+   -------------------------------------------------------------------------- */
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin: 0 0 18px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.metric {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-left: 1px solid var(--line);
+}
+
+.metric:first-child {
+  border-left: 0;
+}
+
+.metric dt {
+  color: var(--faint);
+  font-family: var(--ff-font-label);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.metric dd {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--ff-font-headline);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.metricHint {
+  margin: 0;
+  color: var(--faint);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* --------------------------------------------------------------------------
+   Notices
+   -------------------------------------------------------------------------- */
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--ff-status-ready-border);
+  border-radius: var(--radius-md);
+  background: var(--ff-status-ready-wash);
+  color: var(--ff-status-ready-text);
+  font-size: 12px;
+}
+
+.notice :global(.material-symbols-outlined) {
+  flex: 0 0 auto;
+  font-size: 17px;
+}
+
+.noticeClose {
+  margin-left: auto;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.noticeError {
+  border-color: var(--ff-status-critical-border);
+  background: var(--ff-status-critical-wash);
+  color: var(--ff-status-critical-text);
+}
+
+.formError {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  color: var(--ff-status-critical-text);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.formError :global(.material-symbols-outlined) {
+  flex: 0 0 auto;
+  font-size: 15px;
+}
+
+/* --------------------------------------------------------------------------
+   Two-column body: composer on the left, the branch's areas on the right
+   -------------------------------------------------------------------------- */
+
+.split {
+  display: grid;
+  gap: 18px;
+  align-items: start;
+}
+
+@media (min-width: 1180px) {
+  .split {
+    grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
+  }
+}
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+@media (min-width: 1180px) {
+  .composer {
+    position: sticky;
+    top: 18px;
+  }
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--raised);
+}
+
+.eyebrow {
+  display: block;
+  color: var(--amber);
+  font-family: var(--ff-font-label);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.panelTitle {
+  margin: 3px 0 0;
+  color: var(--text);
+  font-family: var(--ff-font-headline);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.panelCount {
+  color: var(--faint);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.panelBody {
+  padding: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Composer
+   -------------------------------------------------------------------------- */
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.fieldRow {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 520px) {
+  .fieldRow {
+    grid-template-columns: minmax(0, 1fr) 132px;
+  }
+}
+
+.label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-family: var(--ff-font-label);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.labelHint {
+  color: var(--faint);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--sunken);
+  color: var(--text);
+  font-family: var(--ff-font-body);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.textarea {
+  min-height: 132px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.input:hover:not(:focus-visible),
+.textarea:hover:not(:focus-visible) {
+  border-color: var(--ff-outline);
+}
+
+.input:focus-visible,
+.textarea:focus-visible {
+  border-color: var(--amber);
+  outline: 2px solid var(--ff-outline);
+  outline-offset: 1px;
+}
+
+.inputInvalid,
+.textareaInvalid {
+  border-color: var(--ff-status-critical);
+}
+
+.hint {
+  margin: 0;
+  color: var(--faint);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* The parsed geometry, read back while it is being typed. */
+.reader {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 1px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.readerCell {
+  display: grid;
+  gap: 3px;
+  padding: 9px 10px;
+  background: var(--sunken);
+}
+
+.readerCell dt {
+  color: var(--faint);
+  font-family: var(--ff-font-label);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.readerCell dd {
+  margin: 0;
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* The bounding box is far wider than the three counters next to it, so it
+   takes the whole second row instead of leaving one cell of dead grid. */
+.readerCell:last-child {
+  grid-column: 1 / -1;
+}
+
+.readerCellWarn dd {
+  color: var(--ff-status-critical-text);
+}
+
+.priorityNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--raised);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.priorityNote :global(.material-symbols-outlined) {
+  flex: 0 0 auto;
+  color: var(--amber);
+  font-size: 16px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 15px;
+  border: 1px solid var(--amber);
+  border-radius: var(--radius-md);
+  background: var(--amber);
+  color: var(--amber-ink);
+  font-family: var(--ff-font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryButton:hover:not(:disabled) {
+  border-color: var(--ff-primary);
+  background: var(--ff-primary);
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primaryButton :global(.material-symbols-outlined) {
+  font-size: 17px;
+}
+
+/* The write permission the API demands; shown when it is absent. */
+.readOnlyNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 11px 12px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.readOnlyNote :global(.material-symbols-outlined) {
+  flex: 0 0 auto;
+  color: var(--faint);
+  font-size: 17px;
+}
+
+.toolButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--ff-font-body);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.toolButton:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.toolButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toolButton :global(.material-symbols-outlined) {
+  font-size: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Area table
+   -------------------------------------------------------------------------- */
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--raised);
+  color: var(--faint);
+  font-family: var(--ff-font-label);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-size: 13px;
+  vertical-align: top;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table tbody tr:hover td {
+  background: var(--raised);
+}
+
+.cellName {
+  display: grid;
+  gap: 3px;
+}
+
+.cellName strong {
+  font-weight: 600;
+}
+
+.cellName span {
+  color: var(--faint);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+}
+
+.cellNum {
+  font-family: var(--ff-font-headline);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.cellMono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.typeTag {
+  display: inline-block;
+  padding: 2px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--raised);
+  color: var(--muted);
+  font-family: var(--ff-font-label);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* --------------------------------------------------------------------------
+   States
+   -------------------------------------------------------------------------- */
+
+.statePanel {
+  display: grid;
+  min-height: 210px;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 30px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.statePanel :global(.material-symbols-outlined) {
+  color: var(--faint);
+  font-size: 26px;
+}
+
+.statePanel strong {
+  color: var(--text);
+  font-family: var(--ff-font-headline);
+  font-size: 14px;
+}
+
+.statePanel span {
+  max-width: 46ch;
+  font-size: 12px;
+  line-height: 1.55;
+}

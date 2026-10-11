@@ -96,6 +96,7 @@ export default function RootLayout() {
         <Stack.Screen name="table/index" />
         <Stack.Screen name="table/scan" />
         <Stack.Screen name="table/[code]" />
+        <Stack.Screen name="address" />
         <Stack.Screen name="branches" />
         <Stack.Screen name="deals" />
         <Stack.Screen name="legal/index" />

@@ -118,7 +118,7 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     mobileImpact: 'CHANGE_REQUIRED',
     mobileStatus: 'IMPLEMENTED',
     notes:
-      'Authenticated address book; create requires explicit map selection and persists coordinates used by checkout and courier navigation.',
+      'Authenticated address book; create requires explicit map selection and persists coordinates used by checkout and courier navigation. Both clients can capture the device location (browser geolocation / expo-location) and place it on the address map as the selected point, and both can edit a saved address from the address book.',
   },
   {
     id: 'order-history',
@@ -159,8 +159,12 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     id: 'branch-list',
     name: 'Branch list',
     backend: 'GET /storefront/branches',
-    ...implementedBoth,
-    notes: 'Also used by branches/hikaye.',
+    webImpact: 'CHANGE_REQUIRED',
+    webStatus: 'IMPLEMENTED',
+    mobileImpact: 'CHANGE_REQUIRED',
+    mobileStatus: 'DEFERRED_WITH_APPROVED_REASON',
+    notes:
+      'Storefront /branches is a branch locator: live open/closed status from branch hours, search, city rail, fulfilment toggles, sort and opt-in device distance. Mobile keeps the previous branch list until the Storefront locator is ported. Also used by branches/hikaye.',
   },
   {
     id: 'guest-cart-session',
@@ -249,14 +253,18 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     mobileImpact: 'CHANGE_REQUIRED',
     mobileStatus: 'IMPLEMENTED',
     notes:
-      'Server-driven ordered vitrin slides and shared interval/loop settings; respects reduced motion on web.',
+      'Server-driven ordered vitrin slides and shared interval/loop settings; respects reduced motion on web. Web: the hero indicator is dots-only (no arrows, no counter), centred at the bottom of the hero. Mobile: unchanged, keeps its own home-hero-slider.',
   },
   {
     id: 'header-chrome',
     name: 'Header chrome',
     backend: 'home + cart',
-    ...implementedBoth,
-    notes: 'Independent visual systems; location → /branches.',
+    webImpact: 'CHANGE_REQUIRED',
+    webStatus: 'IMPLEMENTED',
+    mobileImpact: 'AUTOMATICALLY_SUPPORTED',
+    mobileStatus: 'IMPLEMENTED',
+    notes:
+      'Web: the location chip opens an inline branch dropdown and switches the active branch in place (no navigation); /branches stays reachable from the dropdown footer. Mobile keeps its full-screen /branches screen, the platform-native pattern.',
   },
   {
     id: 'search',
@@ -432,8 +440,9 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     id: 'burger-builder',
     name: 'Burger builder',
     backend: 'GET /storefront/catalog/builder',
-    ...implementedBoth,
-    notes: 'Same cart/modifiers.',
+    ...notCustomer,
+    notes:
+      'Removed from customer surfaces per product-owner request (Oct 2026): the web /builder route, its home-page banner and the mobile "Özel Yarat" tab were deleted (ADR-020). The GET /storefront/catalog/builder endpoint and its `builderAvailable` home-payload flag are unchanged, so the capability can be re-enabled without a backend change.',
   },
   {
     id: 'ratings-reviews',
@@ -518,8 +527,12 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     id: 'social-proof',
     name: 'Social-proof aggregates',
     backend: 'social_proof + delivered count',
-    ...implementedBoth,
-    notes: 'Home.',
+    webImpact: 'CHANGE_REQUIRED',
+    webStatus: 'IMPLEMENTED',
+    mobileImpact: 'AUTOMATICALLY_SUPPORTED',
+    mobileStatus: 'IMPLEMENTED',
+    notes:
+      'Web: the hero social-proof strip was removed in human QA; the aggregate rating renders in the home reviews section, and only while published reviews exist. Mobile: unchanged.',
   },
   {
     id: 'guest-checkout',
@@ -552,9 +565,10 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
   {
     id: 'ingredient-removals',
     name: 'Ingredient removals',
-    backend: 'PDP builder removals',
+    backend: 'PDP ingredient removals',
     ...implementedBoth,
-    notes: 'PDP + builder.',
+    notes:
+      'PDP only; the builder surface was removed (ADR-020). Customers can still remove ingredients from a product.',
   },
   {
     id: 'min-order-delivery-fee',

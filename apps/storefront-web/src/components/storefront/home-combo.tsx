@@ -99,7 +99,7 @@ export function HomeCombo({
               <span>Komboyu Sepete Ekle</span>
             </button>
             <Link
-              href={combo.items[0] ? `/products/${combo.items[0].productId}` : '/builder'}
+              href={combo.items[0] ? `/products/${combo.items[0].productId}` : '/menu'}
               className="px-space-md py-3.5 rounded-lg bg-surface-container-high text-on-surface font-label-lg text-label-lg uppercase hover:bg-surface-bright transition-all"
             >
               Komboyu Kişiselleştir

@@ -41,7 +41,6 @@ describe('isOpsShellPath A6 coverage', () => {
       '/catalog/categories',
       '/catalog/modifiers',
       '/catalog/allergens',
-      '/catalog/media',
       '/branches',
       '/branches/abc',
       '/branches/service-areas',

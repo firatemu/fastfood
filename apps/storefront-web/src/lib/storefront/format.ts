@@ -4,6 +4,11 @@ export function formatDeliveryWindow(min: number, max: number): string | null {
   return `${max > 0 ? max : min} dk`;
 }
 
+export function branchEtaLabel(eta: string | null, isAcceptingOrders: boolean): string {
+  if (eta) return `Teslimat: ${eta}`;
+  return isAcceptingOrders ? 'Teslimat açık' : 'Şu an kapalı';
+}
+
 export function formatHappyCustomers(count: number): string | null {
   if (count <= 0) return null;
   return `${count.toLocaleString('tr-TR')}+`;

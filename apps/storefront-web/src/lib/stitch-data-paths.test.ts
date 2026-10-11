@@ -7,7 +7,6 @@ describe('routeForDataPath', () => {
     expect(routeForDataPath('menu')).toBe('/');
     expect(routeForDataPath('hesabim')).toBe('/account');
     expect(routeForDataPath('siparis-takibi')).toBe('/orders');
-    expect(routeForDataPath('ozel-burgerini-yarat')).toBe('/builder');
     expect(routeForDataPath('subeler-and-hikaye')).toBe('/branches');
   });
 

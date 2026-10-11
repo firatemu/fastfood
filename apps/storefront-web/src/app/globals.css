@@ -144,7 +144,11 @@ body {
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
 }
 
 .ff-sr-only {
@@ -225,4 +229,1897 @@ body {
 
 [data-ff-surface='product-detail'] label:has(:checked) {
   box-shadow: inset 0 0 0 1.5px var(--pdp-accent);
+}
+
+/* Branch locator — the "teşhir" pass rail is the page's one signature element. */
+[data-ff-surface='branches'] .ff-branch-grid {
+  background-image: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--color-outline-variant) 30%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 88px 100%;
+  mask-image: linear-gradient(to bottom, black 10%, transparent 88%);
+}
+
+@keyframes ff-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+[data-ff-surface='branches'] .ff-live-pulse {
+  animation: ff-live-pulse 2.6s ease-in-out infinite;
+}
+/* ==========================================================================
+   ACCOUNT SURFACE — enterprise control panel
+   --------------------------------------------------------------------------
+   Scope: `.ff-acct` only. The rest of the storefront (/, /menu, /branches,
+   /cart) keeps the original warm theme untouched.
+
+   What this replaces
+   ------------------
+   The previous account design was a stack of rounded cards with amber used
+   for six unrelated meanings at once (primary action, selected row, warning,
+   unverified, badge, brand mark). It read as a repaint of the consumer
+   storefront, not as a different product surface.
+
+   Rules this layer enforces
+   -------------------------
+   1. Structure comes from 1px hairlines and surface steps, not from filled
+      rounded boxes. There is no "card" primitive in this layer at all.
+   2. Mustard (#feb300) means exactly one thing: the primary action of the
+      current view, plus the active-rail indicator. Never "selected", never
+      "warning", never a badge.
+   3. Status has its own hue vocabulary (ok / warn / danger / info) so
+      "needs attention" can never be mistaken for "click here".
+   4. Anton is withdrawn from headings. It survives as `.ff-figure`, at most
+      one hero number per screen.
+   5. Density: 13px body, 40px rows, 32px controls. Hairline rows over
+      whitespace.
+   ========================================================================== */
+
+@theme {
+  /* Status roles the storefront theme never had. Registered here so Tailwind
+     emits the matching utilities; the concrete values are also declared inside
+     `.ff-acct` below, because Tailwind tree-shakes theme variables that no
+     utility references and would otherwise drop them from `:root`. */
+  --color-ok: #5ddc9a;
+  --color-ok-container: rgba(93, 220, 154, 0.12);
+  --color-ok-border: rgba(93, 220, 154, 0.34);
+  --color-warn: #f0c674;
+  --color-warn-container: rgba(240, 198, 116, 0.12);
+  --color-warn-border: rgba(240, 198, 116, 0.34);
+  --color-danger: #ff8f85;
+  --color-danger-container: rgba(255, 143, 133, 0.12);
+  --color-danger-border: rgba(255, 143, 133, 0.34);
+  --color-info: #8ab4f8;
+  --color-info-container: rgba(138, 180, 248, 0.12);
+  --color-info-border: rgba(138, 180, 248, 0.34);
+}
+
+.ff-acct {
+  /* -- surfaces: a quieter ramp than the storefront's warm one ---------- */
+  --color-background: #0d0e11;
+  --color-surface: #0d0e11;
+  --color-surface-dim: #0d0e11;
+  --color-surface-container-lowest: #07080a;
+  --color-surface-container-low: #131418;
+  --color-surface-container: #191a1f;
+  --color-surface-container-high: #212229;
+  --color-surface-container-highest: #2a2b33;
+  --color-surface-variant: #212229;
+  --color-surface-bright: #212229;
+
+  /* -- text: neutral ramp, so the accent is the only warm thing --------- */
+  --color-on-surface: #e9e9ec;
+  --color-on-background: #e9e9ec;
+  --color-on-surface-variant: #a3a3ad;
+  --color-inverse-surface: #e9e9ec;
+  --color-inverse-on-surface: #16171b;
+
+  /* -- hairlines carry the hierarchy ------------------------------------ */
+  --color-outline: #3b3c45;
+  --color-outline-variant: #282931;
+
+  /* -- accent: mustard means "the primary action", nothing else --------- */
+  --color-secondary-container: #feb300;
+  --color-secondary: #ffd166;
+  --color-on-secondary-container: #241700;
+  --color-secondary-fixed: #ffdeac;
+  --color-secondary-fixed-dim: #ffba38;
+  --color-on-secondary-fixed: #281900;
+  --color-on-secondary-fixed-variant: #604100;
+  --color-on-secondary: #2a2100;
+
+  /* -- brand fire: the product mark and destructive brand cues only ----- */
+  --color-primary-container: #ff5722;
+  --color-primary: #ff8a63;
+  --color-on-primary-container: #3a0d00;
+  --color-on-primary: #4a1200;
+  --color-primary-fixed: #ffdbd1;
+  --color-primary-fixed-dim: #ffb5a0;
+  --color-on-primary-fixed: #3b0900;
+  --color-on-primary-fixed-variant: #862200;
+
+  /* -- danger: its own hue, never the brand orange ---------------------- */
+  --color-error: #ff8f85;
+  --color-on-error: #4a0904;
+  --color-error-container: #3a1512;
+  --color-on-error-container: #ffdad6;
+
+  --color-tertiary-container: #2a2b33;
+  --color-on-tertiary-container: #cfd0d8;
+
+  /* Status values, declared in-scope so they survive theme tree-shaking. */
+  --color-ok: #5ddc9a;
+  --color-ok-container: rgba(93, 220, 154, 0.12);
+  --color-ok-border: rgba(93, 220, 154, 0.34);
+  --color-warn: #f0c674;
+  --color-warn-container: rgba(240, 198, 116, 0.12);
+  --color-warn-border: rgba(240, 198, 116, 0.34);
+  --color-danger: #ff8f85;
+  --color-danger-container: rgba(255, 143, 133, 0.12);
+  --color-danger-border: rgba(255, 143, 133, 0.34);
+  --color-info: #8ab4f8;
+  --color-info-container: rgba(138, 180, 248, 0.12);
+  --color-info-border: rgba(138, 180, 248, 0.34);
+
+  /* Layout metrics the primitives share. */
+  --ff-rail-w: 15rem;
+  --ff-label-w: 13rem;
+  --ff-row-h: 2.75rem;
+
+  /* -- density: tighter radii than the storefront's ---------------------- */
+  --radius: 0.1875rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
+
+  /* -- typography: Jakarta carries everything except a hero figure ------- */
+  --font-headline-xl: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  --font-headline-lg: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  --font-headline-md: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  --font-headline-sm: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  --font-headline-lg-mobile: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  --font-headline-xl-mobile: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+
+  --text-headline-xl: 20px;
+  --text-headline-xl--line-height: 28px;
+  --text-headline-xl--letter-spacing: -0.01em;
+  --text-headline-xl--font-weight: 700;
+  --text-headline-lg: 20px;
+  --text-headline-lg--line-height: 28px;
+  --text-headline-lg--letter-spacing: -0.01em;
+  --text-headline-lg--font-weight: 700;
+  --text-headline-md: 17px;
+  --text-headline-md--line-height: 24px;
+  --text-headline-md--letter-spacing: -0.005em;
+  --text-headline-md--font-weight: 700;
+  --text-headline-sm: 15px;
+  --text-headline-sm--line-height: 22px;
+  --text-headline-sm--letter-spacing: -0.005em;
+  --text-headline-sm--font-weight: 600;
+
+  --text-body-lg: 15px;
+  --text-body-lg--line-height: 24px;
+  --text-body-lg--font-weight: 400;
+  --text-body-md: 14px;
+  --text-body-md--line-height: 21px;
+  --text-body-md--font-weight: 400;
+  --text-body-sm: 13px;
+  --text-body-sm--line-height: 19px;
+  --text-body-sm--font-weight: 400;
+  --text-label-lg: 13px;
+  --text-label-lg--line-height: 18px;
+  --text-label-lg--letter-spacing: 0;
+  --text-label-lg--font-weight: 600;
+  --text-label-md: 12px;
+  --text-label-md--line-height: 16px;
+  --text-label-md--letter-spacing: 0;
+  --text-label-md--font-weight: 600;
+  --text-label-sm: 11px;
+  --text-label-sm--line-height: 15px;
+  --text-label-sm--letter-spacing: 0.08em;
+  --text-label-sm--font-weight: 700;
+
+  /* -- mobile headline tokens still resolved to Anton; pull them in too -- */
+  --text-headline-lg-mobile: 20px;
+  --text-headline-lg-mobile--line-height: 26px;
+  --text-headline-lg-mobile--font-weight: 700;
+  --text-headline-xl-mobile: 20px;
+  --text-headline-xl-mobile--line-height: 26px;
+  --text-headline-xl-mobile--font-weight: 700;
+
+  background: var(--color-background);
+  color: var(--color-on-surface);
+  font-family: var(--font-sans);
+}
+
+/* ==========================================================================
+   1. Frame — rail band + content column, separated by one hairline
+   ========================================================================== */
+
+.ff-frame {
+  display: grid;
+  grid-template-columns: var(--ff-rail-w) minmax(0, 1fr);
+  align-items: start;
+  min-height: calc(100vh - 5rem);
+  /*
+   * The rail column is painted here, not on `.ff-rail`, because the rail is a
+   * sticky box with its own height: painting it would leave a visible seam
+   * wherever the nav ends on a long page. The gradient also draws the 1px
+   * divider, so it spans the full column rather than stopping with the nav.
+   */
+  background-image: linear-gradient(
+    to right,
+    var(--color-surface-container-lowest) 0,
+    var(--color-surface-container-lowest) calc(var(--ff-rail-w) - 1px),
+    var(--color-outline-variant) calc(var(--ff-rail-w) - 1px),
+    var(--color-outline-variant) var(--ff-rail-w),
+    transparent var(--ff-rail-w)
+  );
+}
+
+.ff-rail {
+  position: sticky;
+  top: 5rem;
+  align-self: start;
+  max-height: calc(100vh - 5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.25rem 0 2rem;
+  background: transparent;
+}
+
+/* One nav item. 36px tall, hairline-separated, 2px accent bar when active.
+   Hover is the primary interaction on desktop, so it carries real state. */
+.ff-rail-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0 1rem 0 1.75rem;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0;
+  text-decoration: none;
+  color: var(--color-on-surface-variant);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+.ff-rail-item:hover {
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+}
+.ff-rail-item[aria-current='page'] {
+  color: var(--color-on-surface);
+  background: var(--color-surface-container-low);
+  font-weight: 600;
+}
+.ff-rail-item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-secondary-container);
+}
+.ff-rail-item .material-symbols-outlined {
+  font-size: 18px;
+  color: var(--color-on-surface-variant);
+  transition: color 120ms ease;
+}
+.ff-rail-item:hover .material-symbols-outlined,
+.ff-rail-item[aria-current='page'] .material-symbols-outlined {
+  color: var(--color-secondary-container);
+}
+.ff-rail-item[data-tone='danger'] {
+  color: var(--color-danger);
+}
+.ff-rail-item[data-tone='danger']:hover {
+  background: var(--color-danger-container);
+  color: var(--color-danger);
+}
+.ff-rail-item[data-tone='danger'] .material-symbols-outlined {
+  color: var(--color-danger);
+}
+
+/* Rail group label — a quiet uppercase eyebrow above a run of items. */
+.ff-rail-label {
+  padding: 1.125rem 1rem 0.375rem 1.75rem;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8b8c95;
+}
+.ff-rail-label:first-child {
+  padding-top: 0;
+}
+
+.ff-rail-divider {
+  height: 1px;
+  margin: 1rem 0 0;
+  background: var(--color-outline-variant);
+}
+
+/* Identity block at the top of the rail. */
+.ff-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0 1rem 1.125rem 1.75rem;
+  margin-bottom: 0.875rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.ff-identity-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-family: var(--font-anton), Anton, sans-serif;
+  font-size: 17px;
+  line-height: 1;
+}
+.ff-identity-text {
+  min-width: 0;
+}
+.ff-identity-name {
+  /* Must be a block box: overflow/text-overflow are ignored on inline
+     elements, so a long email would push the rail wider instead of
+     ellipsising. */
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--color-on-surface);
+}
+.ff-identity-meta {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 15px;
+  color: var(--color-on-surface-variant);
+}
+
+/* ==========================================================================
+   2. Content column + page toolbar
+   ========================================================================== */
+
+.ff-content {
+  min-width: 0;
+  padding: 0 0 4rem;
+}
+
+/* A compact command bar, not a hero. Title and actions share one baseline. */
+.ff-toolbar {
+  position: sticky;
+  top: 5rem;
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.75rem;
+  padding: 0.875rem 1.75rem;
+  background: color-mix(in srgb, var(--color-background) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.ff-toolbar-id {
+  min-width: 0;
+}
+.ff-toolbar-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8b8c95;
+}
+.ff-toolbar-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 26px;
+  letter-spacing: -0.01em;
+  color: var(--color-on-surface);
+}
+.ff-toolbar-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ff-body {
+  padding: 1.5rem 1.75rem 0;
+  max-width: 72rem;
+}
+
+/* The page's one-paragraph intro, under the toolbar rather than beside it. */
+.ff-lead {
+  max-width: 46rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--color-on-surface-variant);
+}
+
+/* Vertical rhythm. Replaces ad-hoc `flex flex-col gap-*` stacks per page so
+   spacing decisions live in one place. */
+.ff-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.ff-stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.ff-stack-lg {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+.ff-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ff-cluster-end {
+  margin-left: auto;
+}
+
+/* A two-column label/value line without the box, for inside a `.ff-rows`. */
+.ff-split {
+  display: grid;
+  grid-template-columns: minmax(7rem, 40%) minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+/* ==========================================================================
+   3. Sections — label column + content, the enterprise data-book layout
+   ========================================================================== */
+
+.ff-section {
+  display: grid;
+  grid-template-columns: var(--ff-label-w) minmax(0, 1fr);
+  gap: 0 1.5rem;
+  padding: 1.75rem 0;
+  border-top: 1px solid var(--color-outline-variant);
+}
+.ff-section:first-child {
+  border-top: 0;
+  padding-top: 0.25rem;
+}
+.ff-section-head {
+  grid-column: 1;
+  grid-row: 1;
+}
+.ff-section-title {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+  letter-spacing: 0;
+  color: var(--color-on-surface);
+}
+.ff-section-desc {
+  margin-top: 0.25rem;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 17px;
+  color: #8b8c95;
+}
+.ff-section-body {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+/* ==========================================================================
+   4. Data rows — the replacement for "cards"
+   ========================================================================== */
+
+.ff-rows {
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 0.5rem;
+  background: var(--color-surface-container-low);
+  overflow: hidden;
+}
+.ff-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: var(--ff-row-h);
+  padding: 0.625rem 0.875rem;
+  border-top: 1px solid var(--color-outline-variant);
+}
+.ff-row:first-child {
+  border-top: 0;
+}
+.ff-row-key {
+  flex: 1;
+  min-width: 0;
+  /* A column, not a bare block: `.ff-row-label` and `.ff-row-hint` are spans,
+     and inline spans run together ("Varsayılan adresSipariş özetinde…").
+     Blockifying the key fixes every caller at once. */
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+.ff-row-label {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--color-on-surface);
+}
+.ff-row-hint {
+  margin-top: 0.125rem;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 16px;
+  color: #8b8c95;
+}
+.ff-row-value {
+  flex: none;
+  max-width: 60%;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  text-align: right;
+  color: var(--color-on-surface);
+  overflow-wrap: anywhere;
+}
+.ff-row-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* A selectable row. The whole row is the hit area on desktop. */
+.ff-row-select {
+  cursor: pointer;
+  transition: background-color 120ms ease;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  color: inherit;
+}
+.ff-row-select:hover {
+  background: var(--color-surface-container);
+}
+.ff-row[data-selected='true'] {
+  background: var(--color-surface-container);
+  box-shadow: inset 2px 0 0 var(--color-secondary-container);
+}
+
+/* A decorative glyph inside a row: never an accent, just an affordance hint. */
+.ff-muted-icon {
+  font-size: 18px;
+  color: #8b8c95;
+}
+
+/* Real radio: the input covers the control so it keeps native keyboard and
+   pointer behaviour, and the dot is drawn from the checked state. */
+.ff-radio {
+  position: relative;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.125rem;
+  border: 1px solid var(--color-outline);
+  border-radius: 9999px;
+  background: var(--color-surface-container-lowest);
+  cursor: pointer;
+}
+.ff-radio input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.ff-radio::after {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-secondary-container);
+  transform: scale(0);
+  transition: transform 120ms ease;
+}
+.ff-radio:has(input:checked) {
+  border-color: var(--color-secondary-container);
+}
+.ff-radio:has(input:checked)::after {
+  transform: scale(1);
+}
+.ff-radio:has(input:focus-visible) {
+  outline: 2px solid var(--color-secondary-container);
+  outline-offset: 2px;
+}
+
+/* Address book: list and map share one row, map stays put while the list
+   scrolls. Below the breakpoint the map simply follows the list. */
+.ff-address-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+.ff-address-row {
+  padding: 0.875rem;
+}
+.ff-address-map {
+  position: sticky;
+  top: 6rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--color-surface-container-low);
+}
+
+/* ==========================================================================
+   5. Buttons — 32px controls, hairline outlines, one accent per view
+   ========================================================================== */
+
+.ff-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4375rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+.ff-btn .material-symbols-outlined {
+  font-size: 16px;
+}
+.ff-btn:disabled,
+.ff-btn[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* The single accent in the surface. At most one per view. */
+.ff-btn-primary {
+  background: var(--color-secondary-container);
+  border-color: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+}
+.ff-btn-primary:hover:not(:disabled) {
+  background: #ffc733;
+  border-color: #ffc733;
+}
+
+.ff-btn-outline {
+  background: transparent;
+  border-color: var(--color-outline);
+  color: var(--color-on-surface);
+}
+.ff-btn-outline:hover:not(:disabled) {
+  background: var(--color-surface-container);
+  border-color: #8b8c95;
+}
+
+.ff-btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-on-surface-variant);
+}
+.ff-btn-ghost:hover:not(:disabled) {
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+}
+
+.ff-btn-danger {
+  background: transparent;
+  border-color: var(--color-danger-border);
+  color: var(--color-danger);
+}
+.ff-btn-danger:hover:not(:disabled) {
+  background: var(--color-danger-container);
+  border-color: var(--color-danger);
+}
+
+.ff-btn-sm {
+  height: 1.625rem;
+  padding: 0 0.5rem;
+  font-size: 11.5px;
+  border-radius: 0.3125rem;
+}
+.ff-btn-sm .material-symbols-outlined {
+  font-size: 14px;
+}
+
+/* Square icon-only control. 32px desktop hit area. */
+.ff-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease;
+}
+.ff-icon-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+.ff-icon-btn:hover:not(:disabled) {
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+}
+.ff-icon-btn[data-tone='danger']:hover:not(:disabled) {
+  background: var(--color-danger-container);
+  color: var(--color-danger);
+}
+.ff-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.ff-icon-btn-sm {
+  width: 1.5rem;
+  height: 1.5rem;
+  align-self: flex-start;
+}
+.ff-icon-btn-sm .material-symbols-outlined {
+  font-size: 15px;
+}
+
+/* Leading icon of a dialog, tinted by the dialog's own tone. */
+.ff-dialog-icon-danger {
+  color: var(--color-danger);
+}
+
+/* ==========================================================================
+   6. Status — its own hue vocabulary, never amber
+   ========================================================================== */
+
+.ff-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  height: 1.375rem;
+  padding: 0 0.4375rem;
+  border: 1px solid var(--color-outline);
+  border-radius: 0.25rem;
+  background: var(--color-surface-container);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+  white-space: nowrap;
+}
+.ff-tag::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: currentColor;
+  flex: none;
+}
+.ff-tag[data-tone='ok'] {
+  border-color: var(--color-ok-border);
+  background: var(--color-ok-container);
+  color: var(--color-ok);
+}
+.ff-tag[data-tone='warn'] {
+  border-color: var(--color-warn-border);
+  background: var(--color-warn-container);
+  color: var(--color-warn);
+}
+.ff-tag[data-tone='danger'] {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-container);
+  color: var(--color-danger);
+}
+.ff-tag[data-tone='info'] {
+  border-color: var(--color-info-border);
+  background: var(--color-info-container);
+  color: var(--color-info);
+}
+.ff-tag[data-tone='brand'] {
+  border-color: var(--color-secondary-container);
+  background: transparent;
+  color: var(--color-secondary-container);
+}
+.ff-tag-plain::before {
+  display: none;
+}
+
+/* Spin dial. A plain ring, not a segmented casino wheel: the prize list below
+   it already carries the detail, so the circle only has to carry state. */
+.ff-spin-stage {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0 0.25rem;
+}
+.ff-dial {
+  display: grid;
+  place-items: center;
+  width: 12.5rem;
+  height: 12.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-outline);
+  background: radial-gradient(
+    circle at 50% 38%,
+    var(--color-surface-container-high) 0%,
+    var(--color-surface-container-lowest) 72%
+  );
+  transition:
+    border-color 160ms ease,
+    transform 600ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.ff-dial[data-state='ready'] {
+  border-color: var(--color-secondary-container);
+}
+.ff-dial[data-state='result'] {
+  border-color: var(--color-ok);
+}
+.ff-dial[data-state='blocked'] {
+  border-color: var(--color-outline-variant);
+}
+.ff-dial[data-state='spinning'] {
+  border-color: var(--color-secondary-container);
+  animation: ff-dial-spin 900ms cubic-bezier(0.3, 0.1, 0.2, 1) 1;
+}
+.ff-dial-label {
+  max-width: 8rem;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 19px;
+  letter-spacing: -0.005em;
+  color: var(--color-on-surface);
+}
+@keyframes ff-dial-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(720deg);
+  }
+}
+/* Support thread. Messages are the content, so they get their own surface
+   rather than a stack of rounded chat cards on a page background. */
+.ff-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 26rem;
+  min-height: 14rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.875rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 0.5rem;
+  background: var(--color-surface-container-lowest);
+}
+.ff-bubble {
+  max-width: 80%;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 0.5rem;
+  background: var(--color-surface-container-low);
+}
+.ff-bubble[data-own='true'] {
+  align-self: flex-end;
+  border-color: var(--color-secondary-fixed-dim);
+  background: var(--color-secondary-fixed);
+  color: var(--color-on-secondary-fixed);
+}
+.ff-bubble-meta {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.ff-bubble-body {
+  margin-top: 0.1875rem;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 19px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ff-composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+}
+
+/* Product tile — the one place an image is the content. Still a hairline box
+   with an 8px radius, not a large rounded card. */
+.ff-tile {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 0.5rem;
+  background: var(--color-surface-container-low);
+  overflow: hidden;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+.ff-tile:hover {
+  border-color: var(--color-outline);
+  background: var(--color-surface-container);
+}
+.ff-tile[data-unavailable='true'] {
+  border-color: var(--color-outline-variant);
+  background: var(--color-surface-container-lowest);
+}
+.ff-tile-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-surface-container-high);
+}
+.ff-tile-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ff-tile-media img[data-unavailable='true'] {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+.ff-tile-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+}
+.ff-tile-remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: color-mix(in srgb, var(--color-surface-container-lowest) 88%, transparent);
+}
+.ff-tile-body {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.75rem;
+  text-decoration: none;
+}
+.ff-tile-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--color-on-surface);
+}
+.ff-tile-meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 16px;
+  color: #8b8c95;
+}
+.ff-tile-price {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 19px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface);
+}
+.ff-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.875rem;
+}
+
+/* Inbox row. Unread is a state, so it wears the info hue — never the accent,
+   which would make "you have mail" look like "press here". */
+.ff-inbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border-top: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-low);
+}
+.ff-inbox-row:first-child {
+  border-top: 0;
+}
+.ff-inbox-row[data-unread='true'] {
+  background: var(--color-surface-container);
+  box-shadow: inset 2px 0 0 var(--color-info);
+}
+.ff-inbox-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-top: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-outline-variant);
+}
+.ff-inbox-row[data-unread='true'] .ff-inbox-dot {
+  background: var(--color-info);
+}
+.ff-inbox-title {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--color-on-surface);
+}
+.ff-inbox-row[data-unread='false'] .ff-inbox-title {
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+}
+.ff-inbox-body {
+  margin-top: 0.125rem;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+.ff-inbox-when {
+  margin-top: 0.25rem;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 15px;
+  color: #8b8c95;
+}
+
+/* A quiet key/value pair for dense metadata lines. */
+.ff-kv {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 17px;
+}
+.ff-kv-key {
+  color: #8b8c95;
+  flex: none;
+}
+.ff-kv-value {
+  color: var(--color-on-surface);
+  font-weight: 500;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   7. Data table — for real records, aligned numerals, hairline rules
+   ========================================================================== */
+
+.ff-table-wrap {
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--color-surface-container-low);
+}
+.ff-table-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.ff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 18px;
+}
+.ff-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 0.5rem 0.875rem;
+  background: var(--color-surface-container);
+  border-bottom: 1px solid var(--color-outline);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  color: #8b8c95;
+  white-space: nowrap;
+}
+.ff-table tbody td {
+  padding: 0.6875rem 0.875rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+  color: var(--color-on-surface);
+  vertical-align: middle;
+}
+.ff-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.ff-table tbody tr {
+  transition: background-color 120ms ease;
+}
+.ff-table tbody tr:hover {
+  background: var(--color-surface-container);
+}
+.ff-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  /* Money must never wrap its currency symbol onto a second line. */
+  white-space: nowrap;
+}
+.ff-table .col-actions {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* ==========================================================================
+   8. Forms
+   ========================================================================== */
+
+.ff-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+.ff-field-label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--color-on-surface-variant);
+}
+.ff-input,
+.ff-select,
+.ff-textarea {
+  width: 100%;
+  min-height: 2.125rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--color-outline);
+  border-radius: 0.375rem;
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 18px;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+.ff-input::placeholder,
+.ff-textarea::placeholder {
+  color: #61626b;
+}
+.ff-input:hover:not(:disabled),
+.ff-select:hover:not(:disabled),
+.ff-textarea:hover:not(:disabled) {
+  border-color: #8b8c95;
+}
+.ff-input:focus,
+.ff-select:focus,
+.ff-textarea:focus {
+  outline: none;
+  border-color: var(--color-secondary-container);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-secondary-container) 18%, transparent);
+}
+.ff-input:disabled,
+.ff-select:disabled,
+.ff-textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ff-textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+.ff-select {
+  appearance: none;
+  padding-right: 1.75rem;
+  background-image: linear-gradient(45deg, transparent 50%, #8b8c95 50%),
+    linear-gradient(135deg, #8b8c95 50%, transparent 50%);
+  background-position:
+    calc(100% - 15px) calc(50% + 1px),
+    calc(100% - 10px) calc(50% + 1px);
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+}
+.ff-field-hint {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 16px;
+  color: #8b8c95;
+}
+.ff-field-error {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--color-danger);
+}
+.ff-field[data-invalid='true'] .ff-input,
+.ff-field[data-invalid='true'] .ff-select,
+.ff-field[data-invalid='true'] .ff-textarea {
+  border-color: var(--color-danger);
+}
+
+/* Switch: a 34x20 track with a 16px knob. Driven by :checked, so the label
+   wraps the control and the whole thing is one hit area. */
+.ff-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-on-surface);
+  user-select: none;
+}
+.ff-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.ff-switch-track {
+  position: relative;
+  flex: none;
+  width: 2.125rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  background: var(--color-surface-container-highest);
+  border: 1px solid var(--color-outline);
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+.ff-switch-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  background: #8d8e97;
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease;
+}
+.ff-switch input:checked + .ff-switch-track {
+  /* "On" is a state, not the page's primary action, so it wears a state hue.
+     Mustard stays exclusive to the single primary button per view. */
+  background: var(--color-ok);
+  border-color: var(--color-ok);
+}
+.ff-switch input:checked + .ff-switch-track::after {
+  transform: translateX(0.875rem);
+  background: #0d2a1c;
+}
+.ff-switch input:focus-visible + .ff-switch-track {
+  outline: 2px solid var(--color-secondary-container);
+  outline-offset: 2px;
+}
+.ff-switch input:disabled + .ff-switch-track {
+  opacity: 0.45;
+}
+
+/* Segmented tabs, for in-page view switching only. */
+.ff-tabs {
+  display: inline-flex;
+  gap: 0.125rem;
+  padding: 0.1875rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 0.4375rem;
+  background: var(--color-surface-container-low);
+}
+.ff-tab {
+  height: 1.75rem;
+  padding: 0 0.6875rem;
+  border: 0;
+  border-radius: 0.3125rem;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+.ff-tab:hover {
+  color: var(--color-on-surface);
+}
+.ff-tab[aria-selected='true'] {
+  background: var(--color-surface-container-highest);
+  color: var(--color-on-surface);
+}
+
+/* ==========================================================================
+   9. Meter + figure — the only places a display face is allowed
+   ========================================================================== */
+
+/* Anton, exactly one per screen, for a number that is the point of the page. */
+.ff-figure {
+  font-family: var(--font-anton), Anton, sans-serif;
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface);
+}
+.ff-figure-unit {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--color-on-surface-variant);
+}
+
+.ff-meter {
+  position: relative;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: var(--color-surface-container-highest);
+  overflow: hidden;
+}
+.ff-meter-fill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  border-radius: 9999px;
+  background: var(--color-secondary-container);
+  transition: width 400ms ease;
+}
+.ff-meter[data-tone='ok'] .ff-meter-fill {
+  background: var(--color-ok);
+}
+
+/* Segmented state bar: one segment per discrete requirement, filled when it
+   is satisfied. Reads as a checklist rather than a vague percentage. */
+.ff-segments {
+  display: flex;
+  gap: 3px;
+  width: 8rem;
+  flex: none;
+}
+.ff-segments > span {
+  flex: 1;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--color-surface-container-highest);
+}
+.ff-segments > span[data-on='true'] {
+  background: var(--color-ok);
+}
+
+/* ==========================================================================
+   10. Feedback: empty state, inline notice, dialog, toast
+   ========================================================================== */
+
+.ff-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.375rem;
+  padding: 2rem 0.875rem;
+  border: 1px dashed var(--color-outline);
+  border-radius: 0.5rem;
+}
+.ff-empty-title {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--color-on-surface);
+}
+.ff-empty-text {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #8b8c95;
+  max-width: 34rem;
+}
+.ff-empty .material-symbols-outlined {
+  font-size: 22px;
+  color: #8b8c95;
+}
+
+.ff-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-outline-variant);
+  border-left-width: 2px;
+  border-radius: 0.3125rem;
+  background: var(--color-surface-container-low);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--color-on-surface-variant);
+}
+.ff-notice .material-symbols-outlined {
+  flex: none;
+  font-size: 16px;
+  margin-top: 1px;
+}
+.ff-notice[data-tone='ok'] {
+  border-left-color: var(--color-ok);
+  color: #bfe9d4;
+}
+.ff-notice[data-tone='warn'] {
+  border-left-color: var(--color-warn);
+  color: #f0dcb4;
+}
+.ff-notice[data-tone='danger'] {
+  border-left-color: var(--color-danger);
+  color: #f7cdc9;
+}
+.ff-notice[data-tone='info'] {
+  border-left-color: var(--color-info);
+  color: #cbdcf7;
+}
+
+/* Confirmation dialog. Rendered in a portal-less fixed layer. */
+.ff-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgb(0 0 0 / 0.66);
+  backdrop-filter: blur(3px);
+  animation: ff-fade-in 140ms ease;
+}
+.ff-dialog {
+  width: min(26rem, 100%);
+  border: 1px solid var(--color-outline);
+  border-radius: 0.625rem;
+  background: var(--color-surface-container-low);
+  box-shadow:
+    0 24px 60px -16px rgb(0 0 0 / 0.7),
+    0 0 0 1px rgb(255 255 255 / 0.04);
+  animation: ff-dialog-in 160ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.ff-dialog-head {
+  display: flex;
+  align-items: center;
+  /* Title left, close right. Without this the two pack together and the close
+     button reads as part of the title. */
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.ff-dialog-title {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 19px;
+  letter-spacing: -0.005em;
+  color: var(--color-on-surface);
+}
+.ff-dialog-body {
+  padding: 0.875rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--color-on-surface-variant);
+}
+.ff-dialog-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-lowest);
+  border-radius: 0 0 0.625rem 0.625rem;
+}
+
+@keyframes ff-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes ff-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+}
+
+/* Toast region. */
+.ff-toast-region {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(22rem, calc(100vw - 2rem));
+  pointer-events: none;
+}
+.ff-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-outline);
+  border-left-width: 2px;
+  border-radius: 0.375rem;
+  background: var(--color-surface-container-high);
+  box-shadow: 0 12px 32px -10px rgb(0 0 0 / 0.65);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 17px;
+  color: var(--color-on-surface);
+  pointer-events: auto;
+  animation: ff-toast-in 180ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.ff-toast .material-symbols-outlined {
+  flex: none;
+  font-size: 16px;
+  margin-top: 1px;
+}
+.ff-toast[data-tone='ok'] {
+  border-left-color: var(--color-ok);
+}
+.ff-toast[data-tone='ok'] .material-symbols-outlined {
+  color: var(--color-ok);
+}
+.ff-toast[data-tone='danger'] {
+  border-left-color: var(--color-danger);
+}
+.ff-toast[data-tone='danger'] .material-symbols-outlined {
+  color: var(--color-danger);
+}
+.ff-toast[data-tone='info'] {
+  border-left-color: var(--color-info);
+}
+.ff-toast[data-tone='info'] .material-symbols-outlined {
+  color: var(--color-info);
+}
+.ff-toast-text {
+  min-width: 0;
+  flex: 1;
+}
+.ff-toast-title {
+  font-weight: 600;
+}
+.ff-toast-desc {
+  color: var(--color-on-surface-variant);
+}
+.ff-toast-undo {
+  flex: none;
+  align-self: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-secondary-container);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.25rem;
+}
+.ff-toast-undo:hover {
+  background: var(--color-surface-container-highest);
+}
+
+@keyframes ff-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* ==========================================================================
+   11. Focus + scroll + reduced motion
+   ========================================================================== */
+
+.ff-acct :focus-visible {
+  outline: 2px solid var(--color-secondary-container);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.ff-input:focus,
+.ff-select:focus,
+.ff-textarea:focus {
+  outline: none;
+}
+
+.ff-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-container-highest) transparent;
+}
+.ff-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.ff-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-surface-container-highest);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 9999px;
+}
+.ff-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ==========================================================================
+   12b. Address composer — a workbench, not a form dump
+   ==========================================================================
+   The map is a tool for choosing a point, so it sits beside the fields it
+   feeds instead of interrupting the column of inputs. The dialog is capped to
+   the viewport so the footer — and therefore the save button — can never be
+   pushed below the fold by a long address. */
+
+.ff-dialog-wide {
+  width: min(62rem, 100%);
+  max-height: calc(100vh - 3rem);
+  display: flex;
+  flex-direction: column;
+}
+.ff-dialog-pane {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem 1.125rem;
+}
+
+/* A named group of fields. The label is the group's identity, so the form
+   reads as four things rather than ten inputs. */
+.ff-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  /* Reset lives here, not as an inline style: an inline `border: 0` would also
+     suppress the separator below, which is the only thing telling you the form
+     has four groups rather than one long column. */
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+.ff-fieldset + .ff-fieldset {
+  margin-top: 1.125rem;
+  padding-top: 1.125rem;
+  border-top: 1px solid var(--color-outline-variant);
+}
+.ff-fieldset-label {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+}
+.ff-field-grid {
+  display: grid;
+  gap: 0.625rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.ff-field-grid-2 {
+  display: grid;
+  gap: 0.625rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.ff-field-grid-auto {
+  display: grid;
+  gap: 0.625rem;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+}
+
+.ff-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 19rem);
+  gap: 1.25rem;
+  align-items: start;
+}
+.ff-workbench-side {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Live readout of the point currently chosen on the map. */
+.ff-point-card {
+  display: flex;
+  flex-direction: column;
+  /* Without this a child stretches to the card width and a pill-sized status
+     tag renders as a full-width bar. */
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 0.5rem;
+  background: var(--color-surface-container-lowest);
+}
+.ff-point-card > .ff-row-hint {
+  align-self: stretch;
+}
+.ff-point-title {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+}
+.ff-point-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 18px;
+}
+.ff-point-key {
+  flex: none;
+  width: 4.5rem;
+  color: var(--color-on-surface-variant);
+}
+.ff-point-value {
+  min-width: 0;
+  color: var(--color-on-surface);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 60rem) {
+  .ff-workbench {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ff-workbench-side {
+    position: static;
+  }
+  .ff-field-grid,
+  .ff-field-grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ==========================================================================
+   12. Narrow viewports — the surface is desktop-first, but it must not break
+   ========================================================================== */
+
+@media (max-width: 60rem) {
+  .ff-frame {
+    grid-template-columns: minmax(0, 1fr);
+    background-image: none;
+  }
+  .ff-rail {
+    position: static;
+    max-height: none;
+    padding: 0.875rem 0 1rem;
+    border-bottom: 1px solid var(--color-outline-variant);
+  }
+  .ff-section {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+  .ff-section-body {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .ff-toolbar {
+    position: static;
+  }
+  .ff-body {
+    padding: 1.25rem 1rem 0;
+  }
+  .ff-toolbar {
+    padding: 0.75rem 1rem;
+  }
+  .ff-row {
+    flex-wrap: wrap;
+  }
+  .ff-row-value {
+    max-width: 100%;
+    text-align: left;
+  }
+  .ff-address-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ff-address-map {
+    position: static;
+  }
 }

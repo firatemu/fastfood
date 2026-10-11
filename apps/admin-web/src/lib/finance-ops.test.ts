@@ -50,20 +50,20 @@ describe('customer mapping', () => {
       { userId: 'u2', displayName: 'Ali', email: 'ali@x.test', status: 'DISABLED' },
     ];
     expect(filterCustomers(rows, { q: 'ayşe', status: '' }).map((r) => r.userId)).toEqual(['u1']);
-    expect(filterCustomers(rows, { q: '', status: 'DISABLED' }).map((r) => r.userId)).toEqual(['u2']);
+    expect(filterCustomers(rows, { q: '', status: 'DISABLED' }).map((r) => r.userId)).toEqual([
+      'u2',
+    ]);
     expect(accountStatusLabel('ACTIVE')).toBe('Aktif');
   });
 });
 
 describe('promotion units', () => {
-  it('keeps percent and kuruş distinct', () => {
+  it('keeps percent and formatted fixed amount distinct', () => {
     expect(percentToBps('10')).toBe(1000);
     expect(percentToBps('101')).toBeNull();
     expect(bpsToPercentLabel(1000)).toBe('10%');
     expect(promotionValueSummary({ kind: 'PERCENT_CART', discountPercentBps: 1500 })).toBe('15%');
-    expect(promotionValueSummary({ kind: 'FIXED_CART_MINOR', discountMinor: '2500' })).toBe(
-      '2500 kuruş',
-    );
+    expect(promotionValueSummary({ kind: 'FIXED_CART_MINOR', discountMinor: '2500' })).toBe('25 ₺');
     expect(promotionValueSummary({ kind: 'DELIVERY_FEE_WAIVER' })).toBe('Teslimat ücreti muaf');
   });
 });

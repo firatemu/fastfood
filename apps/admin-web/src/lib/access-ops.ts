@@ -1,8 +1,4 @@
-export type A5ResourceScope =
-  | 'GLOBAL_ANALYTICS'
-  | 'USER_SCOPED'
-  | 'ROLE_SCOPED'
-  | 'SYSTEM_GLOBAL';
+export type A5ResourceScope = 'GLOBAL_ANALYTICS' | 'USER_SCOPED' | 'ROLE_SCOPED' | 'SYSTEM_GLOBAL';
 
 export function a5ResourceScope(pathname: string): A5ResourceScope | null {
   if (pathname === '/reports') return 'GLOBAL_ANALYTICS';
@@ -89,8 +85,7 @@ export function filterStaffUsers<T extends StaffUserRow>(
   });
 }
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function canAssignRole(input: {
   userId: string;
@@ -205,7 +200,8 @@ export type SettingRow = {
   mutable?: boolean;
 };
 
-const SECRET_KEY_RE = /secret|password|token|credential|private[_-]?key|api[_-]?key|server[_-]?key/i;
+const SECRET_KEY_RE =
+  /secret|password|token|credential|private[_-]?key|api[_-]?key|server[_-]?key/i;
 const PROVIDER_KEY_RE = /provider|iyzico|stripe|paypal|fcm|apns|smtp|oauth/i;
 
 export function settingLooksSecret(key: string): boolean {

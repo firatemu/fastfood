@@ -7,55 +7,100 @@ import { errorMessage } from '../../lib/load-state';
 import { scanDiningTable, writeDiningContext } from '../../lib/storefront/engagement';
 import { useDeferredLoad } from '../../lib/use-deferred-load';
 
-import { AccountNav } from './account-nav';
-import { RequireCustomer } from './account-page';
+import { MaterialIcon } from './material-icon';
 import { ShopError, ShopSkeleton } from './shop-states';
 
+/**
+ * Table code lookup.
+ *
+ * Deliberately NOT an account page. This is a guest task: the code on the QR
+ * establishes branch and table context, it is not a sign-in. So there is no
+ * account rail, no `RequireCustomer` and no header identity — reachable from
+ * the storefront header, and it works with an empty session.
+ *
+ * It does wear `.ff-acct`, though: the surface tokens are what make this screen
+ * look like the same product as the account area rather than a second theme.
+ * No rail, no provider, no profile fetch — only the token scope.
+ *
+ * (Mobile already ships this decoupled as `app/table/index.tsx`; this brings
+ * Web in line with Mobile rather than the other way round.)
+ */
 export function TableLookupPage() {
   const router = useRouter();
   const [code, setCode] = useState('');
 
   return (
-    <RequireCustomer>
-      <div className="w-full pt-20 bg-background min-h-screen" data-ff-surface="table-lookup">
-        <div className="max-w-7xl mx-auto px-margin-sm lg:px-margin py-space-lg grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
-          <aside className="lg:col-span-3">
-            <AccountNav />
-          </aside>
-          <div className="lg:col-span-9 min-w-0">
-            <h1 className="font-headline-md uppercase">Masa Kodu</h1>
-            <p className="font-body-sm text-on-surface-variant mt-2">
-              QR’daki kodu gir. Bu bir giriş işlemi değildir; yalnızca şube ve masa bağlamı kurulur.
-            </p>
-            <form
-              className="mt-space-md flex flex-col sm:flex-row gap-2"
-              onSubmit={(event) => {
-                event.preventDefault();
-                router.push(`/table/${encodeURIComponent(code.trim())}`);
-              }}
-            >
-              <input
-                className="flex-1 h-12 px-4 rounded-lg bg-surface-container-low"
-                value={code}
-                onChange={(event) => setCode(event.target.value)}
-                placeholder="Masa kodu"
-                data-ff-table-code
-              />
-              <button
-                type="submit"
-                disabled={!code.trim()}
-                className="h-12 px-space-lg rounded-lg bg-secondary-container text-on-secondary-container font-label-lg uppercase"
-              >
-                Aç
-              </button>
-            </form>
-          </div>
+    <div className="ff-acct min-h-screen w-full bg-background pt-20" data-ff-surface="table-lookup">
+      <main className="mx-auto flex w-full max-w-xl flex-col justify-center px-margin-sm py-space-xl">
+        <span className="ff-toolbar-eyebrow">Masa bağlamı</span>
+        <h1 className="ff-toolbar-title" style={{ fontSize: '24px', marginTop: '0.25rem' }}>
+          Masa Kodu
+        </h1>
+        <p className="ff-lead">
+          Masandaki QR etiketindeki kodu gir. Bu bir giriş işlemi değildir; yalnızca şube ve masa
+          bağlamını kurar, sepetini etkilemez.
+        </p>
+
+        <form
+          className="ff-cluster"
+          style={{ marginTop: '0.5rem', flexWrap: 'nowrap', alignItems: 'flex-end' }}
+          onSubmit={(event) => {
+            event.preventDefault();
+            router.push(`/table/${encodeURIComponent(code.trim())}`);
+          }}
+        >
+          <label className="ff-field" style={{ flex: 1 }}>
+            <span className="ff-field-label">Masa kodu</span>
+            <input
+              className="ff-input"
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+              placeholder="ör. A12"
+              autoComplete="off"
+              spellCheck={false}
+              inputMode="text"
+              data-ff-table-code
+            />
+          </label>
+          <button type="submit" className="ff-btn ff-btn-primary" disabled={!code.trim()}>
+            Kodu aç
+          </button>
+        </form>
+
+        <div className="ff-notice" data-tone="info" style={{ marginTop: '1.25rem' }}>
+          <MaterialIcon name="info" />
+          <span>Kodu bilmiyorsan masadan yardım iste.</span>
         </div>
-      </div>
-    </RequireCustomer>
+
+        <p className="ff-row-hint" style={{ marginTop: '0.75rem' }}>
+          Kod olmadan da{' '}
+          <button
+            type="button"
+            onClick={() => router.push('/')}
+            style={{
+              background: 'none',
+              border: 0,
+              padding: 0,
+              color: 'var(--color-secondary-container)',
+              font: 'inherit',
+              textDecoration: 'underline',
+              textUnderlineOffset: 3,
+              cursor: 'pointer',
+            }}
+          >
+            menüden devam edebilirsin
+          </button>
+          .
+        </p>
+      </main>
+    </div>
   );
 }
 
+/**
+ * Landing page for a scanned code. Unchanged in behaviour: it resolves the
+ * table, writes the dining context, and forwards to the menu.
+ */
 export function TableContextPage() {
   const params = useParams<{ code: string }>();
   const code = typeof params.code === 'string' ? params.code : '';
@@ -85,7 +130,7 @@ export function TableContextPage() {
 
   if (status === 'loading') {
     return (
-      <main className="w-full pt-20 min-h-screen bg-background px-margin-sm" data-ff-surface="table">
+      <main className="ff-acct w-full pt-20 min-h-screen bg-background px-margin-sm" data-ff-surface="table">
         <ShopSkeleton />
       </main>
     );
@@ -101,9 +146,14 @@ export function TableContextPage() {
   }
 
   return (
-    <main className="w-full pt-20 min-h-screen bg-background px-margin-sm" data-ff-surface="table">
-      <h1 className="font-headline-md uppercase mt-space-lg">{label}</h1>
-      <p className="font-body-md text-on-surface-variant mt-2">Menüye yönlendiriliyorsun.</p>
+    <main className="ff-acct w-full pt-20 min-h-screen bg-background px-margin-sm" data-ff-surface="table">
+      <div className="ff-toolbar-eyebrow" style={{ marginTop: '2.5rem' }}>
+        Masa bağlamı
+      </div>
+      <h1 className="ff-toolbar-title" style={{ fontSize: '24px', marginTop: '0.25rem' }}>
+        {label}
+      </h1>
+      <p className="ff-lead">Menüye yönlendiriliyorsun.</p>
     </main>
   );
 }

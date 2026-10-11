@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import {
   createContext,
   useCallback,
@@ -12,6 +13,11 @@ import {
 
 import { subscribeCartChanged } from '../../lib/cart-events';
 import { errorMessage } from '../../lib/load-state';
+import {
+  branchPreferenceStorage,
+  readBranchPreference,
+  writeBranchPreference,
+} from '../../lib/storefront/branch-preference';
 import { cartItemCount, fetchCart } from '../../lib/storefront/cart';
 import { fetchStorefrontHome, type StorefrontHome } from '../../lib/storefront/home';
 import { useDeferredLoad } from '../../lib/use-deferred-load';
@@ -23,10 +29,12 @@ interface ChromeValue {
   status: ChromeStatus;
   error: string | null;
   cartCount: number;
+  branchId: string | null;
   categoryId: string | null;
   query: string;
   reload: () => void;
   setCategoryId: (id: string | null) => void;
+  setBranchId: (id: string) => void;
   setQuery: (q: string) => void;
   refreshCart: () => Promise<void>;
 }
@@ -39,12 +47,16 @@ export function StorefrontChromeProvider({ children }: { children: ReactNode }) 
   const [error, setError] = useState<string | null>(null);
   const [cartCount, setCartCount] = useState(0);
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [branchId, setBranchIdState] = useState<string | null>(null);
+  const [branchReady, setBranchReady] = useState(false);
   const [query, setQuery] = useState('');
   const [nonce, setNonce] = useState(0);
+  const pathname = usePathname();
 
   const load = useCallback(async () => {
     try {
       const payload = await fetchStorefrontHome({
+        branchId: branchId ?? undefined,
         categoryId: categoryId ?? undefined,
         q: query || undefined,
       });
@@ -55,11 +67,24 @@ export function StorefrontChromeProvider({ children }: { children: ReactNode }) 
       setError(errorMessage(err));
       setStatus((prev) => (prev === 'ready' ? 'ready' : 'error'));
     }
-  }, [categoryId, query]);
+  }, [branchId, categoryId, query]);
+
+  // The stored branch is read before the first request so a returning customer
+  // never sees the default branch menu flash first.
+  useDeferredLoad(() => {
+    setBranchIdState(readBranchPreference(branchPreferenceStorage()));
+    setBranchReady(true);
+  }, []);
+
+  const setBranchId = useCallback((id: string) => {
+    setBranchIdState(id);
+    writeBranchPreference(branchPreferenceStorage(), id);
+  }, []);
 
   useDeferredLoad(() => {
+    if (!branchReady) return;
     void load();
-  }, [load, nonce]);
+  }, [load, nonce, branchReady]);
 
   const refreshCart = useCallback(async () => {
     try {
@@ -70,14 +95,32 @@ export function StorefrontChromeProvider({ children }: { children: ReactNode }) 
     }
   }, []);
 
+  // The provider is mounted once in the (shop) layout and survives client-side
+  // navigation, so a badge fetched on first paint never learns about a cart
+  // that changed later. Revalidate on every route change.
   useDeferredLoad(() => {
     void refreshCart();
-  }, [refreshCart]);
+  }, [refreshCart, pathname]);
 
   useEffect(() => {
     return subscribeCartChanged(() => {
       void refreshCart();
     });
+  }, [refreshCart]);
+
+  // A cart can also change without any local event: order placement consumes it
+  // server-side, and another tab or device can clear it. Revalidate when this
+  // tab returns to the foreground.
+  useEffect(() => {
+    const revalidate = () => {
+      if (document.visibilityState === 'visible') void refreshCart();
+    };
+    window.addEventListener('focus', revalidate);
+    document.addEventListener('visibilitychange', revalidate);
+    return () => {
+      window.removeEventListener('focus', revalidate);
+      document.removeEventListener('visibilitychange', revalidate);
+    };
   }, [refreshCart]);
 
   const value = useMemo<ChromeValue>(
@@ -86,6 +129,8 @@ export function StorefrontChromeProvider({ children }: { children: ReactNode }) 
       status,
       error,
       cartCount,
+      branchId,
+      setBranchId,
       categoryId,
       query,
       reload: () => setNonce((n) => n + 1),
@@ -93,7 +138,7 @@ export function StorefrontChromeProvider({ children }: { children: ReactNode }) 
       setQuery,
       refreshCart,
     }),
-    [home, status, error, cartCount, categoryId, query, refreshCart],
+    [home, status, error, cartCount, branchId, setBranchId, categoryId, query, refreshCart],
   );
 
   return <ChromeContext.Provider value={value}>{children}</ChromeContext.Provider>;

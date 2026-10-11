@@ -7,12 +7,24 @@ import { StackHeader } from '../../components/stack-header';
 import { EmptyBlock, ErrorBlock, LoadingBlock, SecondaryButton } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
 import { fetchNotifications, markAllNotificationsRead, markNotificationRead } from '../../lib/engagement';
+import { notifyNotificationsChanged } from '../../lib/notification-events';
 import { notificationDestination } from '../../lib/notification-nav';
 import { cacheNotifications } from '../../lib/private-cache';
 import type { InboxNotification } from '../../lib/schemas';
 import { formatStorefrontDateTime } from '../../lib/tracking-map';
 import { colors, fonts, minTouch, radius, space } from '../../theme';
 
+/**
+ * Inbox.
+ *
+ * Read state is a leading dot plus title weight, not a border colour: colouring
+ * every unread row turns a long inbox into a stripe pattern and stops
+ * singling out the one item that needs attention. Mirrors the Web inbox.
+ *
+ * The row is a container and its actions are siblings — the previous version
+ * made the whole card one `Pressable`, so a row without a destination could
+ * not be marked read on its own.
+ */
 export default function AccountNotificationsRoute() {
   return (
     <View style={styles.screen}>
@@ -54,16 +66,20 @@ function InboxBody() {
     }, [load]),
   );
 
-  async function onOpen(item: InboxNotification) {
-    if (!item.read) {
-      try {
-        const updated = await markNotificationRead(item.id);
-        setItems((current) => current.map((row) => (row.id === item.id ? updated : row)));
-        setUnreadCount((count) => Math.max(0, count - 1));
-      } catch (err) {
-        setError(formatApiError(err));
-      }
+  async function markRead(item: InboxNotification) {
+    if (item.read) return;
+    try {
+      const updated = await markNotificationRead(item.id);
+      setItems((current) => current.map((row) => (row.id === item.id ? updated : row)));
+      setUnreadCount((count) => Math.max(0, count - 1));
+      notifyNotificationsChanged();
+    } catch (err) {
+      setError(formatApiError(err));
     }
+  }
+
+  async function onOpen(item: InboxNotification) {
+    await markRead(item);
     const dest = notificationDestination(item.href);
     if (dest) router.push(dest as never);
   }
@@ -75,6 +91,7 @@ function InboxBody() {
       await markAllNotificationsRead();
       setItems((current) => current.map((row) => ({ ...row, read: true })));
       setUnreadCount(0);
+      notifyNotificationsChanged();
     } catch (err) {
       setError(formatApiError(err));
     } finally {
@@ -100,18 +117,39 @@ function InboxBody() {
         <EmptyBlock title="Bildirim yok" message="Sipariş ve CLUB duyuruları burada görünür." />
       ) : (
         items.map((item) => (
-          <Pressable
-            key={item.id}
-            accessibilityRole="button"
-            accessibilityState={{ selected: !item.read }}
-            accessibilityLabel={`${item.read ? 'Okundu' : 'Okunmamış'}: ${item.title}`}
-            onPress={() => void onOpen(item)}
-            style={[styles.card, !item.read && styles.unread]}
-          >
-            <Text style={styles.title}>{item.title}</Text>
+          <View key={item.id} style={styles.card}>
+            <View style={styles.rowHead}>
+              <View style={[styles.dot, item.read ? styles.dotRead : styles.dotUnread]} />
+              <Text style={[styles.title, item.read && styles.titleRead]} numberOfLines={2}>
+                {item.title}
+              </Text>
+            </View>
             <Text style={styles.body}>{item.body}</Text>
-            <Text style={styles.meta}>{formatStorefrontDateTime(item.createdAt)}</Text>
-          </Pressable>
+            <View style={styles.rowFoot}>
+              <Text style={styles.meta}>{formatStorefrontDateTime(item.createdAt)}</Text>
+              {item.href ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${item.title} bildirimini aç`}
+                  hitSlop={8}
+                  onPress={() => void onOpen(item)}
+                  style={styles.openLink}
+                >
+                  <Text style={styles.openLabel}>Aç</Text>
+                </Pressable>
+              ) : !item.read ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${item.title} bildirimini okundu işaretle`}
+                  hitSlop={8}
+                  onPress={() => void markRead(item)}
+                  style={styles.openLink}
+                >
+                  <Text style={styles.openLabel}>Okundu işaretle</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          </View>
         ))
       )}
     </ScrollView>
@@ -123,16 +161,34 @@ const styles = StyleSheet.create({
   scroll: { padding: space.gutter, gap: 12, paddingBottom: 40 },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     padding: space.md,
-    gap: 4,
+    gap: 6,
     minHeight: minTouch,
     borderWidth: 1,
-    borderColor: colors.hairline,
+    borderColor: colors.outlineVariant,
   },
-  unread: { borderColor: colors.mustard },
-  title: { fontFamily: fonts.jakartaBold, fontSize: 15, color: colors.onSurface },
+  rowHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  dot: { width: 8, height: 8, borderRadius: 4, marginTop: 6 },
+  dotUnread: { backgroundColor: colors.info },
+  dotRead: { backgroundColor: colors.outlineVariant },
+  title: { flex: 1, fontFamily: fonts.jakartaBold, fontSize: 15, color: colors.onSurface },
+  titleRead: { color: colors.onSurfaceVariant, fontFamily: fonts.jakartaSemibold },
   body: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.ash, lineHeight: 20 },
-  meta: { fontFamily: fonts.jakarta, fontSize: 11, color: colors.outline },
+  rowFoot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginTop: 2,
+  },
+  meta: { flex: 1, fontFamily: fonts.jakarta, fontSize: 11, color: colors.outline },
+  openLink: { minHeight: 32, justifyContent: 'center', paddingHorizontal: 6 },
+  openLabel: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 12,
+    textTransform: 'uppercase',
+    color: colors.mustard,
+  },
   error: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.error },
 });

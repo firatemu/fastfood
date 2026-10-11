@@ -3,10 +3,10 @@
   --raised: var(--ops-surface-2, light-dark(#f8f9f9, #1f242d));
   --line: var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
   --text: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
-  --muted: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
-  --amber: var(--ops-amber, light-dark(#a57709, #feb300));
+  --muted: var(--ff-on-surface-variant);
+  --amber: var(--ff-primary);
   width: 100%;
-  max-width: 1220px;
+  /* Full width by design — no max-width cap (A9-21). */
   min-width: 0;
   margin: 0 auto;
   padding: 22px clamp(16px, 2vw, 28px) 38px;
@@ -32,12 +32,12 @@
 }
 
 .backLink:hover {
-  color: light-dark(#a0690d, #ffd38a);
+  color: var(--ff-status-warn-text);
   text-decoration: underline;
 }
 .pageHeader h1 {
   margin: 0;
-  font: 400 clamp(28px, 2.3vw, 36px) / 1.1 var(--ops-font-anton, Anton, sans-serif);
+  font: 800 clamp(28px, 2.3vw, 36px) / 1.2 var(--ff-font-headline);
   letter-spacing: 0.025em;
 }
 .pageHeader p {
@@ -50,18 +50,18 @@
 .clubState button {
   min-height: 34px;
   padding: 0 12px;
-  border: 1px solid light-dark(#d3d6d9, #465364);
+  border: 1px solid var(--ff-keyline);
   border-radius: 3px;
-  background: light-dark(#f8f9f9, #222a34);
-  color: light-dark(#2e5984, #dce4ec);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
   cursor: pointer;
   font: 700 11px var(--ops-font-sans, Inter, sans-serif);
 }
 
 .statePanel button:hover,
 .clubState button:hover {
-  border-color: light-dark(#d6bd8a, #d6aa4e);
-  color: light-dark(#292929, #ffffff);
+  border-color: var(--ff-primary-container);
+  color: var(--ff-on-surface);
 }
 
 .profile {
@@ -72,7 +72,7 @@
   padding: 23px 25px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--ops-amber-border);
-  background: light-dark(#fcfcfd, #1a2028);
+  background: var(--ff-surface-container);
 }
 
 .avatar {
@@ -81,10 +81,10 @@
   width: 69px;
   height: 69px;
   flex: 0 0 auto;
-  border: 1px solid light-dark(#d3ba8d, #765c2d);
+  border: 1px solid var(--ff-primary-container);
   background: light-dark(#f5f2ed, #634d2c);
   color: light-dark(#a06c0d, #ffd17e);
-  font: 400 27px var(--ops-font-anton, Anton, sans-serif);
+  font: 800 27px var(--ff-font-headline);
   letter-spacing: 0.06em;
 }
 
@@ -108,7 +108,7 @@
 .profileIdentity p {
   margin: 7px 0 0;
   overflow: hidden;
-  color: light-dark(#24292e, #c5d0dc);
+  color: var(--ff-on-surface);
   font-size: 13px;
   text-overflow: ellipsis;
 }
@@ -125,7 +125,7 @@
   gap: 6px;
   min-height: 24px;
   padding: 0 8px;
-  border: 1px solid light-dark(#d3d9d7, #3b6653);
+  border: 1px solid var(--ff-keyline);
   background: light-dark(#eef4f1, #20392d);
   color: light-dark(#2e844d, #b1e3c3);
   font-size: 11px;
@@ -148,15 +148,15 @@
   display: grid;
   gap: 4px;
   padding-left: 20px;
-  border-left: 1px solid light-dark(#d3d6d9, #3d4652);
+  border-left: 1px solid var(--ff-keyline);
   text-align: right;
 }
 .profileSide span {
-  color: light-dark(#58636f, #96a5b4);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 .profileSide strong {
-  color: light-dark(#24292e, #d8e0e7);
+  color: var(--ff-on-surface);
   font-size: 12px;
   font-weight: 700;
 }
@@ -168,13 +168,13 @@
   min-height: 37px;
   margin: 10px 0 18px;
   padding: 8px 12px;
-  border: 1px solid light-dark(#d3d7d9, #314453);
-  background: light-dark(#eef1f4, #18232c);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
   color: light-dark(#2e6784, #a9c4d2);
   font-size: 11px;
 }
 .readOnlyNote span {
-  color: light-dark(#2e6b84, #89bfd5);
+  color: var(--ff-status-info-text);
   font-size: 16px;
 }
 
@@ -206,14 +206,14 @@
   line-height: 1.25;
 }
 .sectionHeader > span {
-  color: light-dark(#58646f, #94a5b4);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
   white-space: nowrap;
 }
 .overline {
   display: block;
   margin-bottom: 4px;
-  color: light-dark(#886425, #d4aa60);
+  color: var(--ff-status-warn-text);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -235,12 +235,12 @@
   border-bottom: 0;
 }
 .infoRow > span:first-child {
-  color: light-dark(#58636f, #9fadbb);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .infoRow strong {
   overflow: hidden;
-  color: light-dark(#24282e, #e4e9ef);
+  color: var(--ff-on-surface);
   font-size: 12px;
   font-weight: 650;
   text-overflow: ellipsis;
@@ -249,7 +249,7 @@
 .verified,
 .unverified {
   padding: 5px 7px;
-  border: 1px solid light-dark(#d3d9d7, #3d6657);
+  border: 1px solid var(--ff-keyline);
   background: light-dark(#eef4f2, #1f382e);
   color: light-dark(#2e844e, #b5dec4);
   font-size: 10px;
@@ -271,17 +271,17 @@
   gap: 14px;
   min-height: 38px;
   padding: 7px 17px;
-  border-bottom: 1px solid light-dark(#d3d6d9, #2b3541);
+  border-bottom: 1px solid var(--ff-keyline);
 }
 .accountRows > div:last-child {
   border-bottom: 0;
 }
 .accountRows span {
-  color: light-dark(#58636f, #9eacba);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .accountRows strong {
-  color: light-dark(#2e5d84, #e1e8ee);
+  color: var(--ff-status-info-text);
   font-size: 12px;
   font-weight: 700;
   text-align: right;
@@ -303,14 +303,14 @@
   border-right: 1px solid var(--line);
 }
 .balanceBlock {
-  border-left: 3px solid light-dark(#d6bf8a, #d4a537);
-  background: light-dark(#fdfdfc, #262518);
+  border-left: 3px solid var(--ff-primary-container);
+  background: var(--ff-surface-container);
 }
 .balanceBlock > span,
 .tierBlock span,
 .welcomeBlock span {
   display: block;
-  color: light-dark(#58636f, #aebac6);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .balanceBlock strong {
@@ -322,7 +322,7 @@
 .balanceBlock small {
   display: inline-block;
   margin-left: 6px;
-  color: light-dark(#80682d, #ceb883);
+  color: var(--ff-status-warn-text);
   font-size: 11px;
 }
 .tierTop {
@@ -339,17 +339,17 @@
   height: 7px;
   margin-top: 27px;
   overflow: hidden;
-  border: 1px solid light-dark(#d9d7d3, #5b523c);
+  border: 1px solid var(--ff-keyline);
   background: light-dark(#f3f4f4, #2d3032);
 }
 .progressTrack span {
   display: block;
   height: 100%;
-  background: light-dark(#e8b649, #e8b649);
+  background: var(--ff-surface-container-high);
 }
 .tierBlock p {
   margin: 11px 0 0;
-  color: light-dark(#58636f, #9eacbb);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .welcomeBlock {
@@ -358,13 +358,13 @@
 .welcomeBlock strong {
   display: block;
   margin-top: 14px;
-  color: light-dark(#2e6384, #d8e5ed);
+  color: var(--ff-status-info-text);
   font-size: 14px;
 }
 .welcomeBlock small {
   display: block;
   margin-top: 8px;
-  color: light-dark(#58636f, #96a6b6);
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 .clubMeta {
@@ -375,12 +375,12 @@
   min-height: 41px;
   padding: 9px 17px;
   border-top: 1px solid var(--line);
-  background: light-dark(#fcfcfd, #141a21);
-  color: light-dark(#58636f, #aab8c6);
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .clubMeta strong {
-  color: light-dark(#2e5984, #e2e9f0);
+  color: var(--ff-on-surface);
   font: 700 12px var(--ops-font-mono, 'JetBrains Mono', monospace);
 }
 .clubState {
@@ -390,11 +390,11 @@
   gap: 9px;
   min-height: 95px;
   padding: 20px;
-  color: light-dark(#58636f, #aab8c6);
+  color: var(--ff-on-surface-variant);
   font-size: 12px;
 }
 .clubState strong {
-  color: light-dark(#24292e, #e4e9ee);
+  color: var(--ff-on-surface);
   font-size: 13px;
 }
 
@@ -409,7 +409,7 @@
 .table th {
   height: 39px;
   padding: 0 17px;
-  border-bottom: 1px solid light-dark(#d3d6d9, #414b58);
+  border-bottom: 1px solid var(--ff-keyline);
   background: light-dark(#f8f9f9, #202833);
   color: light-dark(#24292e, #b7c3d0);
   font-size: 11px;
@@ -424,17 +424,17 @@
   font: inherit;
 }
 .table th button:hover {
-  color: light-dark(#a06d0d, #ffd586);
+  color: var(--ff-status-warn-text);
 }
 .table th button span {
-  color: light-dark(#58646f, #8fa0af);
+  color: var(--ff-on-surface-variant);
 }
 .table td {
   height: 49px;
   padding: 9px 17px;
-  border-bottom: 1px solid light-dark(#d3d6d9, #2d3844);
+  border-bottom: 1px solid var(--ff-keyline);
   background: light-dark(#f8f9f9, #1a222b);
-  color: light-dark(#2e5984, #d7e0e9);
+  color: var(--ff-on-surface);
   font-size: 12px;
 }
 .table tbody tr:nth-child(even) td {
@@ -474,7 +474,7 @@
   min-height: 48px;
   padding: 9px 17px;
   border-top: 1px solid var(--line);
-  color: light-dark(#58636f, #9baaba);
+  color: var(--ff-on-surface-variant);
   font-size: 11px;
 }
 .tableFooter > div {
@@ -485,9 +485,9 @@
 .tableFooter button {
   width: 28px;
   height: 28px;
-  border: 1px solid light-dark(#d3d6d9, #4b5969);
-  background: light-dark(#f3f3f4, #222b35);
-  color: light-dark(#2e5984, #e4eaf0);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
   cursor: pointer;
   font-size: 18px;
 }
@@ -497,7 +497,7 @@
 }
 .emptyActivity {
   padding: 25px 18px;
-  color: light-dark(#58636f, #9eacba);
+  color: var(--ff-on-surface-variant);
   font-size: 12px;
 }
 
@@ -516,7 +516,7 @@
   text-align: center;
 }
 .statePanel strong {
-  color: light-dark(#24292e, #e7ecf1);
+  color: var(--ff-on-surface);
   font-size: 15px;
 }
 .page :is(a, button):focus-visible {
@@ -581,3 +581,337 @@
     min-width: 600px;
   }
 }
+
+/* @block:navy-a8-shared */
+/* ==========================================================================
+   FASTFOOD Admin — Navy list-page language (ADR-019, phase A8)
+
+   These screens have no frame in the design set, so this block carries the
+   list-page grammar established by the catalog screens in A7: label-role
+   headers, divide-y rows instead of zebra, mono identifiers, `surface-container
+   -low` panels with `shadow-sm`, and a 2px/4px/8px/12px shape scale.
+
+   Class names differ per module (`gridPanel` vs `panel`, `sortMark` vs
+   `sortIndicator`, ...), so the block is applied with **selector-level
+   pruning**: a selector is emitted only if that stylesheet defines it.
+   ========================================================================== */
+/* --- page shell --- */
+
+:global([data-admin-theme='fastfood-navy']) .pageHeader h1 {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-xl);
+  font-weight: var(--ff-weight-headline-xl);
+  line-height: var(--ff-leading-headline-xl);
+  letter-spacing: var(--ff-tracking-headline-xl);
+  text-transform: none;
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .pageHeader p {
+  font: 400 13px/18px var(--ff-font-body);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .sectionHeader {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-sm);
+  font-weight: 600;
+  line-height: var(--ff-leading-headline-sm);
+  color: var(--ff-on-surface);
+}
+
+/* --- panel --- */
+
+/* --- search well --- */
+
+/* --- filter chips / segmented control --- */
+
+/* --- table: label header, divide-y, no zebra --- */
+
+:global([data-admin-theme='fastfood-navy']) .table th {
+  background: var(--ff-surface-container-low);
+  border-bottom-color: var(--ff-keyline);
+  color: var(--ff-on-surface-variant);
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+:global([data-admin-theme='fastfood-navy']) .table th:first-child,
+:global([data-admin-theme='fastfood-navy']) .table td:first-child {
+  background: var(--ff-surface-container-low);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table td {
+  background: var(--ff-surface-container-low);
+  border-bottom-color: var(--ff-surface-container-high);
+  color: var(--ff-on-surface);
+  font: 400 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(even) td,
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:nth-child(2n) td {
+  background: var(--ff-surface-container-low);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:hover td {
+  background: var(--ff-surface-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+:global([data-admin-theme='fastfood-navy']) .tableScroll {
+  background: var(--ff-surface-container-low);
+  border-color: var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .tableFooter {
+  padding: var(--ff-space-sm) var(--ff-space-md);
+  border-top: 1px solid var(--ff-keyline);
+}
+
+/* --- identity columns --- */
+
+/* --- mono identifier columns --- */
+
+:global([data-admin-theme='fastfood-navy']) .positive {
+  color: var(--ff-tertiary);
+}
+
+:global([data-admin-theme='fastfood-navy']) .negative {
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- status + scope badges --- */
+
+:global([data-admin-theme='fastfood-navy']) .statusActive,
+:global([data-admin-theme='fastfood-navy']) .verified {
+  font: 600 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-status-ready-wash);
+  color: var(--ff-tertiary);
+  border: 1px solid var(--ff-status-ready-border);
+}
+
+:global([data-admin-theme='fastfood-navy']) .statusMuted,
+:global([data-admin-theme='fastfood-navy']) .unverified {
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+  border-color: var(--ff-keyline);
+}
+
+/* --- buttons --- */
+
+/* --- forms --- */
+
+/* --- notices, states, overlays --- */
+
+:global([data-admin-theme='fastfood-navy']) .statePanel {
+  background: var(--ff-surface-container-low);
+  border: 0;
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+  color: var(--ff-on-surface-variant);
+  font: 400 13px/18px var(--ff-font-body);
+}
+
+/* --- dialogs --- */
+
+/* --- column menu --- */
+
+/* --- misc --- */
+
+:global([data-admin-theme='fastfood-navy']) .avatar {
+  background: var(--ff-surface-container-highest);
+  color: var(--ff-primary-container);
+  border-radius: var(--ff-radius-lg);
+  font-family: var(--ff-font-headline);
+  font-weight: 700;
+}
+/* @end:navy-a8-shared */
+
+/* @block:navy-a8-domain */
+/* ==========================================================================
+   FASTFOOD Admin — Navy domain blocks (ADR-019, phase A8)
+
+   Follow-up to the shared list-page block for the five screens whose class
+   vocabulary barely overlapped: roles, invite, order-items-dialog,
+   column-visibility-menu and customer-detail. Applied with the same
+   selector-level pruning.
+   ========================================================================== */
+/* ---------------------------------------------------------------- roles --- */
+
+/* --------------------------------------------------------------- invite --- */
+
+/* ---------------------------------------------------- order items dialog --- */
+
+/* ------------------------------------------------- column visibility menu --- */
+
+/* -------------------------------------------------------- customer detail --- */
+
+:global([data-admin-theme='fastfood-navy']) .profile,
+:global([data-admin-theme='fastfood-navy']) .clubSection,
+:global([data-admin-theme='fastfood-navy']) .tierBlock,
+:global([data-admin-theme='fastfood-navy']) .activitySection,
+:global([data-admin-theme='fastfood-navy']) .section {
+  padding: var(--ff-space-md);
+  background: var(--ff-surface-container-low);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .profileIdentity {
+  gap: var(--ff-space-md);
+}
+
+:global([data-admin-theme='fastfood-navy']) .identityLine,
+:global([data-admin-theme='fastfood-navy']) .memberSince {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .avatar {
+  width: 48px;
+  height: 48px;
+  background: var(--ff-surface-container-highest);
+  color: var(--ff-primary-container);
+  border-radius: var(--ff-radius-xl);
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-md);
+  font-weight: 700;
+}
+
+:global([data-admin-theme='fastfood-navy']) .sectionHeader,
+:global([data-admin-theme='fastfood-navy']) .clubMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--ff-space-sm);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .infoRows,
+:global([data-admin-theme='fastfood-navy']) .accountRows {
+  gap: var(--ff-space-xs);
+}
+
+:global([data-admin-theme='fastfood-navy']) .infoRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ff-space-sm);
+  padding: var(--ff-space-xs) 0;
+  border-bottom: 1px solid var(--ff-keyline);
+  font: 400 13px/18px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .balanceBlock,
+:global([data-admin-theme='fastfood-navy']) .tierTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ff-space-sm);
+}
+
+:global([data-admin-theme='fastfood-navy']) .balanceBlock strong,
+:global([data-admin-theme='fastfood-navy']) .tierTop strong {
+  font-family: var(--ff-font-label);
+  font-size: var(--ff-text-headline-lg);
+  font-weight: 700;
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .progressTrack {
+  background: var(--ff-surface-container-highest);
+  border-radius: var(--ff-radius-full);
+  overflow: hidden;
+}
+
+:global([data-admin-theme='fastfood-navy']) .clubState,
+:global([data-admin-theme='fastfood-navy']) .activityType,
+:global([data-admin-theme='fastfood-navy']) .date {
+  font: 600 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .statusActive,
+:global([data-admin-theme='fastfood-navy']) .verified,
+:global([data-admin-theme='fastfood-navy']) .positive {
+  color: var(--ff-tertiary);
+}
+
+:global([data-admin-theme='fastfood-navy']) .statusMuted,
+:global([data-admin-theme='fastfood-navy']) .unverified,
+:global([data-admin-theme='fastfood-navy']) .negative,
+:global([data-admin-theme='fastfood-navy']) .readOnlyNote,
+:global([data-admin-theme='fastfood-navy']) .emptyActivity {
+  color: var(--ff-ink-faint);
+  font: 400 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .welcomeBlock {
+  padding: var(--ff-space-md);
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-accent-wash);
+  color: var(--ff-primary-container);
+  font: 500 13px/18px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .backLink {
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .profileSide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ff-space-md);
+}
+
+:global([data-admin-theme='fastfood-navy']) .detailGrid,
+:global([data-admin-theme='fastfood-navy']) .clubOverview {
+  gap: var(--ff-space-md);
+}
+
+:global([data-admin-theme='fastfood-navy']) .table th {
+  background: var(--ff-surface-container-low);
+  border-bottom-color: var(--ff-keyline);
+  color: var(--ff-on-surface-variant);
+  font: 500 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+:global([data-admin-theme='fastfood-navy']) .table td {
+  background: var(--ff-surface-container-low);
+  border-bottom-color: var(--ff-surface-container-high);
+  color: var(--ff-on-surface);
+  font: 400 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .tableScroll,
+:global([data-admin-theme='fastfood-navy']) .tableFooter {
+  background: var(--ff-surface-container-low);
+  border-color: var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .statePanel {
+  background: var(--ff-surface-container-low);
+  border: 0;
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+  color: var(--ff-on-surface-variant);
+  font: 400 13px/18px var(--ff-font-body);
+}
+/* @end:navy-a8-domain */

@@ -1,0 +1,434 @@
+/**
+ * FASTFOOD Admin visual system — "Navy" (ADR-019).
+ *
+ * Authority: `stitch_fastfood_admin_dashboard_prompts/<screen>/screen.png`
+ * then the matching `code.html` Tailwind config.
+ * Full decision record: `docs/adrs/ADR-019-admin-visual-system-navy.md`.
+ * Token tables and migration notes: `docs/admin-rebuild/03_ADMIN_DESIGN_FOUNDATION.md`.
+ *
+ * Supersedes the `kitchen-fleet` theme (ADR-009, now Superseded).
+ * Both scopes coexist on purpose: a route group is migrated by moving its
+ * `data-admin-theme` value from `kitchen-fleet` to `fastfood-navy`.
+ *
+ * Do not hand-edit values from memory. Every colour below is transcribed from
+ * the source `code.html`. Provenance is recorded per token in the foundation doc.
+ */
+
+[data-admin-theme='fastfood-navy'] {
+  /* ---------------------------------------------------------------------
+   * Surface ramp — dark navy. Ascending elevation.
+   * ------------------------------------------------------------------- */
+  --ff-surface: #0b1326;
+  --ff-surface-dim: #0b1326;
+  --ff-background: #0b1326;
+  --ff-surface-container-lowest: #060e20;
+  --ff-surface-container-low: #131b2e;
+  --ff-surface-container: #171f33;
+  --ff-surface-container-high: #222a3d;
+  --ff-surface-container-highest: #2d3449;
+  --ff-surface-container-low-alpha: rgb(6 14 32 / 60%);
+  --ff-surface-bright: #31394d;
+  --ff-surface-variant: #2d3449;
+
+  /* ---------------------------------------------------------------------
+   * On-surface ink ramp.
+   * ------------------------------------------------------------------- */
+  --ff-on-surface: #dae2fd;
+  --ff-on-surface-variant: #e0c0b1;
+  --ff-on-background: #dae2fd;
+  --ff-inverse-surface: #dae2fd;
+  --ff-inverse-on-surface: #283044;
+
+  /* ---------------------------------------------------------------------
+   * Accents. primary-container is the action colour.
+   * ------------------------------------------------------------------- */
+  --ff-primary-container: #f97316;
+  --ff-primary: #ffb690;
+  --ff-primary-fixed: #ffdbca;
+  --ff-primary-fixed-dim: #ffb690;
+  --ff-on-primary-container: #582200;
+  --ff-on-primary: #552100;
+  --ff-inverse-primary: #9d4300;
+  --ff-surface-tint: #ffb690;
+
+  --ff-tertiary-container: #00b07a;
+  --ff-tertiary: #4edea3;
+  --ff-tertiary-fixed: #6ffbbe;
+  --ff-tertiary-fixed-dim: #4edea3;
+  --ff-on-tertiary-container: #003b26;
+  --ff-on-tertiary: #003824;
+
+  --ff-secondary-container: #bb0112;
+  --ff-secondary: #ffb4ab;
+  --ff-secondary-fixed: #ffdad6;
+  --ff-secondary-fixed-dim: #ffb4ab;
+  --ff-on-secondary-container: #ffc8c1;
+  --ff-on-secondary: #690005;
+
+  --ff-error-container: #93000a;
+  --ff-error: #ffb4ab;
+  --ff-on-error-container: #ffdad6;
+  --ff-on-error: #690005;
+
+  /* ---------------------------------------------------------------------
+   * Lines and focus. Hairlines are translucent white in the source render;
+   * `outline` carries the warm focus colour.
+   * ------------------------------------------------------------------- */
+  --ff-outline: #a78b7d;
+  --ff-outline-variant: #584237;
+  --ff-keyline: rgb(255 255 255 / 8%);
+  --ff-keyline-strong: #a78b7d;
+  --ff-accent-wash: rgb(250 204 21 / 15%);
+
+  /* ---------------------------------------------------------------------
+   * Typography. Headlines Plus Jakarta Sans, body Inter, every label
+   * JetBrains Mono. The mono-label rule is a deliberate brand trait:
+   * operational labels, table headers and filters are monospaced.
+   * ------------------------------------------------------------------- */
+  --ff-font-headline: var(--font-jakarta, 'Plus Jakarta Sans'), ui-sans-serif, sans-serif;
+  --ff-font-body: var(--font-inter, Inter), ui-sans-serif, sans-serif;
+  --ff-font-label: var(--font-jetbrains, 'JetBrains Mono'), ui-monospace, monospace;
+
+  --ff-text-headline-xl: 28px;
+  --ff-leading-headline-xl: 36px;
+  --ff-weight-headline-xl: 800;
+  --ff-tracking-headline-xl: -0.02em;
+
+  --ff-text-headline-lg: 22px;
+  --ff-leading-headline-lg: 28px;
+  --ff-weight-headline-lg: 700;
+  --ff-tracking-headline-lg: -0.015em;
+
+  --ff-text-headline-md: 18px;
+  --ff-leading-headline-md: 24px;
+  --ff-weight-headline-md: 600;
+  --ff-tracking-headline-md: -0.01em;
+
+  --ff-text-headline-sm: 15px;
+  --ff-leading-headline-sm: 20px;
+  --ff-weight-headline-sm: 600;
+
+  --ff-text-body-lg: 15px;
+  --ff-leading-body-lg: 22px;
+  --ff-text-body-md: 13px;
+  --ff-leading-body-md: 18px;
+  --ff-text-body-sm: 12px;
+  --ff-leading-body-sm: 16px;
+
+  --ff-text-label-lg: 13px;
+  --ff-leading-label-lg: 16px;
+  --ff-weight-label-lg: 600;
+  --ff-tracking-label-lg: 0.02em;
+  --ff-text-label-md: 11px;
+  --ff-leading-label-md: 14px;
+  --ff-weight-label-md: 500;
+  --ff-tracking-label-md: 0.03em;
+  --ff-text-label-sm: 10px;
+  --ff-leading-label-sm: 12px;
+  --ff-weight-label-sm: 500;
+  --ff-tracking-label-sm: 0.04em;
+
+  /* ---------------------------------------------------------------------
+   * Spacing. Non-standard 4 / 6 / 10 / 14 / 20 rhythm, denser than the
+   * previous 4 / 8 / 12 / 16 / 24 scale.
+   * ------------------------------------------------------------------- */
+  --ff-space-xs: 0.25rem;
+  --ff-space-sm: 0.375rem;
+  --ff-space-md: 0.625rem;
+  --ff-space-lg: 0.875rem;
+  --ff-space-xl: 1.25rem;
+  --ff-gutter: 0.75rem;
+  --ff-margin: 1rem;
+
+  /* ---------------------------------------------------------------------
+   * Shape. `full` in the source config is 0.75rem, not 9999px.
+   * ------------------------------------------------------------------- */
+  --ff-radius-default: 0.125rem;
+  --ff-radius-lg: 0.25rem;
+  --ff-radius-xl: 0.5rem;
+  --ff-radius-full: 0.75rem;
+
+  /* ---------------------------------------------------------------------
+   * Shell metrics.
+   * ------------------------------------------------------------------- */
+  --ff-sidebar-width: 288px;
+  --ff-sidebar-brand-height: 56px;
+  --ff-header-height: 56px;
+  --ff-header-subheight: 40px;
+
+  /* ---------------------------------------------------------------------
+   * Effects. Header uses a translucent fill plus backdrop blur.
+   * ------------------------------------------------------------------- */
+  --ff-header-fill: rgb(11 19 38 / 90%);
+  --ff-header-blur: 12px;
+  --ff-shadow-header: 0 1px 8px 0 rgb(0 0 0 / 4%);
+  --ff-shadow-surface: 0 1px 8px 0 rgb(0 0 0 / 2%);
+  --ff-shadow-overlay: 0 8px 10px -6px rgb(0 0 0 / 10%), 0 20px 25px -5px rgb(0 0 0 / 10%);
+  --ff-shadow-scrim: rgb(6 14 32 / 72%);
+
+  /* Semantic status aliases used by ops badges and alerts. */
+  /* Text-safe variants. The saturated container values are for fills and
+     borders; several fall under 4.5:1 against Navy surfaces and must not
+     be used as a foreground. Measured 2026-10-07 against
+     `surface-container-low` (#131b2e). */
+  --ff-status-ready-text: #4edea3;
+  --ff-status-warn-text: #ffb690;
+  --ff-status-critical-text: #ffb4ab;
+  --ff-status-info-text: #6cc5ff;
+  --ff-status-idle-text: #9aa7c2;
+
+  --ff-status-ready: #00b07a;
+  --ff-status-ready-wash: rgb(0 176 122 / 12%);
+  --ff-status-critical: #bb0112;
+  --ff-status-critical-wash: rgb(187 1 18 / 12%);
+  --ff-status-info: #6cc5ff;
+  --ff-status-info-wash: rgb(108 197 255 / 12%);
+  --ff-status-idle: #6b7a99;
+
+  color: var(--ff-on-surface);
+  background: var(--ff-surface);
+  font-family: var(--ff-font-body);
+  font-size: var(--ff-text-body-md);
+  line-height: var(--ff-leading-body-md);
+}
+
+/* -----------------------------------------------------------------------
+ * `--ops-*` compatibility layer.
+ *
+ * 25 files still consume the `--ops-*` names. Mapping them here means a
+ * migrated route group adopts the Navy palette without touching those files.
+ * Names are kept only while callers are being migrated; delete a row once
+ * no consumer references it.
+ * --------------------------------------------------------------------- */
+[data-admin-theme='fastfood-navy'] {
+  --ops-canvas: var(--ff-surface);
+  --ops-canvas-sub: var(--ff-surface-container-lowest);
+  --ops-surface-1: var(--ff-surface-container-low);
+  --ops-surface-2: var(--ff-surface-container-high);
+  --ops-surface-3: var(--ff-surface-container-highest);
+  --ops-bg-elev: var(--ff-surface-container);
+  --ops-bg-scrim: var(--ff-shadow-scrim);
+  --ops-shadow-drawer: -16px 0 48px rgb(0 0 0 / 55%);
+  --ops-keyline: var(--ff-keyline);
+  --ops-keyline-strong: var(--ff-keyline-strong);
+  --ops-on-surface: var(--ff-on-surface);
+  --ops-on-muted: var(--ff-on-surface-variant);
+  --ops-on-variant: var(--ff-on-surface-variant);
+  --ops-amber: var(--ff-primary-container);
+  --ops-amber-hover: var(--ff-primary);
+  --ops-amber-ink: var(--ff-on-primary-container);
+  --ops-flame: var(--ff-primary-container);
+  --ops-flame-strong: var(--ff-primary);
+  --ops-ready: var(--ff-status-ready-text);
+  --ops-warn: var(--ff-primary-container);
+  --ops-critical: var(--ff-status-critical-text);
+  --ops-logistics: var(--ff-status-info-text);
+  --ops-idle: var(--ff-status-idle-text);
+  --ops-ready-well: var(--ff-status-ready-wash);
+  --ops-warn-well: var(--ff-accent-wash);
+  --ops-critical-well: var(--ff-status-critical-wash);
+  --ops-logistics-well: var(--ff-status-info-wash);
+  --ops-amber-well: var(--ff-accent-wash);
+  --ops-shadow-2: var(--ff-shadow-header);
+  --ops-shadow-3: var(--ff-shadow-overlay);
+  --ops-radius-xs: var(--ff-radius-default);
+  --ops-radius-sm: var(--ff-radius-lg);
+  --ops-radius-md: var(--ff-radius-xl);
+  --ops-space-xxs: var(--ff-space-xs);
+  --ops-space-xs: var(--ff-space-xs);
+  --ops-space-sm: var(--ff-space-sm);
+  --ops-space-md: var(--ff-space-md);
+  --ops-space-lg: var(--ff-space-lg);
+  --ops-space-xl: var(--ff-space-xl);
+  --ops-gutter: var(--ff-gutter);
+  --ops-gutter-desktop: var(--ff-margin);
+  --ops-rail-collapsed: var(--ff-sidebar-width);
+  --ops-rail-expanded: var(--ff-sidebar-width);
+  --ops-topbar: var(--ff-header-height);
+  --ops-row: 36px;
+  --ops-row-default: 44px;
+  --ops-control: 34px;
+  --ops-font-anton: var(--ff-font-headline);
+  --ops-font-sans: var(--ff-font-body);
+  --ops-font-mono: var(--ff-font-label);
+}
+
+[data-admin-theme='fastfood-navy'] *,
+[data-admin-theme='fastfood-navy'] *::before,
+[data-admin-theme='fastfood-navy'] *::after {
+  box-sizing: border-box;
+}
+
+[data-admin-theme='fastfood-navy'] a {
+  color: var(--ff-primary);
+  text-decoration: none;
+}
+
+[data-admin-theme='fastfood-navy'] :focus-visible {
+  outline: 2px solid var(--ff-outline);
+  outline-offset: 2px;
+}
+
+/* The icon font IS available here — measured: the stylesheet and .woff2 both
+   return 200 and document.fonts.check() is true. The reported overlapping tab strip
+   was caused by something else. .dialogTab span used the `font` SHORTHAND, which
+   resets every font sub-property, so at 0,1,1 it overrode this rule and forced the
+   icon span to 10px JetBrains Mono. A monospace face has no Material Symbols
+   ligatures, so the browser painted the raw text ("edit_note") inside a glyph-sized
+   box. That shorthand has been removed from app/branches/branches.module.css.
+
+   The `:root` prefix is deliberate: it lifts this rule to 0,2,0 so that ANY
+   `font:` shorthand on a container (`.dialogTab span`, `.filterButton span`, …)
+   can no longer silently swap the icon font out from under a glyph span. Two
+   dependencies on that rule: the box cannot be squeezed by a flex parent, and the
+   family cannot be replaced by an inherited mono face. Clipping the span to an
+   icon-sized box is still left to each page, because it needs display:inline-flex,
+   which shifts baseline alignment everywhere. */
+:root .material-symbols-outlined {
+  flex: 0 0 auto;
+  font-family: 'Material Symbols Outlined', sans-serif;
+}
+
+[data-admin-theme='fastfood-navy'] .material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 20;
+}
+
+/* ==========================================================================
+   FASTFOOD Admin — derived surface tokens + light mode (ADR-019)
+
+   PROVENANCE: the design set ships a **dark-only** system. Every `screen.png`
+   and `code.html` renders `<html class="dark">` and contains no light values.
+   The light palette below is therefore DERIVED, not transcribed — it keeps the
+   Navy hue relationships and inverts the surface ramp. Under the ADR-019
+   source ranking this is "AI interpretation" (last), so it must never be
+   treated as design authority and should be reviewed by the human owner.
+
+   The light/dark switch is driven by `html[data-color-mode]`, which the inline
+   script in `app/layout.tsx` sets before first paint.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Derived tokens. Used where the source expresses a semantic rather than a
+   swatch: brand row wash, sub-bar fill, faint ink, hover wash.
+   Dark values are transcribed from the design render; light values derived.
+   ------------------------------------------------------------------------ */
+[data-admin-theme='fastfood-navy'] {
+  --ff-brand-fill: rgb(19 27 46 / 60%);
+  --ff-subbar-fill: rgb(19 27 46 / 95%);
+  --ff-ink-faint: #8b93a8;
+  --ff-hover-wash: rgb(255 255 255 / 4%);
+  --ff-status-warn: var(--ff-primary-container);
+  --ff-status-warn-wash: rgb(249 115 22 / 12%);
+  --ff-status-warn-border: rgb(249 115 22 / 24%);
+  --ff-status-ready-border: rgb(0 176 122 / 24%);
+  --ff-status-critical-border: rgb(187 1 18 / 28%);
+  --ff-status-info-border: rgb(108 197 255 / 24%);
+}
+
+/* --------------------------------------------------------------------------
+   Light mode. Derived — see the provenance note above.
+   ------------------------------------------------------------------------ */
+html[data-color-mode='light'] [data-admin-theme='fastfood-navy'] {
+  color-scheme: light;
+
+  /* Surface ramp inverted, Navy hue retained. */
+  --ff-surface: #eef1f7;
+  --ff-surface-dim: #e4e8f0;
+  --ff-background: #eef1f7;
+  --ff-surface-container-lowest: #ffffff;
+  --ff-surface-container-low: #f4f6fb;
+  --ff-surface-container: #e9edf4;
+  --ff-surface-container-high: #e0e5ee;
+  --ff-surface-container-highest: #d5dbe7;
+  --ff-surface-container-low-alpha: rgb(255 255 255 / 60%);
+  --ff-surface-bright: #c9d1e0;
+  --ff-surface-variant: #d5dbe7;
+
+  --ff-on-surface: #0b1326;
+  --ff-on-surface-variant: #47536b;
+  --ff-on-background: #0b1326;
+  --ff-inverse-surface: #0b1326;
+  --ff-inverse-on-surface: #eef1f7;
+
+  /* Orange darkens on light so it keeps 4.5:1 against the light surfaces.
+     Measured: #c2410c only reached 4.41:1 on --ff-surface-container and 3.73:1
+     on -highest, and this token is used as text colour in 42 places. #a9380a
+     holds 4.64:1 or better on every light surface and 6.45:1 under white. */
+  --ff-primary-container: #a9380a;
+  --ff-primary: #9a3412;
+  --ff-primary-fixed: #ffdbca;
+  --ff-primary-fixed-dim: #ffb690;
+  --ff-on-primary-container: #ffffff;
+  --ff-on-primary: #ffffff;
+  --ff-inverse-primary: #ffb690;
+  --ff-surface-tint: #ffb690;
+
+  --ff-tertiary-container: #00795a;
+  --ff-tertiary: #046b4e;
+  --ff-tertiary-fixed: #6ffbbe;
+  --ff-tertiary-fixed-dim: #4edea3;
+  --ff-on-tertiary-container: #ffffff;
+  --ff-on-tertiary: #ffffff;
+
+  --ff-secondary-container: #b3261e;
+  --ff-secondary: #8c1d18;
+  --ff-secondary-fixed: #ffdad6;
+  --ff-secondary-fixed-dim: #ffb4ab;
+  --ff-on-secondary-container: #ffffff;
+  --ff-on-secondary: #ffffff;
+
+  --ff-error-container: #a4271f;
+  --ff-error: #a4271f;
+  --ff-on-error-container: #ffffff;
+  --ff-on-error: #ffffff;
+
+  --ff-outline: #5b6478;
+  --ff-outline-variant: #a9b2c4;
+  --ff-keyline: rgb(11 19 38 / 14%);
+  --ff-keyline-strong: #5b6478;
+  --ff-accent-wash: rgb(194 65 12 / 10%);
+
+  --ff-header-fill: rgb(255 255 255 / 88%);
+  --ff-shadow-header: 0 1px 8px 0 rgb(11 19 38 / 6%);
+  --ff-shadow-surface: 0 1px 8px 0 rgb(11 19 38 / 4%);
+  --ff-shadow-scrim: rgb(11 19 38 / 40%);
+
+  --ff-status-ready: #00795a;
+  --ff-status-ready-wash: rgb(0 121 90 / 10%);
+  --ff-status-critical: #b3261e;
+  --ff-status-critical-wash: rgb(179 38 30 / 10%);
+  --ff-status-info: #1b6ba8;
+  --ff-status-info-wash: rgb(27 107 168 / 10%);
+  --ff-status-idle: #5b6478;
+  --ff-status-warn: #c2410c;
+  --ff-status-warn-wash: rgb(194 65 12 / 10%);
+  --ff-status-warn-border: rgb(194 65 12 / 28%);
+  --ff-status-ready-border: rgb(0 121 90 / 28%);
+  --ff-status-critical-border: rgb(179 38 30 / 28%);
+  --ff-status-info-border: rgb(27 107 168 / 28%);
+
+  /* Status *text* tokens had no light override. Their dark values are pale
+     pastels picked for the dark surfaces — on the light ramp they measured
+     1.22:1, i.e. unreadable. A9-10 routed ~180 `color` declarations onto these
+     four tokens, so the gap became reachable rather than theoretical.
+     Values are the existing light fill tokens, darkened just enough to clear
+     4.5:1 on the lightest-derived surface (--ff-surface-container-highest
+     #d5dbe7); worst case measured at 4.60:1 or better. */
+  --ff-status-warn-text: #a9380a;
+  --ff-status-critical-text: #b3261e;
+  --ff-status-ready-text: #006c51;
+  --ff-status-info-text: #196299;
+  --ff-status-idle-text: #575f72;
+
+  --ff-brand-fill: rgb(255 255 255 / 55%);
+  --ff-subbar-fill: rgb(255 255 255 / 92%);
+  --ff-ink-faint: #5b6478;
+  --ff-hover-wash: rgb(11 19 38 / 4%);
+
+  color: var(--ff-on-surface);
+  background: var(--ff-surface);
+}

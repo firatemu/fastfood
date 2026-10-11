@@ -1,8 +1,17 @@
 # ADR-009: Independent BURGER HOME Admin / Operations visual system (Stitch)
 
-Status: Accepted
+Status: Superseded by ADR-019
 Date: 2026-09-21
 Decision owners: Human owner (explicit A0 Admin rebuild prompt)
+Superseded by: `ADR-019-admin-visual-system-navy.md` (2026-10-06)
+
+> **SUPERSEDED (2026-10-06) by ADR-019.** The Stitch package
+> `stitch_burger_admin/` and the `kitchen-fleet` palette are no longer the
+> Admin visual authority. See `ADR-019-admin-visual-system-navy.md`.
+> This record is retained as history per change-control protocol §6.
+> The `stitch_burger_admin/` package named below was retired on 2026-10-06
+> by human-owner instruction and removed from the repository. A copy is kept at
+> `backups/2026-10-06-adr019/stitch_burger_admin.bak`.
 
 ## Context
 

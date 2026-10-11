@@ -15,6 +15,7 @@ import { CANONICAL_ADMIN_PAGE_PERMISSION_CODES } from '@fastfood/domain-types';
 
 import { PrismaClient } from './generated/client/client.js';
 import { seedCatalogCustomization } from './seed-catalog-customization.js';
+import { seedMenuFromXlsx } from './seed-menu-xlsx.js';
 import { seedClubEngagement } from './seed-club-engagement.js';
 import { seedStorefrontCompleteness } from './seed-storefront-completeness.js';
 import { seedStorefrontHome } from './seed-storefront-home.js';
@@ -1186,6 +1187,10 @@ async function main(): Promise<void> {
     },
     update: { displayName: 'Dev Courier', isActive: true },
   });
+
+  // Excel menüsü katalog için tek kaynak: isim, fiyat, varyant ve
+  // modifier gruplarını buradan yeniden yazar.
+  await seedMenuFromXlsx(prisma);
 
   await seedClubEngagement(prisma);
   // Vitrin merchandising kayıtları yeni ürünlere bağlanacak şekilde

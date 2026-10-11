@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;family=Plus+Jakarta+Sans:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-primary":"#552100","on-secondary-container":"#ffc8c1","on-secondary":"#690005","on-surface-variant":"#e0c0b1","surface-container-highest":"#2d3449","surface-container-low":"#131b2e","surface-container-lowest":"#060e20","on-error-container":"#ffdad6","inverse-primary":"#9d4300","tertiary":"#4edea3","surface-bright":"#31394d","secondary":"#ffb4ab","secondary-container":"#bb0112","on-primary-container":"#582200","on-secondary-fixed":"#410002","on-secondary-fixed-variant":"#93000b","tertiary-fixed":"#6ffbbe","primary-fixed-dim":"#ffb690","on-surface":"#dae2fd","surface-tint":"#ffb690","on-tertiary-fixed-variant":"#005236","error-container":"#93000a","outline-variant":"#584237","tertiary-container":"#00b07a","surface-container":"#171f33","on-tertiary-container":"#003b26","surface":"#0b1326","inverse-surface":"#dae2fd","primary":"#ffb690","secondary-fixed":"#ffdad6","primary-fixed":"#ffdbca","surface-container-high":"#222a3d","primary-container":"#f97316","outline":"#a78b7d","secondary-fixed-dim":"#ffb4ab","surface-variant":"#2d3449","on-primary-fixed":"#341100","tertiary-fixed-dim":"#4edea3","on-primary-fixed-variant":"#783200","on-background":"#dae2fd","error":"#ffb4ab","on-tertiary":"#003824","inverse-on-surface":"#283044","surface-dim":"#0b1326","on-error":"#690005","on-tertiary-fixed":"#002113","background":"#0b1326"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.375rem","space-lg":"0.875rem","gutter":"0.75rem","space-md":"0.625rem","space-xl":"1.25rem","space-xs":"0.25rem","margin":"1rem"},"fontFamily":{"body-lg":["Inter"],"body-md":["Inter"],"headline-lg":["Plus Jakarta Sans"],"label-sm":["JetBrains Mono"],"label-md":["JetBrains Mono"],"body-sm":["Inter"],"label-lg":["JetBrains Mono"],"headline-md":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"]},"fontSize":{"body-lg":["15px",{"lineHeight":"22px","fontWeight":"400"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["22px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"700"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.04em","fontWeight":"500"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.03em","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-lg":["13px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-xl-mobile":["22px",{"lineHeight":"28px","fontWeight":"800"}],"headline-lg-mobile":["18px",{"lineHeight":"24px","fontWeight":"700"}],"headline-xl":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"800"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-lowest flex flex-col z-50 select-none"><div class="h-14 px-gutter flex items-center gap-space-sm bg-surface-container-low/60 shrink-0"><img alt="FASTFOOD Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XdU-vOp1X0DZTgg2Y_i3RtNQi1l_pNW9agNjv3wfU6i4qjFHzMik5rWenKTd_JNcprS8tP5OOVxNXxvdrCbwW6bcfTwTCU-reLceKCZtjeAilpp0PlEWtkYM3pX4AUuwU_ohYcRPe7I0x0wKG3GFSPjQuuYlR12gSVOFBwEzFy3W6KEYxFquJyeh7a2w7_GpUFCSbQCyHrmZ7IZ5_gJrWRmj3-dSWlzb6TRiydkVqp"/><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-on-surface font-bold truncate leading-tight">FASTFOOD</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Operasyon Paneli</span></div></div><div class="p-gutter shrink-0"><div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded text-on-surface-variant focus-within:ring-1 focus-within:ring-primary-container"><span class="material-symbols-outlined text-[16px]">search</span><input class="w-full bg-transparent border-0 outline-none text-body-sm text-on-surface placeholder:text-on-surface-variant font-body-sm" placeholder="Modül veya sipariş ara..." type="text"/><span class="font-label-sm text-label-sm bg-surface-container-highest px-space-xs py-0.5 rounded text-on-surface-variant shrink-0">Ctrl+K</span></div></div><nav class="flex-1 overflow-y-auto px-gutter space-y-space-md text-body-sm" data-active-classes="bg-primary-container text-on-primary font-semibold rounded"><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Genel Bakış</span><a class="flex items-center justify-between px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="bugunun-operasyonu" href="#"><span class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">space_dashboard</span><span>Bugünün Operasyonu</span></span><span class="h-2 w-2 rounded-full bg-tertiary"></span></a></div><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Operasyon</span><a class="flex items-center justify-between px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="siparisler" href="#"><span class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">receipt_long</span><span>Siparişler</span></span><span class="font-label-sm text-label-sm bg-primary-container text-on-primary px-space-xs py-0.5 rounded font-bold">14</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="mutfak-kds" href="#"><span class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">soup_kitchen</span><span>Mutfak (KDS)</span></span><span class="font-label-sm text-label-sm bg-error-container text-on-error-container px-space-xs py-0.5 rounded font-bold">6</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kurye-teslimat" href="#"><span class="material-symbols-outlined text-[18px]">two_wheeler</span><span>Kurye / Teslimat</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="urun-musaitligi" href="#"><span class="material-symbols-outlined text-[18px]">rule</span><span>Ürün Müsaitliği</span></a></div><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Katalog</span><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="katalog-ozeti" href="#"><span class="material-symbols-outlined text-[18px]">menu_book</span><span>Katalog Özeti</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="urunler" href="#"><span class="material-symbols-outlined text-[18px]">lunch_dining</span><span>Ürünler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kategoriler" href="#"><span class="material-symbols-outlined text-[18px]">category</span><span>Kategoriler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="modifiye-gruplari" href="#"><span class="material-symbols-outlined text-[18px]">tune</span><span>Modifiye Grupları</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="alerjenler" href="#"><span class="material-symbols-outlined text-[18px]">warning</span><span>Alerjenler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="vitrin-slaytlari" href="#"><span class="material-symbols-outlined text-[18px]">view_carousel</span><span>Vitrin Slaytları</span></a></div><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Şube &amp; Müşteri</span><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="subeler" href="#"><span class="material-symbols-outlined text-[18px]">store</span><span>Şubeler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="servis-alanlari" href="#"><span class="material-symbols-outlined text-[18px]">map</span><span>Servis Alanları</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="musteriler" href="#"><span class="material-symbols-outlined text-[18px]">groups</span><span>Müşteriler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="burger-home-club" href="#"><span class="material-symbols-outlined text-[18px]">loyalty</span><span>BURGER HOME CLUB</span></a></div><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Pazarlama &amp; Finans</span><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="promosyonlar" href="#"><span class="material-symbols-outlined text-[18px]">local_offer</span><span>Promosyonlar</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="odemeler" href="#"><span class="material-symbols-outlined text-[18px]">payments</span><span>Ödemeler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="iadeler" href="#"><span class="material-symbols-outlined text-[18px]">assignment_return</span><span>İadeler</span></a></div><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Yönetim</span><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="raporlar" href="#"><span class="material-symbols-outlined text-[18px]">insights</span><span>Raporlar</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="personel-ve-erisim" href="#"><span class="material-symbols-outlined text-[18px]">badge</span><span>Personel ve Erişim</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="roller-ve-izinler" href="#"><span class="material-symbols-outlined text-[18px]">shield_person</span><span>Roller ve İzinler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="denetim-kaydi" href="#"><span class="material-symbols-outlined text-[18px]">history</span><span>Denetim Kaydı</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="sistem-ayarlari" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span>Sistem Ayarları</span></a></div></nav><div class="p-gutter bg-surface-container-low/70 shrink-0 space-y-space-xs"><div class="flex items-center justify-between text-body-sm"><span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-tertiary animate-pulse"></span>Gündüz Vardiyası #2</span><span class="font-label-sm text-label-sm text-on-surface-variant">v2.4.8-tr</span></div><div class="text-body-sm text-on-surface-variant truncate">Kadıköy Şube Terminali</div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-14 bg-surface/90 backdrop-blur-xl z-40 flex items-center justify-between px-gutter shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs font-label-md text-label-md text-on-surface-variant"><span class="text-on-surface font-semibold">FASTFOOD</span><span>/</span><span>Operasyon</span><span>/</span><span class="text-primary font-semibold">Bugünün Özeti</span></div><div class="h-4 w-[1px] bg-surface-container-highest"></div><div class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-space-sm py-1 rounded"><span class="h-2 w-2 rounded-full bg-tertiary animate-ping"></span><span>Canlı</span><span class="text-on-surface">• Az önce</span><button class="flex items-center text-on-surface-variant hover:text-on-surface ml-1" title="Yenile"><span class="material-symbols-outlined text-[14px]">refresh</span></button></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-surface-container-low px-space-md py-1 rounded text-body-sm text-on-surface cursor-pointer hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[18px] text-primary">storefront</span><span class="font-semibold">Kadıköy Merkez Şube</span><span class="font-label-sm text-label-sm bg-surface-container-highest px-space-xs py-0.5 rounded text-on-surface-variant">14 Şube</span><span class="material-symbols-outlined text-[16px]">expand_more</span></div><button class="p-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" title="Tema Değiştir"><span class="material-symbols-outlined text-[20px]">dark_mode</span></button><button class="relative p-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" title="Bildirimler"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-0 right-0 h-4 min-w-[16px] px-1 bg-secondary-container text-on-secondary-container font-label-sm text-label-sm rounded-full flex items-center justify-center font-bold">3</span></button><div class="h-6 w-[1px] bg-surface-container-highest"></div><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmrPzBWwR-IfQ2CN7j_bsYKvSV8lMHmRg4QMQLVSKG2Gc2Jhf0pJjFuwZSiNotkdqojwwofWFuCubVmK7Qu02YZN5_eJBjF-KU3ZJLv13_w_9HAXfCqrxeg7C3BPsfG7zlMUpTj-FwbG8pg_Ke7cH-tipogC9MwxvRP4lbdshVemy4h9p8Q51dIXaNnbNKynqQqDVlX82kCt5Pj4NCANeO0g_Q1cs76ldAoX1w_JM"/><div class="flex flex-col text-left"><span class="font-headline-sm text-body-sm font-semibold text-on-surface leading-tight">Emre Can Yılmaz</span><span class="font-label-sm text-label-sm text-primary leading-none">Vardiya Müdürü</span></div><button class="p-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-error transition-colors ml-1" title="Çıkış Yap"><span class="material-symbols-outlined text-[18px]">logout</span></button></div></div></header><div class="fixed top-14 left-72 right-0 h-10 bg-surface-container-low z-30 flex items-center justify-between px-gutter shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-1 overflow-x-auto h-full"><button class="h-8 px-space-md rounded bg-surface-container-high text-on-surface text-body-sm flex items-center gap-space-xs font-semibold"><span class="material-symbols-outlined text-[16px] text-primary">home</span><span>Bugünün Operasyonu</span></button><button class="h-8 px-space-md rounded bg-surface text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-space-xs group"><span class="material-symbols-outlined text-[16px]">receipt</span><span>Siparişler (#1042...)</span><span class="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-error rounded-full p-0.5">close</span></button><button class="h-8 px-space-md rounded bg-surface text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-space-xs group"><span class="material-symbols-outlined text-[16px]">soup_kitchen</span><span>Mutfak Ekranı (KDS)</span><span class="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-error rounded-full p-0.5">close</span></button><button class="h-8 px-space-md rounded bg-surface text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-space-xs group"><span class="material-symbols-outlined text-[16px]">settings</span><span>Kadıköy Şube Ayarları</span><span class="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-error rounded-full p-0.5">close</span></button></div><div class="flex items-center gap-space-xs shrink-0"><button class="h-7 px-space-sm rounded bg-surface hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">add</span><span class="font-label-sm text-label-sm">Yeni Sekme</span></button><button class="h-7 px-space-xs rounded bg-surface hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-colors" title="Sekme İşlemleri"><span class="material-symbols-outlined text-[16px]">more_vert</span></button></div></div><main class="relative pt-24 w-full bg-surface min-h-screen p-gutter"><div class="flex flex-col w-full">
+<!-- Script to harmonize global shell active states (Sol Menü 'Ürünler' & Üst Sekmeler) -->
+<script>
+    (function alignShellStates() {
+      // 1. Sidebar 'Ürünler' active styling
+      document.querySelectorAll('aside nav a[data-path]').forEach(el => {
+        if (el.getAttribute('data-path') === 'urunler') {
+          el.className = 'flex items-center gap-space-sm px-space-sm py-space-xs rounded bg-primary-container text-on-primary font-bold shadow-md';
+          const icon = el.querySelector('.material-symbols-outlined');
+          if (icon) icon.className = 'material-symbols-outlined text-[18px] text-on-primary';
+        } else {
+          el.classList.remove('bg-primary-container', 'text-on-primary', 'font-bold');
+        }
+      });
+
+      // 2. Top Secondary Header Tabs harmonization
+      const tabsContainer = document.querySelector('header + div .overflow-x-auto');
+      if (tabsContainer) {
+        tabsContainer.innerHTML = `
+          <button class="h-8 px-space-md rounded bg-surface text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-space-xs transition-colors">
+            <span class="material-symbols-outlined text-[16px]">home</span>
+            <span>Bugünün Operasyonu</span>
+          </button>
+          <button class="h-8 px-space-md rounded bg-surface-container-high text-primary font-bold text-body-sm flex items-center gap-space-xs shadow-sm">
+            <span class="material-symbols-outlined text-[16px] text-primary-container" style="font-variation-settings: 'FILL' 1;">lunch_dining</span>
+            <span class="text-on-surface">Ürünler (Katalog)</span>
+            <span class="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-error ml-1 p-0.5 rounded-full">close</span>
+          </button>
+          <button class="h-8 px-space-md rounded bg-surface text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-space-xs transition-colors">
+            <span class="material-symbols-outlined text-[16px]">soup_kitchen</span>
+            <span>Mutfak (KDS)</span>
+            <span class="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-error ml-1 p-0.5 rounded-full">close</span>
+          </button>
+          <button class="h-8 px-space-md rounded bg-surface text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-space-xs transition-colors">
+            <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+            <span>Siparişler (#1042)</span>
+            <span class="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-error ml-1 p-0.5 rounded-full">close</span>
+          </button>
+        `;
+      }
+    })();
+  </script>
+<!-- 1. ÜST BAŞLIK, HIZLI İŞLEMLER VE 4'LÜ KPI METRİK KARTLARI -->
+<div class="flex flex-col gap-space-lg mb-space-xl">
+<!-- Header Row -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md bg-surface-container-low p-space-lg rounded-xl shadow-sm">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="px-space-xs py-0.5 bg-primary-container/20 text-primary-container rounded font-label-sm text-label-sm uppercase tracking-wider">Katalog Yönetimi</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm font-mono">v2.4 • KADIKÖY MERKEZ MUTFAK</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface font-extrabold tracking-tight">Ürün Kataloğu &amp; Reçete Yönetimi</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Tüm menü kalemlerinin anlık fiyatlandırması, reçete porsiyon maliyeti, KDS istasyon hazırlık süreleri ve sipariş kanalı stok kuralları.</p>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center flex-wrap gap-space-sm shrink-0">
+<button class="h-9 px-space-md bg-surface-container-high hover:bg-surface-bright text-on-surface text-body-sm font-semibold rounded-lg flex items-center gap-space-xs transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-secondary">download</span>
+<span>Dışa Aktar (Excel/CSV)</span>
+</button>
+<button class="h-9 px-space-md bg-surface-container-high hover:bg-surface-bright text-on-surface text-body-sm font-semibold rounded-lg flex items-center gap-space-xs transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-primary-container">price_change</span>
+<span>Toplu Fiyat Güncelle</span>
+</button>
+<button class="h-9 px-space-lg bg-primary-container hover:bg-primary-fixed text-on-primary font-headline-sm text-body-sm font-bold rounded-lg flex items-center gap-space-xs transition-all shadow-md active:scale-95">
+<span class="material-symbols-outlined text-[20px] font-bold">add_circle</span>
+<span>+ Yeni Ürün Ekle</span>
+</button>
+</div>
+</div>
+<!-- 4'lü Metrik Kartları (Bento/KPI Tiles) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Metrik 1: Toplam Ürün -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Toplam Ürün</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+</div>
+</div>
+<div class="my-space-xs flex items-baseline gap-space-sm">
+<span class="font-headline-xl text-headline-xl text-on-surface font-extrabold font-mono tracking-tight">86</span>
+<span class="font-label-md text-label-md text-on-surface-variant font-mono">Kalem</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-mono pt-space-xs">
+<span class="text-on-surface-variant font-label-sm text-label-sm">8 Kategori genelinde</span>
+<span class="text-primary-container font-label-sm text-label-sm flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>+3 yeni
+          </span>
+</div>
+</div>
+<!-- Metrik 2: Aktif Satışta -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Aktif Satışta</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary-fixed-dim">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="my-space-xs flex items-baseline gap-space-sm">
+<span class="font-headline-xl text-headline-xl text-tertiary-fixed-dim font-extrabold font-mono tracking-tight">81</span>
+<span class="font-label-md text-label-md text-on-surface-variant font-mono">Kalem (%94.1)</span>
+</div>
+<div class="flex items-center gap-space-xs text-body-sm pt-space-xs">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">Tüm KDS ve POS istasyonları açık</span>
+</div>
+</div>
+<!-- Metrik 3: Kritik Stok / Tükendi -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Kritik Stok / Tükendi</span>
+<div class="w-8 h-8 rounded-lg bg-error-container/30 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+</div>
+</div>
+<div class="my-space-xs flex items-baseline gap-space-sm">
+<span class="font-headline-xl text-headline-xl text-error font-extrabold font-mono tracking-tight">5</span>
+<span class="font-label-md text-label-md text-error font-mono">Kalem İkazı</span>
+</div>
+<div class="flex items-center justify-between text-body-sm pt-space-xs">
+<span class="font-label-sm text-label-sm text-error bg-error-container/40 px-space-xs py-0.5 rounded font-mono">2 Tükendi • 3 Kritik</span>
+<button class="font-label-sm text-label-sm text-primary hover:underline font-mono">İncele</button>
+</div>
+</div>
+<!-- Metrik 4: Ortalama Kâr Marjı -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Ortalama Kâr Marjı</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+</div>
+</div>
+<div class="my-space-xs flex items-baseline gap-space-sm">
+<span class="font-headline-xl text-headline-xl text-primary font-extrabold font-mono tracking-tight">%68.4</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">Hedef: %65</span>
+</div>
+<!-- Inline Sparkline Mini Chart (Pure SVG) -->
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Son 7 Gün Marj Trendi</span>
+<svg class="w-20 h-5 text-primary-container" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 100 24">
+<polyline points="0,20 18,14 36,17 54,9 72,12 90,4 100,6"></polyline>
+</svg>
+</div>
+</div>
+</div>
+</div>
+<!-- 2. KATEGORİ SEKMELERİ & DETAYLI FİLTRELEME ALANI -->
+<div class="flex flex-col gap-space-md mb-space-lg bg-surface-container-low p-space-md rounded-xl shadow-sm">
+<!-- Yatay Kategori Çubuğu -->
+<div class="flex items-center gap-space-xs overflow-x-auto pb-1 scrollbar-none">
+<button class="px-space-md py-space-xs rounded-lg bg-primary-container text-on-primary font-headline-sm text-body-sm font-bold whitespace-nowrap shadow-sm">
+        Tümü <span class="ml-1 font-mono text-label-sm bg-black/20 px-1 py-0.5 rounded">86</span>
+</button>
+<button class="px-space-md py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface text-body-sm whitespace-nowrap transition-colors">
+        Smash Burgerler <span class="ml-1 font-mono text-label-sm text-on-surface-variant">18</span>
+</button>
+<button class="px-space-md py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface text-body-sm whitespace-nowrap transition-colors">
+        Klasik Burgerler <span class="ml-1 font-mono text-label-sm text-on-surface-variant">14</span>
+</button>
+<button class="px-space-md py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface text-body-sm whitespace-nowrap transition-colors">
+        Çıtır Yanlar &amp; Atıştırmalıklar <span class="ml-1 font-mono text-label-sm text-on-surface-variant">12</span>
+</button>
+<button class="px-space-md py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface text-body-sm whitespace-nowrap transition-colors">
+        Patatesler <span class="ml-1 font-mono text-label-sm text-on-surface-variant">9</span>
+</button>
+<button class="px-space-md py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface text-body-sm whitespace-nowrap transition-colors">
+        İçecekler <span class="ml-1 font-mono text-label-sm text-on-surface-variant">15</span>
+</button>
+<button class="px-space-md py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface text-body-sm whitespace-nowrap transition-colors">
+        Soslar <span class="ml-1 font-mono text-label-sm text-on-surface-variant">11</span>
+</button>
+<button class="px-space-md py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface text-body-sm whitespace-nowrap transition-colors">
+        Tatlılar <span class="ml-1 font-mono text-label-sm text-on-surface-variant">4</span>
+</button>
+</div>
+<!-- Filtre Araç Çubuğu (Arama, İstasyon, Kanal, Stok) -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm pt-space-xs">
+<!-- Search Input -->
+<div class="md:col-span-5 flex items-center gap-space-xs bg-surface-container-highest px-space-md py-space-xs rounded-lg">
+<span class="material-symbols-outlined text-[18px] text-primary-container">search</span>
+<input class="w-full bg-transparent border-0 outline-none text-body-sm text-on-surface placeholder:text-on-surface-variant font-body-sm" placeholder="Ürün adı, SKU (#SM-), barkod veya reçete hammaddesi ara..." type="text"/>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded font-mono">ESC</span>
+</div>
+<!-- KDS İstasyonu Filtresi -->
+<div class="md:col-span-2 flex items-center justify-between bg-surface-container-highest px-space-md py-space-xs rounded-lg text-body-sm text-on-surface cursor-pointer hover:bg-surface-bright transition-colors">
+<div class="flex items-center gap-space-xs truncate">
+<span class="material-symbols-outlined text-[16px] text-secondary">soup_kitchen</span>
+<span class="truncate">KDS İstasyonu: Tümü</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+<!-- Kanal Filtresi -->
+<div class="md:col-span-2 flex items-center justify-between bg-surface-container-highest px-space-md py-space-xs rounded-lg text-body-sm text-on-surface cursor-pointer hover:bg-surface-bright transition-colors">
+<div class="flex items-center gap-space-xs truncate">
+<span class="material-symbols-outlined text-[16px] text-primary-container">storefront</span>
+<span class="truncate">Kanallar: Aktif (5/5)</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+<!-- Stok Durum Filtresi -->
+<div class="md:col-span-2 flex items-center justify-between bg-surface-container-highest px-space-md py-space-xs rounded-lg text-body-sm text-on-surface cursor-pointer hover:bg-surface-bright transition-colors">
+<div class="flex items-center gap-space-xs truncate">
+<span class="material-symbols-outlined text-[16px] text-error">layers</span>
+<span class="truncate">Stok: Tümü</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">expand_more</span>
+</div>
+<!-- Hızlı Reset Butonu -->
+<div class="md:col-span-1 flex items-center justify-center">
+<button class="w-full h-full min-h-[36px] bg-surface-container-high hover:bg-surface-bright text-on-surface-variant hover:text-on-surface rounded-lg flex items-center justify-center transition-colors" title="Filtreleri Temizle">
+<span class="material-symbols-outlined text-[18px]">filter_alt_off</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 3. DETAYLI ÜRÜN TABLOSU -->
+<div class="bg-surface-container-low rounded-xl shadow-sm overflow-hidden flex flex-col mb-space-lg">
+<!-- Tablo Kontrol & Başlık Şeridi -->
+<div class="px-space-md py-space-sm bg-surface-container-high flex items-center justify-between text-body-sm">
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs">
+<input class="w-4 h-4 accent-primary-container rounded bg-surface-container cursor-pointer" id="selectAll" type="checkbox"/>
+<label class="font-label-md text-label-md text-on-surface cursor-pointer font-bold select-none" for="selectAll">Tümünü Seç (86)</label>
+</div>
+<span class="text-on-surface-variant font-mono font-label-sm text-label-sm">81 ürün listeleniyor</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono uppercase">Görünüm:</span>
+<button class="p-1 rounded bg-surface-container text-primary-container" title="Detaylı Tablo"><span class="material-symbols-outlined text-[16px]">view_list</span></button>
+<button class="p-1 rounded bg-surface-container text-on-surface-variant hover:text-on-surface" title="KDS Kompakt Grid"><span class="material-symbols-outlined text-[16px]">grid_view</span></button>
+</div>
+</div>
+<!-- Responsive Scrollable Data Grid -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-md text-label-md uppercase tracking-wider select-none">
+<th class="py-space-sm px-space-md w-12 text-center">
+<span class="material-symbols-outlined text-[16px]">check_box_outline_blank</span>
+</th>
+<th class="py-space-sm px-space-md min-w-[260px]">Ürün &amp; SKU</th>
+<th class="py-space-sm px-space-md min-w-[180px]">Taban Fiyat &amp; Maliyet</th>
+<th class="py-space-sm px-space-md min-w-[170px]">Hazırlık &amp; KDS İstasyonu</th>
+<th class="py-space-sm px-space-md min-w-[190px]">Modifiye &amp; Alerjenler</th>
+<th class="py-space-sm px-space-md min-w-[210px]">Kanal Müsaitliği</th>
+<th class="py-space-sm px-space-md min-w-[160px]">Kalan Porsiyon / Satış</th>
+<th class="py-space-sm px-space-md text-right min-w-[140px]">İşlemler</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-body-sm font-body-sm">
+<!-- SATIR 1: Double Truffle Smash Burger -->
+<tr class="hover:bg-surface-container-high/60 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<input class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-md">
+<img class="w-12 h-12 rounded-lg object-cover bg-surface-container-highest shrink-0" data-alt="Close up gourmet smash burger with double beef patty, melted aged yellow cheddar, black truffle mayonnaise dressing on a toasted brioche bun, studio restaurant photography, dark moody slate background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLG-2KqmCvXanvLdPRmreKlzNCPYo4SO3D2d5dSCVWCfwSKtXLQO2W29I-Ex3N3Y-NwVRlOyRq6ODpKcjKS_c-WktL2ZT9ZoV1C-UICb81Ihm__VYj8-X1T4smT8rELHfATeGpmAbmgHVBKkURJUd27onUP9BoD7pRrFmMaZY8_lyud44pRK-a7OzX_Ifa7kRifNJdQEPWDedBbekvnwphis4X2IDZxvz9hdMEDK4"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-body-lg text-on-surface font-bold truncate">Double Truffle Smash Burger</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-primary-container text-on-primary font-bold">Popüler</span>
+</div>
+<div class="flex items-center gap-space-sm mt-0.5">
+<span class="font-label-sm text-label-sm text-primary font-mono font-semibold">#SM-042</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Smash Burgerler</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md font-mono">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface font-extrabold">₺360.00</span>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm mt-0.5">
+<span>Reçete: ₺115.20</span>
+<span class="px-1 rounded bg-secondary-container text-primary font-bold font-mono text-[10px]">%68 Marj</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-1 font-mono text-on-surface font-semibold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary-container">timer</span>
+<span>06:30 dk</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                  Izgara &amp; Burger #1
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">6 Modifiye Seçeneği</span>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm" title="Gluten">🌾 Gluten</span>
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm" title="Laktoz / Süt Ürünü">🧀 Laktoz</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-primary-container text-on-primary font-bold">POS</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Getir</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Trendyol</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Web</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-highest text-on-surface-variant line-through opacity-60">YS</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-tertiary-fixed-dim font-bold font-mono">48 Porsiyon</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Yeterli Stok</span>
+</div>
+<!-- Aktif/Pasif Toggle Switch -->
+<button class="w-10 h-5 bg-primary-container rounded-full relative p-0.5 transition-colors focus:outline-none" title="Satış Açık">
+<span class="block w-4 h-4 bg-on-primary rounded-full shadow-md ml-auto"></span>
+</button>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors" title="Reçete &amp; Gramaj"><span class="material-symbols-outlined text-[18px]">scale</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors" title="Düzenle"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors" title="Katalog Seçenekleri"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- SATIR 2: Trüflü Mayonezli Patates -->
+<tr class="hover:bg-surface-container-high/60 transition-colors group bg-surface-container/20">
+<td class="py-space-md px-space-md text-center">
+<input class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-md">
+<img class="w-12 h-12 rounded-lg object-cover bg-surface-container-highest shrink-0" data-alt="Golden crisp French fries seasoned with fresh rosemary and sea salt, topped with aromatic black truffle mayonnaise in a matte black ceramic bowl, professional dark food photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIBfkHkmyb68nXc0G89s07PmvgphODw-yVnMMM9HIXPs9vmeqMZt6-x3RSbJ61vk4jJKx3zOZq-MhVSGk6V66KgZv1_2JIZPckaxYM2WUlRWBshuU_Yiev8vSzD-5rtkFbmvdNEd_uHTOAIMnkZPyAcQ39Lc-p3iTTzcY6Mda5d4_0N1JLCBKBmmm9Tcvfyfu65hETKNm-cFYAbkoikO5VWFX1aE5taV-tNlEBOnU"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-body-lg text-on-surface font-bold truncate">Trüflü Mayonezli Patates</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-secondary-container text-primary font-bold">Kritik</span>
+</div>
+<div class="flex items-center gap-space-sm mt-0.5">
+<span class="font-label-sm text-label-sm text-primary font-mono font-semibold">#PT-108</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Patatesler</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md font-mono">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface font-extrabold">₺110.00</span>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm mt-0.5">
+<span>Reçete: ₺26.40</span>
+<span class="px-1 rounded bg-secondary-container text-primary font-bold font-mono text-[10px]">%76 Marj</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-1 font-mono text-on-surface font-semibold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary-container">timer</span>
+<span>04:15 dk</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                  Fritöz İstasyonu #1
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">3 Baharat Seçeneği</span>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm" title="Yumurta">🥚 Yumurta</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-primary-container text-on-primary font-bold">POS</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Getir</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Trendyol</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Web</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-primary-fixed-dim font-bold font-mono">12 Porsiyon</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Kritik Seviye</span>
+</div>
+<button class="w-10 h-5 bg-primary-container rounded-full relative p-0.5 transition-colors focus:outline-none" title="Satış Açık">
+<span class="block w-4 h-4 bg-on-primary rounded-full shadow-md ml-auto"></span>
+</button>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">scale</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- SATIR 3: Brioche Karamelize Mantarlı Burger (TÜKENDİ & PASİF) -->
+<tr class="hover:bg-surface-container-high/60 transition-colors group opacity-75">
+<td class="py-space-md px-space-md text-center">
+<input class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-md">
+<div class="relative shrink-0">
+<img class="w-12 h-12 rounded-lg object-cover bg-surface-container-highest grayscale" data-alt="Artisan burger with sautéed wild mushrooms, caramelized balsamic onions, Swiss cheese on a toasted brioche bun, dramatic low key culinary lighting, dark warm tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfHfsmOsL4AHHbpwValTY3dzzSuTu7otKyHUf4AZUaxQq0WuVwuqdYg7HfzhouO8Zd2TtuU9Q8ay9BAlj2WMVt4NjQp_1cbQaH-vrCBwH233NmkgxlXD1OOzPqVSMNVbmpobbIwILrttf5eeGlGuaa7wBNlz9Xg-vV0aKxsPGs8EEaZBxV6VbOqTNkUqklbQ5LWqBTCD2IvBtGvq920yyIzVNpzG4OntkXtdMhqB0"/>
+<span class="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center font-label-sm text-label-sm text-error font-bold font-mono">0 STOK</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-body-lg text-on-surface font-bold truncate line-through">Brioche Karamelize Mantarlı Burger</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-error-container text-on-error-container font-bold">Tükendi</span>
+</div>
+<div class="flex items-center gap-space-sm mt-0.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono font-semibold">#KL-019</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Klasik Burgerler</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md font-mono">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface-variant font-extrabold line-through">₺340.00</span>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm mt-0.5">
+<span>Reçete: ₺119.00</span>
+<span class="px-1 rounded bg-surface-container-highest text-on-surface-variant font-mono text-[10px]">%65 Marj</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-1 font-mono text-on-surface-variant font-semibold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">timer</span>
+<span>07:00 dk</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+                  Izgara &amp; Burger #2
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">4 Modifiye Seçeneği</span>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm">🌾 Gluten</span>
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm">🧀 Laktoz</span>
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm">🍄 Mantar</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-highest text-error font-mono font-bold">TÜM KANALLAR KAPALI</span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-error font-bold font-mono">0 Porsiyon</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Hammadde Yok</span>
+</div>
+<!-- Toggle Pasif -->
+<button class="w-10 h-5 bg-surface-container-highest rounded-full relative p-0.5 transition-colors focus:outline-none" title="Satış Kapalı">
+<span class="block w-4 h-4 bg-on-surface-variant rounded-full shadow-md"></span>
+</button>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">scale</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- SATIR 4: Texas BBQ Bacon King -->
+<tr class="hover:bg-surface-container-high/60 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<input class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-md">
+<img class="w-12 h-12 rounded-lg object-cover bg-surface-container-highest shrink-0" data-alt="Thick beef burger with smoked beef bacon strips, crispy fried onion rings, smokey dark barbecue sauce and cheddar slice, dark mood tabletop styling, high detail commercial photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0mrJZzO6Vje-1ZJ3TaDI1i9VX44QBfSrHUdLEQfdL0IYoA71HUqA8WUuLUhmd0BrPsolXnVv9T7FJhaH18XBIbIgtQnzzBr_niS-zcabBcFxWt8q00IBKP5Rzc5n4h2fzatroP8PC8_80ZqiTIAhVwZF6KnM0qOGVa06DtUTLlUaOf4tDVAAAfZcO5y-rx5k3E7g86Tx6BE5vXUIPuqnZ1U24j865wgpMMLyDspE"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-body-lg text-on-surface font-bold truncate">Texas BBQ Bacon King</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-bold">Şefin Seçimi</span>
+</div>
+<div class="flex items-center gap-space-sm mt-0.5">
+<span class="font-label-sm text-label-sm text-primary font-mono font-semibold">#SM-015</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Smash Burgerler</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md font-mono">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface font-extrabold">₺375.00</span>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm mt-0.5">
+<span>Reçete: ₺123.75</span>
+<span class="px-1 rounded bg-secondary-container text-primary font-bold font-mono text-[10px]">%67 Marj</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-1 font-mono text-on-surface font-semibold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary-container">timer</span>
+<span>06:45 dk</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                  Izgara &amp; Burger #1
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">8 Modifiye Seçeneği</span>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm">🌾 Gluten</span>
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm">🥓 Dana Füme</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-primary-container text-on-primary font-bold">POS</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Getir</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Trendyol</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Web</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">YS</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-tertiary-fixed-dim font-bold font-mono">31 Porsiyon</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Yeterli Stok</span>
+</div>
+<button class="w-10 h-5 bg-primary-container rounded-full relative p-0.5 transition-colors focus:outline-none" title="Satış Açık">
+<span class="block w-4 h-4 bg-on-primary rounded-full shadow-md ml-auto"></span>
+</button>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">scale</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- SATIR 5: Çıtır Soğan Halkası (8'li) -->
+<tr class="hover:bg-surface-container-high/60 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<input class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-md">
+<img class="w-12 h-12 rounded-lg object-cover bg-surface-container-highest shrink-0" data-alt="Golden crisp deep fried onion rings stacked elegantly in a dark metal wire basket with dipping ranch dip on side, warm rustic lighting, restaurant tabletop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIY3LzVkqFhgDcELKvL2q1J_GRmU03OsU1TBHmd_5JxnjHb3EfKFqwtg5Z03pNvJDolnvf4XWiNhbnON1b8AS_88ZaMyAvceT90VbHScMSLR-jpJV-VeG9X1PIExnAfpkHo0HCRYFz3QY1NaogIjJINAA930wca19rA3FryOLQpxm_K2Lvpilwy0p69Fb10nq2iloCqq9b1ovSt4d8iS7smIaPywz7t3exo0maGMc"/>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-body-lg text-on-surface font-bold truncate">Çıtır Soğan Halkası (8'li)</span>
+<div class="flex items-center gap-space-sm mt-0.5">
+<span class="font-label-sm text-label-sm text-primary font-mono font-semibold">#SN-204</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Çıtır Yanlar</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md font-mono">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface font-extrabold">₺85.00</span>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm mt-0.5">
+<span>Reçete: ₺17.85</span>
+<span class="px-1 rounded bg-secondary-container text-primary font-bold font-mono text-[10px]">%79 Marj</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-1 font-mono text-on-surface font-semibold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary-container">timer</span>
+<span>03:45 dk</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                  Fritöz İstasyonu #2
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">2 Sos Dahil</span>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm">🌾 Gluten</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-primary-container text-on-primary font-bold">POS</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Getir</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Trendyol</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Web</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-tertiary-fixed-dim font-bold font-mono">65 Porsiyon</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Yüksek Stok</span>
+</div>
+<button class="w-10 h-5 bg-primary-container rounded-full relative p-0.5 transition-colors focus:outline-none" title="Satış Açık">
+<span class="block w-4 h-4 bg-on-primary rounded-full shadow-md ml-auto"></span>
+</button>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">scale</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- SATIR 6: Vegan Falafel Burger -->
+<tr class="hover:bg-surface-container-high/60 transition-colors group">
+<td class="py-space-md px-space-md text-center">
+<input class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-md">
+<img class="w-12 h-12 rounded-lg object-cover bg-surface-container-highest shrink-0" data-alt="Vegan plant-based crispy falafel patty burger with fresh arugula, tomato slices, pickled turnips, creamy tahini drizzle on a whole wheat bun, clean modern culinary shot, dark slate background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEGU-ZmcjZeeiJNlbLB0Ql6CT8UO9yibApii2ABVpfYM7H49vyYAMOYG-HbScVDWk7dMANTr339wBbYAdk-oM2nz-vdgM893tdsqYDpJKrNzVQPWWMOke9982v90RdbSZDBpdlRoDC82Lgrq6P4jm56OcsMWIogfvxvxq2jXG1gkvKvCewIFaa-m-7pxsdLcUhW0YqjwA_aMeF-EoSGv_4Brqp6fpPSbAU8WHKaE0"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-body-lg text-on-surface font-bold truncate">Vegan Falafel Burger</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-tertiary-container/30 text-tertiary-fixed-dim font-bold">Vegan</span>
+</div>
+<div class="flex items-center gap-space-sm mt-0.5">
+<span class="font-label-sm text-label-sm text-primary font-mono font-semibold">#VG-008</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Özel Reçeteler</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md font-mono">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface font-extrabold">₺260.00</span>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm mt-0.5">
+<span>Reçete: ₺78.00</span>
+<span class="px-1 rounded bg-secondary-container text-primary font-bold font-mono text-[10px]">%70 Marj</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-1 font-mono text-on-surface font-semibold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary-container">timer</span>
+<span>05:30 dk</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+                  Vejetaryen İstasyonu
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">5 Modifiye Seçeneği</span>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm">🌱 Susam</span>
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm">🌾 Gluten</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-primary-container text-on-primary font-bold">POS</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Getir</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Trendyol</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Web</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-tertiary-fixed-dim font-bold font-mono">22 Porsiyon</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Normal Stok</span>
+</div>
+<button class="w-10 h-5 bg-primary-container rounded-full relative p-0.5 transition-colors focus:outline-none" title="Satış Açık">
+<span class="block w-4 h-4 bg-on-primary rounded-full shadow-md ml-auto"></span>
+</button>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">scale</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- SATIR 7: Özel Trüf Sos (50ml) -->
+<tr class="hover:bg-surface-container-high/60 transition-colors group bg-surface-container/20">
+<td class="py-space-md px-space-md text-center">
+<input class="w-4 h-4 accent-primary-container rounded cursor-pointer" type="checkbox"/>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-md">
+<img class="w-12 h-12 rounded-lg object-cover bg-surface-container-highest shrink-0" data-alt="Small elegant ramekin cup filled with homemade rich black truffle dipping mayonnaise dip sauce, sprinkled with fine chives, dark moody studio restaurant setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAz-cbMnhY73DH0pkdFdK_0XNeoALAJrNGP9_FrvdefpN3JRc-0BOVUcyaW9EU3Jd7KKGahtNuhZQs2IkclEAKlH8Ii-WHO5vpdafFAZvdt4VSsIpYCGs8c0uOucAExckJaBvGLRvzFFaYgCcFVaW3e01Vk9GSYY_LogJzfqfGvzBR8jDCBsPl8yleChDsR8NNHj-BTdpriDw0jy2dt-dFO-_OfTedSy4DnvoXfM00"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-body-lg text-on-surface font-bold truncate">Özel Trüf Sos (50ml)</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-secondary-container text-primary font-bold">Kritik</span>
+</div>
+<div class="flex items-center gap-space-sm mt-0.5">
+<span class="font-label-sm text-label-sm text-primary font-mono font-semibold">#SS-005</span>
+<span class="text-on-surface-variant font-label-sm text-label-sm">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Soslar</span>
+</div>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md font-mono">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface font-extrabold">₺35.00</span>
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm mt-0.5">
+<span>Reçete: ₺7.70</span>
+<span class="px-1 rounded bg-secondary-container text-primary font-bold font-mono text-[10px]">%78 Marj</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-1 font-mono text-on-surface font-semibold text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-primary-container">timer</span>
+<span>00:30 dk</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                  Paketleme &amp; Sos İstasyonu
+                </span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Porsiyon Paket</span>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm">🥚 Yumurta</span>
+<span class="px-1.5 py-0.5 bg-surface-container rounded font-label-sm text-label-sm">🥛 Süt</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-primary-container text-on-primary font-bold">POS</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Getir</span>
+<span class="px-1.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary font-bold">Trendyol</span>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-primary-fixed-dim font-bold font-mono">5 Adet</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">Bitmek Üzere</span>
+</div>
+<button class="w-10 h-5 bg-primary-container rounded-full relative p-0.5 transition-colors focus:outline-none" title="Satış Açık">
+<span class="block w-4 h-4 bg-on-primary rounded-full shadow-md ml-auto"></span>
+</button>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">scale</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1.5 rounded hover:bg-surface-bright text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- 4. ALT SAYFALAMA & TOPLU AKSİYON KISAYOL BARI -->
+<div class="px-space-md py-space-sm bg-surface-container-low flex flex-col md:flex-row items-center justify-between gap-space-md">
+<!-- Sol: Toplu Aksiyon Barı -->
+<div class="flex items-center gap-space-sm w-full md:w-auto">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">Seçilenlerle:</span>
+<button class="px-space-sm py-1 bg-surface-container-high hover:bg-surface-bright text-on-surface rounded text-body-sm font-semibold flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim">toggle_on</span>
+<span>Kanala Aç</span>
+</button>
+<button class="px-space-sm py-1 bg-surface-container-high hover:bg-surface-bright text-on-surface rounded text-body-sm font-semibold flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px] text-error">toggle_off</span>
+<span>Kanaldan Kapat</span>
+</button>
+<button class="px-space-sm py-1 bg-surface-container-high hover:bg-surface-bright text-on-surface-variant hover:text-error rounded text-body-sm font-semibold flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility_off</span>
+<span>Menüden Gizle</span>
+</button>
+</div>
+<!-- Sağ: Sayfalama Kontrolleri -->
+<div class="flex items-center gap-space-md">
+<!-- Satır Sayısı Seçici -->
+<div class="flex items-center gap-space-xs text-body-sm text-on-surface-variant">
+<span class="font-label-sm text-label-sm font-mono">Sayfa başı:</span>
+<select class="bg-surface-container-high text-on-surface font-mono font-label-sm text-label-sm px-2 py-1 rounded outline-none cursor-pointer">
+<option selected="">10 Kalem</option>
+<option>25 Kalem</option>
+<option>50 Kalem</option>
+<option>Tümü</option>
+</select>
+</div>
+<!-- Sayfa Numaraları -->
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded bg-primary-container text-on-primary font-bold font-mono text-label-md flex items-center justify-center shadow-sm">
+            1
+          </button>
+<button class="w-8 h-8 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-mono text-label-md flex items-center justify-center transition-colors">
+            2
+          </button>
+<button class="w-8 h-8 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-mono text-label-md flex items-center justify-center transition-colors">
+            3
+          </button>
+<span class="px-1 text-on-surface-variant font-mono">...</span>
+<button class="w-8 h-8 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface font-mono text-label-md flex items-center justify-center transition-colors">
+            9
+          </button>
+<button class="w-8 h-8 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Reçete & Gramaj Bilgi Kartı (Inline Hızlı İpucu / QSR İstihbaratı) -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col md:flex-row items-center justify-between gap-space-md shadow-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 text-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">inventory</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-body-md text-on-surface font-bold">Akıllı Reçete &amp; Maliyet Uyarısı</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Kırmızı et ve brioche ekmek birim maliyetleri son 48 saatte güncellendi. Menü kâr marjları otomatik olarak güncel girdi fiyatlarıyla yeniden hesaplanmaktadır.</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="h-8 px-space-md rounded bg-surface-container-high hover:bg-surface-bright text-primary text-body-sm font-semibold flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">analytics</span>
+<span>Maliyet Raporunu Aç</span>
+</button>
+</div>
+</div>
+</div></main></div></body></html>

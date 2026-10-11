@@ -29,7 +29,7 @@ import { formatDeliveryWindow } from '../../lib/storefront/format';
 import { useStorefrontCoupon } from '../../lib/storefront/use-storefront-coupon';
 import { useDeferredLoad } from '../../lib/use-deferred-load';
 
-import { RequireCustomer } from './account-page';
+import { RequireCustomer } from './account-shell';
 import { CartLineCard } from './cart-line-card';
 import { CouponForm } from './coupon-form';
 import { MaterialIcon } from './material-icon';

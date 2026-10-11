@@ -48,10 +48,7 @@ export function OperationalTable<T>(props: OperationalTableProps<T>) {
               tabIndex={props.onRowClick ? 0 : undefined}
             >
               {props.columns.map((col) => (
-                <td
-                  key={col.key}
-                  className={col.numeric ? 'num' : col.mono ? 'mono' : undefined}
-                >
+                <td key={col.key} className={col.numeric ? 'num' : col.mono ? 'mono' : undefined}>
                   {col.render(row)}
                 </td>
               ))}

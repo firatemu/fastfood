@@ -1,5 +1,6 @@
 'use client';
 
+import { formatTryMinor } from '@fastfood/contracts';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { z } from 'zod';
@@ -97,18 +98,39 @@ export default function OrderDetailPage() {
   const [printing, setPrinting] = useState(false);
   const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(() => new Set());
 
-  const toggleRefundItem = useCallback((itemId: string, selected: boolean) => {
-    setSelectedItemIds((prev) => {
-      const next = new Set(prev);
+  /**
+   * Selecting refund items re-fills the refund amount from that selection.
+   *
+   * This runs inside the selection handlers rather than in an effect. An effect
+   * keyed on `state` also re-fired on every refresh, which silently discarded an
+   * amount the operator had typed into the refund field by hand.
+   */
+  const applyRefundSelection = useCallback(
+    (next: Set<string>) => {
+      setSelectedItemIds(next);
+      if (next.size === 0) return;
+      if (state.status !== 'ready') return;
+      setRefundAmount(sumSelectedItemsMinor(state.data, next).toString());
+    },
+    [state],
+  );
+
+  const toggleRefundItem = useCallback(
+    (itemId: string, selected: boolean) => {
+      const next = new Set(selectedItemIds);
       if (selected) next.add(itemId);
       else next.delete(itemId);
-      return next;
-    });
-  }, []);
+      applyRefundSelection(next);
+    },
+    [applyRefundSelection, selectedItemIds],
+  );
 
-  const setSelectedRefundItems = useCallback((itemIds: string[]) => {
-    setSelectedItemIds(new Set(itemIds));
-  }, []);
+  const setSelectedRefundItems = useCallback(
+    (itemIds: string[]) => {
+      applyRefundSelection(new Set(itemIds));
+    },
+    [applyRefundSelection],
+  );
 
   const load = useCallback(async () => {
     setState({ status: 'loading' });
@@ -167,13 +189,6 @@ export default function OrderDetailPage() {
   }, [load, registerRefresh]);
 
   useDeferredLoad(() => void load(), [load]);
-
-  useEffect(() => {
-    if (state.status !== 'ready') return;
-    if (selectedItemIds.size === 0) return;
-    const sum = sumSelectedItemsMinor(state.data, selectedItemIds);
-    setRefundAmount(sum.toString());
-  }, [selectedItemIds, state]);
 
   const order = state.status === 'ready' ? state.data : null;
   const nextStatuses = useMemo(() => (order ? allowedTransitions(order.status) : []), [order]);
@@ -367,7 +382,7 @@ export default function OrderDetailPage() {
                 return 'Yüksek etkili FSM geçişi. Backend izin vermezse işlem reddedilir.';
               case 'refund':
                 return paymentId
-                  ? `Ödeme ${shortId(paymentId)} için ${refundAmount} kuruş iade gönderilecek.`
+                  ? `Ödeme ${shortId(paymentId)} için ${formatTryMinor(refundAmount)} iade gönderilecek.`
                   : 'İade tutarını girip onaylayın.';
               case 'reassign':
                 return 'Sipariş başka şubeye atanacak. Teslim alınmış siparişlerde backend reddeder.';

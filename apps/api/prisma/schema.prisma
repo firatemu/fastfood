@@ -65,6 +65,7 @@ enum IdentifierType {
   EMAIL
   PHONE
   STAFF_USERNAME
+  COURIER_USERNAME
 
   @@map("identifier_type")
 }
@@ -108,6 +109,7 @@ model User {
   userBranchScopes              UserBranchScope[]
   branchAdministrator           BranchAdministrator?         @relation("BranchAdministrator")
   appointedBranchAdministrators BranchAdministrator[]        @relation("BranchAdministratorActor")
+  courierBranchAssignments     CourierBranch[]               @relation("CourierBranchAssignedBy")
   addresses                     Address[]
   outboxEvents                  OutboxEvent[]                @relation("OutboxCreator")
   customerCredential            CustomerCredential?
@@ -721,6 +723,7 @@ model Branch {
   diningTables        DiningTable[]
   userBranchScopes    UserBranchScope[]
   administrator       BranchAdministrator?
+  courierAssignments  CourierBranch[]
 
   @@index([code])
   @@map("branches")
@@ -1172,8 +1175,31 @@ model CourierProfile {
   deliveries     Delivery[]
   assignments    DeliveryAssignment[]
   locationPoints CourierLocationPoint[]
+  branchScopes   CourierBranch[]
 
   @@map("courier_profiles")
+}
+
+// A courier is *declared* for a branch by an explicit row here. The link is
+// never inferred from delivery history: a branch manager must be able to see
+// and edit exactly which couriers belong to their branch, including couriers
+// that have not been assigned a job yet. A courier may serve several branches,
+// which is why this is a join table instead of a foreign key on the profile.
+model CourierBranch {
+  courierId        String   @map("courier_id") @db.Uuid
+  branchId         String   @map("branch_id") @db.Uuid
+  isPrimary        Boolean  @default(false) @map("is_primary")
+  assignedByUserId String   @map("assigned_by_user_id") @db.Uuid
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  courier    CourierProfile @relation(fields: [courierId], references: [id], onDelete: Cascade)
+  branch     Branch         @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  assignedBy User           @relation("CourierBranchAssignedBy", fields: [assignedByUserId], references: [id], onDelete: Restrict)
+
+  @@id([courierId, branchId])
+  @@index([branchId])
+  @@index([assignedByUserId])
+  @@map("courier_branches")
 }
 
 model Delivery {

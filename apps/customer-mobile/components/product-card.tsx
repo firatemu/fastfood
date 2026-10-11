@@ -1,68 +1,121 @@
 import { Image } from 'expo-image';
-import { Link } from 'expo-router';
-import type { ReactElement } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import type { Href } from 'expo-router';
+import type { ReactElement, ReactNode } from 'react';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type Insets,
+  type PressableStateCallbackType,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 
+import { customizeLabel } from '../lib/customize-label';
 import { formatTryMinor } from '../lib/money';
 import type { VitrineProduct } from '../lib/schemas';
-import { colors, fonts, minTouch, radius, space } from '../theme';
+import { colors, fonts, hitSlop, radius, space } from '../theme';
 
-export function ProductCard(props: {
-  product: VitrineProduct;
-  busy?: boolean;
-  onAdd?: () => void;
-}): ReactElement {
+/**
+ * Compact CTA height in dp. The card is only two columns wide, so a full-height
+ * 44dp button beside the price would squeeze the label. The *touch* target stays
+ * at 44dp through `hitSlop`, so the chip looks compact without becoming hard to
+ * hit — and neighbouring links get no hitSlop, so nothing steals each other's taps.
+ */
+const CTA_MIN_HEIGHT = 30;
+
+/**
+ * Vitrine card. The product's only action is "open it and customize it", which
+ * is what the web card does too: the CTA label says what the first tap decides
+ * (`lib/customize-label.ts`) and the whole card stays tappable.
+ *
+ * There is deliberately no quick "+" add-to-cart here any more. Every path into
+ * customization is the product route, and the cart is filled from there, so the
+ * card no longer carries a second, narrower way to add a product without its
+ * modifiers — the exact shortcut that made a customized order impossible.
+ */
+export function ProductCard(props: { product: VitrineProduct }): ReactElement {
   const image = props.product.imageUrl ?? props.product.heroImageUrl;
+  const href: Href = `/products/${props.product.id}`;
+  const label = customizeLabel(props.product);
   return (
     <View style={styles.card}>
-      <Link href={`/products/${props.product.id}`} asChild>
-        <Pressable accessibilityRole="button" accessibilityLabel={props.product.name}>
-          <View style={styles.imageWrap}>
-            {image ? (
-              <Image
-                source={{ uri: image }}
-                style={styles.image}
-                contentFit="cover"
-                accessibilityLabel={props.product.imageAlt ?? props.product.name}
-              />
-            ) : (
-              <View style={[styles.image, styles.imageFallback]} />
-            )}
-            {props.product.badge ? (
-              <Text style={styles.badge}>{props.product.badge}</Text>
-            ) : null}
-          </View>
-          <View style={styles.body}>
-            <Text style={styles.name} numberOfLines={2}>
-              {props.product.name}
+      <CardLink href={href} accessibilityLabel={`${props.product.name} ürününü aç`}>
+        <View style={styles.imageWrap}>
+          {image ? (
+            <Image
+              source={{ uri: image }}
+              style={styles.image}
+              contentFit="cover"
+              accessibilityLabel={props.product.imageAlt ?? props.product.name}
+            />
+          ) : (
+            <View style={[styles.image, styles.imageFallback]} />
+          )}
+          {props.product.badge ? (
+            <Text style={styles.badge}>{props.product.badge}</Text>
+          ) : null}
+        </View>
+      </CardLink>
+      <CardLink href={href} accessibilityLabel={`${props.product.name} detayları`}>
+        <View style={styles.body}>
+          <Text style={styles.name} numberOfLines={2}>
+            {props.product.name}
+          </Text>
+          {props.product.description ? (
+            <Text style={styles.desc} numberOfLines={2}>
+              {props.product.description}
             </Text>
-            {props.product.description ? (
-              <Text style={styles.desc} numberOfLines={2}>
-                {props.product.description}
-              </Text>
-            ) : null}
-          </View>
-        </Pressable>
-      </Link>
+          ) : null}
+        </View>
+      </CardLink>
       <View style={styles.footer}>
-        <Text style={styles.price}>
+        <Text style={styles.price} numberOfLines={1}>
           {formatTryMinor(props.product.basePriceMinor, props.product.currency)}
         </Text>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Sepete ekle"
-          disabled={!props.product.isAvailable || props.busy}
-          onPress={props.onAdd}
-          style={({ pressed }) => [
-            styles.add,
-            pressed && styles.addPressed,
-            (!props.product.isAvailable || props.busy) && styles.addDisabled,
-          ]}
+        <CardLink
+          href={href}
+          accessibilityLabel={`${props.product.name} — ${label}`}
+          hitSlop={hitSlop}
+          style={({ pressed }) => [styles.customize, pressed && styles.customizePressed]}
         >
-          <Text style={styles.addLabel}>{props.busy ? '…' : '+'}</Text>
-        </Pressable>
+          <Text style={styles.customizeText} numberOfLines={1}>
+            {label}
+          </Text>
+        </CardLink>
       </View>
     </View>
+  );
+}
+
+function CardLink(props: {
+  href: Href;
+  accessibilityLabel: string;
+  hitSlop?: Insets;
+  style?:
+    | StyleProp<ViewStyle>
+    | ((state: PressableStateCallbackType) => StyleProp<ViewStyle>);
+  children: ReactNode;
+}): ReactElement {
+  // Deliberately not `<Link asChild>`: expo-router renders the child through
+  // Radix's `Slot`, whose `mergeProps` combines `style` with an object spread
+  // (`overrideProps.style = { ...slotStyle, ...childStyle }`). Spreading a
+  // function yields `{}`, so a function style — i.e. any Pressable that reacts
+  // to `pressed` — silently renders unstyled: no background, no minHeight,
+  // nothing. Routing through `router.push` keeps the style function intact.
+  const router = useRouter();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={props.accessibilityLabel}
+      hitSlop={props.hitSlop}
+      onPress={() => router.push(props.href)}
+      style={props.style}
+    >
+      {props.children}
+    </Pressable>
   );
 }
 
@@ -97,6 +150,23 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: colors.onMustard,
   },
+  customize: {
+    flexShrink: 0,
+    minHeight: CTA_MIN_HEIGHT,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radius.sm,
+    backgroundColor: colors.mustard,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  customizePressed: { backgroundColor: colors.mustardPressed },
+  customizeText: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    letterSpacing: 0.6,
+    color: colors.onMustard,
+  },
   body: { padding: space.sm, gap: 4, minHeight: 72 },
   name: {
     fontFamily: fonts.jakartaBold,
@@ -114,30 +184,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: space.sm,
     paddingHorizontal: space.sm,
     paddingBottom: space.sm,
-    minHeight: minTouch,
   },
   price: {
+    flexShrink: 1,
     fontFamily: fonts.jakartaBold,
     fontSize: 15,
     color: colors.mustard,
     fontVariant: ['tabular-nums'],
-  },
-  add: {
-    width: minTouch,
-    height: minTouch,
-    borderRadius: minTouch / 2,
-    backgroundColor: colors.mustard,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addPressed: { backgroundColor: colors.mustardPressed },
-  addDisabled: { opacity: 0.4 },
-  addLabel: {
-    fontFamily: fonts.jakartaBold,
-    fontSize: 22,
-    color: colors.onMustard,
-    marginTop: -2,
   },
 });

@@ -4,8 +4,8 @@
   --kds-raised: var(--ops-surface-2, light-dark(#f8f9f9, #1f242d));
   --kds-line: var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
   --kds-text: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
-  --kds-muted: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
-  --kds-amber: var(--ops-amber, light-dark(#a57709, #feb300));
+  --kds-muted: var(--ff-on-surface-variant);
+  --kds-amber: var(--ff-primary);
   display: grid;
   gap: 16px;
   min-width: 0;
@@ -23,12 +23,7 @@
   gap: 24px;
   padding: 24px 28px;
   border: 1px solid var(--kds-line);
-  background: linear-gradient(
-      100deg,
-      light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08)),
-      transparent 38%
-    ),
-    light-dark(#fcfcfd, #161b22);
+  background: var(--ff-surface-container-low);
 }
 
 .titleBlock {
@@ -61,7 +56,7 @@
 .titleBlock h1 {
   margin: 4px 0 3px;
   color: light-dark(#2e2b24, #f2f0ea);
-  font-family: var(--ops-font-anton, Anton, Impact, sans-serif);
+  font-family: var(--ff-font-headline);
   font-size: clamp(34px, 3.2vw, 50px);
   font-weight: 400;
   letter-spacing: 0.025em;
@@ -272,7 +267,7 @@
 
 .pollInfo {
   padding-left: 9px;
-  border-left: 1px solid light-dark(#d3d5d9, #3e4656);
+  border-left: 1px solid var(--ff-keyline);
 }
 
 .successNotice,
@@ -286,21 +281,21 @@
 }
 
 .successNotice {
-  color: light-dark(#288a52, #a9e6c3);
-  background: light-dark(rgba(233, 246, 242, 0.11), rgba(16, 185, 129, 0.11));
-  border-color: light-dark(rgba(146, 160, 170, 0.28), rgba(16, 185, 129, 0.28));
+  color: var(--ff-status-ready-text);
+  background: var(--ff-status-ready-wash);
+  border-color: var(--ff-status-ready-border);
 }
 
 .errorNotice {
-  color: light-dark(#a51b0d, #ffc1bb);
-  background: light-dark(rgba(246, 233, 233, 0.11), rgba(239, 68, 68, 0.11));
-  border-color: light-dark(rgba(146, 160, 170, 0.3), rgba(239, 68, 68, 0.3));
+  color: var(--ff-status-critical-text);
+  background: var(--ff-status-critical-wash);
+  border-color: var(--ff-status-critical-border);
 }
 
 .warningNotice {
-  color: light-dark(#9d6d10, #f3cf8a);
-  background: light-dark(rgba(244, 173, 52, 0.11), rgba(245, 158, 11, 0.11));
-  border-color: light-dark(rgba(146, 160, 170, 0.27), rgba(245, 158, 11, 0.27));
+  color: var(--ff-status-warn-text);
+  background: var(--ff-status-warn-wash);
+  border-color: var(--ff-status-warn-border);
 }
 
 .board {
@@ -319,7 +314,7 @@
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--kds-line);
-  background: light-dark(#fcfcfd, #13171c);
+  background: var(--ff-surface-container-low);
 }
 
 .laneHead {
@@ -330,7 +325,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 16px 18px;
-  background: light-dark(#f8f9f9, #1b2028);
+  background: var(--ff-surface-container);
   border-top: 3px solid var(--stage-color);
   border-bottom: 1px solid var(--kds-line);
 }
@@ -378,7 +373,7 @@
 .ticket {
   min-width: 0;
   overflow: hidden;
-  background: light-dark(#f8f9f9, #1b2129);
+  background: var(--ff-surface-container);
   border: 1px solid light-dark(#d3d6d9, #353d48);
   border-left: 3px solid var(--stage-color);
   border-radius: 3px;
@@ -455,8 +450,8 @@
   margin: 0 14px;
   padding: 0;
   list-style: none;
-  border-top: 1px solid light-dark(#d3d6d9, #343d49);
-  border-bottom: 1px solid light-dark(#d3d6d9, #343d49);
+  border-top: 1px solid var(--ff-keyline);
+  border-bottom: 1px solid var(--ff-keyline);
 }
 
 .product {
@@ -469,7 +464,7 @@
 }
 
 .product + .product {
-  border-top: 1px solid light-dark(rgba(146, 160, 170, 0.06), rgba(58, 68, 80, 0.06));
+  border-top: 1px solid var(--ff-keyline);
 }
 
 .quantity {
@@ -477,7 +472,7 @@
   min-height: 30px;
   place-items: center;
   color: light-dark(#9f760e, #f1c965);
-  background: light-dark(rgba(244, 187, 52, 0.1), rgba(254, 179, 0, 0.1));
+  background: var(--ff-status-warn-wash);
   border: 1px solid light-dark(rgba(146, 160, 170, 0.23), rgba(254, 179, 0, 0.23));
   font-family: var(--ops-font-mono, monospace);
   font-size: 12px;
@@ -517,14 +512,14 @@
 
 .added {
   color: light-dark(#29894d, #a8e5bf);
-  background: light-dark(rgba(233, 246, 242, 0.1), rgba(16, 185, 129, 0.1));
-  border-color: light-dark(rgba(146, 160, 170, 0.25), rgba(16, 185, 129, 0.25)) !important;
+  background: var(--ff-status-ready-wash);
+  border-color: var(--ff-status-ready-border) !important;
 }
 
 .removed {
   color: light-dark(#a0420d, #fac09f);
-  background: light-dark(rgba(246, 236, 233, 0.11), rgba(255, 87, 34, 0.11));
-  border-color: light-dark(rgba(146, 160, 170, 0.26), rgba(255, 87, 34, 0.26)) !important;
+  background: var(--ff-status-critical-wash);
+  border-color: var(--ff-status-critical-border) !important;
 }
 
 .orderNote {
@@ -535,7 +530,7 @@
   padding: 9px;
   color: light-dark(#8c6b21, #e7cf9a);
   background: light-dark(rgba(244, 187, 52, 0.075), rgba(254, 179, 0, 0.075));
-  border: 1px solid light-dark(rgba(146, 160, 170, 0.18), rgba(254, 179, 0, 0.18));
+  border: 1px solid var(--ff-status-warn-border);
   font-size: 12px;
   line-height: 17px;
   overflow-wrap: anywhere;
@@ -590,7 +585,7 @@
 .primaryAction {
   color: light-dark(#80692d, #d4c7a5);
   background: var(--ops-amber-fill);
-  border: 1px solid light-dark(#d6bf8a, #f7c54f);
+  border: 1px solid var(--ff-primary-container);
 }
 
 .primaryAction:hover:not(:disabled) {
@@ -602,7 +597,7 @@
 }
 
 .printAction {
-  color: light-dark(#2e5984, #dbe5ef);
+  color: var(--ff-on-surface);
   background: light-dark(#f3f3f4, #28313b);
   border: 1px solid light-dark(#d3d6d9, #4a5868);
 }
@@ -649,7 +644,7 @@
   justify-items: center;
   gap: 10px;
   padding: 28px;
-  background: light-dark(#fcfcfd, #161b22);
+  background: var(--ff-surface-container);
   border: 1px solid var(--kds-line);
   text-align: center;
 }
@@ -792,4 +787,395 @@
   .printAction {
     transition: none;
   }
+}
+
+/* ==========================================================================
+   FASTFOOD Admin — Navy kitchen / KDS board (ADR-019, phase A5)
+   Source: stitch_fastfood_admin_dashboard_prompts/mutfak_ekran_kds_fastfood/code.html
+
+   The design drops the heavy lane chrome: no 3px stage bar on the lane head,
+   no border on the ticket, no 3px stage bar on the ticket. Stage identity
+   moves to the lane-head icon and the quantity chip instead.
+   ========================================================================== */
+
+/* --- board: design `grid-cols-1 lg:grid-cols-3 gap-space-md` --- */
+:global([data-admin-theme='fastfood-navy']) .board {
+  gap: var(--ff-space-md);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1023px) {
+  :global([data-admin-theme='fastfood-navy']) .board {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- stage palette: preparing = primary-container, ready = tertiary --- */
+:global([data-admin-theme='fastfood-navy']) .lane,
+:global([data-admin-theme='fastfood-navy']) .flowStage {
+  --stage-color: var(--ff-primary-container);
+  --stage-well: var(--ff-accent-wash);
+}
+
+:global([data-admin-theme='fastfood-navy']) .lane[data-stage='prep'],
+:global([data-admin-theme='fastfood-navy']) .flowStage[data-stage='prep'] {
+  --stage-color: var(--ff-primary-container);
+  --stage-well: var(--ff-accent-wash);
+}
+
+:global([data-admin-theme='fastfood-navy']) .lane[data-stage='ready'],
+:global([data-admin-theme='fastfood-navy']) .flowStage[data-stage='ready'] {
+  --stage-color: var(--ff-tertiary-container);
+  --stage-well: var(--ff-status-ready-wash);
+}
+
+/* --- KPI ribbon: `bg-surface-container-lowest rounded px-space-md py-1.5` --- */
+:global([data-admin-theme='fastfood-navy']) .flowStrip {
+  gap: var(--ff-space-xs);
+}
+
+:global([data-admin-theme='fastfood-navy']) .flowStage {
+  min-height: 0;
+  gap: var(--ff-space-sm);
+  padding: 6px var(--ff-space-md);
+  background: var(--ff-surface-container-lowest);
+  border-radius: var(--ff-radius-lg);
+  box-shadow: none;
+}
+
+:global([data-admin-theme='fastfood-navy']) .flowStage > span,
+:global([data-admin-theme='fastfood-navy']) .flowCopy span {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .flowCount {
+  font-family: var(--ff-font-label);
+  font-size: var(--ff-text-label-lg);
+  font-weight: 700;
+  color: var(--stage-color);
+}
+
+:global([data-admin-theme='fastfood-navy']) .flowIndex,
+:global([data-admin-theme='fastfood-navy']) .laneIndex {
+  background: var(--ff-surface-container-high);
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- lane: `bg-surface-container-low rounded p-space-sm` --- */
+:global([data-admin-theme='fastfood-navy']) .lane {
+  gap: var(--ff-space-sm);
+  padding: var(--ff-space-sm);
+  background: var(--ff-surface-container-low);
+  border-radius: var(--ff-radius-lg);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+/* --- lane head: `bg-surface-container-high px-space-md py-2` --- */
+:global([data-admin-theme='fastfood-navy']) .laneHead {
+  min-height: 0;
+  gap: var(--ff-space-sm);
+  padding: 8px var(--ff-space-md);
+  background: var(--ff-surface-container-high);
+  border-top: 0;
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .laneHead h2 {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-sm);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .laneHead p {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .laneCount {
+  font: 600 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .laneBody {
+  gap: var(--ff-space-sm);
+}
+
+/* --- ticket: `bg-surface-container rounded shadow-sm overflow-hidden` --- */
+:global([data-admin-theme='fastfood-navy']) .ticket {
+  background: var(--ff-surface-container);
+  border: 0;
+  border-left: 0;
+  border-radius: var(--ff-radius-lg);
+  box-shadow: var(--ff-shadow-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .ticketHead {
+  gap: var(--ff-space-xs);
+  padding: var(--ff-space-xs) var(--ff-space-md);
+  background: var(--ff-surface-container-highest);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .orderNumber {
+  font-family: var(--ff-font-label);
+  font-size: var(--ff-text-label-md);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .ticketMode {
+  font: 600 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-low);
+  color: var(--ff-tertiary);
+}
+
+:global([data-admin-theme='fastfood-navy']) .ticketAge {
+  font: 600 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .ticketMeta,
+:global([data-admin-theme='fastfood-navy']) .ticketMeta time {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- ticket body --- */
+:global([data-admin-theme='fastfood-navy']) .itemList {
+  gap: var(--ff-space-sm);
+  padding: var(--ff-space-md);
+}
+
+:global([data-admin-theme='fastfood-navy']) .product {
+  gap: var(--ff-space-sm);
+  padding: 0;
+  border: 0;
+}
+
+/* Quantity chip: design `bg-surface-container-highest text-primary-container` */
+:global([data-admin-theme='fastfood-navy']) .quantity {
+  min-width: 32px;
+  min-height: 22px;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-highest);
+  color: var(--ff-primary-container);
+  font-family: var(--ff-font-label);
+  font-size: var(--ff-text-label-md);
+  font-weight: 800;
+}
+
+:global([data-admin-theme='fastfood-navy']) .productCopy strong {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-sm);
+  font-weight: 700;
+  line-height: var(--ff-leading-headline-sm);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .customizations span {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-low);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .added {
+  color: var(--ff-tertiary);
+}
+
+:global([data-admin-theme='fastfood-navy']) .removed {
+  color: var(--ff-error);
+}
+
+:global([data-admin-theme='fastfood-navy']) .orderNote {
+  font: 400 12px/16px var(--ff-font-body);
+  padding: var(--ff-space-xs) var(--ff-space-sm);
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-lowest);
+  color: var(--ff-on-surface-variant);
+}
+
+/* --- ticket footer --- */
+:global([data-admin-theme='fastfood-navy']) .ticketFooter {
+  gap: var(--ff-space-sm);
+  padding: var(--ff-space-sm) var(--ff-space-md) var(--ff-space-md);
+  border-top: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .ticketAmount {
+  font-family: var(--ff-font-label);
+  font-weight: 700;
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .primaryAction,
+:global([data-admin-theme='fastfood-navy']) .printAction {
+  min-height: 32px;
+  padding: 0 var(--ff-space-md);
+  border-radius: var(--ff-radius-lg);
+  font: 600 12px/16px var(--ff-font-body);
+  border: 1px solid transparent;
+}
+
+:global([data-admin-theme='fastfood-navy']) .primaryAction {
+  background: var(--ff-primary-container);
+  border-color: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .primaryAction:hover:not(:disabled) {
+  background: var(--ff-primary);
+  border-color: var(--ff-primary);
+}
+
+:global([data-admin-theme='fastfood-navy']) .printAction {
+  background: var(--ff-surface-container-high);
+  border-color: var(--ff-keyline);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .printAction:hover:not(:disabled) {
+  background: var(--ff-surface-bright);
+}
+
+/* --- command bar + toolbar --- */
+:global([data-admin-theme='fastfood-navy']) .commandBar,
+:global([data-admin-theme='fastfood-navy']) .toolbar {
+  background: var(--ff-surface-container-high);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-xl);
+}
+
+:global([data-admin-theme='fastfood-navy']) .titleBlock h1 {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-lg);
+  font-weight: var(--ff-weight-headline-lg);
+  line-height: var(--ff-leading-headline-lg);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .titleRule {
+  background: var(--ff-primary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .intro,
+:global([data-admin-theme='fastfood-navy']) .context,
+:global([data-admin-theme='fastfood-navy']) .toolbarInfo,
+:global([data-admin-theme='fastfood-navy']) .pollInfo {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .totalCount strong {
+  font-family: var(--ff-font-label);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .totalCount span {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search {
+  background: var(--ff-surface-container);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search:focus-within {
+  border-color: var(--ff-primary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search input {
+  font: 400 12px/16px var(--ff-font-body);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .search input::placeholder {
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .refreshButton {
+  min-height: 32px;
+  padding: 0 var(--ff-space-md);
+  border-radius: var(--ff-radius-lg);
+  border: 1px solid var(--ff-keyline);
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
+  font: 500 12px/16px var(--ff-font-body);
+}
+
+:global([data-admin-theme='fastfood-navy']) .refreshButton:hover:not(:disabled) {
+  background: var(--ff-surface-bright);
+}
+
+:global([data-admin-theme='fastfood-navy']) .syncDot {
+  background: var(--ff-tertiary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .syncDot[data-stale='true'] {
+  background: var(--ff-primary-container);
+}
+
+/* --- notices + empty state --- */
+:global([data-admin-theme='fastfood-navy']) .successNotice,
+:global([data-admin-theme='fastfood-navy']) .warningNotice,
+:global([data-admin-theme='fastfood-navy']) .errorNotice {
+  font: 500 11px/14px var(--ff-font-body);
+  padding: var(--ff-space-sm) var(--ff-space-md);
+  border-radius: var(--ff-radius-lg);
+  border: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .laneEmpty,
+:global([data-admin-theme='fastfood-navy']) .statePanel {
+  background: var(--ff-surface-container-low);
+  border: 0;
+  border-radius: var(--ff-radius-xl);
+  box-shadow: var(--ff-shadow-surface);
+  color: var(--ff-on-surface-variant);
+}
+
+:global([data-admin-theme='fastfood-navy']) .laneEmpty p,
+:global([data-admin-theme='fastfood-navy']) .statePanel strong {
+  font-family: var(--ff-font-headline);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .statePanel button {
+  min-height: 32px;
+  padding: 0 var(--ff-space-md);
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-primary-container);
+  color: var(--ff-on-primary-container);
+  font: 600 12px/16px var(--ff-font-body);
 }

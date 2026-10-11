@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;family=Plus+Jakarta+Sans:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-primary":"#552100","on-secondary-container":"#ffc8c1","on-secondary":"#690005","on-surface-variant":"#e0c0b1","surface-container-highest":"#2d3449","surface-container-low":"#131b2e","surface-container-lowest":"#060e20","on-error-container":"#ffdad6","inverse-primary":"#9d4300","tertiary":"#4edea3","surface-bright":"#31394d","secondary":"#ffb4ab","secondary-container":"#bb0112","on-primary-container":"#582200","on-secondary-fixed":"#410002","on-secondary-fixed-variant":"#93000b","tertiary-fixed":"#6ffbbe","primary-fixed-dim":"#ffb690","on-surface":"#dae2fd","surface-tint":"#ffb690","on-tertiary-fixed-variant":"#005236","error-container":"#93000a","outline-variant":"#584237","tertiary-container":"#00b07a","surface-container":"#171f33","on-tertiary-container":"#003b26","surface":"#0b1326","inverse-surface":"#dae2fd","primary":"#ffb690","secondary-fixed":"#ffdad6","primary-fixed":"#ffdbca","surface-container-high":"#222a3d","primary-container":"#f97316","outline":"#a78b7d","secondary-fixed-dim":"#ffb4ab","surface-variant":"#2d3449","on-primary-fixed":"#341100","tertiary-fixed-dim":"#4edea3","on-primary-fixed-variant":"#783200","on-background":"#dae2fd","error":"#ffb4ab","on-tertiary":"#003824","inverse-on-surface":"#283044","surface-dim":"#0b1326","on-error":"#690005","on-tertiary-fixed":"#002113","background":"#0b1326"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-sm":"0.375rem","space-lg":"0.875rem","gutter":"0.75rem","space-md":"0.625rem","space-xl":"1.25rem","space-xs":"0.25rem","margin":"1rem"},"fontFamily":{"body-lg":["Inter"],"body-md":["Inter"],"headline-lg":["Plus Jakarta Sans"],"label-sm":["JetBrains Mono"],"label-md":["JetBrains Mono"],"body-sm":["Inter"],"label-lg":["JetBrains Mono"],"headline-md":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"]},"fontSize":{"body-lg":["15px",{"lineHeight":"22px","fontWeight":"400"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["22px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"700"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.04em","fontWeight":"500"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.03em","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-lg":["13px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"600"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-xl-mobile":["22px",{"lineHeight":"28px","fontWeight":"800"}],"headline-lg-mobile":["18px",{"lineHeight":"24px","fontWeight":"700"}],"headline-xl":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"800"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-lowest flex flex-col z-50 select-none"><div class="h-14 px-gutter flex items-center gap-space-sm bg-surface-container-low/60 shrink-0"><img alt="FASTFOOD Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XdU-vOp1X0DZTgg2Y_i3RtNQi1l_pNW9agNjv3wfU6i4qjFHzMik5rWenKTd_JNcprS8tP5OOVxNXxvdrCbwW6bcfTwTCU-reLceKCZtjeAilpp0PlEWtkYM3pX4AUuwU_ohYcRPe7I0x0wKG3GFSPjQuuYlR12gSVOFBwEzFy3W6KEYxFquJyeh7a2w7_GpUFCSbQCyHrmZ7IZ5_gJrWRmj3-dSWlzb6TRiydkVqp"/><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-on-surface font-bold truncate leading-tight">FASTFOOD</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Operasyon Paneli</span></div></div><div class="p-gutter shrink-0"><div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded text-on-surface-variant focus-within:ring-1 focus-within:ring-primary-container"><span class="material-symbols-outlined text-[16px]">search</span><input class="w-full bg-transparent border-0 outline-none text-body-sm text-on-surface placeholder:text-on-surface-variant font-body-sm" placeholder="Modül veya sipariş ara..." type="text"/><span class="font-label-sm text-label-sm bg-surface-container-highest px-space-xs py-0.5 rounded text-on-surface-variant shrink-0">Ctrl+K</span></div></div><nav class="flex-1 overflow-y-auto px-gutter space-y-space-md text-body-sm" data-active-classes="bg-primary-container text-on-primary font-semibold rounded"><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Genel Bakış</span><a class="flex items-center justify-between px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="bugunun-operasyonu" href="#"><span class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">space_dashboard</span><span>Bugünün Operasyonu</span></span><span class="h-2 w-2 rounded-full bg-tertiary"></span></a></div><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Operasyon</span><a class="flex items-center justify-between px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="siparisler" href="#"><span class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">receipt_long</span><span>Siparişler</span></span><span class="font-label-sm text-label-sm bg-primary-container text-on-primary px-space-xs py-0.5 rounded font-bold">14</span></a><a class="flex items-center justify-between px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="mutfak-kds" href="#"><span class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">soup_kitchen</span><span>Mutfak (KDS)</span></span><span class="font-label-sm text-label-sm bg-error-container text-on-error-container px-space-xs py-0.5 rounded font-bold">6</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kurye-teslimat" href="#"><span class="material-symbols-outlined text-[18px]">two_wheeler</span><span>Kurye / Teslimat</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="urun-musaitligi" href="#"><span class="material-symbols-outlined text-[18px]">rule</span><span>Ürün Müsaitliği</span></a></div><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Katalog</span><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="katalog-ozeti" href="#"><span class="material-symbols-outlined text-[18px]">menu_book</span><span>Katalog Özeti</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="urunler" href="#"><span class="material-symbols-outlined text-[18px]">lunch_dining</span><span>Ürünler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="kategoriler" href="#"><span class="material-symbols-outlined text-[18px]">category</span><span>Kategoriler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="modifiye-gruplari" href="#"><span class="material-symbols-outlined text-[18px]">tune</span><span>Modifiye Grupları</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="alerjenler" href="#"><span class="material-symbols-outlined text-[18px]">warning</span><span>Alerjenler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="vitrin-slaytlari" href="#"><span class="material-symbols-outlined text-[18px]">view_carousel</span><span>Vitrin Slaytları</span></a></div><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Şube &amp; Müşteri</span><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="subeler" href="#"><span class="material-symbols-outlined text-[18px]">store</span><span>Şubeler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="servis-alanlari" href="#"><span class="material-symbols-outlined text-[18px]">map</span><span>Servis Alanları</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="musteriler" href="#"><span class="material-symbols-outlined text-[18px]">groups</span><span>Müşteriler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="burger-home-club" href="#"><span class="material-symbols-outlined text-[18px]">loyalty</span><span>BURGER HOME CLUB</span></a></div><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Pazarlama &amp; Finans</span><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="promosyonlar" href="#"><span class="material-symbols-outlined text-[18px]">local_offer</span><span>Promosyonlar</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="odemeler" href="#"><span class="material-symbols-outlined text-[18px]">payments</span><span>Ödemeler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="iadeler" href="#"><span class="material-symbols-outlined text-[18px]">assignment_return</span><span>İadeler</span></a></div><div class="space-y-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Yönetim</span><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="raporlar" href="#"><span class="material-symbols-outlined text-[18px]">insights</span><span>Raporlar</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="personel-ve-erisim" href="#"><span class="material-symbols-outlined text-[18px]">badge</span><span>Personel ve Erişim</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="roller-ve-izinler" href="#"><span class="material-symbols-outlined text-[18px]">shield_person</span><span>Roller ve İzinler</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="denetim-kaydi" href="#"><span class="material-symbols-outlined text-[18px]">history</span><span>Denetim Kaydı</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="sistem-ayarlari" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span>Sistem Ayarları</span></a></div></nav><div class="p-gutter bg-surface-container-low/70 shrink-0 space-y-space-xs"><div class="flex items-center justify-between text-body-sm"><span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-tertiary animate-pulse"></span>Gündüz Vardiyası #2</span><span class="font-label-sm text-label-sm text-on-surface-variant">v2.4.8-tr</span></div><div class="text-body-sm text-on-surface-variant truncate">Kadıköy Şube Terminali</div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-14 bg-surface/90 backdrop-blur-xl z-40 flex items-center justify-between px-gutter shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs font-label-md text-label-md text-on-surface-variant"><span class="text-on-surface font-semibold">FASTFOOD</span><span>/</span><span>Operasyon</span><span>/</span><span class="text-primary font-semibold">Bugünün Özeti</span></div><div class="h-4 w-[1px] bg-surface-container-highest"></div><div class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant bg-surface-container-low px-space-sm py-1 rounded"><span class="h-2 w-2 rounded-full bg-tertiary animate-ping"></span><span>Canlı</span><span class="text-on-surface">• Az önce</span><button class="flex items-center text-on-surface-variant hover:text-on-surface ml-1" title="Yenile"><span class="material-symbols-outlined text-[14px]">refresh</span></button></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-surface-container-low px-space-md py-1 rounded text-body-sm text-on-surface cursor-pointer hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[18px] text-primary">storefront</span><span class="font-semibold">Kadıköy Merkez Şube</span><span class="font-label-sm text-label-sm bg-surface-container-highest px-space-xs py-0.5 rounded text-on-surface-variant">14 Şube</span><span class="material-symbols-outlined text-[16px]">expand_more</span></div><button class="p-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" title="Tema Değiştir"><span class="material-symbols-outlined text-[20px]">dark_mode</span></button><button class="relative p-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" title="Bildirimler"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-0 right-0 h-4 min-w-[16px] px-1 bg-secondary-container text-on-secondary-container font-label-sm text-label-sm rounded-full flex items-center justify-center font-bold">3</span></button><div class="h-6 w-[1px] bg-surface-container-highest"></div><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmrPzBWwR-IfQ2CN7j_bsYKvSV8lMHmRg4QMQLVSKG2Gc2Jhf0pJjFuwZSiNotkdqojwwofWFuCubVmK7Qu02YZN5_eJBjF-KU3ZJLv13_w_9HAXfCqrxeg7C3BPsfG7zlMUpTj-FwbG8pg_Ke7cH-tipogC9MwxvRP4lbdshVemy4h9p8Q51dIXaNnbNKynqQqDVlX82kCt5Pj4NCANeO0g_Q1cs76ldAoX1w_JM"/><div class="flex flex-col text-left"><span class="font-headline-sm text-body-sm font-semibold text-on-surface leading-tight">Emre Can Yılmaz</span><span class="font-label-sm text-label-sm text-primary leading-none">Vardiya Müdürü</span></div><button class="p-space-xs rounded text-on-surface-variant hover:bg-surface-container hover:text-error transition-colors ml-1" title="Çıkış Yap"><span class="material-symbols-outlined text-[18px]">logout</span></button></div></div></header><div class="fixed top-14 left-72 right-0 h-10 bg-surface-container-low z-30 flex items-center justify-between px-gutter shadow-[0_1px_8px_rgba(0,0,0,0.02)]"><div class="flex items-center gap-1 overflow-x-auto h-full"><button class="h-8 px-space-md rounded bg-surface-container-high text-on-surface text-body-sm flex items-center gap-space-xs font-semibold"><span class="material-symbols-outlined text-[16px] text-primary">home</span><span>Bugünün Operasyonu</span></button><button class="h-8 px-space-md rounded bg-surface text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-space-xs group"><span class="material-symbols-outlined text-[16px]">receipt</span><span>Siparişler (#1042...)</span><span class="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-error rounded-full p-0.5">close</span></button><button class="h-8 px-space-md rounded bg-surface text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-space-xs group"><span class="material-symbols-outlined text-[16px]">soup_kitchen</span><span>Mutfak Ekranı (KDS)</span><span class="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-error rounded-full p-0.5">close</span></button><button class="h-8 px-space-md rounded bg-surface text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-space-xs group"><span class="material-symbols-outlined text-[16px]">settings</span><span>Kadıköy Şube Ayarları</span><span class="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-error rounded-full p-0.5">close</span></button></div><div class="flex items-center gap-space-xs shrink-0"><button class="h-7 px-space-sm rounded bg-surface hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-1 transition-colors"><span class="material-symbols-outlined text-[16px]">add</span><span class="font-label-sm text-label-sm">Yeni Sekme</span></button><button class="h-7 px-space-xs rounded bg-surface hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-colors" title="Sekme İşlemleri"><span class="material-symbols-outlined text-[16px]">more_vert</span></button></div></div><main class="relative pt-24 w-full bg-surface min-h-screen p-gutter"><div class="flex flex-col w-full">
+<div class="flex flex-col gap-space-lg mb-space-xl">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase px-space-xs py-0.5 rounded bg-surface-container-high text-primary tracking-wider font-semibold">Menü &amp; Matris Kontrolü</span>
+<span class="font-label-sm text-label-sm text-outline">v4.1 Kategori Motoru</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Kategori Mimarisi &amp; Menü Yapılandırması</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">Satış kanalları (POS, Getir, Trendyol, Yemeksepeti, Web) bazında menü hiyerarşisi, kanal bazlı görünürlük kuralları ve mutfak istasyonu (KDS lane) yönlendirmeleri.</p>
+</div>
+<div class="flex items-center flex-wrap gap-space-sm self-start lg:self-center">
+<button class="h-9 px-space-md rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-body-sm font-semibold flex items-center gap-space-xs transition-colors shadow-sm" id="btn-matrix-toggle">
+<span class="material-symbols-outlined text-[18px] text-primary">view_column</span>
+<span>Kanal Müsaitlik Matrisi</span>
+</button>
+<button class="h-9 px-space-md rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-body-sm font-semibold flex items-center gap-space-xs transition-colors shadow-sm" id="btn-reorder-mode">
+<span class="material-symbols-outlined text-[18px] text-secondary">drag_indicator</span>
+<span id="reorder-text">Sıralamayı Düzenle</span>
+</button>
+<button class="h-9 px-space-md rounded bg-primary-container text-on-primary text-body-sm font-headline-sm font-bold flex items-center gap-space-xs shadow-md hover:brightness-110 active:scale-95 transition-all" onclick="document.getElementById('new-category-modal').classList.remove('hidden')">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>Yeni Kategori Ekle</span>
+</button>
+</div>
+</div>
+<!-- KPI Micro Tiles -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-space-md">
+<div class="bg-surface-container-low p-space-md rounded flex items-center justify-between shadow-sm">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Aktif Kategori</span>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-label-lg text-headline-lg font-bold text-on-surface">14</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">+2 bu ay</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Katalog yayında</span>
+</div>
+<div class="w-10 h-10 rounded bg-surface-container-high flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[22px]">category</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-md rounded flex items-center justify-between shadow-sm">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Toplam Ürün</span>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-label-lg text-headline-lg font-bold text-on-surface">86</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">SKU Eşleşmiş</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Aktif reçete bağlı</span>
+</div>
+<div class="w-10 h-10 rounded bg-surface-container-high flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[22px]">fastfood</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-md rounded flex items-center justify-between shadow-sm">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Kısıtlı / Sezonsal</span>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-label-lg text-headline-lg font-bold text-secondary">3</span>
+<span class="font-label-sm text-label-sm text-outline">Zaman Ayarlı</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Gece ve kampanya slotları</span>
+</div>
+<div class="w-10 h-10 rounded bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">schedule</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-md rounded flex items-center justify-between shadow-sm">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Mutfak Dağılımı</span>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-label-lg text-headline-lg font-bold text-tertiary">4 İstasyon</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">%100 Otomatik</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">KDS hatları senkronize</span>
+</div>
+<div class="w-10 h-10 rounded bg-surface-container-high flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[22px]">soup_kitchen</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Content Split Layout -->
+<div class="grid grid-cols-12 gap-space-lg">
+<!-- Left / Center: Primary Category Hierarchy List -->
+<div class="col-span-12 xl:col-span-8 flex flex-col gap-space-md">
+<!-- Search, Filter & Quick Action Bar -->
+<div class="bg-surface-container-low p-space-sm px-space-md rounded flex flex-col sm:flex-row items-center justify-between gap-space-sm shadow-sm">
+<div class="flex items-center gap-space-xs w-full sm:w-80 bg-surface-container-lowest px-space-md py-1.5 rounded">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">search</span>
+<input class="w-full bg-transparent text-body-sm text-on-surface placeholder:text-on-surface-variant outline-none font-body-sm" id="cat-search-input" placeholder="Kategori veya istasyon ara..." type="text"/>
+<kbd class="font-label-sm text-label-sm px-1 rounded bg-surface-container-high text-on-surface-variant">⌘K</kbd>
+</div>
+<div class="flex items-center gap-space-xs w-full sm:w-auto justify-end">
+<div class="flex items-center bg-surface-container rounded p-0.5">
+<button class="px-space-sm py-1 rounded bg-primary-container text-on-primary font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">view_agenda</span> Detaylı Liste
+            </button>
+<button class="px-space-sm py-1 rounded text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">grid_view</span> Kartlar
+            </button>
+</div>
+<span class="h-4 w-[1px] bg-surface-container-highest"></span>
+<button class="p-1.5 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface" title="Toplu Güncelle">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+</button>
+</div>
+</div>
+<!-- Categories Structured Stack -->
+<div class="flex flex-col gap-space-xs" id="category-stack">
+<!-- Category 01 -->
+<div class="category-item group bg-surface-container-low hover:bg-surface-container rounded p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md transition-colors shadow-sm" data-category="smash-burgerler">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="cursor-grab active:cursor-grabbing text-outline hover:text-primary transition-colors p-1" title="Sıralamak için sürükleyin">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-highest text-primary-container px-space-xs py-1 rounded font-bold shrink-0">#01</span>
+<div class="w-12 h-12 rounded bg-surface-container-high overflow-hidden shrink-0 relative flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Close up dark commercial food shot of juicy smash burger with melted cheddar cheese on a dark rustic slate surface studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW207WQuNxOSyA1hbKN1S4lBkRBojP65V0OsnBTtNw8RM6s-LNuThW_QnzCIWFmk1GoOfy-GQX1YndJA-Lbg-A-vxUgth4a7f3XV70_xJXSM6plrXRLrKajley_M9xp8arbukmvwqYNVA8TQaGIin0DrE8glu6ovPgvGFvXWpUGCzg773ZMfQTaIui_zpM13raIy4YaZOf43300yo9xXW4j5y03n5_oJzBVUP80Lo"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">Smash Burgerler</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-tertiary bg-surface-container-lowest px-1.5 py-0.5 rounded">
+<span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span> Aktif
+                </span>
+</div>
+<div class="flex items-center gap-space-md mt-1 flex-wrap">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lunch_dining</span> 18 Ürün (SKU)
+                </span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">soup_kitchen</span> Izgara &amp; Burger #1
+                </span>
+<span class="font-label-sm text-label-sm text-outline">Kategori Kodu: CAT-SMB</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-lg shrink-0 pt-space-xs md:pt-0">
+<!-- Channel Badges -->
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Kasa POS: Açık">POS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Getir: Açık">GETİR</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Trendyol: Açık">TY</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Yemeksepeti: Açık">YS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Web: Açık">WEB</span>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container-highest hover:bg-surface-bright text-on-surface text-body-sm font-semibold flex items-center gap-1 transition-colors" title="Ürünleri Listele">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span class="hidden sm:inline">Ürünler</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-primary-container hover:text-on-primary text-on-surface flex items-center justify-center transition-colors" title="Düzenle">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-error-container hover:text-on-error-container text-on-surface-variant flex items-center justify-center transition-colors" title="Pasife Al">
+<span class="material-symbols-outlined text-[16px]">pause</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Category 02 -->
+<div class="category-item group bg-surface-container-low hover:bg-surface-container rounded p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md transition-colors shadow-sm" data-category="klasik-ozel-burgerler">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="cursor-grab active:cursor-grabbing text-outline hover:text-primary transition-colors p-1" title="Sıralamak için sürükleyin">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-highest text-primary-container px-space-xs py-1 rounded font-bold shrink-0">#02</span>
+<div class="w-12 h-12 rounded bg-surface-container-high overflow-hidden shrink-0 relative flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Double gourmet beef burger with crisp bacon caramelised onions and golden toasted brioche bun on dark charcoal background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAX937K--zwR91RxKLthkMrI96PbysRtjoO759fsGVCt-kI3_Cz9mmbDfrQoMoXA1bBBboNjy0_WtFiIkHfFBUCCYD4GS0YnjMOMn8UzokEjvU7Ycc9QGwhbJRx29CpHJoRBxI1w-Cvs2wLTMpGMrOXibzNPe_dE2KhQwORmoaDsOVtFcvu4isVHMr6dlhc2w2gSRKaaUpuewr0se2UVQSfGWGRtUalbQopIzYt-T4"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">Klasik &amp; Özel Burgerler</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-tertiary bg-surface-container-lowest px-1.5 py-0.5 rounded">
+<span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span> Aktif
+                </span>
+</div>
+<div class="flex items-center gap-space-md mt-1 flex-wrap">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lunch_dining</span> 14 Ürün (SKU)
+                </span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">soup_kitchen</span> Izgara &amp; Burger #2
+                </span>
+<span class="font-label-sm text-label-sm text-outline">Kategori Kodu: CAT-KLS</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-lg shrink-0 pt-space-xs md:pt-0">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Kasa POS: Açık">POS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Getir: Açık">GETİR</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Trendyol: Açık">TY</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Yemeksepeti: Açık">YS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Web: Açık">WEB</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container-highest hover:bg-surface-bright text-on-surface text-body-sm font-semibold flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span class="hidden sm:inline">Ürünler</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-primary-container hover:text-on-primary text-on-surface flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-error-container hover:text-on-error-container text-on-surface-variant flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">pause</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Category 03 -->
+<div class="category-item group bg-surface-container-low hover:bg-surface-container rounded p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md transition-colors shadow-sm" data-category="tavuk-citir-yanlar">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="cursor-grab active:cursor-grabbing text-outline hover:text-primary transition-colors p-1" title="Sıralamak için sürükleyin">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-highest text-primary-container px-space-xs py-1 rounded font-bold shrink-0">#03</span>
+<div class="w-12 h-12 rounded bg-surface-container-high overflow-hidden shrink-0 relative flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Deep golden fried crunchy chicken tenders with spicy dipping sauce in a matte dark industrial restaurant tray" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhuX5QaoWVzd-ALUBP1bujGm1oSlGP5HW7GahLilyEW3K2muiS87TQPxeaPMlR5FBrDpKJAWvBKbMiVaqoGgiikw6b4oq83n7UvrPPauUZO4dLiD--Xqpe5hifJdC6gD4jwXCO6JK3-U_QN-bUp9D0ALRjuYITGDmNECr7qxBvwqa79EPWGEjfKdyLDjI2n9YdkjWzEjHjE8raBbl4Lnn_FWpUlZclg73kWXBk-HQ"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">Tavuk &amp; Çıtır Yanlar</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-tertiary bg-surface-container-lowest px-1.5 py-0.5 rounded">
+<span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span> Aktif
+                </span>
+</div>
+<div class="flex items-center gap-space-md mt-1 flex-wrap">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lunch_dining</span> 12 Ürün (SKU)
+                </span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">soup_kitchen</span> Fritöz &amp; Sıcak İstasyonu
+                </span>
+<span class="font-label-sm text-label-sm text-outline">Kategori Kodu: CAT-CHK</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-lg shrink-0 pt-space-xs md:pt-0">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Kasa POS: Açık">POS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Getir: Açık">GETİR</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Trendyol: Açık">TY</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Yemeksepeti: Açık">YS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Web: Açık">WEB</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container-highest hover:bg-surface-bright text-on-surface text-body-sm font-semibold flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span class="hidden sm:inline">Ürünler</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-primary-container hover:text-on-primary text-on-surface flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-error-container hover:text-on-error-container text-on-surface-variant flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">pause</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Category 04 -->
+<div class="category-item group bg-surface-container-low hover:bg-surface-container rounded p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md transition-colors shadow-sm" data-category="patates-aperatifler">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="cursor-grab active:cursor-grabbing text-outline hover:text-primary transition-colors p-1" title="Sıralamak için sürükleyin">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-highest text-primary-container px-space-xs py-1 rounded font-bold shrink-0">#04</span>
+<div class="w-12 h-12 rounded bg-surface-container-high overflow-hidden shrink-0 relative flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Seasoned crispy french fries with rosemary salt served in a stainless steel kitchen basket on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBhybrE9ICVpAQA05EJGGTQWJG3i6H1Bss8dAx1x_svKCqRbvV0KEB3tW5It_Ll4LOC3S3mXN7CjdkmSy5pwPrJSGIkgLa5K5QRDiKpuuJxSUviTZtj1p9_SUnis1SsJp7ntZomN9rWNeVTsbyeo6lpGZljWvpFzTAbWfiq9XiMXbos3QA2nacH8d_ncVBis9dKN280s2gt_BSRBbTK08JiAA5ZOnDMeRz4003fnY"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">Patates &amp; Aperatifler</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-tertiary bg-surface-container-lowest px-1.5 py-0.5 rounded">
+<span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span> Aktif
+                </span>
+</div>
+<div class="flex items-center gap-space-md mt-1 flex-wrap">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lunch_dining</span> 9 Ürün (SKU)
+                </span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">soup_kitchen</span> Fritöz İstasyonu
+                </span>
+<span class="font-label-sm text-label-sm text-outline">Kategori Kodu: CAT-FRIES</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-lg shrink-0 pt-space-xs md:pt-0">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Kasa POS: Açık">POS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Getir: Açık">GETİR</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Trendyol: Açık">TY</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Yemeksepeti: Açık">YS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Web: Açık">WEB</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container-highest hover:bg-surface-bright text-on-surface text-body-sm font-semibold flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span class="hidden sm:inline">Ürünler</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-primary-container hover:text-on-primary text-on-surface flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-error-container hover:text-on-error-container text-on-surface-variant flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">pause</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Category 05 -->
+<div class="category-item group bg-surface-container-low hover:bg-surface-container rounded p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md transition-colors shadow-sm" data-category="icecekler-milkshake">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="cursor-grab active:cursor-grabbing text-outline hover:text-primary transition-colors p-1" title="Sıralamak için sürükleyin">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-highest text-primary-container px-space-xs py-1 rounded font-bold shrink-0">#05</span>
+<div class="w-12 h-12 rounded bg-surface-container-high overflow-hidden shrink-0 relative flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Chilled artisanal thick chocolate and salted caramel milkshake glasses garnished with cocoa crumbles in dark ambiance" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCr0gp0EiJ0-WlKh_2AJbGIhwrcw9-vyDQ7yF1Y0T8pvxmPBBl528mp6uj5pIX9UpMDVaBXiknoksy-oWxJwYjSilvt_PXfn83jsA5EulhaoFYP79Fzeu2A-hHfr-3SdhOP8etm1oNr0XvUZnesrPW5amTDUkwuoTAsMfUaw7DRHppRZE2xvmpilxx_vzcIqHP0GTBVFeHI_mE8tve9eUG2tUNSqwbLqSQrFsso3fo"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">İçecekler &amp; Milkshake</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-tertiary bg-surface-container-lowest px-1.5 py-0.5 rounded">
+<span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span> Aktif
+                </span>
+</div>
+<div class="flex items-center gap-space-md mt-1 flex-wrap">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">local_drink</span> 15 Ürün (SKU)
+                </span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">soup_kitchen</span> Soğuk Bar / İçecek Dolabı
+                </span>
+<span class="font-label-sm text-label-sm text-outline">Kategori Kodu: CAT-BEV</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-lg shrink-0 pt-space-xs md:pt-0">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Kasa POS: Açık">POS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Getir: Açık">GETİR</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Trendyol: Açık">TY</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Yemeksepeti: Açık">YS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Web: Açık">WEB</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container-highest hover:bg-surface-bright text-on-surface text-body-sm font-semibold flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span class="hidden sm:inline">Ürünler</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-primary-container hover:text-on-primary text-on-surface flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-error-container hover:text-on-error-container text-on-surface-variant flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">pause</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Category 06 -->
+<div class="category-item group bg-surface-container-low hover:bg-surface-container rounded p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md transition-colors shadow-sm" data-category="soslar-dips">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="cursor-grab active:cursor-grabbing text-outline hover:text-primary transition-colors p-1" title="Sıralamak için sürükleyin">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-highest text-primary-container px-space-xs py-1 rounded font-bold shrink-0">#06</span>
+<div class="w-12 h-12 rounded bg-surface-container-high overflow-hidden shrink-0 relative flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Selection of craft burger dipping sauces in sleek matte black ramekins arranged neatly top down view dark aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB28tAuf0EutB9sQGpWGCOpj_ltUZpFN4OvPDzPmgfSqY1rxxI-a7lxoHz9DxZXazlcuyBmpk1y-jdsWbX6CUY7y-2V6YMxBzNx5rflRIfj_NVqK28achkUFEA2D5P111gtE1G6LeuoDzt_JESWU9lYsEi-ZnkSBGma7B80ZqTHOVa7YiolpNXSTSy2xfxPvIGOU_HHv05mYBeZX4rtxR9XLUhPky73hHOdUPeBcgs"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">Soslar &amp; Dips</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-tertiary bg-surface-container-lowest px-1.5 py-0.5 rounded">
+<span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span> Aktif
+                </span>
+</div>
+<div class="flex items-center gap-space-md mt-1 flex-wrap">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lunch_dining</span> 11 Ürün (SKU)
+                </span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">soup_kitchen</span> Paketleme &amp; Sos Barı
+                </span>
+<span class="font-label-sm text-label-sm text-outline">Kategori Kodu: CAT-SAUCE</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-lg shrink-0 pt-space-xs md:pt-0">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Kasa POS: Açık">POS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Getir: Açık">GETİR</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Trendyol: Açık">TY</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Yemeksepeti: Açık">YS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Web: Açık">WEB</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container-highest hover:bg-surface-bright text-on-surface text-body-sm font-semibold flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span class="hidden sm:inline">Ürünler</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-primary-container hover:text-on-primary text-on-surface flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-error-container hover:text-on-error-container text-on-surface-variant flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">pause</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Category 07 -->
+<div class="category-item group bg-surface-container-low hover:bg-surface-container rounded p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md transition-colors shadow-sm" data-category="tatlilar">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="cursor-grab active:cursor-grabbing text-outline hover:text-primary transition-colors p-1" title="Sıralamak için sürükleyin">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-highest text-primary-container px-space-xs py-1 rounded font-bold shrink-0">#07</span>
+<div class="w-12 h-12 rounded bg-surface-container-high overflow-hidden shrink-0 relative flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Warm fudge chocolate brownie dessert topped with vanilla bean ice cream on a dark matte ceramic plate" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-tHMObQ6VyQd3_qtIq7bSQitc6rUZLCdsC-fFGRAwnIiqevLL0k1Qvw8zKNrDaDMQtBvFU20pL0sdAX9AtJ_rM6S_cA-njxTxgUa_FEH20RGumQS3HYFBp_95wNl8VmWfEQgjNPjeyHHVma97pwGE28cWwjkuhmI9yA0nz2RPGD7DyrQCSRSkEQhS9oZWNFhDia5Tt795nBLR3Wr8tQcISQHqCzMaWymtFplPgwY"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">Tatlılar</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-tertiary bg-surface-container-lowest px-1.5 py-0.5 rounded">
+<span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span> Aktif
+                </span>
+</div>
+<div class="flex items-center gap-space-md mt-1 flex-wrap">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">icecream</span> 4 Ürün (SKU)
+                </span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">soup_kitchen</span> Soğuk Hazırlık
+                </span>
+<span class="font-label-sm text-label-sm text-outline">Kategori Kodu: CAT-DST</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-lg shrink-0 pt-space-xs md:pt-0">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Kasa POS: Açık">POS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Getir: Açık">GETİR</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Trendyol: Açık">TY</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Yemeksepeti: Açık">YS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Web: Açık">WEB</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container-highest hover:bg-surface-bright text-on-surface text-body-sm font-semibold flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span class="hidden sm:inline">Ürünler</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-primary-container hover:text-on-primary text-on-surface flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-error-container hover:text-on-error-container text-on-surface-variant flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">pause</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Category 08: Seasonal / Timed -->
+<div class="category-item group bg-surface-container-low hover:bg-surface-container rounded p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md transition-colors shadow-sm" data-category="sezonsal-promosyon-menuleri">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="cursor-grab active:cursor-grabbing text-outline hover:text-primary transition-colors p-1" title="Sıralamak için sürükleyin">
+<span class="material-symbols-outlined text-[20px]">drag_indicator</span>
+</div>
+<span class="font-label-sm text-label-sm bg-secondary-container text-on-secondary-container px-space-xs py-1 rounded font-bold shrink-0">#08</span>
+<div class="w-12 h-12 rounded bg-surface-container-high overflow-hidden shrink-0 relative flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Late night promo midnight burger meal combo with dark ambient moody neon yellow glow studio setup" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8UqWrWk13s1upyExD1-zaGdB5WKU8itRyvbDhFO63NOMCqvOijzjynOC5jihqMpU0IFneGMwIObh2nFQKMlJIaM2nLC0L7XpO_TFcNKS4_H8CZsEuSuC2h_RUZ2gEkNYxg5eT7tpMJkTCXjXmms_gWg4PSCU5OwgnUAFMgJeFHcDm5WcoiPJfAVH9OFpVPAGqzwHJcy5K5cB5vFqGQ0jTH-cthYpF7txrvSZkXto"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface truncate">Sezonsal / Promosyon Menüleri</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-secondary bg-surface-container-lowest px-1.5 py-0.5 rounded">
+<span class="material-symbols-outlined text-[12px]">schedule</span> 18:00 - 23:00 (Gece Menüsü)
+                </span>
+</div>
+<div class="flex items-center gap-space-md mt-1 flex-wrap">
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">local_offer</span> 3 Ürün (SKU)
+                </span>
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">soup_kitchen</span> Izgara #1 + Fritöz Kombine
+                </span>
+<span class="font-label-sm text-label-sm text-outline">Kategori Kodu: CAT-NIGHT</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between md:justify-end gap-space-lg shrink-0 pt-space-xs md:pt-0">
+<div class="flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Kasa POS: Açık">POS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Getir: Açık">GETİR</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Trendyol: Açık">TY</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-lowest text-outline font-label-sm text-label-sm line-through" title="Yemeksepeti: Pasif">YS</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold" title="Web: Açık">WEB</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="h-8 px-space-sm rounded bg-surface-container-highest hover:bg-surface-bright text-on-surface text-body-sm font-semibold flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span class="hidden sm:inline">Ürünler</span>
+</button>
+<button class="h-8 w-8 rounded bg-surface-container-highest hover:bg-primary-container hover:text-on-primary text-on-surface flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="h-8 w-8 rounded bg-primary-container text-on-primary flex items-center justify-center transition-colors font-bold" title="Hemen Yayına Al">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Control Panels (Visibility Matrix & KDS Routing Rules) -->
+<div class="col-span-12 xl:col-span-4 flex flex-col gap-space-md">
+<!-- Panel 1: Channel Visibility Matrix Quick Card -->
+<div class="bg-surface-container-low rounded p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-primary-container">hub</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">Kanal Görünürlük Matrisi</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-space-xs py-0.5 rounded text-primary">5 Kanal</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Kategorilerin sipariş kanallarına anlık senkronizasyonu. Değişiklikler anında platform API'lerine iletilir.</p>
+<!-- Channel Table / Grid -->
+<div class="flex flex-col gap-space-xs bg-surface-container-lowest p-space-sm rounded">
+<div class="flex items-center justify-between text-body-sm py-1.5 px-space-xs hover:bg-surface-container-low rounded">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<span class="font-semibold text-on-surface">Kasa POS Terminal</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline font-semibold">14/14 Kategori</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-1.5 py-0.5 rounded text-tertiary">SENKRON</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-body-sm py-1.5 px-space-xs hover:bg-surface-container-low rounded">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<span class="font-semibold text-on-surface">Getir Yemek</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline font-semibold">13/14 Kategori</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-1.5 py-0.5 rounded text-tertiary">SENKRON</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-body-sm py-1.5 px-space-xs hover:bg-surface-container-low rounded">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<span class="font-semibold text-on-surface">Trendyol Yemek</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline font-semibold">13/14 Kategori</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-1.5 py-0.5 rounded text-tertiary">SENKRON</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-body-sm py-1.5 px-space-xs hover:bg-surface-container-low rounded">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-semibold text-on-surface">Yemeksepeti</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline font-semibold">12/14 Kategori</span>
+<span class="font-label-sm text-label-sm bg-secondary-container px-1.5 py-0.5 rounded text-on-secondary-container">1 GİZLİ</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-body-sm py-1.5 px-space-xs hover:bg-surface-container-low rounded">
+<div class="flex items-center gap-space-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<span class="font-semibold text-on-surface">Web &amp; Mobil Sipariş</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline font-semibold">14/14 Kategori</span>
+<span class="font-label-sm text-label-sm bg-surface-container-high px-1.5 py-0.5 rounded text-tertiary">SENKRON</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2 bg-surface-container-high hover:bg-surface-container-highest text-on-surface rounded text-body-sm font-semibold flex items-center justify-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px] text-primary">published_with_changes</span>
+<span>Tüm Kanalları Zorla Senkronize Et</span>
+</button>
+</div>
+<!-- Panel 2: Mutfak KDS Yönlendirme Kuralları -->
+<div class="bg-surface-container-low rounded p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-primary-container">soup_kitchen</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">KDS İstasyon Rotası</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-high text-tertiary px-space-xs py-0.5 rounded font-bold">Aktif Mutfak</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Sipariş alındığında kategorideki ürünlerin otomatik aktarılacağı mutfak hazırlık ekranı.</p>
+<!-- Kitchen Station Load Mini Visualizer -->
+<div class="flex flex-col gap-space-sm">
+<div class="bg-surface-container-lowest p-space-sm rounded flex flex-col gap-1">
+<div class="flex items-center justify-between text-body-sm">
+<span class="font-semibold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary-container">skillet</span>
+<span>Izgara #1 &amp; #2 (Burger)</span>
+</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">2 Kategori (32 Ürün)</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 78%;"></div>
+</div>
+<div class="flex justify-between items-center text-label-sm font-label-sm text-outline">
+<span>Hedef KDS: Lane 01 &amp; Lane 02</span>
+<span>Yük: Yoğun</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded flex flex-col gap-1">
+<div class="flex items-center justify-between text-body-sm">
+<span class="font-semibold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-secondary">oil_barrel</span>
+<span>Fritöz &amp; Sıcak İstasyon</span>
+</span>
+<span class="font-label-sm text-label-sm text-secondary font-bold">2 Kategori (21 Ürün)</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 45%;"></div>
+</div>
+<div class="flex justify-between items-center text-label-sm font-label-sm text-outline">
+<span>Hedef KDS: Lane 03</span>
+<span>Yük: Normal</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded flex flex-col gap-1">
+<div class="flex items-center justify-between text-body-sm">
+<span class="font-semibold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-tertiary">ac_unit</span>
+<span>Soğuk Bar &amp; Tatlı Hazırlık</span>
+</span>
+<span class="font-label-sm text-label-sm text-tertiary font-bold">2 Kategori (19 Ürün)</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 32%;"></div>
+</div>
+<div class="flex justify-between items-center text-label-sm font-label-sm text-outline">
+<span>Hedef KDS: Lane 04</span>
+<span>Yük: Düşük</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded flex flex-col gap-1">
+<div class="flex items-center justify-between text-body-sm">
+<span class="font-semibold text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">takeout_dining</span>
+<span>Paketleme &amp; Sos İstasyonu</span>
+</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">1 Kategori (11 Ürün)</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 55%;"></div>
+</div>
+<div class="flex justify-between items-center text-label-sm font-label-sm text-outline">
+<span>Hedef KDS: Çıkış Tezgahı</span>
+<span>Yük: Dengeli</span>
+</div>
+</div>
+</div>
+<div class="p-space-xs bg-surface-container-highest rounded text-body-sm text-on-surface-variant flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary-container shrink-0 mt-0.5">info</span>
+<span class="font-body-sm text-body-sm leading-tight">Bir kategoride yapılan istasyon değişikliği, mutfaktaki dokunmatik KDS tabletlerine gecikmesiz yansıtılır.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Slide-over / Modal for Adding New Category -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center p-space-md bg-surface-container-lowest/80 backdrop-blur-sm" id="new-category-modal">
+<div class="bg-surface-container-low max-w-lg w-full rounded p-space-xl flex flex-col gap-space-lg shadow-xl relative animate-in fade-in duration-150">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded bg-primary-container text-on-primary flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Yeni Kategori Tanımla</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Menü hiyerarşisine yeni bir grup ekleyin</p>
+</div>
+</div>
+<button class="p-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface" onclick="document.getElementById('new-category-modal').classList.add('hidden')">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm uppercase font-semibold text-on-surface-variant">Kategori Adı</label>
+<input class="h-9 px-space-md rounded bg-surface-container-lowest text-on-surface placeholder:text-outline font-body-sm outline-none focus:ring-1 focus:ring-primary-container" placeholder="Örn: Gurme Soslu Kanatlar" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm uppercase font-semibold text-on-surface-variant">Kategori Kodu (SKU Ref)</label>
+<input class="h-9 px-space-md rounded bg-surface-container-lowest text-on-surface placeholder:text-outline font-label-md text-label-md uppercase outline-none focus:ring-1 focus:ring-primary-container" placeholder="CAT-WINGS" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm uppercase font-semibold text-on-surface-variant">Varsayılan Sıra</label>
+<input class="h-9 px-space-md rounded bg-surface-container-lowest text-on-surface font-label-md text-label-md outline-none focus:ring-1 focus:ring-primary-container" type="number" value="9"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm uppercase font-semibold text-on-surface-variant">Hedef KDS İstasyonu</label>
+<select class="h-9 px-space-md rounded bg-surface-container-lowest text-on-surface font-body-sm outline-none focus:ring-1 focus:ring-primary-container">
+<option>Fritöz &amp; Sıcak İstasyonu</option>
+<option>Izgara &amp; Burger #1</option>
+<option>Izgara &amp; Burger #2</option>
+<option>Soğuk Bar &amp; İçecek</option>
+<option>Paketleme &amp; Sos Barı</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm uppercase font-semibold text-on-surface-variant">Satış Kanalları Görünürlüğü</label>
+<div class="grid grid-cols-3 gap-space-xs pt-1">
+<label class="flex items-center gap-1.5 text-body-sm text-on-surface cursor-pointer">
+<input checked="" class="accent-[#f3d406]" type="checkbox"/>
+<span>POS Kasa</span>
+</label>
+<label class="flex items-center gap-1.5 text-body-sm text-on-surface cursor-pointer">
+<input checked="" class="accent-[#f3d406]" type="checkbox"/>
+<span>Getir</span>
+</label>
+<label class="flex items-center gap-1.5 text-body-sm text-on-surface cursor-pointer">
+<input checked="" class="accent-[#f3d406]" type="checkbox"/>
+<span>Trendyol</span>
+</label>
+<label class="flex items-center gap-1.5 text-body-sm text-on-surface cursor-pointer">
+<input checked="" class="accent-[#f3d406]" type="checkbox"/>
+<span>Yemeksepeti</span>
+</label>
+<label class="flex items-center gap-1.5 text-body-sm text-on-surface cursor-pointer">
+<input checked="" class="accent-[#f3d406]" type="checkbox"/>
+<span>Web / App</span>
+</label>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-md">
+<button class="h-9 px-space-md rounded bg-surface-container hover:bg-surface-container-highest text-on-surface-variant text-body-sm font-semibold" onclick="document.getElementById('new-category-modal').classList.add('hidden')">
+          İptal
+        </button>
+<button class="h-9 px-space-md rounded bg-primary-container text-on-primary text-body-sm font-bold hover:brightness-110" onclick="document.getElementById('new-category-modal').classList.add('hidden')">
+          Kategoriyi Kaydet
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Ensure the left sidebar 'Kategoriler' menu is highlighted with bright amber
+  (function initActiveMenu() {
+    const navLinks = document.querySelectorAll('aside nav a');
+    navLinks.forEach(link => {
+      const href = link.getAttribute('data-path') || link.getAttribute('href');
+      if (href && href.includes('kategoriler')) {
+        link.classList.remove('text-on-surface-variant', 'hover:bg-surface-container');
+        link.classList.add('bg-primary-container', 'text-on-primary', 'font-semibold', 'rounded');
+        const icon = link.querySelector('.material-symbols-outlined');
+        if (icon) icon.classList.add('text-on-primary');
+      }
+    });
+
+    // Also update breadcrumb top secondary tabs to ensure 'Kategoriler' tab exists & highlighted
+    const topTabContainer = document.querySelector('header + div .overflow-x-auto');
+    if (topTabContainer) {
+      // Find or inject categories tab
+      let found = false;
+      topTabContainer.querySelectorAll('button').forEach(btn => {
+        if (btn.textContent.includes('Kategoriler')) {
+          found = true;
+          btn.className = "h-8 px-space-md rounded bg-primary-container text-on-primary text-body-sm flex items-center gap-space-xs font-bold";
+        } else {
+          btn.className = "h-8 px-space-md rounded bg-surface text-on-surface-variant hover:text-on-surface text-body-sm flex items-center gap-space-xs group";
+        }
+      });
+      if (!found) {
+        const catBtn = document.createElement('button');
+        catBtn.className = "h-8 px-space-md rounded bg-primary-container text-on-primary text-body-sm flex items-center gap-space-xs font-bold";
+        catBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">category</span><span>Kategoriler</span><span class="material-symbols-outlined text-[14px] text-on-primary hover:text-error rounded-full p-0.5">close</span>';
+        topTabContainer.prepend(catBtn);
+      }
+    }
+  })();
+
+  // Filter Categories Live
+  const searchInput = document.getElementById('cat-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase().trim();
+      const items = document.querySelectorAll('.category-item');
+      items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (text.includes(term)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  // Toggle Reorder Drag and Drop indicator simulation
+  const reorderBtn = document.getElementById('btn-reorder-mode');
+  const reorderText = document.getElementById('reorder-text');
+  let isReordering = false;
+
+  if (reorderBtn) {
+    reorderBtn.addEventListener('click', () => {
+      isReordering = !isReordering;
+      if (isReordering) {
+        reorderBtn.classList.remove('bg-surface-container-high', 'text-on-surface');
+        reorderBtn.classList.add('bg-primary-container', 'text-on-primary');
+        reorderText.textContent = 'Sıralamayı Kaydet';
+        document.querySelectorAll('.category-item').forEach(item => {
+          item.classList.add('animate-pulse');
+        });
+      } else {
+        reorderBtn.classList.add('bg-surface-container-high', 'text-on-surface');
+        reorderBtn.classList.remove('bg-primary-container', 'text-on-primary');
+        reorderText.textContent = 'Sıralamayı Düzenle';
+        document.querySelectorAll('.category-item').forEach(item => {
+          item.classList.remove('animate-pulse');
+        });
+      }
+    });
+  }
+</script></main></div></body></html>

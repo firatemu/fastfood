@@ -17,7 +17,6 @@ describe('ops shell paths', () => {
     expect(isA2Path('/catalog')).toBe(true);
     expect(isA2Path('/catalog/products/abc')).toBe(true);
     expect(isA2Path('/couriers')).toBe(false);
-    expect(isOpsShellPath('/catalog/media')).toBe(true);
     expect(isOpsShellPath('/branches')).toBe(true);
     expect(isOpsShellPath('/customers')).toBe(true);
   });
@@ -52,20 +51,26 @@ describe('filterCatalogProducts', () => {
   ];
 
   it('filters client-side by query, category, and active without inventing pagination', () => {
-    expect(filterCatalogProducts(rows, { q: 'smash', categoryId: '', active: '', sort: 'name' })).toEqual([
-      rows[0],
-    ]);
     expect(
-      filterCatalogProducts(rows, { q: '', categoryId: 'drinks', active: '', sort: 'order' }).map((r) => r.id),
+      filterCatalogProducts(rows, { q: 'smash', categoryId: '', active: '', sort: 'name' }),
+    ).toEqual([rows[0]]);
+    expect(
+      filterCatalogProducts(rows, { q: '', categoryId: 'drinks', active: '', sort: 'order' }).map(
+        (r) => r.id,
+      ),
     ).toEqual(['2']);
     expect(
-      filterCatalogProducts(rows, { q: '', categoryId: '', active: 'inactive', sort: 'price' }).map((r) => r.id),
+      filterCatalogProducts(rows, { q: '', categoryId: '', active: 'inactive', sort: 'price' }).map(
+        (r) => r.id,
+      ),
     ).toEqual(['2']);
   });
 
   it('sorts by display order by default-style order key', () => {
     expect(
-      filterCatalogProducts(rows, { q: '', categoryId: '', active: '', sort: 'order' }).map((r) => r.id),
+      filterCatalogProducts(rows, { q: '', categoryId: '', active: '', sort: 'order' }).map(
+        (r) => r.id,
+      ),
     ).toEqual(['2', '1']);
   });
 });

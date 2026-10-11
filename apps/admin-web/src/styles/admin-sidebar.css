@@ -1,406 +1,389 @@
-[data-admin-theme='kitchen-fleet'].ops-shell {
-  --ops-sidebar-expanded: 252px;
-  --ops-sidebar-collapsed: 72px;
+/* ==========================================================================
+   BURGER HOME Ops — application rail
+   Enterprise console navigation.
+
+   Deliberately quiet: one flat surface, one accent, no gradients, no glow,
+   no icon chrome. Density comes from rhythm (38px rows, 2px gutters), and
+   orientation comes from group headers and a single accent rail on the
+   active row. The only saturated colour in the whole rail is `--rail-accent`.
+   ========================================================================== */
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']).ops-shell {
+  --ops-sidebar-expanded: 268px;
+  --ops-sidebar-collapsed: 64px;
+
+  --rail-row-h: 38px;
+  --rail-gutter: 2px;
+  --rail-radius: 8px;
+
+  --rail-bg: light-dark(#ffffff, #14171c);
+  --rail-elevated: light-dark(#f6f7f9, #1b1f26);
+  --rail-border: light-dark(#e3e6ea, #262b33);
+  --rail-border-strong: light-dark(#d3d8de, #333a44);
+  --rail-ink: light-dark(#23282f, #ccd4dd);
+  --rail-ink-muted: light-dark(#69737f, #838d9a);
+  --rail-ink-faint: light-dark(#98a1ac, #626b78);
+  --rail-accent: light-dark(#a86f11, #feb300);
+  --rail-accent-bg: light-dark(rgba(246, 187, 66, 0.16), rgba(254, 179, 0, 0.12));
+
   grid-template-columns: var(--ops-sidebar-expanded) minmax(0, 1fr);
-  transition: grid-template-columns 230ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: grid-template-columns 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-[data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] {
-  grid-template-columns: var(--ops-sidebar-collapsed) minmax(0, 1fr);
-}
+/* ------------------------------------------------------------------ shell */
 
-[data-admin-theme='kitchen-fleet'] .ops-rail {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-rail {
   position: sticky;
   top: 0;
   z-index: 20;
+  display: flex;
+  flex-direction: column;
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
-  border-right: 1px solid light-dark(#d3d6d9, #36404b);
-  background: linear-gradient(
-    180deg,
-    light-dark(#fcfcfd, #171d25) 0%,
-    light-dark(#eef1f4, #121820) 44%,
-    light-dark(#fcfcfd, #11161c) 100%
-  );
-  box-shadow: inset -1px 0 light-dark(rgba(27, 42, 49, 0.025), rgba(24, 30, 37, 0.025));
+  border-right: 1px solid var(--rail-border);
+  background: var(--rail-bg);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-rail::before {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    light-dark(#fab429, #ffb31a) 0%,
-    light-dark(#d6994d, #ac7128) 40%,
-    transparent 100%
-  );
-  content: '';
-  pointer-events: none;
-}
+/* ------------------------------------------------------------- brand block */
 
-[data-admin-theme='kitchen-fleet'] .ops-side__head {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__head {
   display: flex;
   align-items: center;
-  min-height: 76px;
-  padding: 12px 15px;
-  border-bottom: 1px solid light-dark(#d3d6d9, #303a45);
-  background: light-dark(rgba(252, 252, 253, 0.015), rgba(23, 30, 38, 0.015));
+  height: 56px;
+  flex: 0 0 auto;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--rail-border);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__brand {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__brand {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 10px;
   min-width: 0;
   color: inherit;
   text-decoration: none;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__mark {
-  position: relative;
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__mark {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   flex: 0 0 auto;
-  border: 1px solid light-dark(#d6bb8a, #8a641f);
-  border-radius: 3px;
-  background: linear-gradient(
-    145deg,
-    light-dark(#f7f2eb, #704c1f) 0%,
-    light-dark(#fdfcfc, #292419) 55%,
-    light-dark(#f8f9f9, #1c242c) 100%
-  );
-  box-shadow:
-    inset 0 1px light-dark(rgba(27, 42, 49, 0.034), rgba(255, 218, 142, 0.12)),
-    0 3px 10px light-dark(rgba(27, 42, 49, 0.07), rgba(0, 0, 0, 0.25));
-  color: light-dark(#a06d0d, #ffd17c);
-  font: 400 19px/1 var(--ops-font-anton);
-  letter-spacing: 0.035em;
+  border: 1px solid var(--rail-border-strong);
+  border-radius: var(--rail-radius);
+  background: var(--rail-elevated);
+  color: light-dark(#8a641f, #f2c56a);
+  font: 400 14px/1 var(--ops-font-anton);
+  letter-spacing: 0.04em;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__mark::after {
-  position: absolute;
-  right: -3px;
-  bottom: -3px;
-  width: 7px;
-  height: 7px;
-  border: 2px solid light-dark(#d3d6d9, #171d25);
-  background: light-dark(#fabc29, #feb300);
-  content: '';
-}
-
-[data-admin-theme='kitchen-fleet'] .ops-side__brand-copy {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__brand-copy {
   display: grid;
   min-width: 0;
-  gap: 3px;
+  gap: 1px;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__brand-copy strong {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__brand-copy
+  strong {
   overflow: hidden;
-  color: light-dark(#2e2b24, #f3f1eb);
-  font: 400 17px/1 var(--ops-font-anton);
-  letter-spacing: 0.045em;
+  color: var(--rail-ink);
+  font: 400 14px/1.1 var(--ops-font-anton);
+  letter-spacing: 0.05em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__brand-copy small {
-  color: light-dark(#81642d, #c8a460);
-  font: 700 10px/1.2 var(--ops-font-sans);
-  letter-spacing: 0.025em;
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__brand-copy
+  small {
+  overflow: hidden;
+  color: var(--rail-ink-faint);
+  font: 600 10px/1.2 var(--ops-font-sans);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__mobile-close {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__mobile-close {
   display: none;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__nav {
+/* ------------------------------------------------------------ nav filtering */
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__filter {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rail-border);
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__filter-icon {
+  position: absolute;
+  top: 50%;
+  left: 23px;
+  display: grid;
+  place-items: center;
+  transform: translateY(-50%);
+  color: var(--rail-ink-faint);
+  pointer-events: none;
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__filter-icon
+  .ops-rail__icon {
+  width: auto;
+  font-size: 17px;
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__filter
+  input {
+  width: 100%;
+  height: 32px;
+  padding: 0 30px 0 31px;
+  border: 1px solid var(--rail-border-strong);
+  border-radius: var(--rail-radius);
+  background: var(--rail-elevated);
+  color: var(--rail-ink);
+  font: 500 12px/1 var(--ops-font-sans);
+  transition:
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__filter
+  input::placeholder {
+  color: var(--rail-ink-faint);
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__filter
+  input:focus {
+  border-color: var(--rail-accent);
+  background: var(--rail-bg);
+  outline: none;
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__filter
+  input::-webkit-search-cancel-button {
+  display: none;
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__filter-clear {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--rail-ink-muted);
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__filter-clear:hover {
+  background: var(--rail-border);
+  color: var(--rail-ink);
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__filter-clear
+  .ops-rail__icon {
+  width: auto;
+  font-size: 15px;
+}
+
+/* ----------------------------------------------------------------- nav list */
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__nav {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
-  padding: 5px 0 14px;
-  scrollbar-color: light-dark(#3f4750, #505c69) transparent;
+  padding: 10px 0 16px;
+  scrollbar-color: var(--rail-border-strong) transparent;
   scrollbar-width: thin;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__section {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__section
+  + .ops-side__section {
   margin-top: 4px;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__section-label {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 16px 17px 6px;
-  color: light-dark(#58636f, #8f9dab);
-  font: 800 10px/1.2 var(--ops-font-sans);
-  letter-spacing: 0.075em;
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__section-label {
+  margin: 16px 14px 6px;
+  color: var(--rail-ink-faint);
+  font: 700 10px/1.2 var(--ops-font-sans);
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__section-label::after {
-  height: 1px;
-  flex: 1;
-  background: linear-gradient(90deg, light-dark(#eff0f0, #3b4550), transparent);
-  content: '';
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__section--pinned
+  .ops-side__section-label {
+  display: none;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__list {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__section--pinned {
+  margin-bottom: 6px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rail-border);
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__list {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__link {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__link {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 39px;
-  margin: 2px 8px;
-  padding: 3px 9px;
-  border: 1px solid transparent;
-  border-radius: 3px;
+  gap: 11px;
+  min-height: var(--rail-row-h);
+  margin: var(--rail-gutter) 10px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--rail-radius);
   background: transparent;
-  color: light-dark(#24292e, #c3ced8);
-  font: 650 12px/1.2 var(--ops-font-sans);
+  color: var(--rail-ink-muted);
+  font: 500 13px/1.2 var(--ops-font-sans);
   text-decoration: none;
   transition:
-    background 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease;
+    background 130ms ease,
+    color 130ms ease;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__link::before {
+/* Active indicator: one solid 2px bar. No glow. */
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__link::before {
   position: absolute;
-  top: 7px;
-  bottom: 7px;
-  left: -9px;
-  width: 3px;
+  top: 9px;
+  bottom: 9px;
+  left: -10px;
+  width: 2px;
   border-radius: 0 2px 2px 0;
   background: transparent;
   content: '';
-  transition:
-    background 150ms ease,
-    box-shadow 150ms ease;
+  transition: background 130ms ease;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__link:hover {
-  border-color: light-dark(#d3d7d9, #384753);
-  background: light-dark(#f8f9f9, #202a34);
-  color: light-dark(#242a2e, #f0f3f5);
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__link:hover {
+  background: var(--rail-elevated);
+  color: var(--rail-ink);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__link:hover::before {
-  background: light-dark(#f4f2ee, #a78c5a);
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__link--active {
+  background: var(--rail-accent-bg);
+  color: var(--rail-accent);
+  font-weight: 650;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__link--active {
-  border-color: light-dark(rgba(146, 160, 170, 0.28), rgba(254, 179, 0, 0.28));
-  background: linear-gradient(
-    90deg,
-    light-dark(rgba(244, 187, 52, 0.17), rgba(254, 179, 0, 0.17)),
-    light-dark(rgba(244, 187, 52, 0.045), rgba(254, 179, 0, 0.045))
-  );
-  color: light-dark(#a06c0d, #ffcf77);
-  font-weight: 750;
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__link--active::before {
+  background: var(--rail-accent);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__link--active::before,
-[data-admin-theme='kitchen-fleet'] .ops-side__link--active:hover::before {
-  background: light-dark(#fabc29, #feb300);
-  box-shadow: 0 0 9px light-dark(rgba(27, 42, 49, 0.118), rgba(254, 179, 0, 0.42));
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__link--active:hover {
+  background: var(--rail-accent-bg);
+  color: var(--rail-accent);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__link--active:hover {
-  border-color: light-dark(rgba(146, 160, 170, 0.45), rgba(254, 179, 0, 0.45));
-  background: linear-gradient(
-    90deg,
-    light-dark(rgba(244, 187, 52, 0.21), rgba(254, 179, 0, 0.21)),
-    light-dark(rgba(244, 187, 52, 0.075), rgba(254, 179, 0, 0.075))
-  );
-  color: light-dark(#a06e0d, #ffdc99);
-}
-
-[data-admin-theme='kitchen-fleet'] .ops-side__icon {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__icon {
   display: grid;
   place-items: center;
-  width: 29px;
-  height: 29px;
+  width: 20px;
+  height: 20px;
   flex: 0 0 auto;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  background: light-dark(rgba(247, 247, 248, 0.08), rgba(118, 142, 162, 0.08));
-  color: light-dark(#58656f, #9eafbd);
-  transition:
-    border-color 150ms ease,
-    background 150ms ease,
-    color 150ms ease,
-    transform 150ms ease;
+  color: inherit;
+  opacity: 0.82;
+  transition: opacity 130ms ease;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__icon .ops-rail__icon {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__icon
+  .ops-rail__icon {
   width: auto;
-  font-size: 19px;
+  font-size: 20px;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__link:hover .ops-side__icon {
-  border-color: light-dark(#d3d6d9, #465567);
-  background: light-dark(#f3f4f4, #2c3945);
-  color: light-dark(#856229, #e5cfaa);
-  transform: translateX(2px);
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__link:hover
+  .ops-side__icon,
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-side__link--active
+  .ops-side__icon {
+  opacity: 1;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__link--active .ops-side__icon {
-  border-color: light-dark(rgba(146, 160, 170, 0.32), rgba(254, 179, 0, 0.32));
-  background: light-dark(rgba(244, 187, 52, 0.13), rgba(254, 179, 0, 0.13));
-  color: light-dark(#a06e0d, #ffcb68);
-}
-
-[data-admin-theme='kitchen-fleet'] .ops-side__text {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__text {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__footer {
-  flex: 0 0 auto;
-  padding: 11px 9px 12px;
-  border-top: 1px solid light-dark(#d3d6d9, #333d48);
-  background: light-dark(#fcfcfd, #151b22);
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__empty {
+  margin: 20px 14px;
+  color: var(--rail-ink-faint);
+  font: 500 12px/1.5 var(--ops-font-sans);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-side__collapse {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  min-height: 38px;
-  padding: 4px 8px;
-  border: 1px solid light-dark(#d3d6d9, #3a4652);
-  border-radius: 3px;
-  background: light-dark(#f8f9f9, #202a34);
-  color: light-dark(#24292e, #c9d3dc);
-  cursor: pointer;
-  font: 700 11px var(--ops-font-sans);
-  text-align: left;
-  transition:
-    border-color 150ms ease,
-    background 150ms ease,
-    color 150ms ease;
-}
-
-[data-admin-theme='kitchen-fleet'] .ops-side__collapse:hover {
-  border-color: light-dark(#d0b990, #aa8748);
-  background: light-dark(#f9f9f8, #302b24);
-  color: light-dark(#a06a0d, #ffce7a);
-}
-
-[data-admin-theme='kitchen-fleet'] .ops-side__collapse-icon {
-  display: grid;
-  place-items: center;
-  width: 22px;
-  flex: 0 0 auto;
-}
-
-[data-admin-theme='kitchen-fleet'] .ops-side__collapse-icon .ops-rail__icon {
-  width: auto;
-  font-size: 18px;
-}
-
-[data-admin-theme='kitchen-fleet'] .ops-side__scrim {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__scrim {
   display: none;
 }
 
+/* -------------------------------------------------------- collapsed (64px) */
+
 @media (min-width: 768px) {
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] .ops-side__head {
-    justify-content: center;
-    padding-inline: 8px;
-  }
-
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] .ops-side__brand-copy,
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] .ops-side__text {
-    display: none;
-  }
-
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] .ops-side__section-label {
-    height: 1px;
-    margin: 17px 16px 11px;
-    overflow: hidden;
-    background: light-dark(#eff0f0, #35404a);
-    color: transparent;
-    font-size: 0;
-  }
-
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true']
-    .ops-side__section-label::after {
-    display: none;
-  }
-
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] .ops-side__nav {
-    scrollbar-width: none;
-  }
-
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true']
-    .ops-side__nav::-webkit-scrollbar {
-    display: none;
-  }
-
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] .ops-side__link {
-    justify-content: center;
-    min-height: 43px;
-    margin-inline: 8px;
-    padding-inline: 3px;
-  }
-
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] .ops-side__icon {
-    width: 33px;
-    height: 33px;
-  }
-
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] .ops-side__collapse {
-    justify-content: center;
-    padding-inline: 0;
-  }
-
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] .ops-side__collapse-text {
-    display: none;
-  }
 }
 
-@media (max-width: 767px) {
-  [data-admin-theme='kitchen-fleet'].ops-shell,
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] {
-    grid-template-columns: minmax(0, 1fr);
-  }
+/* ------------------------------------------------------------------ mobile */
 
-  [data-admin-theme='kitchen-fleet'] .ops-rail {
+@media (max-width: 767px) {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-rail {
     position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
     z-index: 51;
     display: none;
-    width: min(280px, 88vw);
+    width: min(300px, 88vw);
     height: 100dvh;
     box-shadow: 14px 0 48px light-dark(rgba(27, 42, 49, 0.14), rgba(0, 0, 0, 0.5));
   }
 
-  [data-admin-theme='kitchen-fleet'].ops-shell--nav .ops-rail {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']).ops-shell--nav
+    .ops-rail {
     display: flex;
     animation: ops-side-enter 180ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
   }
 
-  [data-admin-theme='kitchen-fleet'] .ops-side__scrim {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-side__scrim {
     position: fixed;
     inset: 0;
     z-index: 50;
@@ -412,27 +395,26 @@
     cursor: pointer;
   }
 
-  [data-admin-theme='kitchen-fleet'] .ops-side__mobile-close {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+    .ops-side__mobile-close {
     display: grid;
     place-items: center;
     width: 32px;
     height: 32px;
     flex: 0 0 auto;
     margin-left: auto;
-    border: 1px solid light-dark(#d3d6d9, #46515e);
-    border-radius: 2px;
-    background: light-dark(#f3f3f4, #232c36);
-    color: light-dark(#2e5c84, #dce4eb);
+    border: 1px solid var(--rail-border-strong);
+    border-radius: var(--rail-radius);
+    background: var(--rail-elevated);
+    color: var(--rail-ink);
     cursor: pointer;
   }
 
-  [data-admin-theme='kitchen-fleet'] .ops-side__mobile-close .ops-rail__icon {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+    .ops-side__mobile-close
+    .ops-rail__icon {
     width: auto;
     font-size: 19px;
-  }
-
-  [data-admin-theme='kitchen-fleet'] .ops-side__footer {
-    display: none;
   }
 }
 
@@ -448,29 +430,25 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-admin-theme='kitchen-fleet'].ops-shell,
-  [data-admin-theme='kitchen-fleet'] .ops-side__link,
-  [data-admin-theme='kitchen-fleet'] .ops-side__link::before,
-  [data-admin-theme='kitchen-fleet'] .ops-side__icon,
-  [data-admin-theme='kitchen-fleet'] .ops-side__collapse {
-    transition: none;
-  }
-
-  [data-admin-theme='kitchen-fleet'].ops-shell--nav .ops-rail {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']).ops-shell--nav
+    .ops-rail {
     animation: none;
   }
 }
 
-/* Persistent workspace tabs sit between the command bar and page canvas. */
-[data-admin-theme='kitchen-fleet'].ops-shell {
+/* ==========================================================================
+   Persistent workspace tabs sit between the command bar and page canvas.
+   ========================================================================== */
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']).ops-shell {
   grid-template-rows: var(--ops-topbar) 43px minmax(0, 1fr);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-rail {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-rail {
   grid-row: 1 / span 3;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tabbar {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tabbar {
   position: relative;
   z-index: 15;
   grid-column: 2;
@@ -482,7 +460,7 @@
   box-shadow: inset 0 -1px light-dark(rgba(27, 42, 49, 0.025), rgba(24, 30, 37, 0.018));
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tabs {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tabs {
   display: flex;
   min-width: 0;
   flex: 1;
@@ -490,11 +468,12 @@
   scrollbar-width: none;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tabs::-webkit-scrollbar {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tabs::-webkit-scrollbar {
   display: none;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tab {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tab {
   position: relative;
   display: flex;
   align-items: stretch;
@@ -507,11 +486,11 @@
     border-color 150ms ease;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tab:hover {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tab:hover {
   background: light-dark(#f8f9f9, #1b232c);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tab--active {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tab--active {
   border-right-color: light-dark(rgba(146, 160, 170, 0.28), rgba(254, 179, 0, 0.28));
   background: linear-gradient(
     180deg,
@@ -520,7 +499,8 @@
   );
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tab--active::after {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tab--active::after {
   position: absolute;
   right: 0;
   bottom: -1px;
@@ -531,7 +511,7 @@
   content: '';
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tab__select {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tab__select {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -546,25 +526,29 @@
   text-align: left;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tab--active .ops-tab__select {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tab--active
+  .ops-tab__select {
   color: light-dark(#a06c0d, #ffcf77);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tab__select .ops-rail__icon {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tab__select
+  .ops-rail__icon {
   width: auto;
   flex: 0 0 auto;
   font-size: 16px;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tab__label {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tab__label {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tab__close,
-[data-admin-theme='kitchen-fleet'] .ops-tabbar__action {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tab__close,
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tabbar__action {
   display: grid;
   place-items: center;
   width: 31px;
@@ -579,30 +563,35 @@
     color 150ms ease;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tab__close:hover,
-[data-admin-theme='kitchen-fleet'] .ops-tabbar__action:hover {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tab__close:hover,
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tabbar__action:hover {
   background: light-dark(rgba(252, 252, 253, 0.08), rgba(23, 30, 38, 0.08));
   color: light-dark(#966817, #f0d29d);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tab__close .ops-rail__icon,
-[data-admin-theme='kitchen-fleet'] .ops-tabbar__action .ops-rail__icon {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tab__close
+  .ops-rail__icon,
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tabbar__action
+  .ops-rail__icon {
   width: auto;
   font-size: 16px;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tabbar__actions {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tabbar__actions {
   display: flex;
   align-items: stretch;
   flex: 0 0 auto;
   border-left: 1px solid light-dark(#d3d6d9, #303a45);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tabbar__menu-wrap {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tabbar__menu-wrap {
   position: relative;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tabbar__menu {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tabbar__menu {
   position: absolute;
   top: calc(100% + 5px);
   right: 5px;
@@ -615,7 +604,9 @@
   box-shadow: 0 8px 32px light-dark(rgba(27, 42, 49, 0.18), rgba(0, 0, 0, 0.7));
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tabbar__menu button {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tabbar__menu
+  button {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -629,22 +620,29 @@
   text-align: left;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tabbar__menu button:hover:not(:disabled) {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tabbar__menu
+  button:hover:not(:disabled) {
   background: light-dark(#f3f4f4, #2c3742);
   color: light-dark(#a06c0d, #ffcf77);
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tabbar__menu button:disabled {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tabbar__menu
+  button:disabled {
   color: light-dark(#58626f, #9dacbe);
   cursor: not-allowed;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tabbar__menu .ops-rail__icon {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tabbar__menu
+  .ops-rail__icon {
   width: auto;
   font-size: 16px;
 }
 
-[data-admin-theme='kitchen-fleet'] .ops-tabbar__menu-divider {
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-tabbar__menu-divider {
   display: block;
   height: 1px;
   margin: 4px 0;
@@ -652,39 +650,280 @@
 }
 
 @media (max-width: 767px) {
-  [data-admin-theme='kitchen-fleet'].ops-shell,
-  [data-admin-theme='kitchen-fleet'].ops-shell[data-nav-collapsed='true'] {
-    grid-template-rows: auto 42px minmax(0, 1fr);
-  }
-
-  [data-admin-theme='kitchen-fleet'] .ops-tabbar {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tabbar {
     grid-column: 1;
   }
 
-  [data-admin-theme='kitchen-fleet'] .ops-tab {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tab {
     min-width: 132px;
   }
 }
 
 @media (max-width: 430px) {
-  [data-admin-theme='kitchen-fleet'].ops-shell {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']).ops-shell {
     grid-template-rows: auto 40px minmax(0, 1fr);
   }
 
-  [data-admin-theme='kitchen-fleet'] .ops-tab__select {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tab__select {
     padding-left: 9px;
   }
 
-  [data-admin-theme='kitchen-fleet'] .ops-tabbar__menu {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tabbar__menu {
     right: 0;
     width: min(226px, calc(100vw - 14px));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-admin-theme='kitchen-fleet'] .ops-tab,
-  [data-admin-theme='kitchen-fleet'] .ops-tab__close,
-  [data-admin-theme='kitchen-fleet'] .ops-tabbar__action {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tab,
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tab__close,
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-tabbar__action {
     transition: none;
   }
+}
+/* ==========================================================================
+   FASTFOOD Admin — Navy shell (ADR-019, phase A2)
+   Sidebar: fixed 288px. Collapsed-rail behaviour is retired.
+   Values transcribed from stitch_fastfood_admin_dashboard_prompts/<screen>/code.html
+   (`aside.w-72`, `h-14` brand row, `space-y-space-md` / `space-y-space-xs`).
+   ========================================================================== */
+
+[data-admin-theme='fastfood-navy'] {
+  /* Design uses a fixed 288px sidebar; there is no collapsed variant. */
+  --ops-sidebar-expanded: 288px;
+  --ops-sidebar-collapsed: 288px;
+
+  /* Density from the design rhythm: 4px gutters, 6px/4px nav padding. */
+  --rail-row-h: 34px;
+  --rail-gutter: 4px;
+  --rail-radius: 8px;
+
+  /* `aside` is bg-surface-container-lowest. */
+  --rail-bg: var(--ff-surface-container-lowest);
+  --rail-elevated: var(--ff-surface-container-low);
+  --rail-border: var(--ff-keyline);
+  --rail-border-strong: var(--ff-outline-variant);
+  --rail-ink: var(--ff-on-surface);
+  --rail-ink-muted: var(--ff-on-surface-variant);
+  --rail-ink-faint: var(--ff-ink-faint);
+
+  /* Design active state: bg-primary-container + on-primary. */
+  --rail-accent: var(--ff-primary-container);
+  --rail-accent-bg: var(--ff-primary-container);
+  --rail-accent-ink: var(--ff-on-primary);
+}
+
+/* Brand row: h-14, px-gutter, surface-container-low at 60%. */
+[data-admin-theme='fastfood-navy'] .ops-side__head {
+  height: 56px;
+  padding: 0 12px;
+  background: var(--ff-brand-fill);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__brand {
+  gap: 6px;
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__brand-copy strong {
+  font: 600 15px/1.25 var(--ff-font-headline);
+  color: var(--ff-on-surface);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__brand-copy small {
+  font: 500 10px/1.4 var(--ff-font-label);
+  letter-spacing: 0.04em;
+  color: var(--ff-on-surface-variant);
+  text-transform: uppercase;
+}
+
+/* Search well: bg-surface-container, ring-primary-container on focus. */
+[data-admin-theme='fastfood-navy'] .ops-side__filter {
+  padding: 0 12px 4px;
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__filter-icon {
+  color: var(--ff-on-surface-variant);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__filter input {
+  height: 32px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
+  font: 400 12px/1.33 var(--ff-font-body);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__filter input::placeholder {
+  color: var(--ff-on-surface-variant);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__filter input:focus {
+  border-color: var(--ff-primary-container);
+  outline: none;
+}
+
+/* Nav: px-gutter, 10px between groups, 4px between items. */
+[data-admin-theme='fastfood-navy'] .ops-side__nav {
+  padding: 10px 0 16px;
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__section + .ops-side__section {
+  margin-top: 10px;
+}
+
+/* Group labels are a label role: monospaced, uppercase, 10px. */
+[data-admin-theme='fastfood-navy'] .ops-side__section-label {
+  margin: 12px 6px 4px;
+  color: var(--ff-on-surface-variant);
+  font: 500 10px/1.2 var(--ff-font-label);
+  letter-spacing: 0.04em;
+}
+
+/* Nav item: body-sm Inter, 18px icon. */
+[data-admin-theme='fastfood-navy'] .ops-side__link {
+  gap: 6px;
+  margin: 2px 6px;
+  padding: 4px 6px;
+  color: var(--ff-on-surface-variant);
+  font: 400 12px/1.33 var(--ff-font-body);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__link::before {
+  display: none;
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__link:hover {
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__link--active,
+[data-admin-theme='fastfood-navy'] .ops-side__link--active:hover {
+  background: var(--ff-primary-container);
+  color: var(--ff-on-primary);
+  font-weight: 600;
+}
+
+[data-admin-theme='fastfood-navy'] .ops-side__icon,
+[data-admin-theme='fastfood-navy'] .ops-side__icon .ops-rail__icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  opacity: 1;
+}
+
+/* --- shell rows: header 56px + sub-bar 40px (design h-14 + h-10) --- */
+[data-admin-theme='fastfood-navy'].ops-shell {
+  grid-template-rows: var(--ff-header-height) var(--ff-header-subheight) minmax(0, 1fr);
+}
+
+/* --- sub-bar (open tabs) --- */
+[data-admin-theme='fastfood-navy'] .ops-tabbar {
+  border-bottom: 1px solid var(--ff-keyline);
+  background: var(--ff-subbar-fill);
+  box-shadow: none;
+}
+
+[data-admin-theme='fastfood-navy'] .ops-tab {
+  border-radius: 0;
+  color: var(--ff-on-surface-variant);
+  font: 500 10px/1.2 var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+[data-admin-theme='fastfood-navy'] .ops-tab:hover {
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-tab--active {
+  background: var(--ff-surface-container);
+  color: var(--ff-on-surface);
+  box-shadow: inset 0 -2px 0 0 var(--ff-primary-container);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-tabbar__menu {
+  background: var(--ff-surface-container-high);
+  border-color: var(--ff-keyline);
+  color: var(--ff-on-surface);
+  border-radius: var(--ff-radius-lg);
+}
+
+/* --- header: translucent surface + backdrop blur (design `bg-surface/90`) --- */
+[data-admin-theme='fastfood-navy'] .ops-topbar {
+  height: var(--ff-header-height);
+  padding: 0 var(--ff-gutter);
+  gap: var(--ff-space-md);
+  background: var(--ff-header-fill);
+  backdrop-filter: blur(var(--ff-header-blur));
+  border-bottom: 1px solid var(--ff-keyline);
+  box-shadow: var(--ff-shadow-header);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-topbar__menu {
+  background: var(--ff-surface-container-high);
+  border-color: var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  color: var(--ff-on-surface);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-topbar__title {
+  font-family: var(--ff-font-headline);
+  font-size: var(--ff-text-headline-md);
+  font-weight: var(--ff-weight-headline-md);
+  line-height: var(--ff-leading-headline-md);
+  letter-spacing: var(--ff-tracking-headline-md);
+  text-transform: none;
+  color: var(--ff-on-surface);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-scope-tag {
+  font: 500 10px/1.2 var(--ff-font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--ff-surface-container-low);
+  border: 1px solid var(--ff-keyline);
+  color: var(--ff-on-surface-variant);
+  border-radius: var(--ff-radius-lg);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-topbar__tools {
+  gap: var(--ff-space-sm);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-topbar__tools .ops-btn {
+  border-radius: var(--ff-radius-lg);
+  font-family: var(--ff-font-body);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-topbar__tools .ops-select {
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-high);
+  border-color: var(--ff-keyline);
+  color: var(--ff-on-surface);
+  font-family: var(--ff-font-body);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-topbar__theme-toggle {
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-high);
+  border-color: var(--ff-keyline);
+  color: var(--ff-on-surface);
+  font-family: var(--ff-font-label);
+  font-size: var(--ff-text-label-sm);
+  letter-spacing: var(--ff-tracking-label-sm);
+}
+
+/* --- main: design content padding is `96px gutter gutter`, split here into
+       the sub-bar offset and the column gutters --- */
+[data-admin-theme='fastfood-navy'] .ops-main {
+  padding: var(--ff-gutter) var(--ff-gutter) var(--ff-space-xl);
+  background: var(--ff-surface);
+}
+
+[data-admin-theme='fastfood-navy'] .ops-page {
+  gap: var(--ff-space-lg);
 }

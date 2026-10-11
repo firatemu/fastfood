@@ -27,6 +27,7 @@ import {
   adminPromotionsSchema,
 } from '../../lib/schemas';
 import { useDeferredLoad } from '../../lib/use-deferred-load';
+
 import styles from './promotions.module.css';
 
 type Promo = z.infer<typeof adminPromotionsSchema>['data'][number];

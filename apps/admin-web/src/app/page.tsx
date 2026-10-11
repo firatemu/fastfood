@@ -599,7 +599,7 @@ export default function AdminHomePage() {
                 >
                   <span className="material-symbols-outlined">{item.icon}</span>
                 </div>
-                <div className={styles.flowCopy}>
+                <div>
                   <div className={styles.flowTitleLine}>
                     <span>{item.label}</span>
                     <strong>{item.count}</strong>
@@ -675,10 +675,7 @@ export default function AdminHomePage() {
               </div>
             </div>
           </section>
-          <section
-            className={`${styles.panel} ${styles.shortcutsPanel}`}
-            aria-labelledby="shortcuts-title"
-          >
+          <section className={styles.panel} aria-labelledby="shortcuts-title">
             <header className={styles.panelHeader}>
               <div>
                 <p className={styles.panelEyebrow}>HIZLI ERİŞİM</p>

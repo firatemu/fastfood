@@ -401,7 +401,9 @@ function ComboSpotlight(props: {
             </Text>
           </Pressable>
           <Pressable accessibilityRole="button" onPress={onCustomize} style={styles.ctaGhost}>
-            <Text style={styles.ctaGhostText}>Özelleştir</Text>
+            {/* Written out, not `textTransform: 'uppercase'`: RN uppercases the
+                Turkish dotless i as `I`, which would read "ÖZELLEŞTIR". */}
+            <Text style={styles.ctaGhostText}>ÖZELLEŞTİR</Text>
           </Pressable>
         </View>
       </View>

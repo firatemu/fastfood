@@ -18,6 +18,11 @@ export type AdminNavItemDef = {
 export type AdminNavSectionDef = {
   id: string;
   label: string;
+  /**
+   * Pinned sections render above the grouped domains and skip the group
+   * header — used for the single landing entry.
+   */
+  pinned?: boolean;
   items: AdminNavItemDef[];
 };
 
@@ -31,7 +36,6 @@ const NAV_PERMISSION_KEYS: Record<string, AdminPageKey> = {
   categories: 'categories',
   modifiers: 'modifiers',
   allergens: 'allergens',
-  media: 'media',
   'branch-list': 'branch-list',
   'service-areas': 'service-areas',
   availability: 'availability',
@@ -48,13 +52,21 @@ const NAV_PERMISSION_KEYS: Record<string, AdminPageKey> = {
 };
 
 /**
- * Canonical Admin IA — mirrors the Operations AppShell reference.
+ * Canonical Admin IA — 23 entries in six areas.
+ *
+ * "overview" is pinned: the shell renders it above the grouped domains
+ * without a group header. Everything else is grouped by the domain an Ops
+ * manager thinks in: operations, catalog, network, commerce, governance.
+ *
  * Labels are Turkish for Ops staff UI consistency with existing screens.
+ * Every href, permission key and match rule is preserved from the original
+ * ten-group taxonomy; only the grouping changed.
  */
 export const ADMIN_NAV_SECTIONS: AdminNavSectionDef[] = [
   {
     id: 'overview',
     label: 'Genel Bakış',
+    pinned: true,
     items: [{ id: 'dash', label: 'Genel bakış', href: '/', match: 'exact' }],
   },
   {
@@ -64,36 +76,6 @@ export const ADMIN_NAV_SECTIONS: AdminNavSectionDef[] = [
       { id: 'orders', label: 'Siparişler', href: '/orders', match: 'prefix' },
       { id: 'kitchen', label: 'Mutfak', href: '/kitchen', match: 'exact' },
       { id: 'couriers', label: 'Kurye / Teslimat', href: '/couriers', match: 'exact' },
-    ],
-  },
-  {
-    id: 'catalog',
-    label: 'Katalog',
-    items: [
-      { id: 'products', label: 'Ürünler', href: '/catalog/products', match: 'prefix' },
-      {
-        id: 'home-slides',
-        label: 'Vitrin Slaytları',
-        href: '/catalog/home-slides',
-        match: 'exact',
-      },
-      { id: 'categories', label: 'Kategoriler', href: '/catalog/categories', match: 'exact' },
-      { id: 'modifiers', label: 'Modifiye Grupları', href: '/catalog/modifiers', match: 'exact' },
-      { id: 'allergens', label: 'Alerjenler', href: '/catalog/allergens', match: 'exact' },
-      { id: 'media', label: 'Medya', href: '/catalog/media', match: 'exact' },
-    ],
-  },
-  {
-    id: 'branches',
-    label: 'Şubeler',
-    items: [
-      { id: 'branch-list', label: 'Şubeler', href: '/branches', match: 'exact' },
-      {
-        id: 'service-areas',
-        label: 'Servis Alanları',
-        href: '/branches/service-areas',
-        match: 'exact',
-      },
       {
         id: 'availability',
         label: 'Ürün müsaitliği',
@@ -103,43 +85,52 @@ export const ADMIN_NAV_SECTIONS: AdminNavSectionDef[] = [
     ],
   },
   {
-    id: 'customers',
-    label: 'Müşteriler',
+    id: 'catalog',
+    label: 'Katalog',
     items: [
+      { id: 'products', label: 'Ürünler', href: '/catalog/products', match: 'prefix' },
+      { id: 'categories', label: 'Kategoriler', href: '/catalog/categories', match: 'exact' },
+      { id: 'modifiers', label: 'Modifiye Grupları', href: '/catalog/modifiers', match: 'exact' },
+      { id: 'allergens', label: 'Alerjenler', href: '/catalog/allergens', match: 'exact' },
+      {
+        id: 'home-slides',
+        label: 'Vitrin Slaytları',
+        href: '/catalog/home-slides',
+        match: 'exact',
+      },
+    ],
+  },
+  {
+    id: 'network',
+    label: 'Şube & Müşteri',
+    items: [
+      { id: 'branch-list', label: 'Şubeler', href: '/branches', match: 'exact' },
+      {
+        id: 'service-areas',
+        label: 'Servis Alanları',
+        href: '/branches/service-areas',
+        match: 'exact',
+      },
       { id: 'customer-list', label: 'Müşteriler', href: '/customers', match: 'prefix' },
       { id: 'loyalty', label: 'Sadakat', href: '/loyalty', match: 'exact' },
     ],
   },
   {
-    id: 'marketing',
-    label: 'Pazarlama',
-    items: [{ id: 'promotions', label: 'Promosyonlar', href: '/promotions', match: 'prefix' }],
-  },
-  {
-    id: 'finance',
-    label: 'Finans',
+    id: 'commerce',
+    label: 'Pazarlama & Finans',
     items: [
+      { id: 'promotions', label: 'Promosyonlar', href: '/promotions', match: 'prefix' },
       { id: 'payments', label: 'Ödemeler', href: '/payments', match: 'prefix' },
       { id: 'refunds', label: 'İadeler', href: '/refunds', match: 'exact' },
     ],
   },
   {
-    id: 'reports',
-    label: 'Raporlar',
-    items: [{ id: 'reports', label: 'Raporlar', href: '/reports', match: 'exact' }],
-  },
-  {
-    id: 'access',
-    label: 'Erişim',
+    id: 'governance',
+    label: 'Yönetim',
     items: [
+      { id: 'reports', label: 'Raporlar', href: '/reports', match: 'exact' },
       { id: 'users', label: 'Kullanıcılar', href: '/users', match: 'exact' },
       { id: 'roles', label: 'Roller ve Yetkiler', href: '/roles', match: 'exact' },
-    ],
-  },
-  {
-    id: 'system',
-    label: 'Sistem',
-    items: [
       { id: 'audit', label: 'Denetim Kaydı', href: '/audit', match: 'exact' },
       { id: 'settings', label: 'Ayarlar', href: '/settings', match: 'exact' },
     ],

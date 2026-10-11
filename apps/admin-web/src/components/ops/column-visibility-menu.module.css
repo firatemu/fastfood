@@ -6,9 +6,9 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: var(--ops-on-surface, light-dark(#24262e, #e0e2ea));
-  background: light-dark(#fcfcfd, #171c23);
-  border: 1px solid var(--ops-keyline-strong, light-dark(#d3d5d9, #3e4656));
+  color: var(--ff-on-surface);
+  background: var(--ff-surface-container);
+  border: 1px solid var(--ff-keyline);
   box-shadow: 0 12px 34px light-dark(rgba(27, 42, 49, 0.154), rgba(0, 0, 0, 0.55));
 }
 
@@ -29,7 +29,7 @@
   place-items: center;
   color: var(--ops-amber-text);
   background: light-dark(rgba(244, 187, 52, 0.08), rgba(254, 179, 0, 0.08));
-  border: 1px solid light-dark(rgba(146, 160, 170, 0.2), rgba(254, 179, 0, 0.2));
+  border: 1px solid var(--ff-status-warn-border);
 }
 
 .headerIcon :global(.material-symbols-outlined) {
@@ -44,13 +44,13 @@
 }
 
 .headerText strong {
-  color: light-dark(#24282e, #e6eaf0);
+  color: var(--ff-on-surface);
   font-size: 13px;
   font-weight: 700;
 }
 
 .headerText > span {
-  color: var(--ops-on-muted, light-dark(#58616f, #94a3b8));
+  color: var(--ff-on-surface-variant);
   font-size: 10px;
 }
 
@@ -67,9 +67,9 @@
 }
 
 .close:hover {
-  color: light-dark(#292929, #ffffff);
-  background: light-dark(#f3f3f4, #242b35);
-  border-color: light-dark(#d3d6d9, #343d49);
+  color: var(--ff-on-surface);
+  background: var(--ff-surface-container);
+  border-color: var(--ff-keyline);
 }
 
 .close:focus-visible,
@@ -86,7 +86,7 @@
 .hint {
   margin: 0;
   padding: 10px 14px 8px;
-  color: light-dark(#58626f, #9aa6b5);
+  color: var(--ff-ink-faint);
   font-size: 11px;
   line-height: 16px;
 }
@@ -113,12 +113,12 @@
   align-items: center;
   gap: 8px;
   padding: 7px 8px;
-  border-bottom: 1px solid light-dark(rgba(146, 160, 170, 0.045), rgba(58, 68, 80, 0.045));
+  border-bottom: 1px solid var(--ff-keyline);
   cursor: pointer;
 }
 
 .option:hover {
-  background: light-dark(rgba(252, 252, 253, 0.035), rgba(23, 30, 38, 0.035));
+  background: var(--ff-surface-container-low-alpha);
 }
 
 .optionCopy {
@@ -128,14 +128,14 @@
 }
 
 .optionCopy strong {
-  color: light-dark(#24282e, #dce2ea);
+  color: var(--ff-on-surface);
   font-size: 11px;
   font-weight: 600;
 }
 
 .optionCopy > span {
   overflow: hidden;
-  color: light-dark(#58616f, #8e9aab);
+  color: var(--ff-ink-faint);
   font-size: 9px;
   line-height: 13px;
   text-overflow: ellipsis;
@@ -160,14 +160,14 @@
   justify-content: flex-start;
   padding: 2px;
   background: light-dark(#f3f3f4, #2a323d);
-  border: 1px solid light-dark(#d3d6d9, #414b59);
+  border: 1px solid var(--ff-keyline);
   transition: background-color 120ms ease;
 }
 
 .switch > span {
   width: 11px;
   height: 11px;
-  background: light-dark(#ecedee, #8692a1);
+  background: var(--ff-surface-container-highest);
   transition:
     transform 120ms ease,
     background-color 120ms ease;
@@ -175,8 +175,8 @@
 
 .checkbox:checked + .optionCopy + .switch {
   justify-content: flex-end;
-  background: light-dark(rgba(244, 187, 52, 0.16), rgba(254, 179, 0, 0.16));
-  border-color: light-dark(rgba(146, 160, 170, 0.45), rgba(254, 179, 0, 0.55));
+  background: var(--ff-status-warn-wash);
+  border-color: var(--ff-status-warn-border);
 }
 
 .checkbox:checked + .optionCopy + .switch > span {
@@ -196,7 +196,7 @@
   position: absolute;
   right: 47px;
   bottom: 3px;
-  color: light-dark(#58626f, #7d8999);
+  color: var(--ff-ink-faint);
   font-size: 8px;
 }
 
@@ -208,8 +208,8 @@
   gap: 12px;
   margin-top: auto;
   padding: 8px 12px;
-  color: light-dark(#58626f, #8793a2);
-  background: light-dark(#fcfcfd, #141920);
+  color: var(--ff-ink-faint);
+  background: var(--ff-surface-container-low);
   border-top: 1px solid var(--ops-keyline, light-dark(#d3d5d9, #2d333f));
   font-size: 10px;
 }
@@ -217,9 +217,9 @@
 .footer button {
   min-height: 30px;
   padding: 5px 8px;
-  border: 1px solid light-dark(#d3d6d9, #394352);
-  color: light-dark(#24262e, #e0e2ea);
-  background: light-dark(#f8f9f9, #1e252e);
+  border: 1px solid var(--ff-keyline);
+  color: var(--ff-on-surface);
+  background: var(--ff-surface-container);
   font: inherit;
   font-size: 10px;
   cursor: pointer;
@@ -227,7 +227,7 @@
 
 .footer button:hover {
   color: var(--ops-amber-text);
-  border-color: light-dark(rgba(146, 160, 170, 0.45), rgba(254, 179, 0, 0.45));
+  border-color: var(--ff-status-warn-border);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -236,3 +236,181 @@
     transition: none;
   }
 }
+
+/* @block:navy-a8-shared */
+/* ==========================================================================
+   FASTFOOD Admin — Navy list-page language (ADR-019, phase A8)
+
+   These screens have no frame in the design set, so this block carries the
+   list-page grammar established by the catalog screens in A7: label-role
+   headers, divide-y rows instead of zebra, mono identifiers, `surface-container
+   -low` panels with `shadow-sm`, and a 2px/4px/8px/12px shape scale.
+
+   Class names differ per module (`gridPanel` vs `panel`, `sortMark` vs
+   `sortIndicator`, ...), so the block is applied with **selector-level
+   pruning**: a selector is emitted only if that stylesheet defines it.
+   ========================================================================== */
+/* --- page shell --- */
+
+/* --- panel --- */
+
+:global([data-admin-theme='fastfood-navy']) .footer {
+  padding: var(--ff-space-md);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+/* --- search well --- */
+
+/* --- filter chips / segmented control --- */
+
+/* --- table: label header, divide-y, no zebra --- */
+
+/* --- identity columns --- */
+
+/* --- mono identifier columns --- */
+
+/* --- status + scope badges --- */
+
+/* --- buttons --- */
+
+/* --- forms --- */
+
+/* --- notices, states, overlays --- */
+
+/* --- dialogs --- */
+
+/* --- column menu --- */
+
+/* --- misc --- */
+/* @end:navy-a8-shared */
+
+/* @block:navy-a8-domain */
+/* ==========================================================================
+   FASTFOOD Admin — Navy domain blocks (ADR-019, phase A8)
+
+   Follow-up to the shared list-page block for the five screens whose class
+   vocabulary barely overlapped: roles, invite, order-items-dialog,
+   column-visibility-menu and customer-detail. Applied with the same
+   selector-level pruning.
+   ========================================================================== */
+/* ---------------------------------------------------------------- roles --- */
+
+/* --------------------------------------------------------------- invite --- */
+
+/* ---------------------------------------------------- order items dialog --- */
+
+:global([data-admin-theme='fastfood-navy']) .header {
+  padding: var(--ff-space-md);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .close {
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-highest);
+  color: var(--ff-on-surface-variant);
+  border: 0;
+}
+
+:global([data-admin-theme='fastfood-navy']) .item {
+  gap: var(--ff-space-sm);
+  padding: var(--ff-space-sm) var(--ff-space-md);
+  background: var(--ff-surface-container);
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .footer {
+  padding: var(--ff-space-sm) var(--ff-space-md);
+  border-top: 1px solid var(--ff-keyline);
+  font-family: var(--ff-font-label);
+  font-weight: 600;
+  color: var(--ff-on-surface);
+}
+
+/* ------------------------------------------------- column visibility menu --- */
+
+:global([data-admin-theme='fastfood-navy']) .menu {
+  min-width: 220px;
+  padding: var(--ff-space-sm);
+  background: var(--ff-surface-container-high);
+  border: 1px solid var(--ff-keyline);
+  border-radius: var(--ff-radius-lg);
+  box-shadow: var(--ff-shadow-overlay);
+}
+
+:global([data-admin-theme='fastfood-navy']) .header {
+  padding: var(--ff-space-xs) var(--ff-space-sm);
+  border-bottom: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .headerIcon {
+  background: var(--ff-surface-container-highest);
+  color: var(--ff-primary-container);
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .headerText {
+  font: 600 11px/14px var(--ff-font-label);
+  letter-spacing: 0.03em;
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .hint {
+  font: 500 10px/12px var(--ff-font-label);
+  letter-spacing: 0.04em;
+  color: var(--ff-ink-faint);
+}
+
+:global([data-admin-theme='fastfood-navy']) .list {
+  margin: var(--ff-space-xs) 0;
+  gap: 2px;
+}
+
+:global([data-admin-theme='fastfood-navy']) .item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ff-space-sm);
+  padding: var(--ff-space-xs) var(--ff-space-sm);
+  border-radius: var(--ff-radius-lg);
+}
+
+:global([data-admin-theme='fastfood-navy']) .item:hover {
+  background: var(--ff-surface-container-highest);
+}
+
+:global([data-admin-theme='fastfood-navy']) .optionCopy {
+  font: 400 12px/16px var(--ff-font-body);
+  color: var(--ff-on-surface);
+}
+
+:global([data-admin-theme='fastfood-navy']) .locked {
+  color: var(--ff-ink-faint);
+}
+
+:global([data-admin-theme='fastfood-navy']) .checkbox {
+  accent-color: var(--ff-primary-container);
+}
+
+:global([data-admin-theme='fastfood-navy']) .switch {
+  background: var(--ff-surface-container-highest);
+  border-radius: var(--ff-radius-full);
+}
+
+:global([data-admin-theme='fastfood-navy']) .footer {
+  padding: var(--ff-space-xs) var(--ff-space-sm);
+  border-top: 1px solid var(--ff-keyline);
+}
+
+:global([data-admin-theme='fastfood-navy']) .close {
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: var(--ff-radius-lg);
+  background: var(--ff-surface-container-highest);
+  color: var(--ff-on-surface-variant);
+  border: 0;
+}
+
+/* -------------------------------------------------------- customer detail --- */
+/* @end:navy-a8-domain */

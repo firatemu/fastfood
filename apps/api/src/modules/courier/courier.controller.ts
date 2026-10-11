@@ -13,7 +13,6 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import type { FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator.js';
@@ -53,13 +52,6 @@ const createDeliverySchema = z.object({
   deliveryNote: z.string().max(512).optional(),
 });
 
-const registerCourierSchema = z.object({
-  userId: z.string().uuid(),
-  displayName: z.string().min(1).max(128),
-  phone: z.string().max(32).optional(),
-  maxActiveDeliveries: z.number().int().positive().max(20).optional(),
-});
-
 /**
  * Courier / delivery HTTP surface (document 29).
  */
@@ -90,48 +82,6 @@ export class CourierController {
         message: 'The courier is outside your assigned branch.',
       });
     }
-  }
-
-  @UseGuards(AuthGuard, AccountStatusGuard, RbacGuard, ResourceScopeGuard)
-  @RequirePermissions('couriers.write')
-  @Post('admin/couriers')
-  @HttpCode(201)
-  async registerCourier(
-    @Body() body: unknown,
-    @Req() request: FastifyRequest & { principal?: AuthenticatedPrincipal },
-  ): Promise<unknown> {
-    if (request.principal?.actorType === 'STAFF' && !request.principal.isSuperAdmin) {
-      throw new ForbiddenException({
-        code: ErrorCodes.AUTH_SCOPE_DENIED,
-        message: 'Courier profiles are shared records and can only be created by Super Admin.',
-      });
-    }
-    const parsed = safeValidate(registerCourierSchema, body);
-    if (!parsed.ok) {
-      return {
-        error: {
-          code: ErrorCodes.VALIDATION_ERROR,
-          message: 'One or more fields are invalid.',
-          details: { fields: parsed.issues },
-          requestId: REQUEST_ID,
-        },
-      };
-    }
-    return { data: await this.deliveries.registerCourier(parsed.data) };
-  }
-
-  @UseGuards(AuthGuard, AccountStatusGuard, RbacGuard, ResourceScopeGuard)
-  @RequirePermissions('couriers.read')
-  @Get('admin/couriers')
-  async listCouriers(
-    @Req() request: FastifyRequest & { principal?: AuthenticatedPrincipal },
-  ): Promise<unknown> {
-    const principal = request.principal;
-    const branchId =
-      principal?.actorType === 'STAFF' && !principal.isSuperAdmin
-        ? [...(principal.branchIds ?? [])][0]
-        : undefined;
-    return { data: await this.deliveries.listCouriers(branchId) };
   }
 
   @UseGuards(AuthGuard, AccountStatusGuard, RbacGuard, ResourceScopeGuard)

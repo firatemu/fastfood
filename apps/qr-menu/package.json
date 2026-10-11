@@ -1,0 +1,36 @@
+{
+  "name": "@fastfood/qr-menu",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "BURGER HOME QR Menü — read-only table menu surface published on its own local port.",
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev -p 3104",
+    "start": "next start -p 3104",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run --passWithNoTests",
+    "clean": "rm -rf .next dist .turbo"
+  },
+  "dependencies": {
+    "@fastfood/contracts": "workspace:*",
+    "@tailwindcss/postcss": "4.1.13",
+    "next": "16.3.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "tailwindcss": "4.1.13"
+  },
+  "devDependencies": {
+    "@fastfood/eslint-config": "workspace:*",
+    "@fastfood/tsconfig": "workspace:*",
+    "@types/node": "22.20.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.18.0",
+    "eslint-config-next": "16.3.5",
+    "typescript": "5.9.3",
+    "vitest": "5.0.1"
+  }
+}

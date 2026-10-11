@@ -14,8 +14,8 @@ export default function LoginScreen() {
   const theme = defaultTheme('operations');
   const styles = createStyles(theme);
   const [identifier, setIdentifier] = useState('courier@fastfood.local');
-  const [password, setPassword] = useState('DevStaffPass1!');
-  const [totp, setTotp] = useState('000000');
+  const [password, setPassword] = useState('');
+  const [totp, setTotp] = useState('');
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [mfaRequired, setMfaRequired] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -23,6 +23,10 @@ export default function LoginScreen() {
   const [message, setMessage] = useState<string | null>(null);
 
   async function login() {
+    if (!identifier.trim() || !password) {
+      setError('Kullanıcı adı ve şifre zorunludur.');
+      return;
+    }
     setBusy(true);
     setError(null);
     setMessage(null);
@@ -34,24 +38,20 @@ export default function LoginScreen() {
         schema: staffLoginResponseSchema,
       });
       setRefreshToken(res.data.refreshToken);
-      if (res.data.mfaRequired) {
-        setMfaRequired(true);
-        setMessage('MFA gerekli — 6 haneli kod girin (dev bypass).');
-      } else {
-        // No access token without MFA step; complete MFA with placeholder.
-        const mfa = await getApiClient().request({
-          method: 'POST',
-          path: '/auth/staff/mfa/verify',
-          body: { refreshToken: res.data.refreshToken, totp: '000000' },
-          schema: staffMfaResponseSchema,
-        });
-        setCourierSession({
-          userId: mfa.data.userId,
-          accessToken: mfa.data.accessToken,
+      // Only a real access token can open a session. When MFA is satisfied the
+      // API returns it with the login response; otherwise the courier must
+      // complete the MFA step. The client never substitutes a code of its own.
+      if (!res.data.mfaRequired && res.data.accessToken) {
+        await setCourierSession({
+          userId: res.data.userId,
+          accessToken: res.data.accessToken,
           refreshToken: res.data.refreshToken,
         });
         router.replace('/deliveries');
+        return;
       }
+      setMfaRequired(true);
+      setMessage('MFA gerekli — 6 haneli kodu girin.');
     } catch (err) {
       setError(formatApiError(err));
     } finally {
@@ -64,16 +64,21 @@ export default function LoginScreen() {
       setError('Önce giriş yapın.');
       return;
     }
+    const code = totp.trim();
+    if (!code) {
+      setError('MFA kodu zorunludur.');
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
       const mfa = await getApiClient().request({
         method: 'POST',
         path: '/auth/staff/mfa/verify',
-        body: { refreshToken, totp: totp.trim() },
+        body: { refreshToken, totp: code },
         schema: staffMfaResponseSchema,
       });
-      setCourierSession({
+      await setCourierSession({
         userId: mfa.data.userId,
         accessToken: mfa.data.accessToken,
         refreshToken,

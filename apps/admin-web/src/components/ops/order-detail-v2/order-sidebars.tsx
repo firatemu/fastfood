@@ -6,27 +6,21 @@ import { useMemo } from 'react';
 import type { z } from 'zod';
 
 import { shortId, formatOpsDateTime } from '../../../lib/ops-time';
-import {
-  orderStatusLabel,
-  paymentLabel,
-  paymentTone,
-} from '../../../lib/order-status';
+import { orderStatusLabel, paymentLabel, paymentTone } from '../../../lib/order-status';
 import type { orderSchema } from '../../../lib/schemas';
 import { StatusBadge } from '../ops-ui';
 
 type Order = z.infer<typeof orderSchema>;
 
 export interface CustomerCardProps {
-  customer:
-    | {
-        userId?: string | null;
-        displayName?: string | null;
-        phone?: string | null;
-        email?: string | null;
-        phoneVerified?: boolean;
-        pointsBalance?: string | null;
-      }
-    | null;
+  customer: {
+    userId?: string | null;
+    displayName?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    phoneVerified?: boolean;
+    pointsBalance?: string | null;
+  } | null;
   userId?: string | null;
 }
 
@@ -65,9 +59,7 @@ export function CustomerCard({ customer, userId }: CustomerCardProps) {
           {(customer.displayName ?? 'M').slice(0, 1).toUpperCase()}
         </div>
         <div className="order-customer__main">
-          <div className="order-customer__name">
-            {customer.displayName ?? 'İsimsiz müşteri'}
-          </div>
+          <div className="order-customer__name">{customer.displayName ?? 'İsimsiz müşteri'}</div>
           {customer.phone ? (
             <div className="order-customer__contact">
               <a href={`tel:${customer.phone}`}>{customer.phone}</a>
@@ -113,9 +105,7 @@ export function DeliveryAddressCard({ order }: DeliveryAddressCardProps) {
     <section className="order-summary-card">
       <header>
         <h3>Teslimat</h3>
-        <span className="muted">
-          {order.fulfillmentMode === 'PICKUP' ? 'Gel-al' : 'Teslimat'}
-        </span>
+        <span className="muted">{order.fulfillmentMode === 'PICKUP' ? 'Gel-al' : 'Teslimat'}</span>
       </header>
       {order.deliveryNote ? (
         <p className="order-delivery-address__note">
@@ -134,12 +124,7 @@ export function DeliveryAddressCard({ order }: DeliveryAddressCardProps) {
           ) : null}
           <div className="order-delivery-address__actions">
             {mapHref ? (
-              <a
-                href={mapHref}
-                target="_blank"
-                rel="noreferrer"
-                className="ops-btn ops-btn--ghost"
-              >
+              <a href={mapHref} target="_blank" rel="noreferrer" className="ops-btn ops-btn--ghost">
                 Haritada aç
               </a>
             ) : null}
@@ -306,9 +291,7 @@ export function OrderItemsGrid({
             });
             const extrasTotal = paidExtras.reduce<bigint>(
               (acc, mod) =>
-                mod.priceDeltaMinorSnapshot
-                  ? acc + BigInt(mod.priceDeltaMinorSnapshot)
-                  : acc,
+                mod.priceDeltaMinorSnapshot ? acc + BigInt(mod.priceDeltaMinorSnapshot) : acc,
               0n,
             );
             return (
@@ -354,10 +337,7 @@ export function OrderItemsGrid({
                           {mod.nameSnapshot ?? 'Modifiye'}
                           <span className="mono">
                             {paid
-                              ? `+${formatTryMinor(
-                                  mod.priceDeltaMinorSnapshot ?? '0',
-                                  currency,
-                                )}`
+                              ? `+${formatTryMinor(mod.priceDeltaMinorSnapshot ?? '0', currency)}`
                               : 'ücretsiz'}
                           </span>
                         </span>
@@ -382,8 +362,7 @@ export function OrderItemsGrid({
                 ) : null}
                 <footer>
                   <span className="muted">
-                    {typeof item.productVariantId === 'string' &&
-                    item.productVariantId.length > 0
+                    {typeof item.productVariantId === 'string' && item.productVariantId.length > 0
                       ? `Varyant: ${shortId(item.productVariantId)}`
                       : 'Standart varyant'}
                   </span>
@@ -436,8 +415,7 @@ export function buildAuditEntries(order: Order): AuditEntry[] {
         id: event.id,
         label,
         timestamp: event.createdAt ?? new Date().toISOString(),
-        actor:
-          typeof event.actorUserId === 'string' ? shortId(event.actorUserId) : 'sistem',
+        actor: typeof event.actorUserId === 'string' ? shortId(event.actorUserId) : 'sistem',
       };
     });
 }
@@ -487,9 +465,7 @@ export function OrderFinancialCard({ order, extraModifiersCount }: OrderFinancia
       <div className="order-financial-rows">
         <div>
           <span>Ürün (net)</span>
-          <span className="mono">
-            {formatTryMinor(order.merchandiseNetMinor ?? '0', currency)}
-          </span>
+          <span className="mono">{formatTryMinor(order.merchandiseNetMinor ?? '0', currency)}</span>
         </div>
         {extraModifiersCount > 0 ? (
           <div>
@@ -499,9 +475,7 @@ export function OrderFinancialCard({ order, extraModifiersCount }: OrderFinancia
         ) : null}
         <div>
           <span>Teslimat</span>
-          <span className="mono">
-            {formatTryMinor(order.deliveryFeeMinor ?? '0', currency)}
-          </span>
+          <span className="mono">{formatTryMinor(order.deliveryFeeMinor ?? '0', currency)}</span>
         </div>
         {BigInt(order.loyaltyRedeemedMinor ?? '0') > 0n ? (
           <div>
@@ -514,9 +488,7 @@ export function OrderFinancialCard({ order, extraModifiersCount }: OrderFinancia
         {BigInt(order.tipMinor ?? '0') > 0n ? (
           <div>
             <span>Bahşiş</span>
-            <span className="mono">
-              {formatTryMinor(order.tipMinor ?? '0', currency)}
-            </span>
+            <span className="mono">{formatTryMinor(order.tipMinor ?? '0', currency)}</span>
           </div>
         ) : null}
         {BigInt(order.pickupDiscountMinor ?? '0') > 0n ? (
@@ -727,15 +699,10 @@ export interface RefundCalculatorProps {
   onApply: (amountMinor: string) => void;
 }
 
-export function sumSelectedItemsMinor(
-  order: Order,
-  selectedItemIds: ReadonlySet<string>,
-): bigint {
+export function sumSelectedItemsMinor(order: Order, selectedItemIds: ReadonlySet<string>): bigint {
   return (order.items ?? []).reduce<bigint>((acc, item) => {
     if (!item.id || !selectedItemIds.has(item.id)) return acc;
-    const line = item.lineGrossMinorSnapshot
-      ? BigInt(item.lineGrossMinorSnapshot)
-      : 0n;
+    const line = item.lineGrossMinorSnapshot ? BigInt(item.lineGrossMinorSnapshot) : 0n;
     return acc + line;
   }, 0n);
 }
@@ -763,14 +730,12 @@ export function RefundCalculator(props: RefundCalculatorProps) {
         </div>
         <div>
           <span className="muted">Hesaplanan iade</span>
-          <strong className="mono">
-            {formatTryMinor(amountStr, orderCurrency)}
-          </strong>
+          <strong className="mono">{formatTryMinor(amountStr, orderCurrency)}</strong>
         </div>
       </div>
       <p className="muted">
-        İade tutarı, aşağıdaki listeden iptal edilecek ürünler seçilerek
-        otomatik hesaplanır. Seçim yaptıktan sonra iadeyi uygulayın.
+        İade tutarı, aşağıdaki listeden iptal edilecek ürünler seçilerek otomatik hesaplanır. Seçim
+        yaptıktan sonra iadeyi uygulayın.
       </p>
       <button
         type="button"
@@ -780,9 +745,7 @@ export function RefundCalculator(props: RefundCalculatorProps) {
       >
         Seçilenleri iade et
         {selectedCount > 0 ? (
-          <span className="mono">
-            · {formatTryMinor(amountStr, orderCurrency)}
-          </span>
+          <span className="mono">· {formatTryMinor(amountStr, orderCurrency)}</span>
         ) : null}
       </button>
     </section>

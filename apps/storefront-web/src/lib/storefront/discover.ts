@@ -4,13 +4,11 @@ import { createStorefrontClient } from '../api';
 import {
   allergensResponseSchema,
   branchesResponseSchema,
-  productDetailResponseSchema,
   publicDealsResponseSchema,
   storefrontContentListResponseSchema,
   storefrontContentResponseSchema,
   type allergenSchema,
   type branchSchema,
-  type productDetailSchema,
   type publicDealSchema,
   type storefrontContentSchema,
 } from '../schemas';
@@ -19,16 +17,6 @@ export type CustomerBranch = z.infer<typeof branchSchema>;
 export type PublicDeal = z.infer<typeof publicDealSchema>;
 export type StorefrontContent = z.infer<typeof storefrontContentSchema>;
 export type StorefrontAllergen = z.infer<typeof allergenSchema>;
-export type BuilderProduct = z.infer<typeof productDetailSchema>;
-
-export async function fetchBuilderProduct(): Promise<BuilderProduct> {
-  const client = createStorefrontClient();
-  const res = await client.request({
-    path: 'storefront/catalog/builder',
-    schema: productDetailResponseSchema,
-  });
-  return res.data;
-}
 
 export async function fetchPublicDeals(): Promise<PublicDeal[]> {
   const client = createStorefrontClient();

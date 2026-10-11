@@ -1,4 +1,9 @@
-import { moneyMinorStringSchema, uuidSchema } from '@fastfood/contracts';
+import {
+  adminCourierResponseSchema,
+  adminCouriersResponseSchema,
+  moneyMinorStringSchema,
+  uuidSchema,
+} from '@fastfood/contracts';
 import { z } from 'zod';
 
 export function envelope<T extends z.ZodTypeAny>(dataSchema: T) {
@@ -208,31 +213,13 @@ export const orderFiltersSchema = z.object({
 
 export type OrderFilters = z.infer<typeof orderFiltersSchema>;
 
-export const couriersResponseSchema = envelope(
-  z.array(
-    z
-      .object({
-        id: z.string(),
-        displayName: z.string().optional(),
-        userId: z.string().optional(),
-        phone: z.string().nullable().optional(),
-        isActive: z.boolean().optional(),
-        maxActiveDeliveries: z.number().optional(),
-        status: z.string().optional(),
-      })
-      .passthrough(),
-  ),
-);
-
-export const courierCreateSchema = envelope(
-  z
-    .object({
-      id: z.string(),
-      displayName: z.string().optional(),
-      userId: z.string().optional(),
-    })
-    .passthrough(),
-);
+/**
+ * Courier roster payloads are defined once in `@fastfood/contracts` and reused
+ * here, so the operations screen cannot drift from the API contract. The
+ * envelope is compatible with {@link envelope} — `meta` stays optional.
+ */
+export const couriersResponseSchema = adminCouriersResponseSchema;
+export const courierResponseSchema = adminCourierResponseSchema;
 
 export const deliveriesCreateSchema = envelope(
   z
@@ -363,6 +350,7 @@ export const adminProductsSchema = envelope(
         displayOrder: z.number().optional(),
         isActive: z.boolean().optional(),
         status: z.string().optional(),
+        imageUrl: z.string().nullable().optional(),
       })
       .passthrough(),
   ),

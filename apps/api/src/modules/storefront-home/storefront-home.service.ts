@@ -381,13 +381,20 @@ export class StorefrontHomeService {
     });
 
     const featured = vitrine.filter((p) => p.isFeatured);
-    const featuredCategoryIds = new Set(featured.map((p) => p.categoryId));
+    const categoryOrder = new Map(categories.map((c) => [c.id, c.displayOrder]));
     let catalogProducts = (featured.length > 0 ? featured : vitrine)
       .slice()
-      .sort((a, b) => a.displayOrder - b.displayOrder);
+      .sort(
+        (a, b) =>
+          (categoryOrder.get(a.categoryId) ?? 0) - (categoryOrder.get(b.categoryId) ?? 0) ||
+          a.displayOrder - b.displayOrder,
+      );
     if (input.categoryId) {
       catalogProducts = catalogProducts.filter((p) => p.categoryId === input.categoryId);
     }
+    // Chips must describe what is on screen, otherwise the category rail is
+    // empty whenever merchandising has no featured rows yet.
+    const visibleCategoryIds = new Set(catalogProducts.map((p) => p.categoryId));
     const configuredSlides = vitrine
       .filter((p) => p.isHero)
       .sort(
@@ -474,7 +481,7 @@ export class StorefrontHomeService {
       heroSlides,
       heroSliderSettings: parseHomeSlideSettings(heroSliderSettingsRow?.valueJson),
       categories: categories
-        .filter((c) => featuredCategoryIds.has(c.id))
+        .filter((c) => visibleCategoryIds.has(c.id))
         .map((c) => ({
         id: c.id,
         slug: c.slug,
