@@ -1,8 +1,17 @@
 # Deferred Deployment and Future Runtime Contract
 
+## 0. Activation (2026-10-11)
+
+**PARTIALLY ACTIVE — see ADR-021.** The product owner explicitly activated a
+single owner-operated VPS environment on Coolify (`*.azem.cloud`) with sandbox
+providers and APK-only mobile distribution. The sections below remain binding
+for that environment; every item of §2 not covered by ADR-021 (production
+iyzico, production SMS OTP, store distribution, CD workflows) stays prohibited.
+
 ## 1. Status
 
-**INACTIVE / FUTURE REFERENCE ONLY.**
+**Historical: INACTIVE / FUTURE REFERENCE ONLY** (superseded by §0 for the
+ADR-021 environment).
 
 The FASTFOOD project is currently in Development-Only / Human-Validation Mode. No remote deployment is authorized. Document `49-DEVELOPMENT_EXECUTION_AND_HUMAN_VALIDATION_POLICY.md` takes precedence for current execution.
 

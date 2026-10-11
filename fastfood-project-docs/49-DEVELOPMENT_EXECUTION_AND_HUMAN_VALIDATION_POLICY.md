@@ -45,7 +45,17 @@ Permitted execution contexts:
 - automated CI verification environment,
 - third-party sandbox/test environments such as iyzico sandbox.
 
+- owner-activated VPS environment on Coolify (`*.azem.cloud`, ADR-021,
+  2026-10-11): deploy, TLS, environment secrets, migrations via the `migrate`
+  job, and Android release APK sideload distribution — with sandbox/fake
+  providers only.
+
 ## 3. Explicitly prohibited actions
+
+> ADR-021 (2026-10-11) is the owner's explicit instruction lifting items 1, 2,
+> 4, 5, 6 (environment secrets only — not real provider credentials) and 9
+> for the single `*.azem.cloud` environment. Items 3, 7, 8, 10, 11, 12 and 13
+> remain in force.
 
 Unless the product owner later gives an explicit new instruction changing this policy, neither a human developer nor an AI agent may:
 

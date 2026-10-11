@@ -80,12 +80,17 @@ export class S3ObjectStorageAdapter implements ObjectStoragePort {
       | 'S3_SECRET_KEY'
       | 'API_PORT'
       | 'API_BASE_PATH'
+      | 'API_PUBLIC_URL'
     >,
     private readonly fetchImpl: typeof fetch = globalThis.fetch.bind(globalThis),
   ) {}
 
   publicUrl(key: string): string {
-    return `http://localhost:${this.env.API_PORT}${this.env.API_BASE_PATH}/public/media/${key}`;
+    const origin = (this.env.API_PUBLIC_URL ?? `http://localhost:${this.env.API_PORT}`).replace(
+      /\/$/,
+      '',
+    );
+    return `${origin}${this.env.API_BASE_PATH}/public/media/${key}`;
   }
 
   async putObject(input: { key: string; body: Buffer; contentType: string }): Promise<void> {

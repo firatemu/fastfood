@@ -27,6 +27,12 @@ export const serverEnvSchema = z.object({
   API_BASE_PATH: z.string().startsWith('/').default('/api/v1'),
   API_CORS_ORIGINS: z.string().default(''),
   API_DEV_SECRET: nonEmptyString,
+  /**
+   * Absolute public origin of the API (no base path), used to build URLs the
+   * browser/mobile fetch directly, e.g. product media. Unset means
+   * `http://localhost:${API_PORT}`.
+   */
+  API_PUBLIC_URL: z.string().url().optional(),
 
   DATABASE_URL: z.string().url(),
   DATABASE_TEST_URL: z.string().url().optional(),

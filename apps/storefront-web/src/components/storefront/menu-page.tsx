@@ -63,7 +63,7 @@ export function MenuPage() {
     return () => {
       active = false;
     };
-  }, [home, homeCarriesCategories, menuCategories]);
+  }, [categoryId, home, homeCarriesCategories, menuCategories]);
 
   const categories =
     homeCarriesCategories && home ? home.categories : (menuCategories ?? home?.categories ?? []);

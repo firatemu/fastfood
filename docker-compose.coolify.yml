@@ -1,0 +1,191 @@
+# FASTFOOD — Coolify Docker Compose resource (ADR-021).
+#
+# Owner-activated single environment on the VPS behind coolify-proxy (Traefik).
+# Nothing publishes a host port; Coolify routes the domain set per service in
+# its UI ("https://host:<container port>") through Traefik.
+# Providers stay sandbox/fake. The local stack lives in
+# infrastructure/docker/docker-compose.yml and is unaffected.
+#
+# SERVICE_PASSWORD_* / SERVICE_USER_* values are generated and persisted by
+# Coolify on first deploy. Everything else is set in the Coolify
+# "Environment Variables" tab — see infrastructure/production/README.md.
+
+x-public-urls: &public-urls
+  NEXT_PUBLIC_API_BASE_URL: ${PUBLIC_API_URL:-https://apiburger.azem.cloud}/api/v1
+
+services:
+  postgres:
+    image: postgis/postgis:18-3.6
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fastfood
+      POSTGRES_USER: fastfood
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_POSTGRES}
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=C.UTF-8'
+    volumes:
+      - fastfood-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U fastfood -d fastfood']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:8.10.1-trixie
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes', '--requirepass', '${SERVICE_PASSWORD_REDIS}']
+    volumes:
+      - fastfood-redis-data:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli -a "$$REDIS_PASSWORD" --no-auth-warning ping | grep PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    environment:
+      REDIS_PASSWORD: ${SERVICE_PASSWORD_REDIS}
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    restart: unless-stopped
+    command: ['server', '/data', '--console-address', ':9001']
+    environment:
+      MINIO_ROOT_USER: fastfood
+      MINIO_ROOT_PASSWORD: ${SERVICE_PASSWORD_MINIO}
+    volumes:
+      - fastfood-minio-data:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  migrate:
+    build:
+      context: .
+      dockerfile: infrastructure/production/Dockerfile.api
+    image: fastfood-api:coolify
+    restart: 'no'
+    command: ['pnpm', 'exec', 'prisma', 'migrate', 'deploy']
+    environment:
+      DATABASE_URL: postgresql://fastfood:${SERVICE_PASSWORD_POSTGRES}@postgres:5432/fastfood?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/production/Dockerfile.api
+    image: fastfood-api:coolify
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      API_HOST: 0.0.0.0
+      API_PORT: '4000'
+      API_BASE_PATH: /api/v1
+      API_PUBLIC_URL: ${PUBLIC_API_URL:-https://apiburger.azem.cloud}
+      API_CORS_ORIGINS: ${PUBLIC_STOREFRONT_URL:-https://burger.azem.cloud},${PUBLIC_ADMIN_URL:-https://adminburger.azem.cloud},${PUBLIC_COURIER_URL:-https://kuryeburger.azem.cloud},${PUBLIC_QR_URL:-https://qrburger.azem.cloud}
+      COURIER_WEB_ORIGIN: ${PUBLIC_COURIER_URL:-https://kuryeburger.azem.cloud}
+      STOREFRONT_PUBLIC_URL: ${PUBLIC_STOREFRONT_URL:-https://burger.azem.cloud}
+      API_DEV_SECRET: ${SERVICE_PASSWORD_64_APISECRET}
+      DATABASE_URL: postgresql://fastfood:${SERVICE_PASSWORD_POSTGRES}@postgres:5432/fastfood?schema=public
+      REDIS_URL: redis://default:${SERVICE_PASSWORD_REDIS}@redis:6379
+      S3_ENDPOINT: http://minio:9000
+      S3_REGION: us-east-1
+      S3_BUCKET: ${S3_BUCKET:-fastfood}
+      S3_ACCESS_KEY: fastfood
+      S3_SECRET_KEY: ${SERVICE_PASSWORD_MINIO}
+      S3_FORCE_PATH_STYLE: 'true'
+      IYZICO_BASE_URL: https://sandbox-api.iyzipay.com
+      IYZICO_API_KEY: ${IYZICO_SANDBOX_API_KEY:-sandbox-not-configured}
+      IYZICO_SECRET_KEY: ${IYZICO_SANDBOX_SECRET_KEY:-sandbox-not-configured}
+      IYZICO_USE_SANDBOX: 'true'
+      OTP_PROVIDER: fake
+      CUSTOMER_REGISTRATION_OTP_SUSPENDED: 'true'
+      OTP_HMAC_PEPPER: ${SERVICE_PASSWORD_64_OTPPEPPER}
+      STAFF_MFA_BYPASS: 'true'
+      MAPS_PROVIDER: ${MAPS_PROVIDER:-osm}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET:-}
+      GOOGLE_OAUTH_REDIRECT_URI: ${PUBLIC_API_URL:-https://apiburger.azem.cloud}/api/v1/auth/customer/oauth/google/callback
+      JWT_ISSUER: fastfood-azem-cloud
+      JWT_AUDIENCE: fastfood-api
+      JWT_PRIVATE_KEY_B64: ${JWT_PRIVATE_KEY_B64:?set JWT_PRIVATE_KEY_B64 in Coolify}
+      JWT_PUBLIC_KEY_B64: ${JWT_PUBLIC_KEY_B64:?set JWT_PUBLIC_KEY_B64 in Coolify}
+      OUTBOX_CONSUMER_ENABLED: 'true'
+      OTEL_ENABLED: 'false'
+
+  storefront:
+    build:
+      context: .
+      dockerfile: infrastructure/production/Dockerfile.next
+      args:
+        APP_DIR: storefront-web
+        APP_PKG: '@fastfood/storefront-web'
+        <<: *public-urls
+        NEXT_PUBLIC_STOREFRONT_MAP_FRAME_ORIGIN: ${PUBLIC_MAP_URL:-https://mapburger.azem.cloud}
+        NEXT_PUBLIC_MAPS_PROVIDER: ${MAPS_PROVIDER:-osm}
+        NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+
+  admin:
+    build:
+      context: .
+      dockerfile: infrastructure/production/Dockerfile.next
+      args:
+        APP_DIR: admin-web
+        APP_PKG: '@fastfood/admin-web'
+        <<: *public-urls
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+
+  courier:
+    build:
+      context: .
+      dockerfile: infrastructure/production/Dockerfile.next
+      args:
+        APP_DIR: courier-web
+        APP_PKG: '@fastfood/courier-web'
+        <<: *public-urls
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+
+  qr:
+    build:
+      context: .
+      dockerfile: infrastructure/production/Dockerfile.next
+      args:
+        APP_DIR: qr-menu
+        APP_PKG: '@fastfood/qr-menu'
+        <<: *public-urls
+        QR_MENU_MEDIA_ORIGIN: ${PUBLIC_API_URL:-https://apiburger.azem.cloud}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      QR_MENU_API_BASE_URL: http://api:4000/api/v1
+      QR_MENU_REVALIDATE_SECONDS: '60'
+
+volumes:
+  fastfood-postgres-data:
+  fastfood-redis-data:
+  fastfood-minio-data:

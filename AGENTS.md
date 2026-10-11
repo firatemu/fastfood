@@ -44,7 +44,12 @@ Material contract changes require an ADR (document 46).
 Canonical development is technically complete. The active work is local human
 visual/functional validation; final acceptance remains human-owned.
 
-**NO DEPLOYMENT.** No staging, production, Coolify, VPS/cloud release,
+**Exception (ADR-021, 2026-10-11):** the owner activated one VPS environment
+on Coolify (`burger|adminburger|kuryeburger|qrburger|mapburger|apiburger.azem.cloud`)
+with sandbox/fake providers and Android release APK sideloading. Everything
+below remains prohibited outside that scope.
+
+**NO OTHER DEPLOYMENT.** No staging, production, Coolify, VPS/cloud release,
 public domain/TLS setup, production credentials, remote migrations, CD
 pipeline activation, app-store / Play Store / TestFlight release, or
 production provider activation.

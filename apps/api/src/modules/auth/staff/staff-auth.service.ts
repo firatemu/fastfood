@@ -1,6 +1,6 @@
 import { ActorType } from '@fastfood/domain-types';
 import { expandAdminPagePermissions } from '@fastfood/domain-types';
-import { Inject, Injectable, Optional } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 
 import type { Prisma } from '../../../../prisma/generated/client/client.js';
 import { scryptPasswordHasher } from '../../../common/crypto/password-hasher.js';
@@ -21,6 +21,17 @@ interface StaffSessionRecord {
   expiresAt: Date;
 }
 
+/**
+ * TOTP verification is not implemented yet, so a deployment without a bypass
+ * cannot sign staff in at all. `ALLOW_DEV_MFA_BYPASS` is development-only;
+ * `STAFF_MFA_BYPASS` is the explicit owner-approved switch for the ADR-021
+ * sandbox environment and also applies under `NODE_ENV=production`.
+ */
+export function isStaffMfaBypassEnabled(env: NodeJS.ProcessEnv): boolean {
+  if (env['STAFF_MFA_BYPASS'] === 'true') return true;
+  return env['NODE_ENV'] !== 'production' && env['ALLOW_DEV_MFA_BYPASS'] === 'true';
+}
+
 interface StaffUserRecord {
   userId: string;
   identifier: string;
@@ -36,8 +47,12 @@ export class StaffAuthService {
   constructor(
     @Optional() @Inject(PrismaService) private readonly prisma: PrismaService | null = null,
   ) {
-    this.#mfaBypassEnabled =
-      process.env['NODE_ENV'] !== 'production' && process.env['ALLOW_DEV_MFA_BYPASS'] === 'true';
+    this.#mfaBypassEnabled = isStaffMfaBypassEnabled(process.env);
+    if (process.env['NODE_ENV'] === 'production' && this.#mfaBypassEnabled) {
+      new Logger(StaffAuthService.name).warn(
+        'STAFF_MFA_BYPASS=true: staff/courier sign-in is password-only (ADR-021 sandbox environment).',
+      );
+    }
   }
 
   async registerDevStaff(identifier: string, plain: string): Promise<string> {
@@ -291,10 +306,12 @@ export class StaffAuthService {
       return { ok: false, reason: 'MFA_NOT_VERIFIED' };
     }
     const actorType = this.prisma
-      ? (await this.prisma.user.findUnique({
-          where: { id: foundEntry.userId },
-          select: { actorType: true },
-        }))?.actorType
+      ? (
+          await this.prisma.user.findUnique({
+            where: { id: foundEntry.userId },
+            select: { actorType: true },
+          })
+        )?.actorType
       : 'STAFF';
     if (actorType !== 'STAFF' && actorType !== 'COURIER') {
       return { ok: false, reason: 'TOKEN_NOT_FOUND' };
@@ -317,9 +334,7 @@ export class StaffAuthService {
     return { ok: true, userId: foundEntry.userId, accessToken };
   }
 
-  async refresh(
-    refreshToken: string,
-  ): Promise<
+  async refresh(refreshToken: string): Promise<
     | {
         ok: true;
         userId: string;
@@ -371,7 +386,8 @@ export class StaffAuthService {
       const now = new Date();
       const tokenHash = hashRefreshToken(refreshToken);
       const previous = await tx.session.findUnique({ where: { refreshTokenHash: tokenHash } });
-      if (!previous || previous.revokedAt) return { ok: false as const, reason: 'TOKEN_NOT_FOUND' as const };
+      if (!previous || previous.revokedAt)
+        return { ok: false as const, reason: 'TOKEN_NOT_FOUND' as const };
       if (previous.expiresAt <= now) {
         await tx.session.update({
           where: { id: previous.id },

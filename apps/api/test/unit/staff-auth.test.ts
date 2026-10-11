@@ -3,7 +3,31 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { StaffAuthService } from '../../src/modules/auth/staff/staff-auth.service.js';
+import {
+  isStaffMfaBypassEnabled,
+  StaffAuthService,
+} from '../../src/modules/auth/staff/staff-auth.service.js';
+
+describe('isStaffMfaBypassEnabled', () => {
+  it('never honours the dev bypass under production', () => {
+    expect(isStaffMfaBypassEnabled({ NODE_ENV: 'production', ALLOW_DEV_MFA_BYPASS: 'true' })).toBe(
+      false,
+    );
+    expect(isStaffMfaBypassEnabled({ NODE_ENV: 'production' })).toBe(false);
+  });
+
+  it('honours the explicit ADR-021 switch under production', () => {
+    expect(isStaffMfaBypassEnabled({ NODE_ENV: 'production', STAFF_MFA_BYPASS: 'true' })).toBe(
+      true,
+    );
+  });
+
+  it('keeps the development bypass outside production', () => {
+    expect(isStaffMfaBypassEnabled({ NODE_ENV: 'development', ALLOW_DEV_MFA_BYPASS: 'true' })).toBe(
+      true,
+    );
+  });
+});
 
 describe('Phase 3 StaffAuthService', () => {
   it('rejects login with unknown identifier', async () => {

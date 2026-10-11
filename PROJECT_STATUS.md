@@ -19,6 +19,7 @@ Canonical phase numbering follows
 | **Current mode**                             | `FULL_PROJECT_AUTONOMOUS_DEVELOPMENT`    |
 | **Deployment**                               | `PROHIBITED / DEFERRED`                  |
 | **Production**                               | `NOT ACTIVE`                             |
+| **Owner VPS environment (ADR-021)**          | `AUTHORIZED / SANDBOX PROVIDERS`         |
 | **Project autonomous execution**             | `AUTHORIZED`                             |
 | **Human acceptance deferred to final gate**  | `NO`                                     |
 | **Autonomous execution**                     | `ARMED`                                  |

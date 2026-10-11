@@ -1,0 +1,45 @@
+# FASTFOOD API image (ADR-021). Build context: repository root.
+# The same image runs the one-shot `migrate` job (prisma migrate deploy).
+
+ARG NODE_IMAGE=node:24.21.0-bookworm-slim
+
+FROM ${NODE_IMAGE} AS base
+ENV CI=true \
+    PNPM_HOME=/pnpm \
+    PATH=/pnpm:$PATH
+RUN npm install -g pnpm@12.4.0 turbo@2.10.4 && npm cache clean --force
+WORKDIR /repo
+
+FROM base AS pruner
+COPY . .
+RUN turbo prune @fastfood/api --docker --out-dir /out
+
+FROM base AS builder
+# prisma.config.ts refuses to load without a URL; generate never connects.
+ENV DATABASE_URL=postgresql://build:build@localhost:5432/build
+COPY --from=pruner /out/json/ ./
+COPY --from=pruner /out/pnpm-lock.yaml /out/pnpm-workspace.yaml ./
+COPY .npmrc ./
+RUN pnpm install --frozen-lockfile
+COPY --from=pruner /out/full/ ./
+COPY tsconfig.base.json ./
+RUN turbo run build --filter=@fastfood/api
+
+FROM ${NODE_IMAGE} AS runtime
+ENV NODE_ENV=production \
+    API_HOST=0.0.0.0 \
+    API_PORT=4000
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /repo
+COPY --from=builder --chown=node:node /repo ./
+COPY infrastructure/production/api-entrypoint.sh /usr/local/bin/api-entrypoint
+RUN chmod 0755 /usr/local/bin/api-entrypoint
+USER node
+WORKDIR /repo/apps/api
+EXPOSE 4000
+HEALTHCHECK --interval=15s --timeout=5s --start-period=40s --retries=5 \
+    CMD curl -fsS http://127.0.0.1:4000/health/live || exit 1
+ENTRYPOINT ["api-entrypoint"]
+CMD ["node", "dist/main.js"]

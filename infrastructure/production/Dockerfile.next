@@ -1,0 +1,63 @@
+# FASTFOOD Next.js image (ADR-021), shared by storefront-web, admin-web,
+# courier-web and qr-menu. Build context: repository root.
+#   APP_DIR  apps/<APP_DIR>   e.g. storefront-web
+#   APP_PKG  workspace name   e.g. @fastfood/storefront-web
+# NEXT_PUBLIC_* values (and QR_MENU_MEDIA_ORIGIN) are inlined at build time.
+
+ARG NODE_IMAGE=node:24.21.0-bookworm-slim
+
+FROM ${NODE_IMAGE} AS base
+ENV CI=true \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PNPM_HOME=/pnpm \
+    PATH=/pnpm:$PATH
+RUN npm install -g pnpm@12.4.0 turbo@2.10.4 && npm cache clean --force
+WORKDIR /repo
+
+FROM base AS pruner
+ARG APP_PKG
+COPY . .
+RUN turbo prune "${APP_PKG}" --docker --out-dir /out
+
+FROM base AS builder
+ARG APP_DIR
+ARG APP_PKG
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_STOREFRONT_MAP_FRAME_ORIGIN=
+ARG NEXT_PUBLIC_MAPS_PROVIDER=google
+ARG NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
+ARG QR_MENU_MEDIA_ORIGIN=
+ENV NODE_ENV=production \
+    NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL} \
+    NEXT_PUBLIC_STOREFRONT_MAP_FRAME_ORIGIN=${NEXT_PUBLIC_STOREFRONT_MAP_FRAME_ORIGIN} \
+    NEXT_PUBLIC_MAPS_PROVIDER=${NEXT_PUBLIC_MAPS_PROVIDER} \
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY} \
+    QR_MENU_MEDIA_ORIGIN=${QR_MENU_MEDIA_ORIGIN}
+COPY --from=pruner /out/json/ ./
+COPY --from=pruner /out/pnpm-lock.yaml /out/pnpm-workspace.yaml ./
+COPY .npmrc ./
+RUN NODE_ENV=development pnpm install --frozen-lockfile
+COPY --from=pruner /out/full/ ./
+COPY tsconfig.base.json ./
+# Workspace dependencies through turbo; the app itself through pnpm so its
+# build sees every build argument (turbo strict env mode would filter them).
+RUN turbo run build --filter="${APP_PKG}^..." \
+    && pnpm --filter "${APP_PKG}" build \
+    && mkdir -p "apps/${APP_DIR}/public"
+
+FROM ${NODE_IMAGE} AS runtime
+ARG APP_DIR
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    HOSTNAME=0.0.0.0 \
+    PORT=3000 \
+    APP_DIR=${APP_DIR}
+WORKDIR /app
+COPY --from=builder --chown=node:node /repo/apps/${APP_DIR}/.next/standalone ./
+COPY --from=builder --chown=node:node /repo/apps/${APP_DIR}/.next/static ./apps/${APP_DIR}/.next/static
+COPY --from=builder --chown=node:node /repo/apps/${APP_DIR}/public ./apps/${APP_DIR}/public
+USER node
+EXPOSE 3000
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=5 \
+    CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"
+CMD ["sh", "-c", "exec node apps/${APP_DIR}/server.js"]

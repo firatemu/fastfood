@@ -4,7 +4,7 @@ import { createStorefrontClient } from '../api';
 import { vitrineProducts } from '../catalog-present';
 import {
   categoriesResponseSchema,
-  categorySchema,
+  type categorySchema,
   productDetailResponseSchema,
   productsResponseSchema,
   type productDetailSchema,
