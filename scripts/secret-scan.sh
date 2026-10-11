@@ -23,8 +23,9 @@ PATTERNS = [
 # A connection string with an inline password is only a finding when the host is
 # not loopback: `postgresql://test:test@127.0.0.1` is a local stub.
 CONN = re.compile(
-    r"(?i)\b(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis)://[^\s:/@]+:[^\s:/@]+@([^\s:/@]+)"
+    r"(?i)\b(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis)://[^\s:/@]+:([^\s:/@]+)@([^\s:/@]+)"
 )
+INTERPOLATED = re.compile(r"^\$\{[A-Za-z_][A-Za-z0-9_]*\}$")
 LOCAL_HOSTS = {"127.0.0.1", "localhost", "0.0.0.0", "::1"}
 
 ALLOW_SUFFIX = (".example", "-lock.json")
@@ -53,7 +54,10 @@ for path in files:
                              "example" if is_example else "REVIEW"))
     if not is_example:
         for m in CONN.finditer(text):
-            if m.group(1).lower() not in LOCAL_HOSTS:
+            # `${VAR}` is a deploy-time interpolation, not credential material.
+            if INTERPOLATED.match(m.group(1)):
+                continue
+            if m.group(2).lower() not in LOCAL_HOSTS:
                 findings.append(("remote DB with inline password", path,
                                  text.count("\n", 0, m.start()) + 1, "REVIEW"))
 
