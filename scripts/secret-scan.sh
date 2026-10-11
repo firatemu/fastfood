@@ -31,6 +31,10 @@ ALLOW_SUFFIX = (".example", "-lock.json")
 
 files = subprocess.run(["git", "ls-files"], capture_output=True, text=True,
                        check=True).stdout.split()
+# The scanner matches its own pattern source (the regex text parses as a
+# connection string), so it never scans itself.
+self_path = "scripts/secret-scan.sh"
+files = [f for f in files if f != self_path]
 
 findings = []
 for path in files:
