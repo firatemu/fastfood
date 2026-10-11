@@ -115,3 +115,9 @@ apps/storefront-web/.stitch-html/
 # NTFS alternate data stream left behind when a file is written from Windows
 # onto the WSL mount (`menu_gorsel_indir.py:Zone.Identifier`).
 *:Zone.Identifier
+
+# Dump output from the menu-image / AppMetrica sync run. These files captured
+# live cloud credentials (AWS Cognito temporary keys in `02.json`, an AppMetrica
+# integration JWT in `04.json`) — they are run artifacts, not source, and must
+# never reach a remote. Kept local for debugging only.
+/apps/api/prisma/seed-data/menu-images/debug/
