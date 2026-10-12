@@ -33,6 +33,7 @@ hosts unrelated projects.
    | `adminburger.azem.cloud` | `admin-web`                                 |
    | `kuryeburger.azem.cloud` | `courier-web`                               |
    | `qrburger.azem.cloud`    | `qr-menu`                                   |
+   | `menu.azem.cloud`        | `qr-menu` (second host, added 2026-10-12)   |
    | `mapburger.azem.cloud`   | `storefront-web` (address-map frame origin) |
    | `apiburger.azem.cloud`   | `api`                                       |
 

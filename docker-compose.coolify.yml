@@ -99,7 +99,7 @@ services:
       API_PORT: '4000'
       API_BASE_PATH: /api/v1
       API_PUBLIC_URL: ${PUBLIC_API_URL:-https://apiburger.azem.cloud}
-      API_CORS_ORIGINS: ${PUBLIC_STOREFRONT_URL:-https://burger.azem.cloud},${PUBLIC_ADMIN_URL:-https://adminburger.azem.cloud},${PUBLIC_COURIER_URL:-https://kuryeburger.azem.cloud},${PUBLIC_QR_URL:-https://qrburger.azem.cloud}
+      API_CORS_ORIGINS: ${PUBLIC_STOREFRONT_URL:-https://burger.azem.cloud},${PUBLIC_ADMIN_URL:-https://adminburger.azem.cloud},${PUBLIC_COURIER_URL:-https://kuryeburger.azem.cloud},${PUBLIC_QR_URL:-https://qrburger.azem.cloud},${PUBLIC_MENU_URL:-https://menu.azem.cloud}
       COURIER_WEB_ORIGIN: ${PUBLIC_COURIER_URL:-https://kuryeburger.azem.cloud}
       STOREFRONT_PUBLIC_URL: ${PUBLIC_STOREFRONT_URL:-https://burger.azem.cloud}
       API_DEV_SECRET: ${SERVICE_PASSWORD_64_APISECRET}

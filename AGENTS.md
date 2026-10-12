@@ -45,7 +45,7 @@ Canonical development is technically complete. The active work is local human
 visual/functional validation; final acceptance remains human-owned.
 
 **Exception (ADR-021, 2026-10-11):** the owner activated one VPS environment
-on Coolify (`burger|adminburger|kuryeburger|qrburger|mapburger|apiburger.azem.cloud`)
+on Coolify (`burger|adminburger|kuryeburger|qrburger|menu|mapburger|apiburger.azem.cloud`)
 with sandbox/fake providers and Android release APK sideloading. Everything
 below remains prohibited outside that scope.
 

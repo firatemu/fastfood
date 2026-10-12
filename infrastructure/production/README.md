@@ -14,6 +14,7 @@ Providers are sandbox/fake only; see ADR-021 for scope.
 | `adminburger.azem.cloud` | `admin`         | 3000           |
 | `kuryeburger.azem.cloud` | `courier`       | 3000           |
 | `qrburger.azem.cloud`    | `qr`            | 3000           |
+| `menu.azem.cloud`        | `qr`            | 3000           |
 
 PostgreSQL, Redis and MinIO have no public port. DNS A records live in the
 Hostinger zone of `azem.cloud`.
