@@ -2,8 +2,9 @@
 
 import { useCallback, useState } from 'react';
 
-import { isCustomerAuthenticated } from '../../lib/api';
+import { clearCustomerSession, isCustomerAuthenticated } from '../../lib/api';
 import { errorMessage } from '../../lib/load-state';
+import { deleteCustomerAccount } from '../../lib/storefront/account';
 import { useSubmitLock } from '../../lib/storefront/account-hooks';
 import { securityPosture } from '../../lib/storefront/account-security-posture';
 import {
@@ -47,6 +48,8 @@ export function AccountSecurityPage() {
   const [nextPassword, setNextPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [confirmError, setConfirmError] = useState<string | null>(null);
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -128,6 +131,26 @@ export function AccountSecurityPage() {
       toast.error('Doğrulama gönderilemedi.', errorMessage(err));
     }
   }, [sendVerification, toast]);
+
+  const removeAccount = useSubmitLock(
+    useCallback(async () => {
+      await deleteCustomerAccount();
+    }, []),
+  );
+
+  const confirmDeletion = useCallback(async () => {
+    if (!window.confirm('Hesabın kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?')) {
+      return;
+    }
+    setDeleteError(null);
+    try {
+      await removeAccount.run();
+      clearCustomerSession();
+      window.location.href = '/hesap-silme?silindi=1';
+    } catch (err) {
+      setDeleteError(errorMessage(err));
+    }
+  }, [removeAccount]);
 
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'error') {
@@ -347,6 +370,45 @@ export function AccountSecurityPage() {
               Açık oturumların listesi sunulmuyor. Bu cihazdan çıkmak için Hesap menüsündeki
               Çıkış yap kullanılır; tüm cihazlardan çıkış henüz desteklenmiyor.
             </span>
+          </div>
+        </div>
+      </section>
+
+      <section className="ff-section" data-ff-account-deletion>
+        <div className="ff-section-head">
+          <h2 className="ff-section-title">Hesabı sil</h2>
+          <p className="ff-section-desc">
+            Ad, telefon, e-posta, şifre, adresler, favoriler ve bildirimler kalıcı olarak silinir.
+            Siparişler yasal kayıt olarak kimliksiz saklanır. Açık siparişin varken hesap silinemez.
+          </p>
+        </div>
+        <div className="ff-section-body">
+          <div className="ff-stack">
+            <label className="ff-cluster" style={{ alignItems: 'center' }}>
+              <input
+                type="checkbox"
+                checked={deleteConfirmed}
+                onChange={(event) => setDeleteConfirmed(event.target.checked)}
+              />
+              <span className="ff-row-hint">Hesabımın ve kişisel verilerimin silineceğini anlıyorum.</span>
+            </label>
+            {deleteError ? (
+              <div className="ff-notice" data-tone="danger" role="alert">
+                <MaterialIcon name="error" />
+                <span>{deleteError}</span>
+              </div>
+            ) : null}
+            <div className="ff-cluster ff-cluster-end">
+              <button
+                type="button"
+                className="ff-btn ff-btn-danger"
+                disabled={!deleteConfirmed || removeAccount.pending}
+                onClick={() => void confirmDeletion()}
+              >
+                <MaterialIcon name="delete_forever" />
+                {removeAccount.pending ? 'Siliniyor' : 'Hesabımı kalıcı olarak sil'}
+              </button>
+            </div>
           </div>
         </div>
       </section>

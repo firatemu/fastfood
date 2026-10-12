@@ -165,8 +165,11 @@ export function StorefrontFooter({
             © {year} {BRAND_NAME}. Tüm hakları saklıdır.
           </p>
           <div className="flex items-center gap-space-lg font-label-sm text-label-sm uppercase">
-            <Link href="/legal#gizlilik-sozlesmesi" data-path="gizlilik-sozlesmesi" className="hover:text-on-surface transition-colors">
+            <Link href="/gizlilik" data-path="gizlilik" className="hover:text-on-surface transition-colors">
               Gizlilik
+            </Link>
+            <Link href="/hesap-silme" data-path="hesap-silme" className="hover:text-on-surface transition-colors">
+              Hesap Silme
             </Link>
             <Link href="/legal#kullanim-kosullari" data-path="kullanim-kosullari" className="hover:text-on-surface transition-colors">
               Kullanım Koşulları

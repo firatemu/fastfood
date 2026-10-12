@@ -2,6 +2,7 @@ import type { z } from 'zod';
 
 import { createStorefrontClient, sessionHeaders } from '../api';
 import {
+  accountDeletionResponseSchema,
   customerPreferenceResponseSchema,
   customerProfileResponseSchema,
   loyaltyResponseSchema,
@@ -38,6 +39,17 @@ export async function patchCustomerProfile(patch: {
     schema: customerProfileResponseSchema,
   });
   return res.data;
+}
+
+export async function deleteCustomerAccount(): Promise<void> {
+  const client = createStorefrontClient();
+  await client.request({
+    method: 'DELETE',
+    path: 'me',
+    headers: sessionHeaders(),
+    body: { confirm: true },
+    schema: accountDeletionResponseSchema,
+  });
 }
 
 export async function fetchCustomerPreferences(): Promise<CustomerPreference> {

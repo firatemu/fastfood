@@ -1,13 +1,24 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import type { ReactElement } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FormField } from '../../components/form-field';
 import { RequireCustomer } from '../../components/require-customer';
 import { StackHeader } from '../../components/stack-header';
 import { ErrorBlock, LoadingBlock, MustardButton, SecondaryButton } from '../../components/ui';
+import { deleteCustomerAccount } from '../../lib/account';
 import { formatApiError } from '../../lib/api';
 import {
   changeCustomerPassword,
@@ -17,6 +28,7 @@ import {
   requestEmailVerification,
 } from '../../lib/auth';
 import { authErrorMessage } from '../../lib/auth-error';
+import { getStorefrontUrl } from '../../lib/env';
 import { cacheIdentities } from '../../lib/private-cache';
 import type { LinkedIdentities } from '../../lib/schemas';
 import { colors, fonts, minTouch, radius, space } from '../../theme';
@@ -93,6 +105,8 @@ function SecurityBody() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setStatus('loading');
@@ -176,6 +190,34 @@ function SecurityBody() {
     } finally {
       setLoggingOut(false);
     }
+  }
+
+  async function onDeleteAccount() {
+    if (deleting) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteCustomerAccount();
+      await logoutCustomer();
+      if (router.canDismiss()) router.dismissAll();
+      router.replace('/(tabs)/account');
+      Alert.alert('Hesabın silindi', 'Kişisel verilerin sistemimizden kaldırıldı.');
+    } catch (err) {
+      setDeleteError(formatApiError(err));
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  function confirmDeletion() {
+    Alert.alert(
+      'Hesap kalıcı olarak silinsin mi?',
+      'Bu işlem geri alınamaz. Kişisel verilerin hemen silinir.',
+      [
+        { text: 'Vazgeç', style: 'cancel' },
+        { text: 'Hesabımı sil', style: 'destructive', onPress: () => void onDeleteAccount() },
+      ],
+    );
   }
 
   if (status === 'loading') return <LoadingBlock label="Güvenlik bilgisi yükleniyor…" />;
@@ -350,6 +392,33 @@ function SecurityBody() {
             onPress={() => void onLogout()}
           />
         </View>
+
+        <View style={styles.card}>
+          <Text style={styles.section}>Hesabı sil</Text>
+          <Text style={styles.hint}>
+            Ad, telefon, e-posta, şifre, adresler, favoriler ve bildirimler kalıcı olarak silinir.
+            Siparişler yasal kayıt olarak kimliksiz saklanır. Açık siparişin varken hesap silinemez.
+          </Text>
+          {deleteError ? <Text style={styles.error}>{deleteError}</Text> : null}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ disabled: deleting }}
+            disabled={deleting}
+            onPress={confirmDeletion}
+            style={styles.danger}
+          >
+            <Text style={styles.dangerLabel}>
+              {deleting ? 'Siliniyor…' : 'Hesabımı kalıcı olarak sil'}
+            </Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => void Linking.openURL(`${getStorefrontUrl()}/gizlilik`)}
+            style={styles.link}
+          >
+            <Text style={styles.meta}>Gizlilik politikası</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -399,6 +468,17 @@ const styles = StyleSheet.create({
   meta: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },
   error: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.error },
   ok: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.ok },
+  danger: {
+    minHeight: minTouch,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.error,
+    paddingHorizontal: space.md,
+  },
+  dangerLabel: { fontFamily: fonts.jakartaBold, fontSize: 14, color: colors.error },
+  link: { minHeight: minTouch, justifyContent: 'center', alignSelf: 'flex-start' },
 
   posture: {
     flexDirection: 'row',

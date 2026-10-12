@@ -99,6 +99,7 @@ Examples:
 - `AUTH_ACCOUNT_DISABLED`
 - `AUTH_PERMISSION_DENIED`
 - `AUTH_SCOPE_DENIED`
+- `ACCOUNT_HAS_ACTIVE_ORDER` (ADR-023: account deletion refused while an order is still open)
 
 ### Address/branch
 

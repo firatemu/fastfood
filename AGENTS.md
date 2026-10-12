@@ -49,6 +49,10 @@ on Coolify (`burger|adminburger|kuryeburger|qrburger|menu|mapburger|apiburger.az
 with sandbox/fake providers and Android release APK sideloading. Everything
 below remains prohibited outside that scope.
 
+**Exception (ADR-023, 2026-10-12):** the customer app may be uploaded by the
+owner to Google Play **internal / closed testing** tracks (signed AAB, iyzico
+sandbox). Open testing, production tracks and the courier app stay prohibited.
+
 **NO OTHER DEPLOYMENT.** No staging, production, Coolify, VPS/cloud release,
 public domain/TLS setup, production credentials, remote migrations, CD
 pipeline activation, app-store / Play Store / TestFlight release, or

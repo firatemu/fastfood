@@ -1,12 +1,13 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { StackHeader } from '../../components/stack-header';
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
 import { fetchPublishedContent } from '../../lib/content';
 import { legalDocuments } from '../../lib/content-map';
+import { getStorefrontUrl } from '../../lib/env';
 import type { StorefrontContent } from '../../lib/schemas';
 import { colors, fonts, minTouch, radius, space } from '../../theme';
 
@@ -73,6 +74,22 @@ export default function LegalRoute() {
               </View>
             ))
           )}
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => void Linking.openURL(`${getStorefrontUrl()}/gizlilik`)}
+            style={styles.guide}
+          >
+            <Text style={styles.title}>Gizlilik politikası</Text>
+            <Text style={styles.body}>Topladığımız veriler, izinler ve hakların.</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => void Linking.openURL(`${getStorefrontUrl()}/hesap-silme`)}
+            style={styles.guide}
+          >
+            <Text style={styles.title}>Hesap silme</Text>
+            <Text style={styles.body}>Hesabını ve kişisel verilerini silme adımları.</Text>
+          </Pressable>
           <Pressable
             accessibilityRole="button"
             onPress={() => router.push('/legal/allergens')}

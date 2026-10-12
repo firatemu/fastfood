@@ -1,16 +1,27 @@
 import { ADDRESS_ALLOWED_PROVINCE_IDS, ErrorCodes } from '@fastfood/contracts';
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
   Optional,
 } from '@nestjs/common';
 
+import { Prisma } from '../../../prisma/generated/client/client.js';
 import { PrismaService } from '../../common/database/prisma.service.js';
 import type { AuthenticatedPrincipal } from '../auth/guards/authenticated-principal.js';
 
 import { CustomerOwnershipPolicy } from './customer-ownership.policy.js';
+
+export const ACCOUNT_DELETION_CLOSED_ORDER_STATUSES = [
+  'DELIVERED',
+  'CANCELLED',
+  'REJECTED',
+  'PAYMENT_FAILED',
+  'REFUNDED',
+  'PARTIALLY_REFUNDED',
+] as const;
 
 export interface CustomerProfileDto {
   id: string;
@@ -655,6 +666,78 @@ export class CustomerService {
     }
     this.ownership.enforce(principal, { userId: existing.userId });
     await this.prisma.address.delete({ where: { id: addressId } });
+  }
+
+  /**
+   * ADR-023: removes personal data and keeps a de-identified `users` row so
+   * orders, loyalty and coupon history keep a non-personal reference.
+   */
+  async deleteAccount(principal: AuthenticatedPrincipal): Promise<void> {
+    if (!this.prisma) {
+      this.#profiles.delete(principal.id);
+      this.#preferences.delete(principal.id);
+      for (const [id, address] of this.#addresses) {
+        if (address.userId === principal.id) this.#addresses.delete(id);
+      }
+      return;
+    }
+    const userId = principal.id;
+    const openOrder = await this.prisma.order.findFirst({
+      where: { userId, status: { notIn: [...ACCOUNT_DELETION_CLOSED_ORDER_STATUSES] } },
+      select: { id: true },
+    });
+    if (openOrder) {
+      throw new ConflictException({
+        code: ErrorCodes.ACCOUNT_HAS_ACTIVE_ORDER,
+        message: 'Açık siparişin tamamlanmadan hesap silinemez.',
+      });
+    }
+    await this.prisma.$transaction(async (tx) => {
+      await tx.customerProfile.deleteMany({ where: { userId } });
+      await tx.customerCredential.deleteMany({ where: { userId } });
+      await tx.authIdentity.deleteMany({ where: { userId } });
+      await tx.customerPreference.deleteMany({ where: { userId } });
+      await tx.emailVerificationChallenge.deleteMany({ where: { userId } });
+      await tx.passwordResetChallenge.deleteMany({ where: { userId } });
+      await tx.session.deleteMany({ where: { userId } });
+      await tx.address.deleteMany({ where: { userId } });
+      await tx.customerFavorite.deleteMany({ where: { userId } });
+      await tx.notification.deleteMany({ where: { userId } });
+      await tx.supportConversation.deleteMany({ where: { userId } });
+      await tx.newsletterSubscription.deleteMany({ where: { userId } });
+      await tx.cart.updateMany({ where: { userId }, data: { userId: null } });
+      await tx.diningTableScan.updateMany({ where: { userId }, data: { userId: null } });
+      const orders = await tx.order.findMany({ where: { userId }, select: { id: true } });
+      await tx.delivery.updateMany({
+        where: { orderId: { in: orders.map((order) => order.id) } },
+        data: {
+          recipientName: null,
+          recipientPhone: null,
+          addressLine: null,
+          latitude: null,
+          longitude: null,
+          deliveryNote: null,
+        },
+      });
+      await tx.order.updateMany({
+        where: { userId },
+        data: { deliveryNote: null, buildingAccessCode: null, deliveryAddressJson: Prisma.DbNull },
+      });
+      await tx.checkoutSession.updateMany({
+        where: { userId },
+        data: { deliveryNote: null, buildingAccessCode: null, guestName: null, guestPhone: null },
+      });
+      await tx.user.updateMany({
+        where: { id: userId, actorType: 'CUSTOMER' },
+        data: {
+          status: 'DISABLED',
+          disabledAt: new Date(),
+          primaryIdentifier: null,
+          primaryIdentifierType: null,
+          displayName: null,
+        },
+      });
+    });
   }
 
   async #clearDefaultAddresses(userId: string): Promise<void> {

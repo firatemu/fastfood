@@ -1,9 +1,11 @@
 import { ADDRESS_ALLOWED_PROVINCE_IDS, ErrorCodes } from '@fastfood/contracts';
+import { ActorType } from '@fastfood/domain-types';
 import { safeValidate } from '@fastfood/validation';
 import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   Inject,
@@ -69,6 +71,8 @@ const profilePatchSchema = z.object({
   locale: z.string().min(2).max(16).optional(),
   email: z.string().trim().email().max(255).optional(),
 });
+
+const accountDeletionSchema = z.object({ confirm: z.literal(true) });
 
 const preferencePatchSchema = z.object({
   marketingOptIn: z.boolean().optional(),
@@ -244,6 +248,34 @@ export class CustomerController {
     }
     const profile = await this.service.patchProfile(principal, parsed.data);
     return { data: profile, meta: { requestId: REQUEST_ID } };
+  }
+
+  @Delete('me')
+  @HttpCode(200)
+  async deleteMe(
+    @Req() req: FastifyRequest & { principal?: AuthenticatedPrincipal },
+    @Body() body: unknown,
+  ): Promise<unknown> {
+    const principal = this.getPrincipal(req);
+    if (principal.actorType !== ActorType.CUSTOMER) {
+      throw new ForbiddenException({
+        code: ErrorCodes.AUTH_PERMISSION_DENIED,
+        message: 'Only customer accounts can be deleted here.',
+      });
+    }
+    const parsed = safeValidate(accountDeletionSchema, body);
+    if (!parsed.ok) {
+      return {
+        error: {
+          code: ErrorCodes.VALIDATION_ERROR,
+          message: 'Hesap silme onayı gerekli.',
+          details: { fields: parsed.issues },
+          requestId: REQUEST_ID,
+        },
+      };
+    }
+    await this.service.deleteAccount(principal);
+    return { data: { deleted: true }, meta: { requestId: REQUEST_ID } };
   }
 
   @Get('me/preferences')

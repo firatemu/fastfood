@@ -7,6 +7,8 @@ export const DATA_PATH_ROUTES: Record<string, string> = {
   'siparis-takibi': '/orders',
   kvkk: '/legal',
   'gizlilik-sozlesmesi': '/legal',
+  gizlilik: '/gizlilik',
+  'hesap-silme': '/hesap-silme',
   'kullanim-kosullari': '/legal',
   'alerjen-rehberi': '/legal',
 };

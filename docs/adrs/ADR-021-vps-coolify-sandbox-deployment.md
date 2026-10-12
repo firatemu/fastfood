@@ -48,7 +48,8 @@ hosts unrelated projects.
    restore.
 5. Mobile apps are distributed as signed Android release APKs that target
    `https://apiburger.azem.cloud/api/v1`. Store / TestFlight / Play track
-   publication remains prohibited.
+   publication remains prohibited, except the customer app on Play internal /
+   closed testing tracks (ADR-023, 2026-10-12).
 6. Migrations run once per deploy in a dedicated `migrate` job
    (`prisma migrate deploy`) before the API starts; app replicas never mutate
    the schema.

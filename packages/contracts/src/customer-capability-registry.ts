@@ -612,6 +612,17 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     notes: 'Settings/security.',
   },
   {
+    id: 'account-deletion',
+    name: 'Account deletion',
+    backend: 'DELETE /me',
+    webImpact: 'CHANGE_REQUIRED',
+    webStatus: 'IMPLEMENTED',
+    mobileImpact: 'CHANGE_REQUIRED',
+    mobileStatus: 'IMPLEMENTED',
+    notes:
+      'ADR-023: Account › Security on both clients; public /gizlilik and /hesap-silme pages on the storefront, linked from mobile Legal.',
+  },
+  {
     id: 'staff-admin-kitchen-courier',
     name: 'Staff/admin/kitchen/courier',
     backend: 'admin/ops APIs',

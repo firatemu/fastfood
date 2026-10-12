@@ -65,3 +65,10 @@ FASTFOOD_RELEASE_KEYSTORE=... FASTFOOD_RELEASE_KEYSTORE_PASS=... FASTFOOD_RELEAS
 
 The keystore and its password are kept outside Git. Losing them means future
 APKs cannot update installed apps in place.
+
+Google Play internal / closed testing (customer app only, ADR-023): add `aab`
+as the second argument to produce
+`apps/customer-mobile/android/app/build/outputs/bundle/release/app-release.aab`.
+The keystore is the Play **upload key**; enroll in Play App Signing. Increment
+`android.versionCode` in `apps/customer-mobile/app.json` before every upload.
+Store listing and Data safety answers: `docs/release/PLAY_CONSOLE_CUSTOMER.md`.

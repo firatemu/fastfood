@@ -464,6 +464,7 @@ export const customerProfileSchema = z
   })
   .passthrough();
 export const customerProfileResponseSchema = envelope(customerProfileSchema);
+export const accountDeletionResponseSchema = envelope(z.object({ deleted: z.literal(true) }));
 export const customerPreferenceSchema = z.object({
   marketingOptIn: z.boolean(),
   newsletterOptIn: z.boolean(),

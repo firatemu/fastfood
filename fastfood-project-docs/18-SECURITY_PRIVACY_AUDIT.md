@@ -82,6 +82,8 @@ Personal data includes customer phone, address, coordinates, and courier locatio
 
 The system should support data minimization, defined retention, customer data export/deletion workflows where legally appropriate, and controlled access. Legal retention obligations for transaction/fiscal records must be confirmed before production policy is finalized.
 
+Implemented customer self-service deletion: ADR-023 (personal data removed immediately; orders kept as de-identified records; refused while an order is open).
+
 ## 11. Dependency security
 
 CI should include dependency vulnerability checks and lockfile integrity. Major dependency upgrades follow document 46.

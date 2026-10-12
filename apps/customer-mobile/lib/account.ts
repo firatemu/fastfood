@@ -1,6 +1,7 @@
 import { getApiClient } from './api';
 import { cacheLoyaltyPoints, cachePreferences, cacheProfile } from './private-cache';
 import {
+  accountDeletionResponseSchema,
   customerPreferenceResponseSchema,
   customerProfileResponseSchema,
   loyaltyResponseSchema,
@@ -30,6 +31,15 @@ export async function patchCustomerProfile(patch: {
   });
   cacheProfile(res.data);
   return res.data;
+}
+
+export async function deleteCustomerAccount(): Promise<void> {
+  await getApiClient().request({
+    method: 'DELETE',
+    path: '/me',
+    body: { confirm: true },
+    schema: accountDeletionResponseSchema,
+  });
 }
 
 export async function fetchCustomerPreferences(): Promise<CustomerPreference> {
