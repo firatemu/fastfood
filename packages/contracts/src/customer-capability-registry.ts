@@ -95,8 +95,12 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     id: 'iyzico-pay',
     name: 'iyzico pay init + status',
     backend: 'checkout payment initialize/status',
-    ...implementedBoth,
-    notes: 'Hosted/3DS; no PAN in either client.',
+    webImpact: 'CHANGE_REQUIRED',
+    webStatus: 'IMPLEMENTED',
+    mobileImpact: 'CHANGE_REQUIRED',
+    mobileStatus: 'IMPLEMENTED',
+    notes:
+      'ADR-022: both clients redirect to the iyzico Checkout Form (3DS) and read the verified result from checkout/status; no PAN in either client.',
   },
   {
     id: 'phone-otp',
@@ -597,7 +601,8 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     name: 'Dedicated /cart',
     backend: 'cart',
     ...implementedBoth,
-    notes: 'Cart screen requires customer login; guests are sent to /auth with next=/cart. Each line links to the product page via Özelleştirmeyi Düzenle on both clients.',
+    notes:
+      'Cart screen requires customer login; guests are sent to /auth with next=/cart. Each line links to the product page via Özelleştirmeyi Düzenle on both clients.',
   },
   {
     id: 'account-settings',

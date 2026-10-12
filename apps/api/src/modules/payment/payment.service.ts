@@ -5,11 +5,20 @@ import { IdempotencyService } from '../../common/idempotency/idempotency.service
 import { CheckoutService } from '../checkout/checkout.service.js';
 
 import {
-  IyzicoSandboxAdapter,
+  PAYMENT_PORT,
+  type PaymentBuyerContext,
   type PaymentInitializeInput,
   type PaymentInitializeResult,
   type PaymentPort,
-} from './iyzico-sandbox.adapter.js';
+  type PaymentProviderStatus,
+} from './payment.port.js';
+import { SimulatedPaymentAdapter } from './simulated-payment.adapter.js';
+
+export class PaymentInitializationError extends Error {
+  constructor(readonly providerCode: string) {
+    super('Payment provider initialization failed.');
+  }
+}
 
 export interface CheckoutPaymentRecord {
   id: string;
@@ -32,7 +41,7 @@ export interface CheckoutPaymentRecord {
  */
 @Injectable()
 export class PaymentService {
-  readonly #adapter: PaymentPort = new IyzicoSandboxAdapter();
+  readonly #adapter: PaymentPort;
   readonly #attempts = new Map<string, CheckoutPaymentRecord>();
   readonly #byCheckout = new Map<string, string>();
   #seq = 0;
@@ -41,10 +50,51 @@ export class PaymentService {
     @Inject(IdempotencyService) private readonly idempotency: IdempotencyService,
     @Optional() @Inject(PrismaService) private readonly prisma: PrismaService | null = null,
     @Optional() @Inject(CheckoutService) private readonly checkout: CheckoutService | null = null,
-  ) {}
+    @Optional() @Inject(PAYMENT_PORT) adapter: PaymentPort | null = null,
+  ) {
+    this.#adapter = adapter ?? new SimulatedPaymentAdapter();
+  }
 
-  get adapter(): IyzicoSandboxAdapter {
-    return this.#adapter as IyzicoSandboxAdapter;
+  /** Test helper: the simulated adapter. Throws for the real iyzico gateway. */
+  get adapter(): SimulatedPaymentAdapter {
+    if (!(this.#adapter instanceof SimulatedPaymentAdapter)) {
+      throw new Error('The simulated payment adapter is not active.');
+    }
+    return this.#adapter;
+  }
+
+  /** ADR-022: only the simulated gateway may honour client-asserted status. */
+  get acceptsClientAssertedStatus(): boolean {
+    return this.#adapter.acceptsClientAssertedStatus;
+  }
+
+  async buyerContext(
+    checkoutSessionId: string,
+    userId: string | undefined,
+    ip: string | undefined,
+  ): Promise<PaymentBuyerContext> {
+    const base: PaymentBuyerContext = { userId, ip: ip ?? null };
+    if (!this.prisma) return base;
+    const [user, session] = await Promise.all([
+      userId
+        ? this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { displayName: true, primaryIdentifier: true },
+          })
+        : null,
+      this.prisma.checkoutSession.findUnique({
+        where: { id: checkoutSessionId },
+        select: { guestName: true, guestPhone: true },
+      }),
+    ]);
+    const identifier = user?.primaryIdentifier ?? null;
+    const isEmail = Boolean(identifier?.includes('@'));
+    return {
+      ...base,
+      displayName: user?.displayName ?? session?.guestName ?? null,
+      email: isEmail ? identifier : null,
+      phone: (!isEmail ? identifier : null) ?? session?.guestPhone ?? null,
+    };
   }
 
   async initialize(input: PaymentInitializeInput): Promise<{
@@ -60,7 +110,16 @@ export class PaymentService {
         replayed: boolean;
       };
     }
-    const provider = await this.#adapter.initialize(input);
+    let provider: PaymentInitializeResult;
+    try {
+      provider = await this.#adapter.initialize(input);
+    } catch {
+      throw new PaymentInitializationError('PROVIDER_UNREACHABLE');
+    }
+    if (provider.failureCode) {
+      // Not persisted or cached: the same idempotency key may retry later.
+      throw new PaymentInitializationError(provider.failureCode);
+    }
     if (!this.prisma) {
       this.#seq += 1;
       const attempt: CheckoutPaymentRecord = {
@@ -98,11 +157,12 @@ export class PaymentService {
       data: {
         checkoutSessionId: input.checkoutSessionId,
         provider: 'iyzico',
-        providerPaymentId: provider.providerPaymentId,
+        providerPaymentId: provider.providerPaymentId || null,
         status: provider.status,
         amountMinor: input.amountMinor,
         currency: input.currency,
         idempotencyKey: input.idempotencyKey,
+        failureCode: provider.failureCode ?? null,
       },
     });
     const attempt: CheckoutPaymentRecord = {
@@ -254,8 +314,11 @@ export class PaymentService {
     providerPaymentId: string,
     status: 'PAID' | 'FAILED' | 'PENDING',
   ): Promise<CheckoutPaymentRecord | null> {
-    if (status === 'PAID') {
-      (this.#adapter as IyzicoSandboxAdapter).markPaid(providerPaymentId);
+    if (!this.#adapter.acceptsClientAssertedStatus) {
+      throw new Error('Client-asserted payment status is only accepted by the simulated gateway.');
+    }
+    if (this.#adapter instanceof SimulatedPaymentAdapter) {
+      this.#adapter.setStatus(providerPaymentId, status);
     }
     if (!this.prisma) {
       for (const attempt of this.#attempts.values()) {
@@ -296,7 +359,65 @@ export class PaymentService {
   async refreshStatus(checkoutSessionId: string): Promise<CheckoutPaymentRecord | null> {
     const attempt = await this.getByCheckout(checkoutSessionId);
     if (!attempt) return null;
-    const status = await this.#adapter.getStatus(attempt.providerPaymentId);
+    return this.#verifyAttempt(attempt);
+  }
+
+  /**
+   * ADR-022: resolve a provider token (callback/webhook) and verify it with the
+   * gateway. The caller-supplied status is never trusted here.
+   */
+  async verifyByProviderPaymentId(
+    providerPaymentId: string,
+  ): Promise<CheckoutPaymentRecord | null> {
+    const attempt = await this.#findByProviderPaymentId(providerPaymentId);
+    if (!attempt) return null;
+    return this.#verifyAttempt(attempt);
+  }
+
+  async #findByProviderPaymentId(providerPaymentId: string): Promise<CheckoutPaymentRecord | null> {
+    if (!this.prisma) {
+      for (const attempt of this.#attempts.values()) {
+        if (attempt.providerPaymentId === providerPaymentId) return attempt;
+      }
+      return null;
+    }
+    const row = await this.prisma.paymentAttempt.findFirst({
+      where: { providerPaymentId },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!row) return null;
+    return {
+      id: row.id,
+      checkoutSessionId: row.checkoutSessionId,
+      providerPaymentId: row.providerPaymentId ?? '',
+      status: row.status,
+      amountMinor: row.amountMinor,
+      currency: row.currency,
+      idempotencyKey: row.idempotencyKey,
+    };
+  }
+
+  async #verifyAttempt(attempt: CheckoutPaymentRecord): Promise<CheckoutPaymentRecord> {
+    if (attempt.status === 'PAID') {
+      await this.#finalize(attempt);
+      return attempt;
+    }
+    if (!attempt.providerPaymentId) return attempt;
+    let status: PaymentProviderStatus;
+    let failureCode: string | undefined;
+    let payload: Record<string, string | number | null> | undefined;
+    try {
+      const verification = await this.#adapter.verify(attempt.providerPaymentId, {
+        checkoutSessionId: attempt.checkoutSessionId,
+        amountMinor: attempt.amountMinor,
+      });
+      status = verification.status;
+      failureCode = verification.failureCode;
+      payload = verification.payload;
+    } catch {
+      // Document 10 §9: provider outage keeps the attempt in its safe state.
+      return attempt;
+    }
     if (!this.prisma) {
       attempt.status = status;
       if (status === 'PAID') {
@@ -306,7 +427,11 @@ export class PaymentService {
     }
     const row = await this.prisma.paymentAttempt.update({
       where: { id: attempt.id },
-      data: { status },
+      data: {
+        status,
+        ...(status === 'FAILED' && failureCode ? { failureCode: failureCode.slice(0, 64) } : {}),
+        ...(payload ? { rawProviderPayload: payload } : {}),
+      },
     });
     const next: CheckoutPaymentRecord = {
       id: row.id,

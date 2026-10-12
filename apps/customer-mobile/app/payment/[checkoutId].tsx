@@ -10,7 +10,11 @@ import { fetchPaymentStatus } from '../../lib/checkout';
 import { isCheckoutSessionId } from '../../lib/deep-link';
 import { formatTryMinor } from '../../lib/money';
 import { readPaymentSummary } from '../../lib/payment-session';
-import { isPaymentTerminalStatus, postPaymentNavigation, shouldPollPayment } from '../../lib/payment-status';
+import {
+  isPaymentTerminalStatus,
+  postPaymentNavigation,
+  shouldPollPayment,
+} from '../../lib/payment-status';
 import type { PaymentStatus } from '../../lib/schemas';
 import { colors, fonts, minTouch, radius, space } from '../../theme';
 
@@ -124,7 +128,9 @@ export default function PaymentStatusRoute() {
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.card}>
           <MaterialCommunityIcons
-            name={failed ? 'alert-circle-outline' : pending ? 'lock-outline' : 'check-circle-outline'}
+            name={
+              failed ? 'alert-circle-outline' : pending ? 'lock-outline' : 'check-circle-outline'
+            }
             size={32}
             color={failed ? colors.error : colors.mustard}
           />
@@ -140,22 +146,19 @@ export default function PaymentStatusRoute() {
               ? 'Ödeme süresi doldu. Checkout’tan yeniden başla.'
               : failed
                 ? 'Kart reddedildi veya işlem iptal edildi. Yeni bir ödeme başlatılmadı.'
-                : 'Kart bilgisi uygulamada toplanmaz. Hosted sayfayı tarayıcıda tamamla; durum sunucudan doğrulanır.'}
+                : 'Kart bilgisi uygulamada toplanmaz. iyzico ödeme sayfasını tarayıcıda tamamla; uygulamaya dönünce sonuç iyzico’dan doğrulanır.'}
           </Text>
           <Text style={styles.amount}>{formatTryMinor(amount, currency)}</Text>
           <Text style={styles.meta}>Durum: {status}</Text>
           {error ? <Text style={styles.err}>{error}</Text> : null}
           {pending && redirectUrl ? (
             <MustardButton
-              label="Hosted ödemeyi aç"
+              label="iyzico ödeme sayfasını aç"
               onPress={() => void Linking.openURL(redirectUrl).catch(() => undefined)}
             />
           ) : null}
           {pending ? (
-            <SecondaryButton
-              label="Durumu yenile"
-              onPress={() => setPollTick((n) => n + 1)}
-            />
+            <SecondaryButton label="Durumu yenile" onPress={() => setPollTick((n) => n + 1)} />
           ) : null}
           {failed ? (
             <MustardButton label="Checkout’a dön" onPress={() => router.replace('/checkout')} />
@@ -195,12 +198,32 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.hairline,
   },
-  title: { fontFamily: fonts.jakartaBold, fontSize: 22, color: colors.onSurface, textTransform: 'uppercase' },
+  title: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 22,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
   body: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.ash, lineHeight: 20 },
   amount: { fontFamily: fonts.anton, fontSize: 32, color: colors.mustard },
-  meta: { fontFamily: fonts.jakartaBold, fontSize: 12, color: colors.onSurfaceVariant, textTransform: 'uppercase' },
+  meta: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 12,
+    color: colors.onSurfaceVariant,
+    textTransform: 'uppercase',
+  },
   err: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.error },
-  section: { fontFamily: fonts.jakartaBold, fontSize: 13, color: colors.onSurface, textTransform: 'uppercase' },
+  section: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 13,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
   ghost: { minHeight: minTouch, alignItems: 'center', justifyContent: 'center' },
-  ghostLabel: { fontFamily: fonts.jakartaBold, fontSize: 12, color: colors.ash, textTransform: 'uppercase' },
+  ghostLabel: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 12,
+    color: colors.ash,
+    textTransform: 'uppercase',
+  },
 });

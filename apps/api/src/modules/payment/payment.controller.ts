@@ -19,7 +19,7 @@ import { resolveStorefrontPrincipal } from '../auth/customer/request-identity.js
 import { CartService } from '../cart/cart.service.js';
 import { CheckoutService } from '../checkout/checkout.service.js';
 
-import { PaymentService } from './payment.service.js';
+import { PaymentInitializationError, PaymentService } from './payment.service.js';
 
 const REQUEST_ID = '01900000-0000-7000-8000-000000000099';
 
@@ -29,6 +29,7 @@ const initializeSchema = z.object({
   currency: z.string().length(3).optional(),
   idempotencyKey: z.string().min(8).max(128),
   paymentMethodCode: z.string().min(1).max(32).optional(),
+  returnChannel: z.enum(['web', 'mobile']).optional(),
 });
 
 @Injectable()
@@ -107,13 +108,34 @@ export class PaymentController {
       }
     }
 
-    const result = await this.payments.initialize({
-      checkoutSessionId: parsed.data.checkoutSessionId,
-      amountMinor: session?.finalPayableMinor ?? BigInt(parsed.data.amountMinor),
-      currency: parsed.data.currency ?? session?.currency ?? 'TRY',
-      idempotencyKey: parsed.data.idempotencyKey,
-      buyerUserId: principal.userId,
-    });
+    const result = await this.payments
+      .initialize({
+        checkoutSessionId: parsed.data.checkoutSessionId,
+        amountMinor: session?.finalPayableMinor ?? BigInt(parsed.data.amountMinor),
+        currency: parsed.data.currency ?? session?.currency ?? 'TRY',
+        idempotencyKey: parsed.data.idempotencyKey,
+        buyerUserId: principal.userId,
+        returnChannel: parsed.data.returnChannel ?? 'web',
+        buyer: await this.payments.buyerContext(
+          parsed.data.checkoutSessionId,
+          principal.userId ?? undefined,
+          req.ip,
+        ),
+      })
+      .catch((err: unknown) => {
+        if (err instanceof PaymentInitializationError) return err;
+        throw err;
+      });
+    if (result instanceof PaymentInitializationError) {
+      return {
+        error: {
+          code: ErrorCodes.PAYMENT_INITIALIZATION_FAILED,
+          message: 'Payment could not be started. Please try again.',
+          details: { providerCode: result.providerCode },
+          requestId: REQUEST_ID,
+        },
+      };
+    }
     return {
       data: {
         attemptId: result.attempt.id,
@@ -144,7 +166,9 @@ export class PaymentController {
       };
     }
     const orderId =
-      attempt.status === 'PAID' ? await this.payments.resolveOrderId(attempt.checkoutSessionId) : null;
+      attempt.status === 'PAID'
+        ? await this.payments.resolveOrderId(attempt.checkoutSessionId)
+        : null;
     return {
       data: {
         checkoutSessionId: attempt.checkoutSessionId,

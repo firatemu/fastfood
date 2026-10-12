@@ -115,6 +115,7 @@ services:
       IYZICO_API_KEY: ${IYZICO_SANDBOX_API_KEY:-sandbox-not-configured}
       IYZICO_SECRET_KEY: ${IYZICO_SANDBOX_SECRET_KEY:-sandbox-not-configured}
       IYZICO_USE_SANDBOX: 'true'
+      PAYMENT_GATEWAY: iyzico
       OTP_PROVIDER: fake
       CUSTOMER_REGISTRATION_OTP_SUSPENDED: 'true'
       OTP_HMAC_PEPPER: ${SERVICE_PASSWORD_64_OTPPEPPER}

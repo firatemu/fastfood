@@ -1,6 +1,10 @@
 import { getApiClient } from './api';
 import { getStoredCouponCode } from './coupon-store';
-import { getDeliveryLocation, setDeliveryLocation, type DeliveryLocation } from './delivery-location';
+import {
+  getDeliveryLocation,
+  setDeliveryLocation,
+  type DeliveryLocation,
+} from './delivery-location';
 import {
   branchesResponseSchema,
   checkoutSlotsResponseSchema,
@@ -110,6 +114,7 @@ export async function initializeCheckoutPayment(input: {
       currency: input.currency,
       idempotencyKey: input.idempotencyKey,
       paymentMethodCode: 'iyzico_hosted',
+      returnChannel: 'mobile',
     },
     schema: paymentInitResponseSchema,
   });

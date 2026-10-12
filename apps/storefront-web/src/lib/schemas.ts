@@ -361,17 +361,6 @@ export const cartQuoteSchema = z.object({
 export const cartQuoteResponseSchema = envelope(cartQuoteSchema);
 export const paymentInitResponseSchema = envelope(paymentInitSchema);
 export const paymentStatusResponseSchema = envelope(paymentStatusSchema);
-export const iyzicoWebhookResponseSchema = envelope(
-  z
-    .object({
-      paymentId: z.string().optional(),
-      checkoutSessionId: z.string().optional(),
-      status: z.string(),
-      providerPaymentId: z.string().optional(),
-      orderId: z.string().nullable().optional(),
-    })
-    .passthrough(),
-);
 export const checkoutSlotsSchema = z.object({
   timezone: z.string(),
   prepMinutes: z.number(),

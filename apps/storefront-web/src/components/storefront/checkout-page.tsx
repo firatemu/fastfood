@@ -288,6 +288,8 @@ export function CheckoutPage() {
       }
       if (init.redirectUrl) {
         window.sessionStorage.setItem('ff_iyzico_redirect', init.redirectUrl);
+      } else {
+        window.sessionStorage.removeItem('ff_iyzico_redirect');
       }
       writePaymentSummary({
         lines,
@@ -302,6 +304,11 @@ export function CheckoutPage() {
         finalPayableMinor: quote.finalPayableMinor,
       });
       await refreshCart();
+      if (init.redirectUrl) {
+        // ADR-022: card entry and 3-D Secure happen on iyzico's hosted page.
+        window.location.assign(init.redirectUrl);
+        return;
+      }
       router.push(`/payment/${quote.checkoutSessionId}`);
     } catch (err) {
       setError(errorMessage(err));

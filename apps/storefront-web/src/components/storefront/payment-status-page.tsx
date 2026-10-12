@@ -35,7 +35,7 @@ export function PaymentStatusPage() {
   const [amountMinor, setAmountMinor] = useState('0');
   const [currency, setCurrency] = useState('TRY');
   const [error, setError] = useState<string | null>(null);
-  const [providerPaymentId, setProviderPaymentId] = useState<string | null>(null);
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [summary, setSummary] = useState<PaymentSummarySnapshot | null>(null);
   const [load, setLoad] = useState<'loading' | 'ready' | 'error'>('loading');
   const [pollKey, setPollKey] = useState(0);
@@ -43,7 +43,7 @@ export function PaymentStatusPage() {
   useDeferredLoad(() => {
     setSummary(readPaymentSummary());
     if (typeof window !== 'undefined') {
-      setProviderPaymentId(window.sessionStorage.getItem('ff_provider_payment_id'));
+      setRedirectUrl(window.sessionStorage.getItem('ff_iyzico_redirect'));
     }
     void fetchCart()
       .then((cart) => {
@@ -75,7 +75,6 @@ export function PaymentStatusPage() {
         setAmountMinor(data.amountMinor);
         setCurrency(data.currency);
         setOrderId(data.orderId ?? null);
-        if (data.providerPaymentId) setProviderPaymentId(data.providerPaymentId);
         setLoad('ready');
         setError(null);
         if (isPaymentTerminalStatus(data.status)) terminal = true;
@@ -194,8 +193,8 @@ export function PaymentStatusPage() {
               <IyzicoHostedPanel
                 amountMinor={payable}
                 currency={summary?.currency ?? currency}
-                providerPaymentId={providerPaymentId}
-                onPaid={() => setPollKey((n) => n + 1)}
+                redirectUrl={redirectUrl}
+                onRefresh={() => setPollKey((n) => n + 1)}
               />
             )}
             {orderId ? (

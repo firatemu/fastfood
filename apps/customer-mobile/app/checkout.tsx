@@ -3,6 +3,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -91,7 +92,9 @@ export default function CheckoutRoute() {
       ]);
       setCart(nextCart);
       setBranches(nextBranches);
-      setPickupBranchId((prev) => prev ?? nextBranches.find((item) => item.isAcceptingOrders)?.id ?? null);
+      setPickupBranchId(
+        (prev) => prev ?? nextBranches.find((item) => item.isAcceptingOrders)?.id ?? null,
+      );
       setMethods(nextMethods);
       setPayMethod(operationalPayMethod(nextMethods));
       const loc = getDeliveryLocation();
@@ -299,6 +302,12 @@ export default function CheckoutRoute() {
         redirectUrl: init.redirectUrl,
       });
       router.push(`/payment/${fresh.checkoutSessionId}`);
+      if (init.redirectUrl) {
+        // ADR-022: card entry + 3-D Secure on iyzico's page; the provider
+        // returns to fastfoodcustomer://payment/return and the status screen
+        // reads the server-verified result.
+        void Linking.openURL(init.redirectUrl).catch(() => undefined);
+      }
       payingRef.current = false;
       setPaying(false);
     } catch (err) {
@@ -321,7 +330,11 @@ export default function CheckoutRoute() {
       <View style={styles.screen}>
         <StackHeader title="Ödeme" />
         <View style={styles.padded}>
-          <ErrorBlock title="Checkout alınamadı" message={error ?? ''} onRetry={() => void reload()} />
+          <ErrorBlock
+            title="Checkout alınamadı"
+            message={error ?? ''}
+            onRetry={() => void reload()}
+          />
         </View>
       </View>
     );
@@ -341,7 +354,14 @@ export default function CheckoutRoute() {
   const methodList =
     methods.length > 0
       ? methods
-      : [{ code: 'iyzico_hosted', label: 'iyzico 3-D Secure', available: true, disabledReason: null }];
+      : [
+          {
+            code: 'iyzico_hosted',
+            label: 'iyzico 3-D Secure',
+            available: true,
+            disabledReason: null,
+          },
+        ];
 
   return (
     <KeyboardAvoidingView
@@ -385,7 +405,9 @@ export default function CheckoutRoute() {
               color={mode === 'PICKUP' ? colors.onMustard : colors.onSurfaceVariant}
             />
             <View>
-              <Text style={[styles.toggleText, mode === 'PICKUP' && styles.toggleTextOn]}>Gel-al</Text>
+              <Text style={[styles.toggleText, mode === 'PICKUP' && styles.toggleTextOn]}>
+                Gel-al
+              </Text>
               <Text style={styles.pickupHint}>Şube indirimi sunucu hesaplar</Text>
             </View>
           </Pressable>
@@ -466,7 +488,9 @@ export default function CheckoutRoute() {
         )}
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>{mode === 'PICKUP' ? 'Hazırlama zamanı' : 'Teslimat zamanı'}</Text>
+          <Text style={styles.cardTitle}>
+            {mode === 'PICKUP' ? 'Hazırlama zamanı' : 'Teslimat zamanı'}
+          </Text>
           <Pressable
             accessibilityRole="radio"
             accessibilityState={{ selected: scheduleMode === 'asap' }}
@@ -536,7 +560,8 @@ export default function CheckoutRoute() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Ödeme yöntemi</Text>
           <Text style={styles.muted}>
-            Kart numarası BURGER HOME’da toplanmaz. Ödeme iyzico 3-D Secure / hosted akışında tamamlanır.
+            Kart numarası BURGER HOME’da toplanmaz. Ödeme iyzico 3-D Secure / hosted akışında
+            tamamlanır.
           </Text>
           <View style={styles.methodGrid}>
             {methodList.map((method) => {
@@ -548,7 +573,11 @@ export default function CheckoutRoute() {
                   onPress={() => {
                     if (method.available) setPayMethod(method.code);
                   }}
-                  style={[styles.method, on && styles.methodOn, !method.available && styles.disabled]}
+                  style={[
+                    styles.method,
+                    on && styles.methodOn,
+                    !method.available && styles.disabled,
+                  ]}
                 >
                   <Text style={styles.methodLabel}>{method.label}</Text>
                   {!method.available ? (
@@ -595,7 +624,9 @@ export default function CheckoutRoute() {
             <View style={styles.switchRow}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.strong}>Club puanı kullan</Text>
-                <Text style={styles.muted}>{loyaltyPoints} puan — sunucu uygunluğunu doğrular.</Text>
+                <Text style={styles.muted}>
+                  {loyaltyPoints} puan — sunucu uygunluğunu doğrular.
+                </Text>
               </View>
               <Switch
                 value={useLoyalty}
@@ -608,7 +639,9 @@ export default function CheckoutRoute() {
         ) : null}
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Sipariş özeti ({lines.reduce((n, l) => n + l.quantity, 0)} ürün)</Text>
+          <Text style={styles.cardTitle}>
+            Sipariş özeti ({lines.reduce((n, l) => n + l.quantity, 0)} ürün)
+          </Text>
           {lines.map((line) => (
             <View key={line.id} style={styles.sumRow}>
               <Text style={styles.muted} numberOfLines={1}>
@@ -663,8 +696,18 @@ const styles = StyleSheet.create({
   padded: { padding: space.gutter },
   scroll: { padding: space.gutter, gap: space.md },
   steps: { flexDirection: 'row', gap: 12 },
-  stepOn: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.mustard, textTransform: 'uppercase' },
-  stepOff: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.ash, textTransform: 'uppercase' },
+  stepOn: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    color: colors.mustard,
+    textTransform: 'uppercase',
+  },
+  stepOff: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    color: colors.ash,
+    textTransform: 'uppercase',
+  },
   toggle: {
     flexDirection: 'row',
     backgroundColor: colors.surfaceLowest,
@@ -751,7 +794,12 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   methodOn: { backgroundColor: colors.surfaceHigh },
-  methodLabel: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.onSurface, textAlign: 'center' },
+  methodLabel: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    color: colors.onSurface,
+    textAlign: 'center',
+  },
   methodOff: { fontFamily: fonts.jakarta, fontSize: 10, color: colors.ash, textAlign: 'center' },
   disabled: { opacity: 0.45 },
   tipGrid: { flexDirection: 'row', gap: 8 },
@@ -766,7 +814,12 @@ const styles = StyleSheet.create({
   tipOn: { backgroundColor: colors.flame },
   tipText: { fontFamily: fonts.jakartaBold, fontSize: 12, color: colors.onSurface },
   tipTextOn: { color: colors.white },
-  totals: { gap: 6, backgroundColor: colors.surfaceLow, borderRadius: radius.md, padding: space.sm },
+  totals: {
+    gap: 6,
+    backgroundColor: colors.surfaceLow,
+    borderRadius: radius.md,
+    padding: space.sm,
+  },
   sumRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
   discount: { fontFamily: fonts.jakartaBold, fontSize: 13, color: colors.flame },
   err: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.error },

@@ -48,6 +48,9 @@ Card data must never be stored by FASTFOOD.
 7. Only verified success can move payment to `SUCCEEDED` and the order to the paid/confirmed path.
 8. Duplicate callbacks/webhooks must be idempotent.
 
+Implementation note (2026-10-12): steps 3–8 are implemented with the iyzico
+Checkout Form and server-side retrieve verification — see ADR-022.
+
 ## 5. Redirect rule
 
 A browser or mobile redirect to a success URL is **not proof of payment**.

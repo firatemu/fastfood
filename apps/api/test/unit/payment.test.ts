@@ -7,7 +7,7 @@ import { IdempotencyService } from '../../src/common/idempotency/idempotency.ser
 import { PaymentService } from '../../src/modules/payment/payment.service.js';
 
 describe('Phase 6 PaymentService + idempotency', () => {
-  it('initializes a sandbox payment', async () => {
+  it('initializes a simulated payment without a hosted page', async () => {
     const payments = new PaymentService(new IdempotencyService());
     const result = await payments.initialize({
       checkoutSessionId: '01900000-0000-7000-8000-cccccccccccc',
@@ -18,7 +18,8 @@ describe('Phase 6 PaymentService + idempotency', () => {
     expect(result.provider.provider).toBe('iyzico');
     expect(result.provider.status).toBe('PENDING');
     expect(result.replayed).toBe(false);
-    expect(result.provider.redirectUrl).toContain('sandbox-api.iyzipay.com');
+    expect(result.provider.providerPaymentId).toMatch(/^sandbox-/);
+    expect(result.provider.redirectUrl).toBeNull();
   });
 
   it('replays identical idempotency key', async () => {

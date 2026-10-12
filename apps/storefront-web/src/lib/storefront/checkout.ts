@@ -3,7 +3,6 @@ import { getDeliveryLocation } from '../delivery-location';
 import {
   branchesResponseSchema,
   checkoutSlotsResponseSchema,
-  iyzicoWebhookResponseSchema,
   loyaltyResponseSchema,
   orderConfirmationResponseSchema,
   paymentInitResponseSchema,
@@ -106,19 +105,9 @@ export async function initializeCheckoutPayment(input: {
       currency: input.currency,
       idempotencyKey: `sf-${input.checkoutSessionId}`,
       paymentMethodCode: 'iyzico_hosted',
+      returnChannel: 'web',
     },
     schema: paymentInitResponseSchema,
-  });
-  return res.data;
-}
-
-export async function completeSandboxIyzico(providerPaymentId: string) {
-  const client = createStorefrontClient();
-  const res = await client.request({
-    method: 'POST',
-    path: 'integrations/iyzico/webhook',
-    body: { providerPaymentId, status: 'PAID' },
-    schema: iyzicoWebhookResponseSchema,
   });
   return res.data;
 }
@@ -143,7 +132,10 @@ export async function fetchOrderConfirmation(orderId: string) {
   return res.data;
 }
 
-export async function startCheckoutPayment(): Promise<{ checkoutSessionId: string }> {
+export async function startCheckoutPayment(): Promise<{
+  checkoutSessionId: string;
+  redirectUrl: string | null;
+}> {
   const loc = getDeliveryLocation();
   if (!loc.serviceable) {
     throw new Error('Teslimat adresi doğrulanmadı. Konum seçin.');
@@ -159,10 +151,10 @@ export async function startCheckoutPayment(): Promise<{ checkoutSessionId: strin
   if (!quote.minimumOrderEligible) {
     throw new Error('Minimum sipariş tutarı karşılanmadı.');
   }
-  await initializeCheckoutPayment({
+  const init = await initializeCheckoutPayment({
     checkoutSessionId: quote.checkoutSessionId,
     amountMinor: quote.finalPayableMinor,
     currency: quote.currency,
   });
-  return { checkoutSessionId: quote.checkoutSessionId };
+  return { checkoutSessionId: quote.checkoutSessionId, redirectUrl: init.redirectUrl ?? null };
 }
