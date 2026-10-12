@@ -1,58 +1,33 @@
 'use client';
 
-import { useState } from 'react';
-
-import { isCustomerAuthenticated } from '../../lib/api';
-import { addFavorite, fetchFavorites, removeFavorite } from '../../lib/storefront/favorites';
-import { useDeferredLoad } from '../../lib/use-deferred-load';
-
+import { useStorefrontFavorites } from './favorites-provider';
 import { MaterialIcon } from './material-icon';
 
+/**
+ * Heart toggle for one product. State lives in `FavoritesProvider`, so mounting
+ * a heart on every menu card costs one shared `/me/favorites` request rather
+ * than one request per card.
+ */
 export function FavoriteButton({ productId }: { productId: string }) {
-  const authenticated = isCustomerAuthenticated();
-  const [favoriteId, setFavoriteId] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const { authenticated, ready, busy, isFavorite, toggle } = useStorefrontFavorites();
+  const favorite = isFavorite(productId);
+  const pending = busy.has(productId);
 
-  useDeferredLoad(() => {
-    if (!authenticated) return;
-    void fetchFavorites()
-      .then((rows) => {
-        setFavoriteId(rows.find((row) => row.productId === productId)?.id ?? null);
-      })
-      .catch(() => undefined)
-      .finally(() => setReady(true));
-  }, [authenticated, productId]);
-
+  // A guest owns no favorites, so the control stays hidden — the same rule the
+  // product detail page has always applied.
   if (!authenticated || !ready) return null;
-
-  async function toggle() {
-    if (busy) return;
-    setBusy(true);
-    try {
-      if (favoriteId) {
-        await removeFavorite(favoriteId);
-        setFavoriteId(null);
-      } else {
-        const created = await addFavorite(productId);
-        setFavoriteId(created.id);
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
 
   return (
     <button
       type="button"
-      onClick={() => void toggle()}
-      disabled={busy}
-      className="h-10 w-10 rounded-full bg-surface-container-high/90 text-primary-container flex items-center justify-center"
-      aria-pressed={Boolean(favoriteId)}
-      aria-label={favoriteId ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+      onClick={() => toggle(productId)}
+      disabled={pending}
+      className="h-8 w-8 rounded-full bg-surface-container-high/90 text-primary-container flex items-center justify-center"
+      aria-pressed={favorite}
+      aria-label={favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}
       data-ff-favorite-toggle
     >
-      <MaterialIcon name="favorite" filled={Boolean(favoriteId)} className="text-xl" />
+      <MaterialIcon name="favorite" filled={favorite} size={16} />
     </button>
   );
 }

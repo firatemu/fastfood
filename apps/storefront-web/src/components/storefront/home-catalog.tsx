@@ -59,7 +59,11 @@ export function HomeCatalog({
           </Link>
         </div>
       </div>
-      <div className="sf-chip-scroll w-full overflow-x-auto pb-2 flex items-center gap-space-sm">
+      {/* Wide viewports wrap so every category stays readable without any
+          interaction; narrow ones keep the single-row scroll. That scroll needs inset
+          padding, because its scrollbar is hidden and a chip flush against the edge
+          reads as clipped rather than scrollable. */}
+      <div className="sf-chip-scroll flex w-full flex-nowrap items-center gap-space-sm overflow-x-auto px-1 pb-2 pr-space-sm lg:flex-wrap lg:overflow-x-visible lg:px-0 lg:pr-0 lg:pb-0">
         <button
           type="button"
           onClick={() => onSelectCategory(null)}

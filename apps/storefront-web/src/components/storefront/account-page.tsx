@@ -481,7 +481,7 @@ function ClubSection(props: {
                 {props.tierName} kademesi
               </div>
             </div>
-            <div className="ff-row-key" style={{ flex: '1 1 14rem', maxWidth: '22rem' }}>
+            <div className="ff-row-key ff-row-meter">
               {props.showRail ? (
                 <>
                   <div className="ff-meter" role="progressbar" aria-valuenow={props.percent} aria-valuemin={0} aria-valuemax={100}>

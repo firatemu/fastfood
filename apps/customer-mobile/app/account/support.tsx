@@ -1,18 +1,18 @@
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { AppState, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AppState, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { FormField } from '../../components/form-field';
 import { RequireCustomer } from '../../components/require-customer';
 import { StackHeader } from '../../components/stack-header';
-import { EmptyBlock, ErrorBlock, LoadingBlock, MustardButton } from '../../components/ui';
+import { EmptyBlock, ErrorBlock, LoadingBlock, MustardButton, SecondaryButton } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
-import { fetchSupport, openSupport, sendSupportMessage } from '../../lib/engagement';
+import { fetchSupport, listSupport, openSupport, sendSupportMessage } from '../../lib/engagement';
 import { clampSupportBody, dedupeSupportMessages, isSystemSender, newClientRequestId } from '../../lib/engagement-map';
 import type { SupportConversation } from '../../lib/schemas';
 import { formatStorefrontDateTime } from '../../lib/tracking-map';
 import { decideSupportPoll } from '../../lib/tracking-poll';
-import { colors, fonts, radius, space } from '../../theme';
+import { colors, fonts, minTouch, radius, space } from '../../theme';
 
 export default function AccountSupportRoute() {
   const params = useLocalSearchParams<{ orderId?: string }>();
@@ -35,6 +35,13 @@ function SupportBody(props: { orderId?: string }) {
   const [body, setBody] = useState('');
   const [sending, setSending] = useState(false);
   const [appActive, setAppActive] = useState(AppState.currentState === 'active');
+  // Web parity: the thread is the primary surface, but previous conversations
+  // stay reachable. `listSupport()` already exists in lib/engagement; the Web
+  // toolbar carries the toggle, and a StackHeader has no action slot, so the
+  // toggle lives above the thread instead.
+  const [history, setHistory] = useState<SupportConversation[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const load = useCallback(() => {
     setStatus('loading');
@@ -92,6 +99,30 @@ function SupportBody(props: { orderId?: string }) {
     };
   }, [convo?.id, appActive]);
 
+  const toggleHistory = useCallback(async () => {
+    const next = !historyOpen;
+    setHistoryOpen(next);
+    if (!next || history.length > 0) return;
+    setHistoryLoading(true);
+    try {
+      setHistory(await listSupport());
+    } catch (err) {
+      setError(formatApiError(err));
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [history.length, historyOpen]);
+
+  const switchTo = useCallback(async (id: string) => {
+    setHistoryOpen(false);
+    setError(null);
+    try {
+      setConvo(await fetchSupport(id));
+    } catch (err) {
+      setError(formatApiError(err));
+    }
+  }, []);
+
   async function send() {
     if (!convo || sending) return;
     const text = clampSupportBody(body);
@@ -126,6 +157,48 @@ function SupportBody(props: { orderId?: string }) {
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.scroll}>
+        <SecondaryButton
+          label={historyOpen ? 'Konuşmalarımı kapat' : 'Konuşmalarım'}
+          onPress={() => void toggleHistory()}
+        />
+
+        {historyOpen ? (
+          <View style={styles.panel}>
+            <Text style={styles.sender}>Önceki konuşmalar</Text>
+            <Text style={styles.meta}>
+              {historyLoading ? 'Yükleniyor…' : `${history.length} kayıt`}
+            </Text>
+            {history.length === 0 && !historyLoading ? (
+              <EmptyBlock
+                title="Kayıtlı konuşman yok"
+                message="İlk mesajını yazdığında burada listelenir."
+              />
+            ) : (
+              history.map((row) => (
+                <Pressable
+                  key={row.id}
+                  accessibilityRole="button"
+                  onPress={() => void switchTo(row.id)}
+                  style={[
+                    styles.historyRow,
+                    row.id === convo.id ? styles.historyRowActive : null,
+                  ]}
+                >
+                  <View style={styles.flex}>
+                    <Text style={styles.body}>
+                      {row.orderId ? 'Siparişe bağlı konuşma' : 'Genel konuşma'}
+                    </Text>
+                    <Text style={styles.meta}>{formatStorefrontDateTime(row.createdAt)}</Text>
+                  </View>
+                  <Text style={row.status === 'CLOSED' ? styles.meta : styles.sender}>
+                    {row.status === 'CLOSED' ? 'Kapandı' : 'Açık'}
+                  </Text>
+                </Pressable>
+              ))
+            )}
+          </View>
+        ) : null}
+
         {props.orderId ? <Text style={styles.meta}>Sipariş bağlamı bağlı.</Text> : null}
         {messages.length === 0 ? (
           <EmptyBlock title="Mesaj yok" message="Sorunu yaz; ilk yanıt sistem makbuzudur." />
@@ -174,4 +247,22 @@ const styles = StyleSheet.create({
   body: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.onSurface, lineHeight: 20 },
   meta: { fontFamily: fonts.jakarta, fontSize: 11, color: colors.ash },
   error: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.error },
+  panel: {
+    gap: 8,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.hairline,
+    backgroundColor: colors.surface,
+    padding: space.md,
+  },
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    minHeight: minTouch,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: colors.hairline,
+  },
+  historyRowActive: { backgroundColor: colors.surfaceHigh },
 });

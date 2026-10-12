@@ -5,7 +5,13 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { RequireCustomer } from '../../components/require-customer';
 import { StackHeader } from '../../components/stack-header';
-import { EmptyBlock, ErrorBlock, LoadingBlock, SecondaryButton } from '../../components/ui';
+import {
+  EmptyBlock,
+  ErrorBlock,
+  LoadingBlock,
+  MustardButton,
+  SecondaryButton,
+} from '../../components/ui';
 import { formatApiError } from '../../lib/api';
 import { favoriteAvailability } from '../../lib/engagement-map';
 import { fetchFavorites, removeFavorite } from '../../lib/favorites';
@@ -75,7 +81,11 @@ function FavoritesBody() {
   if (items.length === 0) {
     return (
       <View style={styles.padded}>
-        <EmptyBlock title="Favori yok" message="Ürün detayından kalp ile ekle." />
+        <EmptyBlock
+          title="Henüz favori yok"
+          message="Menüde bir ürünü beğendiğinde kalp ikonuyla buraya ekleyebilirsin."
+        />
+        <MustardButton label="Menüye git" onPress={() => router.push('/')} />
       </View>
     );
   }
@@ -109,7 +119,9 @@ function FavoritesBody() {
                 {!blocked && product ? (
                   <Pressable
                     accessibilityRole="button"
-                    onPress={() => router.push(`/products/${product.id}`)}
+                    onPress={() =>
+                      router.push(`/products/${product.slug || item.productId}`)
+                    }
                     style={styles.link}
                   >
                     <Text style={styles.linkLabel}>Ürüne git</Text>
@@ -130,7 +142,7 @@ function FavoritesBody() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.canvas },
-  padded: { padding: space.gutter },
+  padded: { padding: space.gutter, gap: space.md },
   scroll: { padding: space.gutter, gap: 12, paddingBottom: 40 },
   card: {
     flexDirection: 'row',

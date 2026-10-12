@@ -1,9 +1,10 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ProductCard } from '../../components/product-card';
+import { ScrollToTopFab, useScrollToTop } from '../../components/scroll-to-top';
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
 import { fetchStorefrontHome } from '../../lib/home';
@@ -12,6 +13,8 @@ import { colors, fonts, minTouch, radius, space } from '../../theme';
 
 export default function SearchRoute() {
   const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+  const top = useScrollToTop();
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [home, setHome] = useState<StorefrontHome | null>(null);
@@ -102,6 +105,8 @@ export default function SearchRoute() {
         </View>
       ) : (
         <ScrollView
+          ref={scrollRef}
+          onScroll={top.onScroll}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.grid}
         >
@@ -112,6 +117,11 @@ export default function SearchRoute() {
           ))}
         </ScrollView>
       )}
+      <ScrollToTopFab
+        visible={top.visible}
+        scrollRef={scrollRef}
+        bottom={insets.bottom + 88}
+      />
     </View>
   );
 }

@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import { ComboCard } from '../../components/combo-card';
 import { HomeHeroSlider } from '../../components/home-hero-slider';
 import { HomeReviews } from '../../components/home-reviews';
 import { ProductCard } from '../../components/product-card';
+import { ScrollToTopFab, useScrollToTop } from '../../components/scroll-to-top';
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
 import { addComboItemsToCart, addProductToCart } from '../../lib/cart';
@@ -18,8 +19,17 @@ import { formatDeliveryWindow } from '../../lib/money';
 import type { StorefrontHome } from '../../lib/schemas';
 import { colors, fonts, radius, space } from '../../theme';
 
+/**
+ * Child index of `<CategoryChips>` inside the home ScrollView. The two
+ * conditional blocks above it are wrapped in Views that always render, because
+ * `React.Children.toArray` drops nulls and would otherwise renumber this.
+ */
+const CATEGORY_HEADER_INDEX = 3;
+
 export default function HomeRoute() {
   const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+  const top = useScrollToTop();
   const [home, setHome] = useState<StorefrontHome | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
@@ -123,20 +133,35 @@ export default function HomeRoute() {
         </View>
       ) : (
         <ScrollView
-          contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 88 }]}
+          ref={scrollRef}
+          onScroll={top.onScroll}
+          style={{ paddingTop: insets.top + 88 }}
+          contentContainerStyle={styles.scroll}
+          stickyHeaderIndices={[CATEGORY_HEADER_INDEX]}
         >
-          {error ? (
-            <View style={styles.gutter}>
-              <ErrorBlock
-                title="İşlem tamamlanamadı"
-                message={error}
-                onRetry={() => {
-                  setError(null);
-                  setNonce((n) => n + 1);
-                }}
-              />
-            </View>
-          ) : null}
+          {/* The top inset lives on the ScrollView itself, not on its content
+              container: AppHeader is an absolute overlay, so a sticky header
+              pinned to the content's top edge would sit behind it. Padding the
+              scroll container moves that sticky edge down, under the header. */}
+          {/* Both conditional blocks below are wrapped in a View that always
+              renders. ScrollView runs its children through
+              `React.Children.toArray`, which drops `null` — so a bare
+              `{cond ? … : null}` sibling would renumber every index after it and
+              silently retarget `CATEGORY_HEADER_INDEX` at a different row. */}
+          <View>
+            {error ? (
+              <View style={styles.gutter}>
+                <ErrorBlock
+                  title="İşlem tamamlanamadı"
+                  message={error}
+                  onRetry={() => {
+                    setError(null);
+                    setNonce((n) => n + 1);
+                  }}
+                />
+              </View>
+            ) : null}
+          </View>
           <View style={styles.gutter}>
             <View style={styles.banner}>
               <View style={styles.bannerIcon}>
@@ -162,22 +187,24 @@ export default function HomeRoute() {
             </View>
           </View>
 
-          {(home.heroSlides?.length ?? 0) > 0 || home.hero ? (
-            <View style={styles.gutter}>
-              <HomeHeroSlider
-                key={
-                  home.heroSlides?.length
-                    ? home.heroSlides.map((slide) => slide.id).join(',')
-                    : (home.hero?.id ?? 'empty-vitrine')
-                }
-                products={home.heroSlides?.length ? home.heroSlides : home.hero ? [home.hero] : []}
-                busyId={busyId}
-                onAdd={(productId) => void addProduct(productId)}
-                transitionDurationSeconds={home.heroSliderSettings?.transitionDurationSeconds ?? 5}
-                loop={home.heroSliderSettings?.loop ?? true}
-              />
-            </View>
-          ) : null}
+          <View>
+            {(home.heroSlides?.length ?? 0) > 0 || home.hero ? (
+              <View style={styles.gutter}>
+                <HomeHeroSlider
+                  key={
+                    home.heroSlides?.length
+                      ? home.heroSlides.map((slide) => slide.id).join(',')
+                      : (home.hero?.id ?? 'empty-vitrine')
+                  }
+                  products={home.heroSlides?.length ? home.heroSlides : home.hero ? [home.hero] : []}
+                  busyId={busyId}
+                  onAdd={(productId) => void addProduct(productId)}
+                  transitionDurationSeconds={home.heroSliderSettings?.transitionDurationSeconds ?? 5}
+                  loop={home.heroSliderSettings?.loop ?? true}
+                />
+              </View>
+            ) : null}
+          </View>
 
           <CategoryChips
             categories={rail ?? home.categories}
@@ -236,6 +263,11 @@ export default function HomeRoute() {
           />
         </ScrollView>
       )}
+      <ScrollToTopFab
+        visible={top.visible}
+        scrollRef={scrollRef}
+        bottom={insets.bottom + 88}
+      />
     </View>
   );
 }

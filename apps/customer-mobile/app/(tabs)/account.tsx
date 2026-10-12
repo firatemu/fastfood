@@ -1,10 +1,11 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState, type ComponentProps } from 'react';
+import { useCallback, useRef, useState, type ComponentProps } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FormField } from '../../components/form-field';
+import { ScrollToTopFab, useScrollToTop } from '../../components/scroll-to-top';
 import { ErrorBlock, LoadingBlock, MustardButton, SecondaryButton } from '../../components/ui';
 import { fetchCustomerProfile, fetchLoyaltyPoints, patchCustomerProfile } from '../../lib/account';
 import { formatApiError } from '../../lib/api';
@@ -30,13 +31,14 @@ type AccountIcon = ComponentProps<typeof MaterialCommunityIcons>['name'];
  */
 export default function AccountRoute() {
   const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+  const top = useScrollToTop();
   const router = useRouter();
   const session = useCustomerSession();
   const bootstrap = useAuthBootstrap();
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [points, setPoints] = useState<string | null>(null);
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
-  const [orderCount, setOrderCount] = useState(0);
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -49,8 +51,6 @@ export default function AccountRoute() {
       setProfile(null);
       setPoints(null);
       setOrders([]);
-      setOrderCount(0);
-      setStatus('idle');
       return;
     }
     setStatus('loading');
@@ -68,14 +68,9 @@ export default function AccountRoute() {
         }
         try {
           const rows = await fetchMyOrders();
-          // Keep the total for the status tile; the list only renders the
-          // first few, so slicing first and counting the slice would report
-          // "3 orders" to anyone who actually has more.
-          setOrderCount(rows.length);
           setOrders(rows.slice(0, 3));
         } catch {
           setOrders([]);
-          setOrderCount(0);
         }
       } catch (err) {
         setError(formatApiError(err));
@@ -234,44 +229,24 @@ export default function AccountRoute() {
   }
 
   const name = profile.displayName?.trim() || 'BURGER HOME üyesi';
-  const emailVerified = profile.emailVerified === true;
   const phoneVerified = profile.phoneVerified === true;
   const recent = orders.slice(0, 3);
 
   return (
-    <ScrollView
-      contentContainerStyle={[
-        styles.scroll,
-        { paddingTop: insets.top + 14, paddingBottom: insets.bottom + 36 },
-      ]}
-    >
+    <View style={styles.screenRoot}>
+      <ScrollView
+        ref={scrollRef}
+        onScroll={top.onScroll}
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingTop: insets.top + 14, paddingBottom: insets.bottom + 36 },
+        ]}
+      >
       <View style={styles.pageHeading}>
         <Text style={styles.headline}>Hesabın</Text>
         <Text style={styles.body}>
           Profilini, siparişlerini ve üyelik avantajlarını yönet.
         </Text>
-      </View>
-
-      {/* Status strip — mirrors the Web signature band. */}
-      <View style={styles.statGrid} accessibilityLabel="Hesap durumu">
-        <StatTile label="Sipariş" value={String(orderCount)} onPress={() => router.push('/(tabs)/orders')} />
-        <StatTile
-          label="E-posta"
-          value={profile.email ? (emailVerified ? 'Doğrulandı' : 'Doğrulanmadı') : 'Eklenmedi'}
-          attention={Boolean(profile.email) && !emailVerified}
-          onPress={() => router.push('/account/security')}
-        />
-        <StatTile
-          label="Telefon"
-          value={profile.phone ? (phoneVerified ? 'Doğrulandı' : 'Doğrulanmadı') : 'Eklenmedi'}
-          attention={!profile.phone || !phoneVerified}
-          onPress={() => router.push('/account/security')}
-        />
-        <StatTile
-          label="Puan"
-          value={points ?? '—'}
-          onPress={() => router.push('/account/club')}
-        />
       </View>
 
       {/* Primary region: the thing people edit most often. */}
@@ -414,6 +389,12 @@ export default function AccountRoute() {
             onPress={() => setEditing(true)}
           />
           <AccountDestination
+            icon="map-marker-outline"
+            title="Adresler"
+            subtitle="Teslimat adreslerin ve bina kodu"
+            onPress={() => router.push('/account/addresses')}
+          />
+          <AccountDestination
             icon="cog-outline"
             title="Bildirim ve iletişim tercihleri"
             onPress={() => router.push('/account/settings')}
@@ -476,35 +457,9 @@ export default function AccountRoute() {
         <MaterialCommunityIcons name="logout-variant" size={19} color={colors.error} />
         <Text style={styles.logoutLabel}>{loggingOut ? 'Çıkış yapılıyor…' : 'Çıkış yap'}</Text>
       </Pressable>
-    </ScrollView>
-  );
-}
-
-function StatTile(props: {
-  label: string;
-  value: string;
-  attention?: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={props.onPress}
-      style={({ pressed }) => [
-        styles.statTile,
-        props.attention ? styles.statTileAttention : null,
-        pressed ? styles.statTilePressed : null,
-      ]}
-    >
-      <Text style={styles.statLabel}>{props.label}</Text>
-      <Text
-        style={props.attention ? styles.statValueAttention : styles.statValue}
-        numberOfLines={1}
-      >
-        {props.value}
-      </Text>
-      {props.attention ? <Text style={styles.statAction}>Tamamla →</Text> : null}
-    </Pressable>
+      </ScrollView>
+      <ScrollToTopFab visible={top.visible} scrollRef={scrollRef} bottom={insets.bottom + 88} />
+    </View>
   );
 }
 
@@ -533,44 +488,13 @@ function AccountDestination(props: {
 }
 
 const styles = StyleSheet.create({
+  screenRoot: { flex: 1, backgroundColor: colors.canvas },
   root: { flex: 1, backgroundColor: colors.canvas, justifyContent: 'center' },
   scroll: { paddingHorizontal: space.gutter, gap: space.lg },
   pageHeading: { gap: 5 },
   brand: { fontFamily: fonts.anton, fontSize: 27, color: colors.mustard, letterSpacing: 0.4 },
   headline: { fontFamily: fonts.jakartaBold, fontSize: 20, lineHeight: 28, color: colors.onSurface },
   body: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.ash, lineHeight: 20 },
-
-  statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  statTile: {
-    flexGrow: 1,
-    flexBasis: '46%',
-    gap: 4,
-    padding: space.md,
-    borderRadius: radius.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-  },
-  statTileAttention: { borderColor: colors.warnBorder },
-  statTilePressed: { backgroundColor: colors.surfaceHigh },
-  statLabel: {
-    fontFamily: fonts.jakartaBold,
-    fontSize: 10,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    color: colors.ash,
-  },
-  statValue: {
-    fontFamily: fonts.jakartaBold,
-    fontSize: 18,
-    color: colors.onSurface,
-  },
-  statValueAttention: {
-    fontFamily: fonts.jakartaBold,
-    fontSize: 18,
-    color: colors.mustard,
-  },
-  statAction: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.mustard },
 
   profilePanel: {
     gap: space.md,

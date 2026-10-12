@@ -11,7 +11,10 @@ export function CategoryChips(props: {
 }): ReactElement {
   const total = props.categories.reduce((n, category) => n + category.productCount, 0);
   return (
-    <View>
+    // This bar is a sticky header inside the home ScrollView, so it needs its own
+    // opaque background — without one, product cards show through it while pinned,
+    // and `zIndex` keeps it above them.
+    <View style={styles.root}>
       <View style={styles.head}>
         <Text style={styles.headLabel}>Menü Kategorileri</Text>
         <Text style={styles.headCount}>Tümünü İncele ({total})</Text>
@@ -57,6 +60,7 @@ function Chip(props: { label: string; selected: boolean; onPress: () => void }):
 }
 
 const styles = StyleSheet.create({
+  root: { backgroundColor: colors.canvas, zIndex: 1 },
   head: {
     flexDirection: 'row',
     justifyContent: 'space-between',

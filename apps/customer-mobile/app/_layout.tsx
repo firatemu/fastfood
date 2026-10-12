@@ -16,6 +16,7 @@ import {
   restoreSession,
   setSessionRefresh,
 } from '../lib/session';
+import { FavoritesProvider } from '../lib/use-favorites';
 import { colors } from '../theme';
 
 export default function RootLayout() {
@@ -67,41 +68,43 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.canvas },
-          animation: 'slide_from_right',
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="cart" />
-        <Stack.Screen name="checkout" />
-        <Stack.Screen name="payment/[checkoutId]" />
-        <Stack.Screen name="payment/return" options={{ animation: 'none' }} />
-        <Stack.Screen name="orders/[orderId]/index" />
-        <Stack.Screen name="orders/[orderId]/confirmation" />
-        <Stack.Screen name="auth" options={{ animation: 'slide_from_bottom' }} />
-        <Stack.Screen name="auth/callback" />
-        <Stack.Screen name="auth/reset" />
-        <Stack.Screen name="account/addresses" />
-        <Stack.Screen name="account/settings" />
-        <Stack.Screen name="account/security" />
-        <Stack.Screen name="account/favorites" />
-        <Stack.Screen name="account/club" />
-        <Stack.Screen name="account/spin" />
-        <Stack.Screen name="account/notifications" />
-        <Stack.Screen name="account/support" />
-        <Stack.Screen name="products/[id]" />
-        <Stack.Screen name="table/index" />
-        <Stack.Screen name="table/scan" />
-        <Stack.Screen name="table/[code]" />
-        <Stack.Screen name="address" />
-        <Stack.Screen name="branches" />
-        <Stack.Screen name="deals" />
-        <Stack.Screen name="legal/index" />
-        <Stack.Screen name="legal/allergens" />
-      </Stack>
+      <FavoritesProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.canvas },
+            animation: 'slide_from_right',
+          }}
+        >
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="cart" />
+          <Stack.Screen name="checkout" />
+          <Stack.Screen name="payment/[checkoutId]" />
+          <Stack.Screen name="payment/return" options={{ animation: 'none' }} />
+          <Stack.Screen name="orders/[orderId]/index" />
+          <Stack.Screen name="orders/[orderId]/confirmation" />
+          <Stack.Screen name="auth" options={{ animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="auth/callback" />
+          <Stack.Screen name="auth/reset" />
+          <Stack.Screen name="account/addresses" />
+          <Stack.Screen name="account/settings" />
+          <Stack.Screen name="account/security" />
+          <Stack.Screen name="account/favorites" />
+          <Stack.Screen name="account/club" />
+          <Stack.Screen name="account/spin" />
+          <Stack.Screen name="account/notifications" />
+          <Stack.Screen name="account/support" />
+          <Stack.Screen name="products/[id]" />
+          <Stack.Screen name="table/index" />
+          <Stack.Screen name="table/scan" />
+          <Stack.Screen name="table/[code]" />
+          <Stack.Screen name="address" />
+          <Stack.Screen name="branches" />
+          <Stack.Screen name="deals" />
+          <Stack.Screen name="legal/index" />
+          <Stack.Screen name="legal/allergens" />
+        </Stack>
+      </FavoritesProvider>
     </SafeAreaProvider>
   );
 }

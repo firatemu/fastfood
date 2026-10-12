@@ -200,7 +200,7 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     name: 'Favorites',
     backend: '/me/favorites',
     ...implementedBoth,
-    notes: 'PDP heart + favorites list.',
+    notes: 'PDP + menu/search card heart, sharing one favorites load; favorites list.',
   },
   {
     id: 'burger-home-club',
@@ -597,7 +597,7 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     name: 'Dedicated /cart',
     backend: 'cart',
     ...implementedBoth,
-    notes: 'Cart screen requires customer login; guests are sent to /auth with next=/cart.',
+    notes: 'Cart screen requires customer login; guests are sent to /auth with next=/cart. Each line links to the product page via Özelleştirmeyi Düzenle on both clients.',
   },
   {
     id: 'account-settings',

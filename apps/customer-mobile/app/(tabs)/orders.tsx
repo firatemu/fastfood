@@ -1,9 +1,10 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ScrollToTopFab, useScrollToTop } from '../../components/scroll-to-top';
 import { EmptyBlock, ErrorBlock, LoadingBlock, MustardButton } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
 import { formatTryMinor } from '../../lib/money';
@@ -16,6 +17,8 @@ import { colors, fonts, minTouch, radius, space } from '../../theme';
 
 export default function OrdersTabRoute() {
   const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+  const top = useScrollToTop();
   const router = useRouter();
   const session = useCustomerSession();
   const bootstrap = useAuthBootstrap();
@@ -86,7 +89,12 @@ export default function OrdersTabRoute() {
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 32 }]}>
+    <View style={styles.screenRoot}>
+      <ScrollView
+        ref={scrollRef}
+        onScroll={top.onScroll}
+        contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 32 }]}
+      >
       <Text style={styles.headline}>Siparişler</Text>
       {orders.length === 0 ? (
         <EmptyBlock title="Henüz sipariş yok" message="Menüden ilk BURGER HOME siparişini ver." />
@@ -126,11 +134,14 @@ export default function OrdersTabRoute() {
           );
         })
       )}
-    </ScrollView>
+      </ScrollView>
+      <ScrollToTopFab visible={top.visible} scrollRef={scrollRef} bottom={insets.bottom + 88} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screenRoot: { flex: 1, backgroundColor: colors.canvas },
   root: { flex: 1, backgroundColor: colors.canvas, justifyContent: 'center' },
   scroll: { paddingHorizontal: space.gutter, gap: 12 },
   headline: { fontFamily: fonts.anton, fontSize: 32, color: colors.onSurface, textTransform: 'uppercase' },

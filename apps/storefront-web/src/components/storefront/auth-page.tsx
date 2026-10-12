@@ -12,14 +12,21 @@ import {
 import { BRAND_NAME, LOYALTY_PROGRAM_NAME } from '../../lib/storefront/brand-copy';
 import { useDeferredLoad } from '../../lib/use-deferred-load';
 
+import { BrandLogo } from './brand-logo';
 import { MaterialIcon } from './material-icon';
 import { useStorefrontChrome } from './storefront-chrome';
 
 type Tab = 'login' | 'register';
 type AuthState = 'idle' | 'loading' | 'login-failed' | 'register-failed' | 'success';
 
+const CLUB_PERKS = [
+  'Sipariş geçmişinize ve açık siparişlerinize her cihazdan ulaşın.',
+  `${LOYALTY_PROGRAM_NAME} puanınız hesabınızda birikir.`,
+  'Favorileriniz, adresleriniz ve iletişim tercihleriniz kayıtlı kalır.',
+] as const;
+
 const fieldClass =
-  'w-full h-12 pl-11 pr-4 bg-surface-container-low text-on-surface placeholder:text-on-surface-variant/40 font-body-md rounded-lg outline-none focus:bg-surface-container-high focus:ring-1 focus:ring-primary-container';
+  'w-full h-11 pl-10 pr-4 bg-surface-container text-on-surface placeholder:text-on-surface-variant/40 font-body-sm rounded-lg outline-none border border-outline-variant/25 focus:border-secondary-container';
 
 export function AuthPage() {
   const router = useRouter();
@@ -90,66 +97,31 @@ export function AuthPage() {
       data-ff-surface="auth"
       data-ff-auth-state={state}
     >
-      <div className="relative w-full max-w-7xl mx-auto px-margin-sm lg:px-margin py-8 lg:py-16">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary-container/10 blur-[130px] rounded-full pointer-events-none" />
-        <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
-          <div className="lg:col-span-5 flex flex-col justify-between rounded-xl bg-surface-container-low p-6 sm:p-8 lg:p-10 relative overflow-hidden">
-            <div className="relative z-10 flex flex-col gap-5">
-              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-primary-container/20 self-start">
-                <span className="w-2 h-2 rounded-full bg-primary-container animate-ping" />
-                <MaterialIcon
-                  name="local_fire_department"
-                  className="text-primary-container text-sm"
-                  filled
-                />
-                <span className="font-label-sm text-label-sm text-primary tracking-wider uppercase">
-                  Ember Kulübü Özel Girişi
+      <div className="relative w-full max-w-6xl mx-auto px-margin-sm lg:px-margin py-6 lg:py-10">
+        <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 items-stretch">
+          <div className="lg:col-span-7 min-w-0">
+            <div className="w-full bg-surface-container-low border border-outline-variant/25 rounded-xl p-5 sm:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <BrandLogo className="h-6 object-contain" />
+                <span className="font-label-sm uppercase tracking-widest text-on-surface-variant">
+                  Müşteri Girişi
                 </span>
               </div>
-              <h1 className="font-headline-xl text-headline-xl text-on-surface uppercase tracking-tight leading-none">
-                DUMANI <br />
-                <span className="text-primary-container">ÜSTÜNDE</span>
-                <br />
-                AYRICALIKLAR.
-              </h1>
-              <p className="font-body-md text-on-surface-variant">
-                {BRAND_NAME} hesabınızla sipariş geçmişinize ve {LOYALTY_PROGRAM_NAME} bakiyenize
-                ulaşın. Misafir sipariş her zaman açık kalır.
-              </p>
-              <div className="p-5 rounded-lg bg-surface-container-high/70 flex items-start gap-4">
-                <div className="p-3 rounded-lg bg-secondary-container text-on-secondary-container shrink-0">
-                  <MaterialIcon name="stars" className="text-2xl" filled />
-                </div>
-                <div>
-                  <span className="font-label-lg text-secondary uppercase tracking-wide">
-                    {LOYALTY_PROGRAM_NAME}
-                  </span>
-                  <p className="font-body-sm text-on-surface-variant mt-1">
-                    Gerçek puan bakiyeniz hesaba bağlanır. Sahte hoş geldin bakiyesi gösterilmez.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="lg:col-span-7 flex flex-col justify-center min-w-0">
-            <div className="w-full bg-surface-container rounded-xl p-6 sm:p-10">
-              <div className="flex items-center p-1.5 rounded-lg bg-surface-container-lowest mb-8">
+
+              <div className="flex items-center gap-1 p-1 rounded-lg bg-surface-container-lowest border border-outline-variant/20 mb-6">
                 <button
                   type="button"
-                  className={`flex-1 py-3 rounded-lg font-headline-sm text-sm uppercase ${tab === 'login' ? 'bg-surface-container-high text-on-surface shadow-md' : 'text-on-surface-variant'}`}
+                  className={`flex-1 py-2 rounded-md font-label-lg uppercase transition-colors ${tab === 'login' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:text-on-surface'}`}
                   onClick={() => setTab('login')}
                 >
                   Giriş Yap
                 </button>
                 <button
                   type="button"
-                  className={`flex-1 py-3 rounded-lg font-headline-sm text-sm uppercase flex items-center justify-center gap-2 ${tab === 'register' ? 'bg-surface-container-high text-on-surface shadow-md' : 'text-on-surface-variant'}`}
+                  className={`flex-1 py-2 rounded-md font-label-lg uppercase transition-colors ${tab === 'register' ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:text-on-surface'}`}
                   onClick={() => setTab('register')}
                 >
                   Kayıt Ol
-                  <span className="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-[10px]">
-                    Kulüp
-                  </span>
                 </button>
               </div>
 
@@ -161,21 +133,20 @@ export function AuthPage() {
 
               {tab === 'login' ? (
                 <div>
-                  <h2 className="font-headline-lg text-headline-lg text-on-surface uppercase leading-none">
-                    Hoş geldiniz
-                  </h2>
-                  <p className="font-body-md text-on-surface-variant mt-2 mb-6">
-                    Telefon numaran ve şifren ile giriş yap.
+                  <h1 className="font-headline-sm text-headline-sm text-on-surface">Giriş yap</h1>
+                  <p className="font-body-sm text-on-surface-variant mt-1 mb-5">
+                    Kayıtlı telefon numaranız ve şifrenizle devam edin.
                   </p>
-                  <form className="flex flex-col gap-4" onSubmit={(e) => void submitLogin(e)}>
+                  <form className="flex flex-col gap-3" onSubmit={(e) => void submitLogin(e)}>
                     <label className="flex flex-col gap-1.5">
-                      <span className="font-label-sm uppercase text-on-surface-variant">
+                      <span className="font-label-md uppercase text-on-surface-variant">
                         Telefon
                       </span>
                       <div className="relative">
                         <MaterialIcon
                           name="call"
-                          className="absolute left-3.5 top-3.5 text-on-surface-variant"
+                          size={18}
+                          className="absolute left-3 top-3 text-on-surface-variant"
                         />
                         <input
                           className={fieldClass}
@@ -189,14 +160,15 @@ export function AuthPage() {
                       </div>
                     </label>
                     <label className="flex flex-col gap-1.5">
-                      <span className="font-label-sm uppercase text-on-surface-variant">Şifre</span>
+                      <span className="font-label-md uppercase text-on-surface-variant">Şifre</span>
                       <div className="relative">
                         <MaterialIcon
                           name="lock"
-                          className="absolute left-3.5 top-3.5 text-on-surface-variant"
+                          size={18}
+                          className="absolute left-3 top-3 text-on-surface-variant"
                         />
                         <input
-                          className={`${fieldClass} pr-12`}
+                          className={`${fieldClass} pr-11`}
                           type={showPassword ? 'text' : 'password'}
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
@@ -205,18 +177,21 @@ export function AuthPage() {
                         />
                         <button
                           type="button"
-                          className="absolute right-3 top-3 text-on-surface-variant"
+                          className="absolute right-2.5 top-2 text-on-surface-variant"
                           onClick={() => setShowPassword((v) => !v)}
                           aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
                         >
-                          <MaterialIcon name={showPassword ? 'visibility_off' : 'visibility'} />
+                          <MaterialIcon
+                            name={showPassword ? 'visibility_off' : 'visibility'}
+                            size={18}
+                          />
                         </button>
                       </div>
                     </label>
                     <button
                       type="submit"
                       disabled={state === 'loading'}
-                      className="h-12 rounded-lg bg-secondary-container text-on-secondary-container font-label-lg uppercase"
+                      className="h-11 mt-1 rounded-lg bg-secondary-container text-on-secondary-container font-label-lg uppercase disabled:opacity-50"
                       data-ff-auth-submit="password"
                     >
                       Giriş Yap
@@ -225,43 +200,44 @@ export function AuthPage() {
                 </div>
               ) : (
                 <form
-                  className="flex flex-col gap-4"
+                  className="flex flex-col gap-3"
                   onSubmit={(e) => void submitRegister(e)}
                   data-ff-register-form
                 >
-                  <h2 className="font-headline-lg text-headline-lg text-on-surface uppercase">
-                    Kayıt
-                  </h2>
-                  <p className="font-body-md text-on-surface-variant">
-                    Telefon numaran ve şifren ile hemen üye ol. SMS doğrulaması bu süreçte kapalıdır
-                    (ADR-010).
+                  <h1 className="font-headline-sm text-headline-sm text-on-surface">Üye ol</h1>
+                  <p className="font-body-sm text-on-surface-variant mb-2">
+                    Telefon numaranız ve şifrenizle hemen üye olun. SMS doğrulaması bu süreçte
+                    kapalıdır (ADR-010).
                   </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className="flex flex-col gap-1.5">
+                      <span className="font-label-md uppercase text-on-surface-variant">Ad</span>
+                      <input
+                        className={fieldClass}
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        autoComplete="given-name"
+                        required
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1.5">
+                      <span className="font-label-md uppercase text-on-surface-variant">Soyad</span>
+                      <input
+                        className={fieldClass}
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        autoComplete="family-name"
+                        required
+                      />
+                    </label>
+                  </div>
                   <label className="flex flex-col gap-1.5">
-                    <span className="font-label-sm uppercase text-on-surface-variant">Ad</span>
-                    <input
-                      className="w-full h-12 px-4 bg-surface-container-low rounded-lg"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      autoComplete="given-name"
-                      required
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1.5">
-                    <span className="font-label-sm uppercase text-on-surface-variant">Soyad</span>
-                    <input
-                      className="w-full h-12 px-4 bg-surface-container-low rounded-lg"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      autoComplete="family-name"
-                      required
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1.5">
-                    <span className="font-label-sm uppercase text-on-surface-variant">Telefon</span>
+                    <span className="font-label-md uppercase text-on-surface-variant">Telefon</span>
                     <div className="relative">
                       <MaterialIcon
                         name="call"
-                        className="absolute left-3.5 top-3.5 text-on-surface-variant"
+                        size={18}
+                        className="absolute left-3 top-3 text-on-surface-variant"
                       />
                       <input
                         className={fieldClass}
@@ -275,9 +251,9 @@ export function AuthPage() {
                     </div>
                   </label>
                   <label className="flex flex-col gap-1.5">
-                    <span className="font-label-sm uppercase text-on-surface-variant">Şifre</span>
+                    <span className="font-label-md uppercase text-on-surface-variant">Şifre</span>
                     <input
-                      className="w-full h-12 px-4 bg-surface-container-low rounded-lg"
+                      className={fieldClass}
                       type="password"
                       required
                       minLength={10}
@@ -289,6 +265,7 @@ export function AuthPage() {
                   <label className="flex items-start gap-3 font-body-sm text-on-surface-variant">
                     <input
                       type="checkbox"
+                      className="mt-0.5"
                       checked={kvkk}
                       onChange={(e) => setKvkk(e.target.checked)}
                       required
@@ -298,6 +275,7 @@ export function AuthPage() {
                   <label className="flex items-start gap-3 font-body-sm text-on-surface-variant">
                     <input
                       type="checkbox"
+                      className="mt-0.5"
                       checked={newsletter}
                       onChange={(e) => setNewsletter(e.target.checked)}
                     />
@@ -306,13 +284,40 @@ export function AuthPage() {
                   <button
                     type="submit"
                     disabled={state === 'loading'}
-                    className="h-12 rounded-lg bg-secondary-container text-on-secondary-container font-label-lg uppercase"
+                    className="h-11 mt-1 rounded-lg bg-secondary-container text-on-secondary-container font-label-lg uppercase disabled:opacity-50"
                     data-ff-auth-submit="register"
                   >
                     Üye ol
                   </button>
                 </form>
               )}
+            </div>
+          </div>
+
+          <div className="lg:col-span-5 min-w-0">
+            <div className="h-full rounded-xl border border-outline-variant/20 bg-surface-container/40 p-5 sm:p-6">
+              <h2 className="font-label-lg uppercase tracking-wide text-on-surface">
+                {LOYALTY_PROGRAM_NAME}
+              </h2>
+              <p className="font-body-sm text-on-surface-variant mt-2">
+                {BRAND_NAME} hesabınızla sipariş geçmişinize ve bakiyenize ulaşın. Misafir
+                sipariş her zaman açık kalır.
+              </p>
+              <ul className="mt-5 flex flex-col gap-3">
+                {CLUB_PERKS.map((perk) => (
+                  <li key={perk} className="flex items-start gap-2.5">
+                    <MaterialIcon
+                      name="check_circle"
+                      size={18}
+                      className="text-secondary-container mt-0.5 shrink-0"
+                    />
+                    <span className="font-body-sm text-on-surface-variant">{perk}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="font-body-sm text-on-surface-variant mt-5 pt-4 border-t border-outline-variant/20">
+                Puanınız gerçek hesabınıza bağlanır; geçici bir başlangıç bakiyesi gösterilmez.
+              </p>
             </div>
           </div>
         </div>

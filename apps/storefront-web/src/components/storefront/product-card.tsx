@@ -6,6 +6,7 @@ import type { z } from 'zod';
 import { formatTryMinor } from '../../lib/money';
 import type { vitrineProductSchema } from '../../lib/schemas';
 
+import { FavoriteButton } from './favorite-button';
 import { MaterialIcon } from './material-icon';
 
 type Product = z.infer<typeof vitrineProductSchema>;
@@ -55,6 +56,12 @@ export function ProductCard({
             {ratingLabel}
           </span>
         ) : null}
+        {/* Bottom-right keeps the heart clear of the badge (top-left) and the
+            rating (top-right), and it sits outside the customize link so the tap
+            never navigates. */}
+        <div className="absolute bottom-3 right-3 z-20">
+          <FavoriteButton productId={product.id} />
+        </div>
       </div>
       <div className="p-space-md flex flex-col flex-1 justify-between gap-space-sm">
         <div>

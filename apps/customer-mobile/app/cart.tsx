@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -240,6 +241,17 @@ function CartScreen() {
                     {unavailable ? (
                       <Text style={styles.unavailable}>Bu satır şu an siparişe kapalı.</Text>
                     ) : null}
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Özelleştirmeyi düzenle"
+                      accessibilityHint="Ürünün seçeneklerini açar"
+                      hitSlop={hitSlop}
+                      onPress={() => router.push(`/products/${line.productId}`)}
+                      style={styles.customize}
+                    >
+                      <MaterialCommunityIcons name="tune-variant" size={14} color={colors.mustard} />
+                      <Text style={styles.customizeLabel}>ÖZELLEŞTİRMEYİ DÜZENLE</Text>
+                    </Pressable>
                     <View style={styles.lineFooter}>
                       <QtyStepper
                         value={line.quantity}
@@ -370,6 +382,15 @@ const styles = StyleSheet.create({
   },
   chipPriced: { color: colors.mustard },
   unavailable: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.error },
+  /** 30dp visual + hitSlop keeps the effective target at 46dp, over the 44 minimum. */
+  customize: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    minHeight: 30,
+  },
+  customizeLabel: { fontFamily: fonts.jakartaBold, fontSize: 12, color: colors.mustard },
   lineFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
   linePrice: { fontFamily: fonts.anton, fontSize: 22, color: colors.mustard, fontVariant: ['tabular-nums'] },
   card: {

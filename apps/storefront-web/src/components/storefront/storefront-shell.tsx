@@ -3,6 +3,8 @@
 import type { ReactNode } from 'react';
 
 import { DiningContextBanner } from './dining-context-banner';
+import { FavoritesProvider } from './favorites-provider';
+import { ScrollToTopButton } from './scroll-to-top';
 import { StorefrontChromeProvider, useStorefrontChrome } from './storefront-chrome';
 import { StorefrontFooter } from './storefront-footer';
 import { StorefrontHeader } from './storefront-header';
@@ -23,6 +25,7 @@ function ShellFrame({ children }: { children: ReactNode }) {
       />
       <DiningContextBanner />
       <div id="storefront-main">{children}</div>
+      <ScrollToTopButton />
       <StorefrontFooter home={home} homeStatus={status} />
     </>
   );
@@ -30,8 +33,10 @@ function ShellFrame({ children }: { children: ReactNode }) {
 
 export function StorefrontShell({ children }: { children: ReactNode }) {
   return (
-    <StorefrontChromeProvider>
-      <ShellFrame>{children}</ShellFrame>
-    </StorefrontChromeProvider>
+    <FavoritesProvider>
+      <StorefrontChromeProvider>
+        <ShellFrame>{children}</ShellFrame>
+      </StorefrontChromeProvider>
+    </FavoritesProvider>
   );
 }

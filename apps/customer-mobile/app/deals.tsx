@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ScrollToTopFab, useScrollToTop } from '../components/scroll-to-top';
 import { StackHeader } from '../components/stack-header';
 import { ErrorBlock, LoadingBlock } from '../components/ui';
 import { formatApiError } from '../lib/api';
@@ -111,6 +112,8 @@ function splitComboName(name: string): [string, string] {
 export default function DealsRoute() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+  const top = useScrollToTop();
   const [deals, setDeals] = useState<PublicDeal[]>([]);
   const [home, setHome] = useState<StorefrontHome | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -207,6 +210,8 @@ export default function DealsRoute() {
     <View style={styles.screen}>
       <StackHeader title="İndirimler & Fırsatlar" />
       <ScrollView
+        ref={scrollRef}
+        onScroll={top.onScroll}
         contentContainerStyle={[styles.scroll, { paddingBottom: 28 + insets.bottom }]}
         showsVerticalScrollIndicator={false}
       >
@@ -303,6 +308,8 @@ export default function DealsRoute() {
           <Text style={styles.toastText}>{toast}</Text>
         </View>
       ) : null}
+
+      <ScrollToTopFab visible={top.visible} scrollRef={scrollRef} bottom={insets.bottom + 24} />
     </View>
   );
 }

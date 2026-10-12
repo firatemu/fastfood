@@ -448,6 +448,16 @@ body {
   display: grid;
   grid-template-columns: var(--ff-rail-w) minmax(0, 1fr);
   align-items: start;
+  /*
+   * `align-content: start` is load-bearing, not cosmetic. The frame is a grid
+   * with two auto rows and a `min-height` of one viewport. On a page shorter
+   * than that, `align-content` defaults to `stretch`, so the leftover height is
+   * split between both rows: measured on /account/club at 834x1112 the rail's
+   * 57px row was stretched to 201px and pushed the content 144px down, opening a
+   * hole between the nav and the page. Pinning the rows to the top leaves the
+   * slack at the end of the frame where it belongs.
+   */
+  align-content: start;
   min-height: calc(100vh - 5rem);
   /*
    * The rail column is painted here, not on `.ff-rail`, because the rail is a
@@ -783,6 +793,16 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
+}
+/* The middle column of the points row: it grows into the leftover width but
+   stops at 22rem so the meter never stretches across a wide desktop.
+   This lives here rather than in an inline style because the stacked-row
+   breakpoint below has to be able to reset it - an inline `flex: 1 1 14rem`
+   beats any stylesheet rule, and once `.ff-row` turns into a column that basis
+   becomes a 14rem *height*, opening a 224px hole under the meter. */
+.ff-row-meter {
+  flex: 1 1 14rem;
+  max-width: 22rem;
 }
 .ff-row-label {
   font-family: var(--font-sans);
@@ -2078,7 +2098,17 @@ body {
 }
 
 /* ==========================================================================
-   12. Narrow viewports — the surface is desktop-first, but it must not break
+   12. Narrow viewports - phone and tablet
+   --------------------------------------------------------------------------
+   Desktop is a 240px rail beside the content column. Below 60rem that rail is
+   the wrong shape: stacked vertically it measured 695px on a 390px phone,
+   which is the whole first screen with no page content above the fold. So
+   below 60rem the rail becomes a horizontally scrollable strip pinned under
+   the site header, and the content column takes the full width.
+
+   48rem is where a data row stops being able to hold its label beside its
+   actions: at 390px the key column measured 63px against 249px of actions,
+   which wrapped the label to three words a line. Rows stack there instead.
    ========================================================================== */
 
 @media (max-width: 60rem) {
@@ -2086,12 +2116,85 @@ body {
     grid-template-columns: minmax(0, 1fr);
     background-image: none;
   }
+
+  /* The rail becomes a one-line scroller. It stays `sticky`, and the toolbar
+     below drops to `static` in the same block, so the two never compete for
+     the same 5rem offset. */
   .ff-rail {
-    position: static;
+    position: sticky;
+    top: 5rem;
+    z-index: 19;
     max-height: none;
-    padding: 0.875rem 0 1rem;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    background: color-mix(in srgb, var(--color-background) 92%, transparent);
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--color-outline-variant);
   }
+
+  /* Group wrappers become `display: contents` so their label, divider and
+     items all flow along the single strip. `.ff-identity` is excluded - it is
+     not part of the scroll flow. */
+  [data-ff-account-nav] {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    width: max-content;
+    min-width: 100%;
+    padding: 0.5rem 0.75rem;
+  }
+  [data-ff-account-nav] > div:not(.ff-identity) {
+    display: contents;
+  }
+
+  /* On a phone the identity block would spend another 60px of the strip on
+     what the header avatar and the profile page already say. */
+  .ff-identity {
+    display: none;
+  }
+
+  .ff-rail-item {
+    width: auto;
+    flex: none;
+    min-height: 2.5rem;
+    padding: 0 0.75rem;
+    border-radius: 0.5rem;
+    white-space: nowrap;
+  }
+
+  /* Inside a pill row the 2px active bar reads as an underline. */
+  .ff-rail-item[aria-current='page']::before {
+    left: 0.75rem;
+    right: 0.75rem;
+    top: auto;
+    bottom: 0.25rem;
+    width: auto;
+    height: 2px;
+  }
+
+  .ff-rail-label {
+    flex: none;
+    padding: 0 0.5rem;
+  }
+
+  .ff-rail-divider {
+    flex: none;
+    width: 1px;
+    height: 1.25rem;
+    margin: 0 0.25rem;
+  }
+
+  .ff-toolbar {
+    position: static;
+    padding: 0.75rem 1rem;
+  }
+
+  .ff-body {
+    padding: 1.25rem 1rem 0;
+  }
+
   .ff-section {
     grid-template-columns: minmax(0, 1fr);
     gap: 0.75rem;
@@ -2100,15 +2203,7 @@ body {
     grid-column: 1;
     grid-row: 2;
   }
-  .ff-toolbar {
-    position: static;
-  }
-  .ff-body {
-    padding: 1.25rem 1rem 0;
-  }
-  .ff-toolbar {
-    padding: 0.75rem 1rem;
-  }
+
   .ff-row {
     flex-wrap: wrap;
   }
@@ -2116,10 +2211,59 @@ body {
     max-width: 100%;
     text-align: left;
   }
+
   .ff-address-layout {
     grid-template-columns: minmax(0, 1fr);
   }
   .ff-address-map {
     position: static;
+  }
+}
+
+@media (max-width: 48rem) {
+  /* Key above actions, each on its own full-width line. */
+  .ff-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .ff-row-key {
+    width: 100%;
+  }
+  .ff-row-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  /* Stacked, the meter is full width and only as tall as its content. */
+  .ff-row-meter {
+    flex: 0 0 auto;
+    max-width: none;
+  }
+
+  /* 26px is a desktop density; a thumb wants 40px. */
+  .ff-btn,
+  .ff-btn-sm,
+  .ff-btn-outline,
+  .ff-btn-ghost,
+  .ff-btn-danger {
+    min-height: 2.5rem;
+  }
+  .ff-btn-sm {
+    height: auto;
+    padding: 0 0.75rem;
+  }
+  .ff-icon-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  /* Title and actions stop sharing a baseline once the bar is this narrow. */
+  .ff-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .ff-toolbar-title {
+    white-space: normal;
   }
 }

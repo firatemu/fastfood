@@ -18,13 +18,15 @@ import { formatTryMinor } from '../lib/money';
 import type { VitrineProduct } from '../lib/schemas';
 import { colors, fonts, hitSlop, radius, space } from '../theme';
 
+import { FavoriteHeart } from './favorite-heart';
+
 /**
  * Compact CTA height in dp. The card is only two columns wide, so a full-height
  * 44dp button beside the price would squeeze the label. The *touch* target stays
- * at 44dp through `hitSlop`, so the chip looks compact without becoming hard to
- * hit — and neighbouring links get no hitSlop, so nothing steals each other's taps.
+ * at 44dp through `hitSlop` (28 + 8 + 8), so the chip looks compact without becoming
+ * hard to hit — and neighbouring links get no hitSlop, so nothing steals each other's taps.
  */
-const CTA_MIN_HEIGHT = 30;
+const CTA_MIN_HEIGHT = 28;
 
 /**
  * Vitrine card. The product's only action is "open it and customize it", which
@@ -42,23 +44,28 @@ export function ProductCard(props: { product: VitrineProduct }): ReactElement {
   const label = customizeLabel(props.product);
   return (
     <View style={styles.card}>
-      <CardLink href={href} accessibilityLabel={`${props.product.name} ürününü aç`}>
-        <View style={styles.imageWrap}>
-          {image ? (
-            <Image
-              source={{ uri: image }}
-              style={styles.image}
-              contentFit="cover"
-              accessibilityLabel={props.product.imageAlt ?? props.product.name}
-            />
-          ) : (
-            <View style={[styles.image, styles.imageFallback]} />
-          )}
-          {props.product.badge ? (
-            <Text style={styles.badge}>{props.product.badge}</Text>
-          ) : null}
-        </View>
-      </CardLink>
+      {/* The heart lives outside the card link on purpose: nested inside it,
+          the tap would navigate to the product instead of toggling it. */}
+      <View style={styles.media}>
+        <CardLink href={href} accessibilityLabel={`${props.product.name} ürününü aç`}>
+          <View style={styles.imageWrap}>
+            {image ? (
+              <Image
+                source={{ uri: image }}
+                style={styles.image}
+                contentFit="cover"
+                accessibilityLabel={props.product.imageAlt ?? props.product.name}
+              />
+            ) : (
+              <View style={[styles.image, styles.imageFallback]} />
+            )}
+            {props.product.badge ? (
+              <Text style={styles.badge}>{props.product.badge}</Text>
+            ) : null}
+          </View>
+        </CardLink>
+        <FavoriteHeart productId={props.product.id} name={props.product.name} />
+      </View>
       <CardLink href={href} accessibilityLabel={`${props.product.name} detayları`}>
         <View style={styles.body}>
           <Text style={styles.name} numberOfLines={2}>
@@ -128,6 +135,7 @@ const styles = StyleSheet.create({
     borderColor: colors.hairline,
     overflow: 'hidden',
   },
+  media: { position: 'relative' },
   imageWrap: { position: 'relative' },
   image: {
     width: '100%',
@@ -151,10 +159,13 @@ const styles = StyleSheet.create({
     color: colors.onMustard,
   },
   customize: {
-    flexShrink: 0,
+    // Shrinkable on purpose: the price is the information the card exists to
+    // carry, so the CTA yields first. Its label is `numberOfLines={1}`, so an
+    // unusually long one ellipsizes instead of pushing the price out.
+    flexShrink: 1,
     minHeight: CTA_MIN_HEIGHT,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: 7,
+    paddingVertical: 4,
     borderRadius: radius.sm,
     backgroundColor: colors.mustard,
     alignItems: 'center',
@@ -163,8 +174,8 @@ const styles = StyleSheet.create({
   customizePressed: { backgroundColor: colors.mustardPressed },
   customizeText: {
     fontFamily: fonts.jakartaBold,
-    fontSize: 11,
-    letterSpacing: 0.6,
+    fontSize: 10,
+    letterSpacing: 0.1,
     color: colors.onMustard,
   },
   body: { padding: space.sm, gap: 4, minHeight: 72 },
@@ -189,7 +200,8 @@ const styles = StyleSheet.create({
     paddingBottom: space.sm,
   },
   price: {
-    flexShrink: 1,
+    // Never truncate: a cut-off price is worse than a tight CTA label.
+    flexShrink: 0,
     fontFamily: fonts.jakartaBold,
     fontSize: 15,
     color: colors.mustard,
