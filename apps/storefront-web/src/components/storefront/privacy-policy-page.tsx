@@ -66,8 +66,13 @@ const SECTIONS: ReadonlyArray<{ id: string; title: string; body: readonly string
     body: [
       'KVKK kapsamında verilerine erişme, düzeltme ve silinmesini isteme hakkın vardır.',
       'Hesabını uygulamada Hesabım › Güvenlik › Hesabı sil adımlarıyla veya web sitesinde aynı ekrandan silebilirsin. Ayrıntılar hesap silme sayfasındadır.',
-      'Sorular için uygulamadaki Hesabım › Destek ekranını kullanabilirsin.',
+      'Sorular ve taleplerin için info@azemyazilim.com adresine yazabilir veya uygulamadaki Hesabım › Destek ekranını kullanabilirsin.',
     ],
+  },
+  {
+    id: 'iletisim',
+    title: 'İletişim',
+    body: ['Azem Yazılım — info@azemyazilim.com — +90 542 176 03 10 — https://azemyazilim.com'],
   },
 ];
 

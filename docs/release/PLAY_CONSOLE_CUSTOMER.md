@@ -15,6 +15,9 @@ production stay prohibited (ADR-023). Payments are iyzico **sandbox**.
 | Category           | Yeme ve İçme (Food & Drink)                                                   |
 | Privacy policy URL | `https://burger.azem.cloud/gizlilik`                                          |
 | Account deletion   | `https://burger.azem.cloud/hesap-silme`                                       |
+| Contact e-mail     | `info@azemyazilim.com`                                                        |
+| Contact phone      | `+90 542 176 03 10`                                                           |
+| Website            | `https://azemyazilim.com`                                                     |
 | Upload             | `app-release.aab` from `scripts/android-build-release.sh customer-mobile aab` |
 
 ## Graphics

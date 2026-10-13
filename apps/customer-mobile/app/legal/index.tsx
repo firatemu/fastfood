@@ -76,11 +76,75 @@ export default function LegalRoute() {
           )}
           <Pressable
             accessibilityRole="link"
+            onPress={() => void Linking.openURL(`${getStorefrontUrl()}/mesafeli-satis-sozlesmesi`)}
+            style={styles.guide}
+          >
+            <Text style={styles.title}>Mesafeli satış sözleşmesi</Text>
+            <Text style={styles.body}>6502 sayılı Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri.</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => void Linking.openURL(`${getStorefrontUrl()}/on-bilgilendirme-formu`)}
+            style={styles.guide}
+          >
+            <Text style={styles.title}>Ön bilgilendirme formu</Text>
+            <Text style={styles.body}>Sipariş ve ödeme öncesi zorunlu tüketici bilgilendirmesi.</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => void Linking.openURL(`${getStorefrontUrl()}/iptal-ve-iade`)}
+            style={styles.guide}
+          >
+            <Text style={styles.title}>İptal ve iade koşulları</Text>
+            <Text style={styles.body}>Sıcak gıdada cayma hakkı istisnası, iptal ve ücret iadesi.</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => void Linking.openURL(`${getStorefrontUrl()}/kvkk`)}
+            style={styles.guide}
+          >
+            <Text style={styles.title}>KVKK aydınlatma metni</Text>
+            <Text style={styles.body}>Kişisel verilerin işlenmesi, amaçları ve 11. madde hakların.</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
             onPress={() => void Linking.openURL(`${getStorefrontUrl()}/gizlilik`)}
             style={styles.guide}
           >
             <Text style={styles.title}>Gizlilik politikası</Text>
             <Text style={styles.body}>Topladığımız veriler, izinler ve hakların.</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => void Linking.openURL(`${getStorefrontUrl()}/cerez-politikasi`)}
+            style={styles.guide}
+          >
+            <Text style={styles.title}>Çerez politikası</Text>
+            <Text style={styles.body}>Zorunlu ve oturum çerezleri hakkında bilgilendirme.</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => void Linking.openURL(`${getStorefrontUrl()}/kullanim-kosullari`)}
+            style={styles.guide}
+          >
+            <Text style={styles.title}>Kullanım koşulları</Text>
+            <Text style={styles.body}>Platform kullanım şartları ve fikri mülkiyet hakları.</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => void Linking.openURL(`${getStorefrontUrl()}/teslimat-kosullari`)}
+            style={styles.guide}
+          >
+            <Text style={styles.title}>Teslimat koşulları</Text>
+            <Text style={styles.body}>Kurye teslimatı, süreler, hava şartları ve termal ambalaj.</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => void Linking.openURL(`${getStorefrontUrl()}/kunye`)}
+            style={styles.guide}
+          >
+            <Text style={styles.title}>Şirket bilgileri ve künye</Text>
+            <Text style={styles.body}>Ticari unvan, MERSİS, adres ve iletişim bilgileri.</Text>
           </Pressable>
           <Pressable
             accessibilityRole="link"

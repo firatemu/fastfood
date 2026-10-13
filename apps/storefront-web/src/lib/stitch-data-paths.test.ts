@@ -10,6 +10,21 @@ describe('routeForDataPath', () => {
     expect(routeForDataPath('subeler-and-hikaye')).toBe('/branches');
   });
 
+  it('maps legal compliance data-paths', () => {
+    expect(routeForDataPath('mesafeli-satis-sozlesmesi')).toBe('/mesafeli-satis-sozlesmesi');
+    expect(routeForDataPath('mesafeli-satis')).toBe('/mesafeli-satis-sozlesmesi');
+    expect(routeForDataPath('on-bilgilendirme-formu')).toBe('/on-bilgilendirme-formu');
+    expect(routeForDataPath('iptal-ve-iade')).toBe('/iptal-ve-iade');
+    expect(routeForDataPath('kvkk')).toBe('/kvkk');
+    expect(routeForDataPath('gizlilik')).toBe('/gizlilik');
+    expect(routeForDataPath('cerez-politikasi')).toBe('/cerez-politikasi');
+    expect(routeForDataPath('kullanim-kosullari')).toBe('/kullanim-kosullari');
+    expect(routeForDataPath('teslimat-kosullari')).toBe('/teslimat-kosullari');
+    expect(routeForDataPath('kunye')).toBe('/kunye');
+    expect(routeForDataPath('hesap-silme')).toBe('/hesap-silme');
+    expect(routeForDataPath('legal')).toBe('/legal');
+  });
+
   it('returns null for unknown paths', () => {
     expect(routeForDataPath('unknown-screen')).toBeNull();
   });

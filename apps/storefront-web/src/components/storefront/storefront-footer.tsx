@@ -19,7 +19,7 @@ export function StorefrontFooter({
   homeStatus = 'ready',
 }: {
   home: StorefrontHome | null;
-  homeStatus?: 'loading' | 'ready' | 'error';
+  homeStatus?: 'ready' | 'loading' | 'error';
 }) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'saving' | 'ok' | 'dup' | 'error'>('idle');
@@ -38,9 +38,11 @@ export function StorefrontFooter({
   }
 
   return (
-    <footer className="w-full bg-surface-container-lowest">
-      <div className="max-w-7xl mx-auto px-margin-sm lg:px-margin py-space-xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-xl pb-space-xl">
+    <footer className="w-full bg-surface-container-lowest border-t border-surface-container">
+      <div className="max-w-7xl mx-auto px-margin-sm lg:px-margin py-space-xl flex flex-col gap-space-xl">
+        {/* Üst Bölüm: Marka, Çalışma Saatleri, Taahhüt, Bülten */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-xl pb-space-lg border-b border-surface-container/60">
+          {/* Kolon 1: Marka ve İletişim */}
           <div className="flex flex-col gap-space-sm">
             <div className="flex items-center gap-space-sm mb-space-xs">
               <BrandLogo />
@@ -57,9 +59,9 @@ export function StorefrontFooter({
                 </a>
               ) : null}
               <Link
-                href="/legal#sirket"
+                href="/kunye"
                 className="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors"
-                aria-label="İletişim"
+                aria-label="Künye ve İletişim"
               >
                 <MaterialIcon name="alternate_email" className="text-lg" />
               </Link>
@@ -72,6 +74,8 @@ export function StorefrontFooter({
               </Link>
             </div>
           </div>
+
+          {/* Kolon 2: Çalışma Saatleri */}
           <div className="flex flex-col gap-space-sm">
             <span className="font-headline-sm text-headline-sm text-on-surface uppercase">
               Çalışma Saatleri
@@ -99,6 +103,8 @@ export function StorefrontFooter({
               <span className="font-label-sm text-label-sm uppercase font-bold">Ateş Hiç Sönmüyor</span>
             </div>
           </div>
+
+          {/* Kolon 3: Gurme Taahhüdü */}
           <div className="flex flex-col gap-space-sm">
             <span className="font-headline-sm text-headline-sm text-on-surface uppercase">
               Gurme Taahhüdü
@@ -113,7 +119,7 @@ export function StorefrontFooter({
               <li className="flex items-start gap-2">
                 <MaterialIcon name="restaurant" className="text-primary text-base shrink-0 mt-0.5" />
                 <Link
-                  href="/legal#alerjen-rehberi"
+                  href="/legal#alerjen-sozlugu"
                   data-path="alerjen-rehberi"
                   className="text-on-surface-variant hover:text-on-surface transition-colors underline decoration-outline-variant"
                 >
@@ -122,6 +128,8 @@ export function StorefrontFooter({
               </li>
             </ul>
           </div>
+
+          {/* Kolon 4: Ember Kulübü */}
           <div className="flex flex-col gap-space-sm">
             <span className="font-headline-sm text-headline-sm text-on-surface uppercase">
               Ember Kulübü
@@ -160,22 +168,209 @@ export function StorefrontFooter({
             </form>
           </div>
         </div>
-        <div className="pt-space-lg flex flex-col sm:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant">
+
+        {/* Orta Bölüm: Türkiye E-Ticaret Yasal Sözleşmeler ve Kurumsal Navigasyon */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-space-lg pb-space-lg border-b border-surface-container/60">
+          {/* Sütun A: Sözleşmeler ve Yasal Haklar */}
+          <div className="flex flex-col gap-2">
+            <span className="font-label-sm uppercase font-bold text-primary tracking-wider flex items-center gap-1.5">
+              <MaterialIcon name="gavel" className="text-base" />
+              Yasal & Sözleşmeler
+            </span>
+            <ul className="flex flex-col gap-2 font-body-sm text-on-surface-variant mt-1">
+              <li>
+                <Link
+                  href="/mesafeli-satis-sozlesmesi"
+                  data-path="mesafeli-satis-sozlesmesi"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  Mesafeli Satış Sözleşmesi
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/on-bilgilendirme-formu"
+                  data-path="on-bilgilendirme-formu"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  Ön Bilgilendirme Formu
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/iptal-ve-iade"
+                  data-path="iptal-ve-iade"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  İptal ve İade Koşulları
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/kullanim-kosullari"
+                  data-path="kullanim-kosullari"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  Kullanım Koşulları
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/teslimat-kosullari"
+                  data-path="teslimat-kosullari"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  Teslimat ve Sipariş Koşulları
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Sütun B: Gizlilik, KVKK ve Kişisel Veriler */}
+          <div className="flex flex-col gap-2">
+            <span className="font-label-sm uppercase font-bold text-primary tracking-wider flex items-center gap-1.5">
+              <MaterialIcon name="shield" className="text-base" />
+              Gizlilik & KVKK
+            </span>
+            <ul className="flex flex-col gap-2 font-body-sm text-on-surface-variant mt-1">
+              <li>
+                <Link
+                  href="/kvkk"
+                  data-path="kvkk"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  KVKK Aydınlatma Metni
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/gizlilik"
+                  data-path="gizlilik"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  Gizlilik ve Güvenlik Politikası
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/cerez-politikasi"
+                  data-path="cerez-politikasi"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  Çerez Politikası
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/hesap-silme"
+                  data-path="hesap-silme"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  Hesap ve Veri Silme
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/legal"
+                  data-path="legal"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  Yasal Bilgi ve Alerjen Merkezi
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Sütun C: Kurumsal, Künye ve Güvenli Ödeme */}
+          <div className="flex flex-col gap-2">
+            <span className="font-label-sm uppercase font-bold text-primary tracking-wider flex items-center gap-1.5">
+              <MaterialIcon name="storefront" className="text-base" />
+              Kurumsal & İletişim
+            </span>
+            <ul className="flex flex-col gap-2 font-body-sm text-on-surface-variant mt-1">
+              <li>
+                <Link
+                  href="/kunye"
+                  data-path="kunye"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  Şirket Bilgileri & Künye
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/branches"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  Şubelerimiz ve Adresler
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/account/support"
+                  className="hover:text-primary transition-colors inline-block"
+                >
+                  Canlı Destek & Müşteri Şikayet
+                </Link>
+              </li>
+              <li className="text-xs text-on-surface-variant/80 mt-1">
+                Müşteri Hizmetleri: <strong className="text-on-surface">0850 308 00 00</strong>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Rozetler ve Ödeme Güvenliği Şeridi */}
+        <div className="flex flex-wrap items-center justify-between gap-space-md py-space-sm px-space-md bg-surface-container-low rounded-xl border border-surface-container text-xs text-on-surface-variant">
+          <div className="flex items-center gap-2">
+            <MaterialIcon name="verified_user" className="text-secondary-container text-lg" />
+            <span className="font-semibold text-on-surface">iyzico Güvenli Ödeme</span>
+            <span className="text-on-surface-variant/60 hidden sm:inline">•</span>
+            <span className="hidden sm:inline">Kart bilgileri sunucularımızda saklanmaz</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <MaterialIcon name="lock" className="text-sm text-primary" />
+              <span>256-Bit SSL</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <MaterialIcon name="security" className="text-sm text-primary" />
+              <span>3D Secure</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <MaterialIcon name="health_and_safety" className="text-sm text-secondary-container" />
+              <span>Gıda Güvenliği</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Alt Çubuk (Copyright & Bar Links) */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant">
           <p>
             © {year} {BRAND_NAME}. Tüm hakları saklıdır.
           </p>
-          <div className="flex items-center gap-space-lg font-label-sm text-label-sm uppercase">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-label-sm text-[11px] uppercase">
+            <Link href="/mesafeli-satis-sozlesmesi" data-path="mesafeli-satis" className="hover:text-on-surface transition-colors">
+              Mesafeli Satış
+            </Link>
+            <Link href="/on-bilgilendirme-formu" data-path="on-bilgilendirme" className="hover:text-on-surface transition-colors">
+              Ön Bilgilendirme
+            </Link>
+            <Link href="/iptal-ve-iade" data-path="iptal-iade" className="hover:text-on-surface transition-colors">
+              İptal & İade
+            </Link>
+            <Link href="/kvkk" data-path="kvkk" className="hover:text-on-surface transition-colors">
+              KVKK
+            </Link>
             <Link href="/gizlilik" data-path="gizlilik" className="hover:text-on-surface transition-colors">
               Gizlilik
             </Link>
-            <Link href="/hesap-silme" data-path="hesap-silme" className="hover:text-on-surface transition-colors">
-              Hesap Silme
+            <Link href="/cerez-politikasi" data-path="cerez-politikasi" className="hover:text-on-surface transition-colors">
+              Çerezler
             </Link>
-            <Link href="/legal#kullanim-kosullari" data-path="kullanim-kosullari" className="hover:text-on-surface transition-colors">
-              Kullanım Koşulları
-            </Link>
-            <Link href="/legal#kvkk" data-path="kvkk" className="hover:text-on-surface transition-colors">
-              KVKK Aydınlatma
+            <Link href="/kunye" data-path="kunye" className="hover:text-on-surface transition-colors">
+              Künye
             </Link>
           </div>
         </div>

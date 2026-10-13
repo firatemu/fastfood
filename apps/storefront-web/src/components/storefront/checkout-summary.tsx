@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { z } from 'zod';
 
 import { formatTryMinor } from '../../lib/money';
@@ -133,6 +134,25 @@ export function CheckoutSummary({
       {quote && !quote.minimumOrderEligible ? (
         <p className="mt-space-sm font-body-sm text-error">Minimum sipariş tutarı karşılanmadı.</p>
       ) : null}
+      <p className="mt-space-sm font-body-sm text-[11px] text-on-surface-variant/80 text-center leading-normal">
+        Siparişi onaylayarak{' '}
+        <Link
+          href="/on-bilgilendirme-formu"
+          target="_blank"
+          className="underline text-primary hover:text-on-surface"
+        >
+          Ön Bilgilendirme Koşulları
+        </Link>
+        &apos;nı ve{' '}
+        <Link
+          href="/mesafeli-satis-sozlesmesi"
+          target="_blank"
+          className="underline text-primary hover:text-on-surface"
+        >
+          Mesafeli Satış Sözleşmesi
+        </Link>
+        &apos;ni okuduğunuzu ve kabul ettiğinizi teyit edersiniz.
+      </p>
       <button
         className="w-full mt-space-md py-4 rounded-lg bg-secondary-container hover:brightness-110 text-on-secondary-container font-label-lg uppercase tracking-wider shadow-md flex items-center justify-center gap-2 disabled:opacity-40"
         type="button"
