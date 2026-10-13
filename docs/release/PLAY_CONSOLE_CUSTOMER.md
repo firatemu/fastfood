@@ -94,6 +94,12 @@ providers, they may be answered as "not shared".
 ## Before every upload
 
 1. Increment `android.versionCode` (and `version` when user-visible) in
-   `apps/customer-mobile/app.json`.
+   `apps/customer-mobile/app.json`. `versionCode` is **global across every
+   Play track**: the internal `beta1` release used code `1`, so a closed-testing
+   release cannot reuse it — Play rejects it with "1 sürüm kodu daha önce
+   kullanıldı" and then reports "hiçbir uygulama paketi eklemiyor".
 2. `scripts/android-build-release.sh customer-mobile aab` (keystore env set).
 3. Upload the AAB to the internal testing track and add testers by e-mail list.
+4. On a second track, open the draft release, press **Kitaplıktan ekle**, pick
+   the existing bundle, and give the release a name — Play keeps the bundle only
+   after the release row is saved.
