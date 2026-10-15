@@ -12,6 +12,7 @@ import { OpsBoundary } from '../../../components/ops/ops-boundary';
 import { OpsPageHeader } from '../../../components/ops/ops-page-header';
 import { useOpsSync } from '../../../components/ops/ops-sync';
 import { OperationalTable } from '../../../components/ops/ops-table';
+import { useOpsToast } from '../../../components/ops/ops-toast';
 import { ActionButton, KeylineCard, StatusBadge } from '../../../components/ops/ops-ui';
 import { createAdminClient } from '../../../lib/api';
 import {
@@ -33,13 +34,12 @@ export default function PaymentDetailPage() {
   const params = useParams<{ paymentId: string }>();
   const paymentId = params.paymentId;
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [state, setState] = useState<LoadState<Payment>>({ status: 'loading' });
   const [refunds, setRefunds] = useState<Refund[]>([]);
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('customer_request');
   const [busy, setBusy] = useState(false);
-  const [flash, setFlash] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
 
   const load = useCallback(async () => {
@@ -84,13 +84,11 @@ export default function PaymentDetailPage() {
         remainingMinor: remaining,
       })
     ) {
-      setFormError('İade tutarı kalan bakiyeyi aşamaz ve ödeme PAID olmalı.');
+      toast.error('İade tutarı kalan bakiyeyi aşamaz ve ödeme PAID olmalı.');
       setConfirm(false);
       return;
     }
     setBusy(true);
-    setFormError(null);
-    setFlash(null);
     try {
       await createAdminClient().request({
         method: 'POST',
@@ -98,11 +96,11 @@ export default function PaymentDetailPage() {
         body: { amountMinor: amount.trim(), reason: reason.trim() || undefined },
         schema: refundSchema,
       });
-      setFlash('İade kaydı oluşturuldu. Kalan bakiye yeniden yüklendi.');
+      toast.success('İade kaydı oluşturuldu. Kalan bakiye yeniden yüklendi.');
       setConfirm(false);
       await load();
     } catch (err) {
-      setFormError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -192,16 +190,6 @@ export default function PaymentDetailPage() {
                 ) : (
                   <p className="ops-page__lede">Yalnızca PAID ödemeler iade edilir.</p>
                 )}
-                {flash ? (
-                  <p className="ops-flash ops-flash--ok" role="status">
-                    {flash}
-                  </p>
-                ) : null}
-                {formError ? (
-                  <p className="ops-flash ops-flash--err" role="alert">
-                    {formError}
-                  </p>
-                ) : null}
                 <p>
                   <Link href={`/refunds?paymentId=${p.id}`}>İade formu</Link>
                 </p>

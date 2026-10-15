@@ -580,24 +580,6 @@
    Notices
    -------------------------------------------------------------------------- */
 
-.notice {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: start;
-  gap: var(--ff-space-sm);
-  margin: 0;
-  padding: var(--ff-space-md) var(--ff-space-lg);
-  border: 1px solid var(--ff-keyline);
-  border-radius: var(--ff-radius-lg);
-  background: var(--ff-surface-container-low);
-  color: var(--ff-on-surface-variant);
-  font: 400 var(--ff-text-label-sm) / var(--ff-leading-body-lg) var(--ff-font-body);
-}
-
-.notice > :global(.material-symbols-outlined) {
-  font-size: 17px;
-}
-
 .noticeError {
   border-color: var(--ff-status-critical-border);
   background: var(--ff-status-critical-wash);

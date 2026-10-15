@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>FASTFOOD Kapsama Haritası</title>
+    <!-- MapLibre GL styles and Leaflet fallback -->
+    <link href="https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+      * { box-sizing: border-box; }
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background: #0d1117;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        overflow: hidden;
+      }
+      #map, #leaflet-map {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      #leaflet-map {
+        display: none;
+      }
+
+      /* Custom Branch Marker Pin */
+      .branch-marker {
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transform: translate(-50%, -50%);
+      }
+      .pin-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #ffb74d;
+        border: 2px solid #000;
+        box-shadow: 0 0 10px rgba(255, 183, 77, 0.8);
+        position: relative;
+        z-index: 2;
+      }
+      .pin-pulse {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 183, 77, 0.4);
+        top: -7px;
+        left: -7px;
+        animation: pulse 2s infinite ease-out;
+        z-index: 1;
+      }
+      @keyframes pulse {
+        0% { transform: scale(0.6); opacity: 0.9; }
+        100% { transform: scale(2.0); opacity: 0; }
+      }
+      .pin-label {
+        margin-top: 4px;
+        background: rgba(13, 17, 23, 0.92);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 183, 77, 0.4);
+        white-space: nowrap;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+        pointer-events: none;
+      }
+      .pin-selected .pin-dot {
+        background: #58a6ff;
+        box-shadow: 0 0 14px #58a6ff;
+      }
+      .pin-selected .pin-label {
+        border-color: #58a6ff;
+        color: #58a6ff;
+      }
+
+      /* Test Marker */
+      .test-marker-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #3fb950;
+        border: 2px solid #fff;
+        box-shadow: 0 0 12px #3fb950;
+      }
+      .test-marker-label {
+        margin-top: 4px;
+        background: rgba(13, 17, 23, 0.9);
+        color: #3fb950;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 4px;
+        border: 1px solid #3fb950;
+        white-space: nowrap;
+      }
+
+      /* Popup Styling */
+      .maplibregl-popup-content, .leaflet-popup-content-wrapper {
+        background: #161b22 !important;
+        color: #f0f6fc !important;
+        border: 1px solid rgba(255, 183, 77, 0.3) !important;
+        border-radius: 8px !important;
+        padding: 12px 14px !important;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.6) !important;
+        font-size: 12px !important;
+      }
+      .maplibregl-popup-tip {
+        border-top-color: #161b22 !important;
+      }
+      .maplibregl-popup-close-button, .leaflet-popup-close-button {
+        color: #8b949e !important;
+        padding: 4px !important;
+      }
+      .popup-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #ffb74d;
+        margin: 0 0 4px;
+      }
+      .popup-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        background: rgba(255, 183, 77, 0.15);
+        color: #ffb74d;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .popup-info {
+        color: #8b949e;
+        margin: 2px 0;
+      }
+      .popup-metric-box {
+        margin: 8px 0;
+        padding: 6px 10px;
+        background: rgba(255, 183, 77, 0.08);
+        border: 1px dashed rgba(255, 183, 77, 0.4);
+        border-radius: 6px;
+      }
+      .metric-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #c9d1d9;
+        margin: 3px 0;
+      }
+      .metric-row b {
+        color: #ffb74d;
+      }
+
+      /* Scale Control Styling */
+      .maplibregl-ctrl-scale {
+        background-color: rgba(13, 17, 23, 0.88) !important;
+        color: #ffb74d !important;
+        border: 2px solid #ffb74d !important;
+        border-top: none !important;
+        font-weight: 700 !important;
+        font-size: 11px !important;
+        padding: 3px 8px !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.6) !important;
+        border-radius: 0 0 4px 4px !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="leaflet-map"></div>
+
+    <script type="module">
+      import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.mjs';
+
+      const parentOrigin = (() => {
+        try {
+          return document.referrer ? new URL(document.referrer).origin : '*';
+        } catch {
+          return '*';
+        }
+      })();
+
+      const post = (msg) => {
+        try {
+          window.parent.postMessage(JSON.stringify(msg), parentOrigin);
+        } catch (e) {
+          console.error('postMessage error:', e);
+        }
+      };
+
+      // Turkey Default View Center
+      const TURKEY_CENTER = [35.32, 38.6];
+      const DEFAULT_ZOOM = 5.8;
+
+      let map = null;
+      let markers = [];
+      let testMarker = null;
+      let currentBranches = [];
+      let currentSelectedBranchId = null;
+      let showCircles = true;
+      let showLabels = true;
+      let showMarkers = true;
+
+      try {
+        map = new maplibregl.Map({
+          container: 'map',
+          style: 'https://tiles.openfreemap.org/styles/liberty',
+          center: TURKEY_CENTER,
+          zoom: DEFAULT_ZOOM,
+          attributionControl: false,
+        });
+
+        // Add standard navigation controls
+        map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+        // Add real-time metric scale bar control in bottom-left
+        const scaleControl = new maplibregl.ScaleControl({
+          maxWidth: 180,
+          unit: 'metric',
+        });
+        map.addControl(scaleControl, 'bottom-left');
+
+        map.once('load', () => {
+          post({ type: 'map-ready' });
+          setupMapEvents();
+        });
+
+        map.on('error', (e) => {
+          console.warn('MapLibre style notice:', e);
+        });
+      } catch (err) {
+        console.warn('Falling back to Leaflet OSM...');
+        initLeafletFallback();
+      }
+
+      function setupMapEvents() {
+        if (!map) return;
+
+        map.on('click', (e) => {
+          // If clicked on empty map space, emit test point
+          const lat = Number(e.lngLat.lat.toFixed(4));
+          const lng = Number(e.lngLat.lng.toFixed(4));
+          setTestMarker([lng, lat]);
+          post({ type: 'location-clicked', latitude: lat, longitude: lng });
+        });
+      }
+
+      function setTestMarker(lngLat) {
+        if (!map) return;
+        if (testMarker) {
+          testMarker.setLngLat(lngLat);
+        } else {
+          const el = document.createElement('div');
+          el.className = 'test-marker';
+          el.innerHTML = '<div class="test-marker-dot"></div><div class="test-marker-label">Test Adresi</div>';
+          testMarker = new maplibregl.Marker({ element: el })
+            .setLngLat(lngLat)
+            .addTo(map);
+        }
+      }
+
+      function updateGeoJsonLayers(branches) {
+        if (!map || !map.isStyleLoaded()) return;
+
+        const features = [];
+        for (const b of branches) {
+          if (!b.areas || !Array.isArray(b.areas)) continue;
+          for (const a of b.areas) {
+            if (a.polygonGeoJson && a.polygonGeoJson.coordinates) {
+              features.push({
+                type: 'Feature',
+                properties: {
+                  branchId: b.id,
+                  branchName: b.name,
+                  areaName: a.name,
+                  priority: a.priority ?? 1,
+                },
+                geometry: a.polygonGeoJson,
+              });
+            }
+          }
+        }
+
+        const featureCollection = {
+          type: 'FeatureCollection',
+          features,
+        };
+
+        if (map.getSource('service-areas-src')) {
+          map.getSource('service-areas-src').setData(featureCollection);
+        } else {
+          map.addSource('service-areas-src', {
+            type: 'geojson',
+            data: featureCollection,
+          });
+
+          // Fill Layer
+          map.addLayer({
+            id: 'service-areas-fill',
+            type: 'fill',
+            source: 'service-areas-src',
+            paint: {
+              'fill-color': '#ffb74d',
+              'fill-opacity': showCircles ? 0.22 : 0,
+            },
+          });
+
+          // Line Border Layer
+          map.addLayer({
+            id: 'service-areas-stroke',
+            type: 'line',
+            source: 'service-areas-src',
+            paint: {
+              'line-color': '#ff9800',
+              'line-width': showCircles ? 2.0 : 0,
+              'line-opacity': 0.85,
+            },
+          });
+
+          // Click on polygon selects branch
+          map.on('click', 'service-areas-fill', (e) => {
+            if (e.features && e.features[0]) {
+              const bId = e.features[0].properties.branchId;
+              post({ type: 'branch-selected', branchId: bId });
+            }
+          });
+        }
+      }
+
+      function updateMarkers(branches) {
+        // Clear old markers
+        for (const m of markers) m.remove();
+        markers = [];
+        if (!map) return;
+
+        for (const b of branches) {
+          const isSelected = b.id === currentSelectedBranchId;
+          const el = document.createElement('div');
+          el.className = `branch-marker ${isSelected ? 'pin-selected' : ''}`;
+          el.innerHTML = `
+            <div class="pin-pulse"></div>
+            <div class="pin-dot"></div>
+            ${showLabels ? `<div class="pin-label">${b.name}</div>` : ''}
+          `;
+
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            post({ type: 'branch-selected', branchId: b.id });
+          });
+
+          const areaName = b.areas?.[0]?.name || 'Maks. 10 km Müşteri Menzili';
+          const popupContent = `
+            <div class="popup-title">${b.name}</div>
+            <div class="popup-badge">${b.code} · ${areaName}</div>
+            <div class="popup-info">📍 ${b.addressLine || 'Adres bilgisi mevcut'}</div>
+            <div class="popup-metric-box">
+              <div class="metric-row"><span>🎯 Şubeden Müşteriye Azami Uzaklık:</span> <b>10.0 km</b></div>
+              <div class="metric-row"><span>⭕ Kapsama Aksı (Doğu-Batı):</span> <b>20.0 km</b></div>
+              <div class="metric-row"><span>🗺️ Toplam Servis Alanı:</span> <b>~314.16 km²</b></div>
+            </div>
+            <div class="popup-info">⚡ Durum: ${b.isAcceptingOrders ? '🟢 Sipariş Alıyor' : '🔴 Kapalı'}</div>
+          `;
+
+          const popup = new maplibregl.Popup({ offset: 18 }).setHTML(popupContent);
+
+          const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([b.longitude, b.latitude])
+            .setPopup(popup)
+            .addTo(map);
+
+          markers.push(marker);
+        }
+      }
+
+      // Handle messages from parent Next.js page
+      window.addEventListener('message', (event) => {
+        let msg;
+        try {
+          msg = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        } catch {
+          return;
+        }
+
+        if (msg.type === 'set-data') {
+          currentBranches = msg.branches || [];
+          if (map) {
+            if (map.isStyleLoaded()) {
+              updateGeoJsonLayers(currentBranches);
+              updateMarkers(currentBranches);
+            } else {
+              map.once('load', () => {
+                updateGeoJsonLayers(currentBranches);
+                updateMarkers(currentBranches);
+              });
+            }
+          }
+        } else if (msg.type === 'fly-to') {
+          if (map) {
+            map.flyTo({
+              center: msg.center,
+              zoom: msg.zoom || 11,
+              essential: true,
+              speed: 1.4,
+            });
+          }
+        } else if (msg.type === 'reset-view') {
+          if (map) {
+            map.flyTo({
+              center: TURKEY_CENTER,
+              zoom: DEFAULT_ZOOM,
+              essential: true,
+              speed: 1.2,
+            });
+            if (testMarker) {
+              testMarker.remove();
+              testMarker = null;
+            }
+          }
+        } else if (msg.type === 'highlight-branch') {
+          currentSelectedBranchId = msg.branchId;
+          updateMarkers(currentBranches);
+          const b = currentBranches.find((x) => x.id === msg.branchId);
+          if (b && map) {
+            map.flyTo({
+              center: [b.longitude, b.latitude],
+              zoom: 12.5,
+              essential: true,
+            });
+          }
+        } else if (msg.type === 'toggle-layer') {
+          if (msg.layer === 'circles') {
+            showCircles = Boolean(msg.visible);
+            if (map && map.getLayer('service-areas-fill')) {
+              map.setPaintProperty('service-areas-fill', 'fill-opacity', showCircles ? 0.22 : 0);
+              map.setPaintProperty('service-areas-stroke', 'line-width', showCircles ? 2.0 : 0);
+            }
+          } else if (msg.layer === 'labels') {
+            showLabels = Boolean(msg.visible);
+            updateMarkers(currentBranches);
+          }
+        }
+      });
+
+      // Leaflet Fallback if MapLibre tiles fail
+      function initLeafletFallback() {
+        const leafletEl = document.getElementById('leaflet-map');
+        if (!leafletEl) return;
+        document.getElementById('map').style.display = 'none';
+        leafletEl.style.display = 'block';
+
+        const s = document.createElement('script');
+        s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        s.onload = () => {
+          const lMap = window.L.map('leaflet-map').setView([38.6, 35.32], 6);
+          window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+          }).addTo(lMap);
+          post({ type: 'map-ready' });
+        };
+        document.head.appendChild(s);
+      }
+    </script>
+  </body>
+</html>

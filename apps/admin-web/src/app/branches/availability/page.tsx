@@ -16,6 +16,7 @@ import type { z } from 'zod';
 import { errorMessage, type LoadState } from '../../../components/async-boundary';
 import { useBranchContext } from '../../../components/ops/branch-context';
 import { useOpsSync } from '../../../components/ops/ops-sync';
+import { useOpsToast } from '../../../components/ops/ops-toast';
 import { createAdminClient } from '../../../lib/api';
 import { filterAvailabilityRows, type AvailabilityFilter } from '../../../lib/fulfillment-ops';
 import {
@@ -36,6 +37,7 @@ export default function ProductAvailabilityPage() {
   const branch = useBranchContext();
   const branchId = branch.branchId;
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [state, setState] = useState<LoadState<Row[]>>({ status: 'loading' });
   const [loadedBranchId, setLoadedBranchId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -46,8 +48,6 @@ export default function ProductAvailabilityPage() {
   const [draftAvailable, setDraftAvailable] = useState(true);
   const [draftReason, setDraftReason] = useState('');
   const [busy, setBusy] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const requestId = useRef(0);
   const currentBranchId = useRef(branchId);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -113,7 +113,6 @@ export default function ProductAvailabilityPage() {
       triggerRef.current = trigger;
       setDraftAvailable(row.isAvailable);
       setDraftReason(row.isAvailable ? '' : (row.reason ?? ''));
-      setFormError(null);
       setEditor({ row, branchId });
     },
     [branchId],
@@ -122,7 +121,6 @@ export default function ProductAvailabilityPage() {
   function closeEditor() {
     if (busy) return;
     setEditor(null);
-    setFormError(null);
     requestAnimationFrame(() => triggerRef.current?.focus());
   }
 
@@ -135,11 +133,10 @@ export default function ProductAvailabilityPage() {
       (draftAvailable || reason === (activeEditor.row.reason ?? '').trim());
     if (unchanged) return;
     if (reason.length > 255) {
-      setFormError('Gerekçe en fazla 255 karakter olabilir.');
+      toast.error('Gerekçe en fazla 255 karakter olabilir.');
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'PATCH',
@@ -148,14 +145,14 @@ export default function ProductAvailabilityPage() {
         schema: productAvailabilityPatchSchema,
       });
       setEditor(null);
-      setNotice(
+      toast.success(
         draftAvailable
           ? `${activeEditor.row.name} bu şubede yeniden müsait.`
           : `${activeEditor.row.name} bu şubede durduruldu.`,
       );
       if (currentBranchId.current === activeEditor.branchId) await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
       markStale();
     } finally {
       setBusy(false);
@@ -260,15 +257,6 @@ export default function ProductAvailabilityPage() {
         </span>
         Genel katalogda pasif olan ürünler, şubede müsait görünse de müşterilere sunulmaz.
       </div>
-
-      {notice && (
-        <div className={styles.notice} role="status">
-          <span>{notice}</span>
-          <button type="button" onClick={() => setNotice(null)} aria-label="Bildirimi kapat">
-            ×
-          </button>
-        </div>
-      )}
 
       <section className={styles.panel} aria-label="Şube ürün müsaitliği">
         <div className={styles.panelHead}>
@@ -494,11 +482,6 @@ export default function ProductAvailabilityPage() {
                   />
                   <small>{draftReason.length} / 255</small>
                 </label>
-              )}
-              {formError && (
-                <p className={styles.formError} role="alert">
-                  {formError}
-                </p>
               )}
             </div>
             <div className={styles.dialogFooter}>

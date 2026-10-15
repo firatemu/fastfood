@@ -1564,9 +1564,13 @@ body {
 }
 .ff-switch input {
   position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
-  width: 0;
-  height: 0;
+  cursor: pointer;
+  margin: 0;
+  z-index: 1;
 }
 .ff-switch-track {
   position: relative;
@@ -1579,6 +1583,7 @@ body {
   transition:
     background-color 140ms ease,
     border-color 140ms ease;
+  pointer-events: none;
 }
 .ff-switch-track::after {
   content: '';

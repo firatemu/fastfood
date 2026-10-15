@@ -32,6 +32,7 @@ import { useDeferredLoad } from '../../lib/use-deferred-load';
 import { CheckoutSection } from './checkout-section';
 import { CheckoutSummary } from './checkout-summary';
 import { DeliveryAddressCard } from './delivery-address-card';
+import { DeliveryBranchSelector } from './delivery-branch-selector';
 import { DeliveryScheduleSelector } from './delivery-schedule-selector';
 import { FulfillmentSelector } from './fulfillment-selector';
 import { MaterialIcon } from './material-icon';
@@ -56,6 +57,7 @@ export function CheckoutPage() {
   const [mode, setMode] = useState<FulfillmentMode>('DELIVERY');
   const [branches, setBranches] = useState<Branch[]>([]);
   const [pickupBranchId, setPickupBranchId] = useState<string | null>(null);
+  const [deliveryBranchId, setDeliveryBranchId] = useState<string | null>(null);
   const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
   const [addressId, setAddressId] = useState<string | null>(null);
   const [scheduleMode, setScheduleMode] = useState<'asap' | 'scheduled'>('asap');
@@ -127,6 +129,7 @@ export function CheckoutPage() {
     location,
     mode,
     pickupBranchId,
+    deliveryBranchId,
     tipMinor,
     eco,
     contactless,
@@ -148,6 +151,7 @@ export function CheckoutPage() {
       location,
       mode,
       pickupBranchId,
+      deliveryBranchId,
       tipMinor,
       eco,
       contactless,
@@ -169,6 +173,7 @@ export function CheckoutPage() {
       JSON.stringify({
         mode,
         pickupBranchId,
+        deliveryBranchId,
         lat: location.latitude,
         lng: location.longitude,
         tipMinor,
@@ -188,6 +193,7 @@ export function CheckoutPage() {
     [
       mode,
       pickupBranchId,
+      deliveryBranchId,
       location.latitude,
       location.longitude,
       tipMinor,
@@ -229,6 +235,8 @@ export function CheckoutPage() {
                 : undefined,
             pickupBranchId:
               input.mode === 'PICKUP' ? (input.pickupBranchId ?? undefined) : undefined,
+            deliveryBranchId:
+              input.mode === 'DELIVERY' ? (input.deliveryBranchId ?? undefined) : undefined,
             couponCode: input.coupon.status === 'valid' ? input.coupon.code : undefined,
             tipMinor: input.tipMinor,
             ecoPackaging: input.eco,
@@ -389,21 +397,32 @@ export function CheckoutPage() {
             <CheckoutSection step={1} title="Teslimat Yolu & Adres" verified={!quoteError}>
               <FulfillmentSelector mode={mode} onChange={setMode} />
               {mode === 'DELIVERY' ? (
-                <DeliveryAddressCard
-                  location={location}
-                  addresses={addresses}
-                  selectedAddressId={addressId}
-                  onSelectAddress={setAddressId}
-                  deliveryNote={deliveryNote}
-                  onDeliveryNote={setDeliveryNote}
-                  buildingAccessCode={buildingAccessCode}
-                  onBuildingAccessCode={setBuildingAccessCode}
-                  guestName={guestName}
-                  guestPhone={guestPhone}
-                  onGuestName={setGuestName}
-                  onGuestPhone={setGuestPhone}
-                  authenticated={authenticated}
-                />
+                <>
+                  <DeliveryAddressCard
+                    location={location}
+                    addresses={addresses}
+                    selectedAddressId={addressId}
+                    onSelectAddress={(id) => {
+                      setAddressId(id);
+                      setDeliveryBranchId(null);
+                    }}
+                    deliveryNote={deliveryNote}
+                    onDeliveryNote={setDeliveryNote}
+                    buildingAccessCode={buildingAccessCode}
+                    onBuildingAccessCode={setBuildingAccessCode}
+                    guestName={guestName}
+                    guestPhone={guestPhone}
+                    onGuestName={setGuestName}
+                    onGuestPhone={setGuestPhone}
+                    authenticated={authenticated}
+                  />
+                  <DeliveryBranchSelector
+                    branches={quote?.serviceableBranches}
+                    selectedBranchId={deliveryBranchId ?? quote?.branchId ?? null}
+                    onSelectBranch={(id) => setDeliveryBranchId(id)}
+                    currentBranchName={quote?.branchName}
+                  />
+                </>
               ) : (
                 <PickupBranchSelector
                   branches={branches}

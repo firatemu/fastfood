@@ -21,6 +21,7 @@ import { errorMessage, type LoadState } from '../../components/async-boundary';
 import { useBranchContext } from '../../components/ops/branch-context';
 import { OpsIcon } from '../../components/ops/ops-icon';
 import { useOpsSync } from '../../components/ops/ops-sync';
+import { useOpsToast } from '../../components/ops/ops-toast';
 import { hasStaffPermission, useStaffAccess } from '../../components/ops/staff-access-context';
 import { createAdminClient } from '../../lib/api';
 import {
@@ -120,6 +121,7 @@ export default function BranchesPage() {
     adminPagePermission('service-areas', 'create'),
   );
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [state, setState] = useState<LoadState<Branch[]>>({ status: 'loading' });
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'open' | 'paused'>('all');
@@ -145,12 +147,63 @@ export default function BranchesPage() {
   const [fieldErrors, setFieldErrors] = useState<ProfileErrors>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const dialogRef = useRef<HTMLElement | null>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const mapIframeRef = useRef<HTMLIFrameElement | null>(null);
   const requestId = useRef(0);
+
+  // Synchronize location selected from the embedded map picker iframe
+  useEffect(() => {
+    function receiveMapMessage(event: MessageEvent<unknown>) {
+      let message = event.data;
+      if (typeof message === 'string') {
+        try {
+          message = JSON.parse(message);
+        } catch {
+          return;
+        }
+      }
+      if (!message || typeof message !== 'object') return;
+      const payload = message as { type?: string; latitude?: number; longitude?: number };
+      if (payload.type === 'location-selected') {
+        if (typeof payload.latitude === 'number' && typeof payload.longitude === 'number') {
+          const lat = payload.latitude.toFixed(6);
+          const lng = payload.longitude.toFixed(6);
+          setDraft((current) => ({
+            ...current,
+            latitude: lat,
+            longitude: lng,
+          }));
+          setFieldErrors((current) => ({
+            ...current,
+            latitude: undefined,
+            longitude: undefined,
+          }));
+        }
+      }
+    }
+    window.addEventListener('message', receiveMapMessage);
+    return () => window.removeEventListener('message', receiveMapMessage);
+  }, []);
+
+  function syncMapToDraft(latStr: string, lngStr: string) {
+    const lat = Number(latStr);
+    const lng = Number(lngStr);
+    if (
+      Number.isFinite(lat) &&
+      lat >= -90 &&
+      lat <= 90 &&
+      Number.isFinite(lng) &&
+      lng >= -180 &&
+      lng <= 180
+    ) {
+      mapIframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ type: 'focus-location', latitude: lat, longitude: lng }),
+        '*',
+      );
+    }
+  }
 
   const load = useCallback(async () => {
     setState((current) => (current.status === 'ready' ? current : { status: 'loading' }));
@@ -231,7 +284,6 @@ export default function BranchesPage() {
     if (document.activeElement instanceof HTMLElement) triggerRef.current = document.activeElement;
     setDraft(freshDraft());
     setTab('profile');
-    setFormError(null);
     setConfirmPause(false);
     setFieldErrors({});
     setSubmitAttempted(false);
@@ -247,7 +299,6 @@ export default function BranchesPage() {
     setDetailError(null);
     setHoursError(null);
     setAreasError(null);
-    setFormError(null);
     setConfirmPause(false);
     setAreaFormOpen(false);
     setTab('profile');
@@ -319,11 +370,11 @@ export default function BranchesPage() {
     const result = checkProfile(draft, creating ? 'create' : 'edit');
     setFieldErrors(result.errors);
     if (!result.ok) {
-      setFormError(result.errors[result.firstInvalid] ?? null);
+      const firstMessage = result.errors[result.firstInvalid];
+      if (firstMessage) toast.error(firstMessage);
       document.getElementById('branch-field-' + result.firstInvalid)?.focus();
       return;
     }
-    setFormError(null);
     if (!creating && detail?.isAcceptingOrders !== false && !draft.accepting && !confirmed) {
       setConfirmPause(true);
       return;
@@ -348,6 +399,8 @@ export default function BranchesPage() {
           : {
               name: values.name,
               addressLine: values.addressLine,
+              latitude: values.latitude,
+              longitude: values.longitude,
               phone: values.phone || null,
               isAcceptingOrders: draft.accepting,
               minOrderMinor: values.minOrderMinor,
@@ -356,7 +409,7 @@ export default function BranchesPage() {
         schema: creating ? branchCreateSchema : adminBranchSchema,
       });
       await load();
-      setNotice(creating ? 'Yeni şube oluşturuldu.' : 'Şube bilgileri güncellendi.');
+      toast.success(creating ? 'Yeni şube oluşturuldu.' : 'Şube bilgileri güncellendi.');
       requestId.current += 1;
       setDialog(null);
       setConfirmPause(false);
@@ -364,7 +417,7 @@ export default function BranchesPage() {
       setFieldErrors({});
       window.requestAnimationFrame(() => triggerRef.current?.focus());
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -378,11 +431,10 @@ export default function BranchesPage() {
     if (dialog?.kind !== 'edit' || !hours) return;
     if (!canUpdateBranch) return;
     if (hours.some((hour) => !isHhMm(hour.opensAt) || !isHhMm(hour.closesAt))) {
-      setFormError('Geçerli başlangıç ve bitiş saatleri girin.');
+      toast.error('Geçerli başlangıç ve bitiş saatleri girin.');
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'PUT',
@@ -397,12 +449,12 @@ export default function BranchesPage() {
         },
         schema: operatingHoursSchema,
       });
-      setNotice(`${dialog.branch.name} çalışma saatleri kaydedildi.`);
+      toast.success(`${dialog.branch.name} çalışma saatleri kaydedildi.`);
       requestId.current += 1;
       setDialog(null);
       window.requestAnimationFrame(() => triggerRef.current?.focus());
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -414,15 +466,14 @@ export default function BranchesPage() {
     const polygon = parsePolygonGeoJson(areaPolygon),
       priority = Number(areaPriority);
     if (!areaName.trim() || areaName.trim().length > 128 || !polygon) {
-      setFormError('Alan adı ve Polygon/MultiPolygon biçiminde GeoJSON gerekli.');
+      toast.error('Alan adı ve Polygon/MultiPolygon biçiminde GeoJSON gerekli.');
       return;
     }
     if (!Number.isInteger(priority) || priority < 0) {
-      setFormError('Öncelik sıfır veya daha büyük tam sayı olmalı.');
+      toast.error('Öncelik sıfır veya daha büyük tam sayı olmalı.');
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       const client = createAdminClient();
       await client.request({
@@ -438,9 +489,9 @@ export default function BranchesPage() {
       setAreas(result.data);
       setAreaName('');
       setAreaFormOpen(false);
-      setNotice('Hizmet bölgesi eklendi.');
+      toast.success('Hizmet bölgesi eklendi.');
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -623,15 +674,6 @@ export default function BranchesPage() {
           </button>
         ) : null}
       </header>
-      {notice ? (
-        <div className={styles.notice} role="status">
-          <OpsIcon name="check_circle" />
-          {notice}
-          <button type="button" onClick={() => setNotice(null)} aria-label="Bildirimi kapat">
-            ×
-          </button>
-        </div>
-      ) : null}
       <section className={styles.gridPanel} aria-label="Şube yönetimi">
         <div className={styles.gridHeader}>
           <div>
@@ -978,7 +1020,6 @@ export default function BranchesPage() {
                   if (!next) return;
                   event.preventDefault();
                   setTab(next);
-                  setFormError(null);
                   window.requestAnimationFrame(() =>
                     document.getElementById(`branch-tab-${next}`)?.focus(),
                   );
@@ -1002,7 +1043,6 @@ export default function BranchesPage() {
                     className={tab === value ? styles.dialogTabActive : styles.dialogTab}
                     onClick={() => {
                       setTab(value);
-                      setFormError(null);
                     }}
                   >
                     <OpsIcon name={icon} /> {label}
@@ -1016,11 +1056,6 @@ export default function BranchesPage() {
               role={dialog.kind === 'edit' ? 'tabpanel' : undefined}
               aria-labelledby={dialog.kind === 'edit' ? `branch-tab-${tab}` : undefined}
             >
-              {formError ? (
-                <div className={styles.formError} role="alert">
-                  <OpsIcon name="error" /> {formError}
-                </div>
-              ) : null}
               {dialog.kind === 'edit' && tab === 'profile' && !detail && !detailError ? (
                 <div className={styles.relationEmpty} role="status">
                   Güncel şube bilgileri yükleniyor…
@@ -1142,9 +1177,7 @@ export default function BranchesPage() {
                           <div className={`${styles.field} ${styles.fieldWide}`}>
                             <span>
                               Koordinat <b>*</b>
-                              <small>
-                                {profileMode === 'edit' ? 'Değiştirilemez' : 'WGS84 derece'}
-                              </small>
+                              <small>WGS84 derece (Haritadan Seçilebilir)</small>
                             </span>
                             <div className={styles.coordinatePair}>
                               <label className={styles.coordinateSlot}>
@@ -1154,8 +1187,7 @@ export default function BranchesPage() {
                                   value={draft.latitude}
                                   onChange={(event) => updateField('latitude', event.target.value)}
                                   inputMode="decimal"
-                                  readOnly={profileMode === 'edit'}
-                                  required={profileMode === 'create'}
+                                  required
                                   placeholder="41.0082"
                                   aria-invalid={Boolean(fieldErrors.latitude)}
                                   aria-describedby={coordinateErrorId}
@@ -1168,8 +1200,7 @@ export default function BranchesPage() {
                                   value={draft.longitude}
                                   onChange={(event) => updateField('longitude', event.target.value)}
                                   inputMode="decimal"
-                                  readOnly={profileMode === 'edit'}
-                                  required={profileMode === 'create'}
+                                  required
                                   placeholder="28.9784"
                                   aria-invalid={Boolean(fieldErrors.longitude)}
                                   aria-describedby={coordinateErrorId}
@@ -1191,6 +1222,57 @@ export default function BranchesPage() {
                               )}
                               {profileSummary.coordinate.text}
                             </small>
+
+                            {/* Interactive Map Location Picker Embed */}
+                            <div
+                              style={{
+                                marginTop: '10px',
+                                position: 'relative',
+                                width: '100%',
+                                height: '260px',
+                                borderRadius: '8px',
+                                overflow: 'hidden',
+                                border: '1px solid var(--ff-keyline, #30363d)',
+                                background: '#0d1117',
+                              }}
+                            >
+                              <iframe
+                                ref={mapIframeRef}
+                                src={`/branch-location-picker.html?lat=${draft.latitude || '39.0'}&lng=${draft.longitude || '35.0'}`}
+                                title="Şube Konum Belirleme Haritası"
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  border: 'none',
+                                  display: 'block',
+                                }}
+                              />
+                            </div>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                marginTop: '6px',
+                                flexWrap: 'wrap',
+                                gap: '6px',
+                              }}
+                            >
+                              <small
+                                style={{ color: 'var(--ff-on-surface-variant)', fontSize: '11px' }}
+                              >
+                                📍 Haritada bir noktaya tıklayarak veya pini sürükleyerek şube
+                                konumunu güncelleyebilirsiniz.
+                              </small>
+                              <button
+                                type="button"
+                                className={styles.toolButton}
+                                style={{ fontSize: '11px', padding: '3px 10px', height: 'auto' }}
+                                onClick={() => syncMapToDraft(draft.latitude, draft.longitude)}
+                              >
+                                <OpsIcon name="my_location" /> Haritada Odakla
+                              </button>
+                            </div>
                           </div>
                           <label className={styles.field}>
                             <span>
@@ -1498,7 +1580,6 @@ export default function BranchesPage() {
                         type="button"
                         onClick={() => {
                           setAreaFormOpen((open) => !open);
-                          setFormError(null);
                         }}
                       >
                         <OpsIcon name={areaFormOpen ? 'close' : 'add'} />

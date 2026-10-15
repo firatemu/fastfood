@@ -12,6 +12,7 @@ import {
 } from '../../components/async-boundary';
 import { useBranchContext } from '../../components/ops/branch-context';
 import { useOpsSync } from '../../components/ops/ops-sync';
+import { useOpsToast } from '../../components/ops/ops-toast';
 import { OrderReceiptModal } from '../../components/ops/order-detail-v2/order-receipt-modal';
 import { createAdminClient } from '../../lib/api';
 import { KITCHEN_POLL_MS, shouldRunKitchenPoll } from '../../lib/kitchen-poll';
@@ -197,12 +198,11 @@ function KitchenTicket(props: {
 export default function KitchenPage() {
   const { branchId, selected } = useBranchContext();
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [state, setState] = useState<LoadState<Order[]>>({ status: 'loading' });
   const [search, setSearch] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [receiptOrder, setReceiptOrder] = useState<Order | null>(null);
-  const [flash, setFlash] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
   const [pollWarning, setPollWarning] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [lastLoaded, setLastLoaded] = useState<string | null>(null);
@@ -261,8 +261,6 @@ export default function KitchenPage() {
 
   async function transition(order: Order, toStatus: string) {
     setBusyId(order.id);
-    setFlash(null);
-    setActionError(null);
     try {
       await createAdminClient().request({
         method: 'POST',
@@ -270,10 +268,12 @@ export default function KitchenPage() {
         body: { toStatus },
         schema: orderResponseSchema,
       });
-      setFlash(`${orderNumber(order)}: ${orderStatusLabel(toStatus).toLocaleLowerCase('tr-TR')}.`);
+      toast.success(
+        `${orderNumber(order)}: ${orderStatusLabel(toStatus).toLocaleLowerCase('tr-TR')}.`,
+      );
       await load({ silent: true });
     } catch (error) {
-      setActionError(errorMessage(error));
+      toast.error(errorMessage(error));
       await load({ silent: true });
     } finally {
       setBusyId(null);
@@ -379,16 +379,6 @@ export default function KitchenPage() {
         </div>
       </div>
 
-      {flash ? (
-        <p className={styles.successNotice} role="status">
-          {flash}
-        </p>
-      ) : null}
-      {actionError ? (
-        <p className={styles.errorNotice} role="alert">
-          {actionError}
-        </p>
-      ) : null}
       {pollWarning ? (
         <p className={styles.warningNotice} role="status">
           Yeni veriler alınamadı. Son yüklenen siparişler gösteriliyor.

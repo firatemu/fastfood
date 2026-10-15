@@ -113,34 +113,6 @@
   color: var(--ops-amber-text);
 }
 
-.notice {
-  display: flex;
-  min-height: 39px;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 13px;
-  padding: 0 11px;
-  border: 1px solid var(--ff-status-ready-border);
-  background: var(--ff-status-ready-wash);
-  color: var(--ff-status-ready-text);
-  font-size: 12px;
-}
-
-.notice :global(.material-symbols-outlined) {
-  font-size: 17px;
-}
-
-.notice button {
-  width: 28px;
-  height: 28px;
-  margin-left: auto;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: 21px;
-}
-
 .gridPanel {
   overflow: visible;
   border: 1px solid var(--line);
@@ -1123,28 +1095,6 @@
   overflow: auto;
   padding: 23px 26px;
   background: var(--ff-surface-container);
-}
-
-.editNotice {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 16px;
-  padding: 10px 12px;
-  border: 1px solid var(--ff-status-ready-border);
-  border-radius: 5px;
-  background: var(--ff-status-ready-wash);
-  color: var(--ff-status-ready-text);
-  font-size: 12px;
-}
-
-.editNotice button {
-  margin-left: auto;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: 19px;
 }
 
 .editFooter {

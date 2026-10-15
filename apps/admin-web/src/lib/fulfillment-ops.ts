@@ -8,7 +8,11 @@ export type A3ResourceScope =
 
 export function a3ResourceScope(pathname: string): A3ResourceScope | null {
   if (pathname === '/branches') return 'GLOBAL_MASTER_DATA';
-  if (pathname === '/branches/service-areas' || pathname === '/branches/availability') {
+  if (
+    pathname === '/branches/service-areas' ||
+    pathname === '/branches/availability' ||
+    pathname === '/branches/map'
+  ) {
     return 'BRANCH_SCOPED';
   }
   if (pathname === '/couriers') return 'MIXED';
@@ -328,14 +332,14 @@ export function checkProfile(draft: BranchDraft, mode: 'create' | 'edit'): Profi
     if (!code) errors.code = 'Şube kodu zorunlu.';
     else if (code.length > PROFILE_LIMITS.code)
       errors.code = 'Şube kodu en fazla ' + PROFILE_LIMITS.code + ' karakter olabilir.';
-    // `parseCoordinate('')` returns 0, so the empty check has to come first.
-    if (!draft.latitude.trim()) errors.latitude = 'Enlem zorunlu.';
-    else if (latitude === null || !isValidLatitude(latitude))
-      errors.latitude = 'Enlem -90 ile 90 arasında bir sayı olmalı.';
-    if (!draft.longitude.trim()) errors.longitude = 'Boylam zorunlu.';
-    else if (longitude === null || !isValidLongitude(longitude))
-      errors.longitude = 'Boylam -180 ile 180 arasında bir sayı olmalı.';
   }
+  // `parseCoordinate('')` returns 0, so the empty check has to come first.
+  if (!draft.latitude.trim()) errors.latitude = 'Enlem zorunlu.';
+  else if (latitude === null || !isValidLatitude(latitude))
+    errors.latitude = 'Enlem -90 ile 90 arasında bir sayı olmalı.';
+  if (!draft.longitude.trim()) errors.longitude = 'Boylam zorunlu.';
+  else if (longitude === null || !isValidLongitude(longitude))
+    errors.longitude = 'Boylam -180 ile 180 arasında bir sayı olmalı.';
   const firstInvalid = PROFILE_FIELDS.find((field) => errors[field]);
   if (firstInvalid) return { ok: false, errors, firstInvalid };
   return {
@@ -345,8 +349,6 @@ export function checkProfile(draft: BranchDraft, mode: 'create' | 'edit'): Profi
       code,
       name,
       addressLine,
-      // Unreachable fallbacks: an empty `errors` means the create-only
-      // coordinate checks passed, and the edit payload never sends coordinates.
       latitude: latitude ?? 0,
       longitude: longitude ?? 0,
       phone,
@@ -359,12 +361,8 @@ export function checkProfile(draft: BranchDraft, mode: 'create' | 'edit'): Profi
 /** Live readout for the paired latitude/longitude control. */
 export function coordinateReadout(
   draft: BranchDraft,
-  mode: 'create' | 'edit',
+  _mode?: 'create' | 'edit',
 ): { text: string; ok: boolean } {
-  if (mode === 'edit')
-    return draft.latitude && draft.longitude
-      ? { text: 'WGS84 derece · ' + draft.latitude + ', ' + draft.longitude, ok: true }
-      : { text: 'Bu şubede koordinat kayıtlı değil.', ok: false };
   if (!draft.latitude.trim() || !draft.longitude.trim())
     return { text: 'Enlem ve boylam zorunlu.', ok: false };
   const latitude = parseCoordinate(draft.latitude);

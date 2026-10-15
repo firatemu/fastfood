@@ -327,12 +327,6 @@
   height: 36px;
 }
 
-.notice {
-  margin: 0;
-  padding: 11px 14px;
-  border: 1px solid var(--catalog-line);
-  font-size: 13px;
-}
 .success {
   border-color: var(--ff-status-ready-border);
   background: var(--ff-status-ready-wash);
@@ -1480,23 +1474,6 @@
 }
 .editorSwitchOn i {
   background: var(--ff-surface-container-high);
-}
-.editorNotice {
-  margin: 0 0 15px;
-  padding: 11px 13px;
-  border: 1px solid;
-  border-radius: var(--catalog-radius-sm);
-  font-size: 12px;
-}
-.editorNoticeSuccess {
-  border-color: var(--ff-status-ready-border);
-  background: var(--ff-status-ready-wash);
-  color: var(--ff-status-ready-text);
-}
-.editorNoticeError {
-  border-color: var(--ff-status-critical-border);
-  background: var(--ff-status-critical-wash);
-  color: var(--ff-status-critical-text);
 }
 .editorWarning {
   display: flex;
@@ -3019,23 +2996,6 @@ th[aria-sort='descending'] > .sortButton {
 }
 
 /* --- notices --- */
-:global([data-admin-theme='fastfood-navy']) .notice {
-  font: 500 11px/14px var(--ff-font-body);
-  padding: var(--ff-space-sm) var(--ff-space-md);
-  border-radius: var(--ff-radius-lg);
-  border: 1px solid var(--ff-keyline);
-  background: var(--ff-surface-container-high);
-}
-
-:global([data-admin-theme='fastfood-navy']) .notice.success {
-  background: var(--ff-status-ready-wash);
-  color: var(--ff-tertiary);
-}
-
-:global([data-admin-theme='fastfood-navy']) .notice.error {
-  background: var(--ff-status-critical-wash);
-  color: var(--ff-status-critical-text);
-}
 
 /* --- table panel: no gradient, no top accent --- */
 :global([data-admin-theme='fastfood-navy']) .tablePanel {

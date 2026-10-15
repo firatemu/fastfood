@@ -94,25 +94,6 @@
 .toolButton :global(.material-symbols-outlined) {
   font-size: 18px;
 }
-.flash {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  border: 1px solid var(--ff-keyline);
-  background: var(--ff-surface-container);
-  color: var(--ff-status-ready-text);
-  font-size: 12px;
-}
-.flash button {
-  margin-left: auto;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: 18px;
-}
 .gridPanel {
   border: 1px solid var(--line);
   background: var(--surface);

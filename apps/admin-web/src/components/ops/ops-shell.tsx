@@ -42,6 +42,7 @@ const TITLES: Record<string, string> = {
   '/catalog/allergens': 'Alerjenler',
   '/branches': 'Şubeler',
   '/branches/service-areas': 'Servis alanları',
+  '/branches/map': 'Kapsama haritası',
   '/branches/availability': 'Ürün müsaitliği',
   '/couriers': 'Kurye / Teslimat',
   '/customers': 'Müşteriler',

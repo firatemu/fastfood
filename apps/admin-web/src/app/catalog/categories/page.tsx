@@ -18,6 +18,7 @@ import type { z } from 'zod';
 import { errorMessage, type LoadState } from '../../../components/async-boundary';
 import { OpsIcon } from '../../../components/ops/ops-icon';
 import { useOpsSync } from '../../../components/ops/ops-sync';
+import { useOpsToast } from '../../../components/ops/ops-toast';
 import { createAdminClient } from '../../../lib/api';
 import { slugFromName } from '../../../lib/catalog-ops';
 import {
@@ -69,6 +70,7 @@ function categoryLabel(category: Category): string {
 
 export default function CatalogCategoriesPage() {
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [state, setState] = useState<LoadState<Category[]>>({ status: 'loading' });
   const [products, setProducts] = useState<Product[] | null>(null);
   const [query, setQuery] = useState('');
@@ -85,8 +87,6 @@ export default function CatalogCategoriesPage() {
   const [slugTouched, setSlugTouched] = useState(false);
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const dialogRef = useRef<HTMLElement | null>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -219,7 +219,6 @@ export default function CatalogCategoriesPage() {
     setDraft(emptyDraft(parentCategoryId));
     setSlugTouched(false);
     setConfirmDeactivate(false);
-    setFormError(null);
     setEditTab('details');
     setDialog({ kind: 'create' });
   }, []);
@@ -240,7 +239,6 @@ export default function CatalogCategoriesPage() {
       isActive: category.isActive !== false,
     });
     setConfirmDeactivate(false);
-    setFormError(null);
     setEditTab('details');
     setDialog({ kind: 'edit', category });
   }, []);
@@ -259,15 +257,15 @@ export default function CatalogCategoriesPage() {
     const description = draft.description.trim();
     const displayOrder = Number(draft.displayOrder);
     if (!name || name.length > 128 || !Number.isInteger(displayOrder) || displayOrder < 0) {
-      setFormError('Kategori adı ve sıfır veya daha büyük bir tam sayı olarak sıra girin.');
+      toast.error('Kategori adı ve sıfır veya daha büyük bir tam sayı olarak sıra girin.');
       return;
     }
     if (description.length > 1024) {
-      setFormError('Açıklama en fazla 1024 karakter olabilir.');
+      toast.error('Açıklama en fazla 1024 karakter olabilir.');
       return;
     }
     if (dialog.kind === 'create' && (!slug || slug.length > 128)) {
-      setFormError('1–128 karakter uzunluğunda bir slug girin.');
+      toast.error('1–128 karakter uzunluğunda bir slug girin.');
       return;
     }
     if (
@@ -280,7 +278,6 @@ export default function CatalogCategoriesPage() {
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       const creating = dialog.kind === 'create';
       await createAdminClient().request({
@@ -303,12 +300,12 @@ export default function CatalogCategoriesPage() {
         schema: categoryCreateSchema,
       });
       await load();
-      setNotice(creating ? 'Kategori oluşturuldu.' : 'Kategori güncellendi.');
+      toast.success(creating ? 'Kategori oluşturuldu.' : 'Kategori güncellendi.');
       setDialog(null);
       setConfirmDeactivate(false);
       window.requestAnimationFrame(() => triggerRef.current?.focus());
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -451,16 +448,6 @@ export default function CatalogCategoriesPage() {
           <OpsIcon name="add" /> Yeni kategori
         </button>
       </header>
-
-      {notice && !dialog ? (
-        <div className={styles.notice} role="status">
-          <OpsIcon name="check_circle" />
-          <span>{notice}</span>
-          <button type="button" onClick={() => setNotice(null)} aria-label="Bildirimi kapat">
-            ×
-          </button>
-        </div>
-      ) : null}
 
       <section className={styles.gridPanel} aria-label="Kategori kataloğu">
         <div className={styles.gridHeader}>
@@ -874,11 +861,6 @@ export default function CatalogCategoriesPage() {
               role={dialog.kind === 'edit' ? 'tabpanel' : undefined}
               aria-labelledby={dialog.kind === 'edit' ? `category-tab-${editTab}` : undefined}
             >
-              {formError ? (
-                <div className={styles.formError} role="alert">
-                  <OpsIcon name="error" /> {formError}
-                </div>
-              ) : null}
               {dialog.kind === 'create' || editTab === 'details' ? (
                 <form id="category-form" onSubmit={submitCategory}>
                   <div className={styles.formHeading}>

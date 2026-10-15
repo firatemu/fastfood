@@ -93,27 +93,6 @@
   font-size: 19px;
 }
 
-.notice {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 12px;
-  padding: 9px 12px;
-  border: 1px solid light-dark(rgba(146, 160, 170, 0.32), rgba(16, 185, 129, 0.32));
-  background: light-dark(rgba(233, 246, 242, 0.08), rgba(16, 185, 129, 0.08));
-  color: light-dark(#2e8557, #a2dfbf);
-  font-size: 12px;
-}
-
-.notice button {
-  margin-left: auto;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: 19px;
-}
-
 .gridPanel {
   border: 1px solid var(--line);
   background: var(--surface);
@@ -1350,15 +1329,6 @@ button.relationRow:hover {
 :global([data-admin-theme='fastfood-navy']) .rowAction:hover {
   background: var(--ff-surface-container-highest);
   color: var(--ff-on-surface);
-}
-
-:global([data-admin-theme='fastfood-navy']) .notice {
-  font: 500 11px/14px var(--ff-font-body);
-  padding: var(--ff-space-sm) var(--ff-space-md);
-  border-radius: var(--ff-radius-lg);
-  border: 1px solid var(--ff-keyline);
-  background: var(--ff-surface-container-high);
-  color: var(--ff-on-surface-variant);
 }
 
 /* --- panel --- */

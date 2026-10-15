@@ -20,6 +20,7 @@ export interface CheckoutQuoteBody {
   latitude?: number;
   longitude?: number;
   pickupBranchId?: string;
+  deliveryBranchId?: string;
   couponCode?: string;
   loyaltyRequestedMinor?: string;
   loyaltyAvailablePoints?: string;

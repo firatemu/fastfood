@@ -18,6 +18,7 @@ import type { z } from 'zod';
 import { errorMessage, type LoadState } from '../../components/async-boundary';
 import { OpsIcon } from '../../components/ops/ops-icon';
 import { useOpsSync } from '../../components/ops/ops-sync';
+import { useOpsToast } from '../../components/ops/ops-toast';
 import { hasStaffPermission, useStaffAccess } from '../../components/ops/staff-access-context';
 import { canAssignRole } from '../../lib/access-ops';
 import { createAdminClient } from '../../lib/api';
@@ -63,6 +64,7 @@ export default function RolesPage() {
   const access = useStaffAccess();
   const canUpdateRoles = hasStaffPermission(access, adminPagePermission('roles', 'update'));
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [roles, setRoles] = useState<LoadState<Role[]>>({ status: 'loading' });
   const [permissions, setPermissions] = useState<LoadState<Perm[]>>({ status: 'loading' });
   const [staff, setStaff] = useState<LoadState<Staff[]>>({ status: 'loading' });
@@ -78,8 +80,6 @@ export default function RolesPage() {
   const [staffId, setStaffId] = useState('');
   const [confirmAssign, setConfirmAssign] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [flash, setFlash] = useState<string | null>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const confirmRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLElement>(null);
@@ -231,7 +231,6 @@ export default function RolesPage() {
 
   const openDetail = useCallback((row: Row) => {
     if (document.activeElement instanceof HTMLElement) triggerRef.current = document.activeElement;
-    setFormError(null);
     setStaffId('');
     setConfirmAssign(false);
     if (row.role) setDetail({ kind: 'role', role: row.role });
@@ -239,7 +238,6 @@ export default function RolesPage() {
   }, []);
   const openRoleDetail = useCallback((role: Role) => {
     if (document.activeElement instanceof HTMLElement) triggerRef.current = document.activeElement;
-    setFormError(null);
     setStaffId('');
     setConfirmAssign(false);
     setDetail({ kind: 'role', role });
@@ -248,13 +246,12 @@ export default function RolesPage() {
     if (busy) return;
     setDetail(null);
     setConfirmAssign(false);
-    setFormError(null);
     window.requestAnimationFrame(() => triggerRef.current?.focus());
   }
   async function assign() {
     if (detail?.kind !== 'role') return;
     if (detail.role.permissionCodes == null) {
-      setFormError('Rolün izinleri yüklenmeden erişim ataması yapılamaz.');
+      toast.error('Rolün izinleri yüklenmeden erişim ataması yapılamaz.');
       setConfirmAssign(false);
       return;
     }
@@ -268,12 +265,11 @@ export default function RolesPage() {
         roleCode: detail.role.code,
       })
     ) {
-      setFormError('Geçerli ve henüz atanmamış bir personel seçin.');
+      toast.error('Geçerli ve henüz atanmamış bir personel seçin.');
       setConfirmAssign(false);
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'POST',
@@ -281,14 +277,14 @@ export default function RolesPage() {
         body: { roleId: detail.role.id },
         schema: adminRoleAssignSchema,
       });
-      setFlash(
+      toast.success(
         `${person.displayName || person.primaryIdentifier || 'Personel'} için ${roleName(detail.role)} rolü atandı.`,
       );
       setConfirmAssign(false);
       setStaffId('');
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
       setConfirmAssign(false);
     } finally {
       setBusy(false);
@@ -387,15 +383,6 @@ export default function RolesPage() {
           <OpsIcon name="verified_user" /> Tanımlı rol kataloğu
         </span>
       </header>
-      {flash && (
-        <div className={base.flash} role="status">
-          <OpsIcon name="check_circle" />
-          {flash}
-          <button type="button" aria-label="Bildirimi kapat" onClick={() => setFlash(null)}>
-            ×
-          </button>
-        </div>
-      )}
       <section className={styles.accessModel} aria-labelledby="access-model-title">
         <div className={styles.modelIntro}>
           <span className={styles.modelGlyph} aria-hidden="true">
@@ -988,11 +975,6 @@ export default function RolesPage() {
                   )}
                 </>
               ) : null}
-              {formError && (
-                <p className={base.formError} role="alert">
-                  {formError}
-                </p>
-              )}
             </div>
             <div className={base.dialogFooter}>
               <button

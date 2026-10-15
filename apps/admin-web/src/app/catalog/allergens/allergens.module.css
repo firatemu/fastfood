@@ -95,27 +95,6 @@
   color: var(--ff-on-surface);
 }
 
-.notice {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 15px;
-  padding: 11px 14px;
-  border: 1px solid var(--ff-keyline);
-  background: var(--ff-surface-container-high);
-  color: var(--ff-status-ready-text);
-  font-size: 12px;
-}
-
-.notice button {
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: 18px;
-}
-
 .panel {
   border: 1px solid var(--line);
   background: var(--surface);

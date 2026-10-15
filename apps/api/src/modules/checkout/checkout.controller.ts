@@ -17,6 +17,7 @@ const quoteSchema = z.object({
   latitude: z.number().min(-90).max(90).optional(),
   longitude: z.number().min(-180).max(180).optional(),
   pickupBranchId: z.string().uuid().optional(),
+  deliveryBranchId: z.string().uuid().optional(),
   couponCode: z.string().min(1).max(64).optional(),
   loyaltyRequestedMinor: z.string().regex(/^\d+$/).optional(),
   loyaltyAvailablePoints: z.string().regex(/^\d+$/).optional(),
@@ -175,6 +176,7 @@ export class CheckoutController {
       latitude: parsed.data.latitude,
       longitude: parsed.data.longitude,
       pickupBranchId: parsed.data.pickupBranchId,
+      deliveryBranchId: parsed.data.deliveryBranchId,
       couponCode: parsed.data.couponCode,
       loyaltyRequestedMinor: parsed.data.loyaltyRequestedMinor
         ? BigInt(parsed.data.loyaltyRequestedMinor)

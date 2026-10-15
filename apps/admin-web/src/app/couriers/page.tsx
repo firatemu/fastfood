@@ -8,6 +8,7 @@ import { ConfirmDialog } from '../../components/ops/confirm-dialog';
 import { OpsBoundary } from '../../components/ops/ops-boundary';
 import { OpsIcon } from '../../components/ops/ops-icon';
 import { useOpsSync } from '../../components/ops/ops-sync';
+import { useOpsToast } from '../../components/ops/ops-toast';
 import { ActionButton } from '../../components/ops/ops-ui';
 import { useStaffAccess } from '../../components/ops/staff-access-context';
 import { createAdminClient } from '../../lib/api';
@@ -69,7 +70,6 @@ function MetricCell(props: {
 function PasswordDialog(props: {
   courier: Courier;
   busy: boolean;
-  error: string | null;
   onCancel: () => void;
   onSubmit: (password: string) => void;
 }) {
@@ -148,11 +148,6 @@ function PasswordDialog(props: {
               </span>
             ) : null}
           </div>
-          {props.error ? (
-            <p className={styles.formError} role="alert">
-              <OpsIcon name="error" /> {props.error}
-            </p>
-          ) : null}
         </div>
         <footer className={styles.modalFooter}>
           <button
@@ -180,6 +175,7 @@ export default function CouriersPage() {
   const branch = useBranchContext();
   const access = useStaffAccess();
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
 
   const [state, setState] = useState<LoadState<Courier[]>>({ status: 'loading' });
   const [metrics, setMetrics] = useState<Record<string, CourierMetrics>>(EMPTY_METRICS);
@@ -193,8 +189,6 @@ export default function CouriersPage() {
     null,
   );
   const [busyAction, setBusyAction] = useState<string | null>(null);
-  const [flash, setFlash] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setState({ status: 'loading' });
@@ -259,13 +253,11 @@ export default function CouriersPage() {
 
   async function run(action: string, task: () => Promise<string>): Promise<void> {
     setBusyAction(action);
-    setFormError(null);
-    setFlash(null);
     try {
-      setFlash(await task());
+      toast.success(await task());
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusyAction(null);
     }
@@ -368,27 +360,6 @@ export default function CouriersPage() {
         </div>
       </header>
 
-      {flash ? (
-        <div className={styles.notice} role="status" data-ff-flash>
-          <OpsIcon name="check_circle" /> {flash}
-          <button type="button" aria-label="Bildirimi kapat" onClick={() => setFlash(null)}>
-            <OpsIcon name="close" />
-          </button>
-        </div>
-      ) : null}
-      {formError ? (
-        <div className={`${styles.notice} ${styles.noticeError}`} role="alert" data-ff-error>
-          <OpsIcon name="error" /> {formError}
-          <button
-            type="button"
-            aria-label="Hata bildirimini kapat"
-            onClick={() => setFormError(null)}
-          >
-            <OpsIcon name="close" />
-          </button>
-        </div>
-      ) : null}
-
       <dl className={styles.metricRail} aria-label="Kurye özet metrikleri">
         <MetricCell
           label="Toplam kurye"
@@ -481,10 +452,8 @@ export default function CouriersPage() {
         <PasswordDialog
           courier={passwordFor}
           busy={busyAction === 'password'}
-          error={busyAction === 'password' ? formError : null}
           onCancel={() => {
             setPasswordFor(null);
-            setFormError(null);
           }}
           onSubmit={resetPassword}
         />

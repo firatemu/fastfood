@@ -11,6 +11,7 @@ import { ConfirmDialog } from '../../../components/ops/confirm-dialog';
 import { OpsBoundary } from '../../../components/ops/ops-boundary';
 import { OpsPageHeader } from '../../../components/ops/ops-page-header';
 import { useOpsSync } from '../../../components/ops/ops-sync';
+import { useOpsToast } from '../../../components/ops/ops-toast';
 import { ActionButton, KeylineCard, StatusBadge } from '../../../components/ops/ops-ui';
 import { createAdminClient } from '../../../lib/api';
 import { promotionKindLabel, promotionValueSummary } from '../../../lib/finance-ops';
@@ -23,10 +24,9 @@ export default function PromotionDetailPage() {
   const params = useParams<{ promotionId: string }>();
   const promotionId = params.promotionId;
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [state, setState] = useState<LoadState<Promo>>({ status: 'loading' });
   const [busy, setBusy] = useState(false);
-  const [flash, setFlash] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
   const [confirmOff, setConfirmOff] = useState(false);
 
   const load = useCallback(async () => {
@@ -53,7 +53,6 @@ export default function PromotionDetailPage() {
 
   async function setActive(isActive: boolean) {
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'PATCH',
@@ -61,11 +60,11 @@ export default function PromotionDetailPage() {
         body: { isActive },
         schema: adminPromotionSchema,
       });
-      setFlash(isActive ? 'Aktif.' : 'Pasif.');
+      toast.success(isActive ? 'Aktif.' : 'Pasif.');
       setConfirmOff(false);
       await load();
     } catch (err) {
-      setFormError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -131,16 +130,6 @@ export default function PromotionDetailPage() {
                 )}
                 <Link href="/promotions">Liste</Link>
               </div>
-              {flash ? (
-                <p className="ops-flash ops-flash--ok" role="status">
-                  {flash}
-                </p>
-              ) : null}
-              {formError ? (
-                <p className="ops-flash ops-flash--err" role="alert">
-                  {formError}
-                </p>
-              ) : null}
             </KeylineCard>
           </>
         )}

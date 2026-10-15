@@ -378,10 +378,18 @@ export const catalogAllergenSchema = z.object({
 });
 export const allergensResponseSchema = envelope(z.array(catalogAllergenSchema));
 
+export const serviceabilityBranchOptionSchema = z.object({
+  branchId: z.string(),
+  branchName: z.string().optional(),
+  serviceAreaId: z.string().optional(),
+  priority: z.number().optional(),
+});
+
 export const serviceabilitySchema = z.object({
   serviceable: z.boolean(),
   branchId: z.string().nullable().optional(),
   serviceAreaId: z.string().nullable().optional(),
+  branches: z.array(serviceabilityBranchOptionSchema).optional(),
 });
 export const serviceabilityResponseSchema = envelope(serviceabilitySchema);
 
@@ -429,6 +437,18 @@ export const checkoutQuoteSchema = z
     validationErrors: z.array(z.string()).optional(),
     serviceAreaId: z.string().nullable().optional(),
     promotionId: z.string().nullable().optional(),
+    serviceableBranches: z
+      .array(
+        z.object({
+          branchId: z.string(),
+          branchName: z.string(),
+          branchAddressLine: z.string().optional(),
+          serviceAreaId: z.string(),
+          priority: z.number(),
+          distanceKm: z.number().optional(),
+        }),
+      )
+      .optional(),
   })
   .passthrough();
 export const quoteResponseSchema = envelope(checkoutQuoteSchema);

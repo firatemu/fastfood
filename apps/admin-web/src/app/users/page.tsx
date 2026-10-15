@@ -19,6 +19,7 @@ import { ConfirmDialog } from '../../components/ops/confirm-dialog';
 import { OpsBoundary } from '../../components/ops/ops-boundary';
 import { OpsIcon } from '../../components/ops/ops-icon';
 import { useOpsSync } from '../../components/ops/ops-sync';
+import { useOpsToast } from '../../components/ops/ops-toast';
 import { hasStaffPermission, useStaffAccess } from '../../components/ops/staff-access-context';
 import { canAssignRole } from '../../lib/access-ops';
 import { createAdminClient, getStaffUserId } from '../../lib/api';
@@ -161,6 +162,7 @@ function sortValue(value: string | null | undefined) {
 export default function UsersPage() {
   'use no memo';
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const access = useStaffAccess();
   const [state, setState] = useState<LoadState<User[]>>({ status: 'loading' });
   const [rolesState, setRolesState] = useState<LoadState<Role[]>>({ status: 'loading' });
@@ -187,8 +189,6 @@ export default function UsersPage() {
     | { kind: 'password-reset'; user: User }
     | null
   >(null);
-  const [flash, setFlash] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
   const [createUserOpen, setCreateUserOpen] = useState(false);
   const [createUserDraft, setCreateUserDraft] = useState({
     email: '',
@@ -346,7 +346,6 @@ export default function UsersPage() {
   function closeCreateUserForm() {
     if (busy) return;
     setCreateUserOpen(false);
-    setFormError(null);
     setCreateUserDraft({
       email: '',
       displayName: '',
@@ -380,8 +379,6 @@ export default function UsersPage() {
               aria-pressed={selectedId === user.id}
               onClick={() => {
                 setSelectedId(user.id);
-                setFormError(null);
-                setFlash(null);
               }}
             >
               <span className={styles.avatar} aria-hidden="true">
@@ -458,8 +455,6 @@ export default function UsersPage() {
             aria-label={`${row.original.displayName ?? row.original.primaryIdentifier ?? 'Kullanıcı'} ayrıntıları`}
             onClick={() => {
               setSelectedId(row.original.id);
-              setFormError(null);
-              setFlash(null);
             }}
           >
             <OpsIcon name="chevron_right" />
@@ -563,12 +558,10 @@ export default function UsersPage() {
         roleCode: selectedRole.code,
       })
     ) {
-      setFormError('Bu rol kullanıcıya zaten atanmış veya seçim geçersiz.');
+      toast.error('Bu rol kullanıcıya zaten atanmış veya seçim geçersiz.');
       return;
     }
     setBusy(true);
-    setFormError(null);
-    setFlash(null);
     try {
       await createAdminClient().request({
         method: 'POST',
@@ -576,11 +569,11 @@ export default function UsersPage() {
         body: { roleId: selectedRole.id },
         schema: adminRoleAssignSchema,
       });
-      setFlash(`${selectedRole.code} rolü kullanıcıya atandı.`);
+      toast.success(`${selectedRole.code} rolü kullanıcıya atandı.`);
       setPendingAction(null);
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
       setPendingAction(null);
     } finally {
       setBusy(false);
@@ -589,15 +582,14 @@ export default function UsersPage() {
 
   async function createUser() {
     if (createUserDraft.password.length < 12 || createUserDraft.password.length > 256) {
-      setFormError('Şifre 12 ile 256 karakter arasında olmalıdır.');
+      toast.error('Şifre 12 ile 256 karakter arasında olmalıdır.');
       return;
     }
     if (createUserDraft.password !== createUserDraft.passwordConfirmation) {
-      setFormError('Şifre ve şifre tekrarı aynı olmalıdır.');
+      toast.error('Şifre ve şifre tekrarı aynı olmalıdır.');
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       const { email, displayName, password, roleIds, branchIds, permissionCodes } = createUserDraft;
       await createAdminClient().request({
@@ -626,10 +618,10 @@ export default function UsersPage() {
         branchIds: [],
         permissionCodes: [],
       });
-      setFlash('Kullanıcı hesabı oluşturuldu. Şifreyi personele güvenli kanaldan iletin.');
+      toast.success('Kullanıcı hesabı oluşturuldu. Şifreyi personele güvenli kanaldan iletin.');
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -637,15 +629,14 @@ export default function UsersPage() {
 
   async function setStaffPassword(user: User) {
     if (staffPasswordDraft.length < 12 || staffPasswordDraft.length > 256) {
-      setFormError('Şifre 12 ile 256 karakter arasında olmalıdır.');
+      toast.error('Şifre 12 ile 256 karakter arasında olmalıdır.');
       return;
     }
     if (staffPasswordDraft !== staffPasswordConfirmation) {
-      setFormError('Şifre ve şifre tekrarı aynı olmalıdır.');
+      toast.error('Şifre ve şifre tekrarı aynı olmalıdır.');
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'PATCH',
@@ -655,10 +646,10 @@ export default function UsersPage() {
       });
       setStaffPasswordDraft('');
       setStaffPasswordConfirmation('');
-      setFlash('Şifre güncellendi; açık oturumlar kapatıldı.');
+      toast.success('Şifre güncellendi; açık oturumlar kapatıldı.');
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -667,7 +658,6 @@ export default function UsersPage() {
   async function updateName() {
     if (!selectedUser) return;
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'PATCH',
@@ -675,10 +665,10 @@ export default function UsersPage() {
         body: { displayName: displayNameDraft },
         schema: staffUserMutationSchema,
       });
-      setFlash('Personel adı güncellendi.');
+      toast.success('Personel adı güncellendi.');
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -687,7 +677,6 @@ export default function UsersPage() {
   async function requestEmailChange() {
     if (!selectedUser || !emailDraft.trim()) return;
     setBusy(true);
-    setFormError(null);
     try {
       const result = await createAdminClient().request({
         method: 'POST',
@@ -697,12 +686,12 @@ export default function UsersPage() {
       });
       const url = `${window.location.origin}/invite/confirm-email?token=${encodeURIComponent(result.data.token)}`;
       setGeneratedLink({ url, label: 'E-posta doğrulama bağlantısı' });
-      setFlash(
+      toast.success(
         'E-posta değişikliği doğrulama bekliyor. Eski adres değişiklik tamamlanana kadar geçerli.',
       );
       setEmailDraft('');
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -710,7 +699,6 @@ export default function UsersPage() {
 
   async function updateAccountStatus(user: User, status: 'ACTIVE' | 'DISABLED') {
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'PATCH',
@@ -718,14 +706,14 @@ export default function UsersPage() {
         body: { status },
         schema: staffUserMutationSchema,
       });
-      setFlash(
+      toast.success(
         status === 'DISABLED'
           ? 'Hesap devre dışı bırakıldı; açık oturumları kapatıldı.'
           : 'Hesap yeniden etkinleştirildi.',
       );
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -733,7 +721,6 @@ export default function UsersPage() {
 
   async function saveBranchScopes(user: User) {
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'PATCH',
@@ -741,10 +728,10 @@ export default function UsersPage() {
         body: { branchIds: branchDraft ? [branchDraft] : [] },
         schema: staffUserMutationSchema,
       });
-      setFlash('Şube kapsamı güncellendi.');
+      toast.success('Şube kapsamı güncellendi.');
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -752,7 +739,6 @@ export default function UsersPage() {
 
   async function savePermissions(user: User, resetToRoleDefaults = false) {
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'PATCH',
@@ -763,14 +749,14 @@ export default function UsersPage() {
         },
         schema: staffUserMutationSchema,
       });
-      setFlash(
+      toast.success(
         resetToRoleDefaults
           ? 'Kullanıcının rol varsayılan izinleri yeniden etkinleştirildi.'
           : 'Kullanıcıya özel sayfa ve işlem izinleri kaydedildi.',
       );
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -778,17 +764,16 @@ export default function UsersPage() {
 
   async function revokeRole(user: User, role: Role) {
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'DELETE',
         path: `admin/users/${user.id}/roles/${role.id}`,
         schema: adminRoleAssignSchema,
       });
-      setFlash(`${roleTitle(role.code)} rolü kaldırıldı.`);
+      toast.success(`${roleTitle(role.code)} rolü kaldırıldı.`);
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -829,7 +814,6 @@ export default function UsersPage() {
               className={styles.primaryButton}
               type="button"
               onClick={() => {
-                setFormError(null);
                 setCreateUserOpen(true);
               }}
             >
@@ -1078,8 +1062,6 @@ export default function UsersPage() {
         aria-labelledby="user-detail-title"
         onClose={() => {
           setSelectedId(null);
-          setFormError(null);
-          setFlash(null);
           setStaffPasswordDraft('');
           setStaffPasswordConfirmation('');
         }}
@@ -1325,7 +1307,6 @@ export default function UsersPage() {
                           !!selectedUser.roleCodes?.includes(selectedRole.code)
                         }
                         onClick={() => {
-                          setFormError(null);
                           setPendingAction({ kind: 'assign' });
                         }}
                       >
@@ -1513,17 +1494,6 @@ export default function UsersPage() {
                     <OpsIcon name="warning" />
                     Kendi hesabınız devre dışı bırakılamaz. Rol değişikliği erişiminizi
                     etkileyebilir.
-                  </p>
-                ) : null}
-                {formError ? (
-                  <p className={styles.inlineError} role="alert">
-                    {formError}
-                  </p>
-                ) : null}
-                {flash ? (
-                  <p className={styles.successMessage} role="status">
-                    <OpsIcon name="check_circle" />
-                    {flash}
                   </p>
                 ) : null}
               </div>
@@ -1752,11 +1722,6 @@ export default function UsersPage() {
                 ))}
               </div>
             ) : null}
-            {formError ? (
-              <p className={styles.inlineError} role="alert">
-                {formError}
-              </p>
-            ) : null}
             {branchesState.status === 'error' ? (
               <p className={styles.inlineError} role="alert">
                 Şubeler yüklenemedi; kullanıcı oluşturulamıyor.
@@ -1854,9 +1819,9 @@ export default function UsersPage() {
                 onClick={() =>
                   void navigator.clipboard
                     .writeText(generatedLink.url)
-                    .then(() => setFlash('Bağlantı panoya kopyalandı.'))
+                    .then(() => toast.success('Bağlantı panoya kopyalandı.'))
                     .catch(() =>
-                      setFormError('Bağlantı kopyalanamadı; bağlantıyı seçip kopyalayın.'),
+                      toast.error('Bağlantı kopyalanamadı; bağlantıyı seçip kopyalayın.'),
                     )
                 }
               >

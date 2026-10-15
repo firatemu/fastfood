@@ -9,6 +9,7 @@ import { errorMessage, type LoadState } from '../../../components/async-boundary
 import { useBranchContext } from '../../../components/ops/branch-context';
 import { OpsBoundary } from '../../../components/ops/ops-boundary';
 import { useOpsSync } from '../../../components/ops/ops-sync';
+import { useOpsToast } from '../../../components/ops/ops-toast';
 import {
   ConfirmDialog,
   useConfirm,
@@ -74,6 +75,7 @@ export default function OrderDetailPage() {
   const orderId = params.orderId;
   const { branches } = useBranchContext();
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const confirm = useConfirm();
 
   const [state, setState] = useState<LoadState<Order>>({ status: 'loading' });
@@ -87,7 +89,6 @@ export default function OrderDetailPage() {
   const [courierId, setCourierId] = useState('');
   const [refundAmount, setRefundAmount] = useState('');
   const [busy, setBusy] = useState(false);
-  const [flash, setFlash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [receiptToken, setReceiptToken] = useState<{
@@ -244,7 +245,6 @@ export default function OrderDetailPage() {
   async function runTransition(target: string, reason?: string) {
     setBusy(true);
     setError(null);
-    setFlash(null);
     try {
       const res = await createAdminClient().request({
         method: 'POST',
@@ -253,7 +253,7 @@ export default function OrderDetailPage() {
         schema: orderResponseSchema,
       });
       setState({ status: 'ready', data: res.data });
-      setFlash(`Durum güncellendi: ${orderStatusLabel(res.data.status)}`);
+      toast.success(`Durum güncellendi: ${orderStatusLabel(res.data.status)}`);
       setTransitionReason('');
       confirm.close();
     } catch (err) {
@@ -266,7 +266,6 @@ export default function OrderDetailPage() {
   async function runReassign() {
     setBusy(true);
     setError(null);
-    setFlash(null);
     try {
       const res = await createAdminClient().request({
         method: 'POST',
@@ -275,7 +274,7 @@ export default function OrderDetailPage() {
         schema: orderResponseSchema,
       });
       setState({ status: 'ready', data: res.data });
-      setFlash('Şube yeniden atandı.');
+      toast.success('Şube yeniden atandı.');
       confirm.close();
     } catch (err) {
       setError(errorMessage(err));
@@ -288,7 +287,6 @@ export default function OrderDetailPage() {
     if (!paymentId) return;
     setBusy(true);
     setError(null);
-    setFlash(null);
     try {
       await createAdminClient().request({
         method: 'POST',
@@ -296,7 +294,7 @@ export default function OrderDetailPage() {
         body: { amountMinor: refundAmount, reason: 'ops_order_detail' },
         schema: refundSchema,
       });
-      setFlash('İade talebi gönderildi.');
+      toast.success('İade talebi gönderildi.');
       confirm.close();
       await load();
     } catch (err) {
@@ -310,7 +308,6 @@ export default function OrderDetailPage() {
     if (!order?.branchId) return;
     setBusy(true);
     setError(null);
-    setFlash(null);
     try {
       const client = createAdminClient();
       const created = await client.request({
@@ -325,7 +322,7 @@ export default function OrderDetailPage() {
         body: { courierId },
         schema: unknownDataSchema,
       });
-      setFlash('Kurye ataması gönderildi.');
+      toast.success('Kurye ataması gönderildi.');
       confirm.close();
       await load();
     } catch (err) {
@@ -337,11 +334,6 @@ export default function OrderDetailPage() {
 
   return (
     <div className="ops-page">
-      {flash ? (
-        <p className="ops-alert ops-alert--ok" role="status">
-          {flash}
-        </p>
-      ) : null}
       {error ? (
         <p className="ops-alert ops-alert--err" role="alert">
           {error}

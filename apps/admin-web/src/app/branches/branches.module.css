@@ -93,28 +93,6 @@
   font-size: 19px;
 }
 
-.notice {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 12px;
-  padding: 9px 12px;
-  border: 1px solid var(--ff-status-ready-border);
-  border-radius: var(--ff-radius-lg);
-  background: var(--ff-status-ready-wash);
-  color: light-dark(#2e8557, #a2dfbf);
-  font-size: 12px;
-}
-
-.notice button {
-  margin-left: auto;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: 19px;
-}
-
 .gridPanel {
   border: 1px solid var(--line);
   border-radius: var(--ff-radius-full);

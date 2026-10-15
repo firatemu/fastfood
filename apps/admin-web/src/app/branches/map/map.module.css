@@ -1,0 +1,703 @@
+/* ==========================================================================
+   FASTFOOD Turkey Coverage Map (Kapsama Haritası)
+   Premium Logistics Visualization Engine
+   ========================================================================== */
+
+.page {
+  --surface-base: var(--ff-surface, #0d1117);
+  --surface-card: var(--ff-surface-container, #161b22);
+  --surface-raised: var(--ff-surface-container-high, #21262d);
+  --surface-sunken: var(--ff-surface-container-low, #0b0e14);
+  --line-subtle: rgba(255, 255, 255, 0.08);
+  --line-medium: rgba(255, 255, 255, 0.16);
+  --line-focus: var(--ff-primary, #ff9800);
+  --text-main: #f0f6fc;
+  --text-muted: #8b949e;
+  --text-faint: #6e7681;
+  --accent-gold: #ffb74d;
+  --accent-gold-bg: rgba(255, 183, 77, 0.12);
+  --accent-blue: #58a6ff;
+  --accent-blue-bg: rgba(88, 166, 255, 0.12);
+  --accent-green: #3fb950;
+  --accent-green-bg: rgba(63, 185, 80, 0.12);
+  --accent-red: #f85149;
+  --accent-red-bg: rgba(248, 81, 73, 0.12);
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+
+  width: 100%;
+  min-width: 0;
+  padding: 24px clamp(16px, 2.5vw, 36px) 48px;
+  color: var(--text-main);
+  background: radial-gradient(circle at 10% 10%, rgba(255, 152, 0, 0.04), transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(88, 166, 255, 0.03), transparent 40%),
+              var(--surface-base);
+  min-height: 100vh;
+}
+
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line-subtle);
+}
+
+.headerTitleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+}
+
+.breadcrumbSep {
+  opacity: 0.4;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(22px, 2.5vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-gold-bg);
+  color: var(--accent-gold);
+  border: 1px solid rgba(255, 183, 77, 0.25);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 80ch;
+  line-height: 1.5;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* --------------------------------------------------------------------------
+   KPI Stat Bar
+   -------------------------------------------------------------------------- */
+
+.statsBar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.statItem {
+  background: var(--surface-card);
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
+
+.statValue {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.statSub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Map Workspace Grid (Map Viewport + Sidebar)
+   -------------------------------------------------------------------------- */
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1180px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Map Viewport Container
+   -------------------------------------------------------------------------- */
+
+.mapContainer {
+  background: var(--surface-card);
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  position: relative;
+}
+
+.mapToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--line-subtle);
+}
+
+.cityFilterChips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cityChip {
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-medium);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.cityChip:hover {
+  border-color: var(--accent-gold);
+  color: #fff;
+}
+
+.cityChipActive {
+  background: var(--accent-gold-bg);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  box-shadow: 0 0 10px rgba(255, 183, 77, 0.2);
+}
+
+.mapControls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.controlBtn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-medium);
+  border-radius: var(--radius-xs);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.controlBtn:hover {
+  border-color: var(--accent-gold);
+  color: var(--text-main);
+  background: var(--surface-card);
+}
+
+/* --------------------------------------------------------------------------
+   The SVG Turkey Canvas
+   -------------------------------------------------------------------------- */
+
+.canvasWrapper {
+  width: 100%;
+  height: 600px;
+  background: #0d1117;
+  position: relative;
+  overflow: hidden;
+}
+
+.mapFrame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.mapSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.turkeyPath {
+  fill: #161f2e;
+  stroke: rgba(88, 166, 255, 0.25);
+  stroke-width: 1.2;
+  transition: fill 0.3s ease;
+}
+
+.turkeyLake {
+  fill: #0c121b;
+  stroke: rgba(88, 166, 255, 0.2);
+  stroke-width: 0.8;
+}
+
+.gridLine {
+  stroke: rgba(255, 255, 255, 0.04);
+  stroke-width: 0.5;
+  stroke-dasharray: 2 4;
+}
+
+.serviceZoneCircle {
+  fill: rgba(255, 183, 77, 0.15);
+  stroke: var(--accent-gold);
+  stroke-width: 1.6;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.serviceZoneCircle:hover {
+  fill: rgba(255, 183, 77, 0.3);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 8px rgba(255, 183, 77, 0.6));
+}
+
+.serviceZoneSelected {
+  fill: rgba(88, 166, 255, 0.35) !important;
+  stroke: #58a6ff !important;
+  stroke-width: 2.5 !important;
+  filter: drop-shadow(0 0 12px rgba(88, 166, 255, 0.8));
+}
+
+.branchMarker {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.branchMarker:hover {
+  transform: scale(1.2);
+}
+
+.markerPulse {
+  animation: pulseAnimation 2.2s infinite;
+}
+
+@keyframes pulseAnimation {
+  0% {
+    r: 4;
+    opacity: 0.9;
+  }
+  100% {
+    r: 18;
+    opacity: 0;
+  }
+}
+
+.markerCenter {
+  fill: var(--accent-gold);
+  stroke: #000;
+  stroke-width: 1.2;
+}
+
+.branchLabelText {
+  fill: #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 2px #000;
+  pointer-events: none;
+}
+
+.cityNodeText {
+  fill: rgba(255, 255, 255, 0.35);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Interactive Clicked Test Point Pin
+   -------------------------------------------------------------------------- */
+
+.testPointPin {
+  fill: #3fb950;
+  stroke: #ffffff;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
+}
+
+/* --------------------------------------------------------------------------
+   Legend Bar
+   -------------------------------------------------------------------------- */
+
+.mapLegend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 18px;
+  background: var(--surface-raised);
+  border-top: 1px solid var(--line-subtle);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.legendItems {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar / Branch Roster
+   -------------------------------------------------------------------------- */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebarCard {
+  background: var(--surface-card);
+  border: 1px solid var(--line-subtle);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebarTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchBox {
+  position: relative;
+  width: 100%;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 12px 8px 34px;
+  border: 1px solid var(--line-medium);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--text-main);
+  font-size: 12px;
+  outline: none;
+}
+.searchInput:focus {
+  border-color: var(--accent-gold);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.branchListScroll {
+  max-height: 480px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.branchItem {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-subtle);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.branchItem:hover {
+  background: var(--surface-raised);
+  border-color: rgba(255, 183, 77, 0.35);
+  transform: translateX(2px);
+}
+
+.branchItemActive {
+  background: rgba(255, 183, 77, 0.08) !important;
+  border-color: var(--accent-gold) !important;
+  box-shadow: 0 0 12px rgba(255, 183, 77, 0.15);
+}
+
+.branchItemTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.branchCode {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.branchName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.branchCityTag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+}
+
+.branchMetaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Selected Branch Spotlight Card
+   -------------------------------------------------------------------------- */
+
+.spotlightCard {
+  background: linear-gradient(135deg, rgba(255, 183, 77, 0.08), rgba(33, 38, 45, 0.95));
+  border: 1px solid rgba(255, 183, 77, 0.3);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.spotlightTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.spotlightTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.spotlightGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 10px;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+}
+
+/* --------------------------------------------------------------------------
+   Test Point Result Card
+   -------------------------------------------------------------------------- */
+
+.testResultCard {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  border: 1px solid rgba(63, 185, 80, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.testResultWarning {
+  border-color: rgba(255, 183, 77, 0.4);
+  background: rgba(255, 183, 77, 0.06);
+}
+
+.testResultError {
+  border-color: rgba(248, 81, 73, 0.4);
+  background: rgba(248, 81, 73, 0.06);
+}
+
+/* --------------------------------------------------------------------------
+   Metric Notice Box & Comparison Pills
+   -------------------------------------------------------------------------- */
+
+.metricNoticeBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(255, 183, 77, 0.08), rgba(88, 166, 255, 0.04));
+  border: 1px solid rgba(255, 183, 77, 0.35);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.noticeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-gold-bg);
+  color: var(--accent-gold);
+  border: 1px solid rgba(255, 183, 77, 0.3);
+  flex-shrink: 0;
+}
+
+.noticeContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.noticeTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  letter-spacing: -0.01em;
+}
+
+.noticeText {
+  margin: 0;
+  font-size: 12px;
+  color: #c9d1d9;
+  line-height: 1.6;
+}
+
+.noticeText strong {
+  color: #fff;
+}
+
+.metricComparison {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.metricPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-medium);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.metricPill strong {
+  color: #fff;
+}
+
+.metricPillBadge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 183, 77, 0.2);
+  color: var(--accent-gold);
+}
+

@@ -3,6 +3,8 @@ import { ConflictException, Inject, Injectable, NotFoundException, Optional } fr
 
 import { PrismaService } from '../../common/database/prisma.service.js';
 
+import { generateCirclePolygon } from './routing/routing.service.js';
+
 /**
  * Branch domain service — Prisma-backed at runtime; in-memory fallback
  * for isolated unit tests.
@@ -63,10 +65,13 @@ export interface CreateBranchInput {
 export interface UpdateBranchInput {
   name?: string;
   addressLine?: string;
+  latitude?: number;
+  longitude?: number;
   phone?: string | null;
   isAcceptingOrders?: boolean;
   minOrderMinor?: bigint;
   deliveryFeeMinor?: bigint;
+  isSuperAdmin?: boolean;
 }
 
 export interface CreateServiceAreaInput {
@@ -305,6 +310,8 @@ export class BranchService {
         ...b,
         name: input.name ?? b.name,
         addressLine: input.addressLine ?? b.addressLine,
+        latitude: input.latitude ?? b.latitude,
+        longitude: input.longitude ?? b.longitude,
         phone: input.phone !== undefined ? input.phone : b.phone,
         isAcceptingOrders: input.isAcceptingOrders ?? b.isAcceptingOrders,
         minOrderMinor: input.minOrderMinor ?? b.minOrderMinor,
@@ -316,18 +323,23 @@ export class BranchService {
     if (input.isAcceptingOrders === true) {
       const branch = await this.prisma.branch.findUnique({
         where: { id },
-        select: { administrator: { select: { user: { select: { status: true } } } } },
+        select: {
+          isAcceptingOrders: true,
+          administrator: { select: { user: { select: { status: true } } } },
+        },
       });
       if (!branch) {
         throw new NotFoundException({
           code: ErrorCodes.NOT_FOUND,
-          message: 'Branch not found.',
+          message: 'Şube bulunamadı.',
         });
       }
-      if (branch.administrator?.user.status !== 'ACTIVE') {
+      const isAlreadyAccepting = branch.isAcceptingOrders === true;
+      const hasActiveAdmin = branch.administrator?.user.status === 'ACTIVE';
+      if (!input.isSuperAdmin && !isAlreadyAccepting && !hasActiveAdmin) {
         throw new ConflictException({
           code: 'BRANCH_ADMIN_REQUIRED',
-          message: 'An active branch administrator is required before accepting orders.',
+          message: 'Sipariş alımını açmak için şubeye aktif bir şube yöneticisi atanmış olmalıdır.',
         });
       }
     }
@@ -337,6 +349,8 @@ export class BranchService {
         data: {
           name: input.name,
           addressLine: input.addressLine,
+          latitude: input.latitude,
+          longitude: input.longitude,
           phone: input.phone,
           isAcceptingOrders: input.isAcceptingOrders,
           minOrderMinor: input.minOrderMinor,
@@ -387,6 +401,88 @@ export class BranchService {
       priority: row.priority,
       isActive: row.isActive,
     };
+  }
+
+  async generateServiceArea(
+    branchId: string,
+    radiusKm: number = 10,
+    priority: number = 0,
+  ): Promise<ServiceAreaDto> {
+    const branch = await this.getBranch(branchId);
+    const polygon = generateCirclePolygon(branch.latitude, branch.longitude, radiusKm);
+    return this.createServiceArea(branchId, {
+      name: `${branch.name} — ${radiusKm}km`,
+      polygonGeoJson: polygon,
+      priority,
+    });
+  }
+
+  async generateServiceAreasForAllBranches(radiusKm: number = 10): Promise<ServiceAreaDto[]> {
+    const branches = await this.listBranches(false);
+    const results: ServiceAreaDto[] = [];
+    for (const branch of branches) {
+      const area = await this.generateServiceArea(branch.id, radiusKm);
+      results.push(area);
+    }
+    return results;
+  }
+
+  async updateServiceArea(
+    branchId: string,
+    serviceAreaId: string,
+    input: { name?: string; priority?: number },
+  ): Promise<ServiceAreaDto> {
+    if (!this.prisma) {
+      const area = this.#serviceAreas.get(serviceAreaId);
+      if (!area || area.branchId !== branchId) {
+        throw new NotFoundException('Service area not found.');
+      }
+      const updated: ServiceAreaDto = {
+        ...area,
+        ...(input.name !== undefined ? { name: input.name } : {}),
+        ...(input.priority !== undefined ? { priority: input.priority } : {}),
+      };
+      this.#serviceAreas.set(serviceAreaId, updated);
+      return updated;
+    }
+    const existing = await this.prisma.serviceArea.findUnique({ where: { id: serviceAreaId } });
+    if (!existing || existing.branchId !== branchId) {
+      throw new NotFoundException('Service area not found.');
+    }
+    const row = await this.prisma.serviceArea.update({
+      where: { id: serviceAreaId },
+      data: {
+        ...(input.name !== undefined ? { name: input.name } : {}),
+        ...(input.priority !== undefined ? { priority: input.priority } : {}),
+      },
+    });
+    return {
+      id: row.id,
+      branchId: row.branchId,
+      name: row.name,
+      polygonGeoJson: row.polygonGeoJson as ServiceAreaDto['polygonGeoJson'],
+      priority: row.priority,
+      isActive: row.isActive,
+    };
+  }
+
+  async deactivateServiceArea(branchId: string, serviceAreaId: string): Promise<void> {
+    if (!this.prisma) {
+      const area = this.#serviceAreas.get(serviceAreaId);
+      if (!area || area.branchId !== branchId) {
+        throw new NotFoundException('Service area not found.');
+      }
+      this.#serviceAreas.set(serviceAreaId, { ...area, isActive: false });
+      return;
+    }
+    const existing = await this.prisma.serviceArea.findUnique({ where: { id: serviceAreaId } });
+    if (!existing || existing.branchId !== branchId) {
+      throw new NotFoundException('Service area not found.');
+    }
+    await this.prisma.serviceArea.update({
+      where: { id: serviceAreaId },
+      data: { isActive: false },
+    });
   }
 
   async getOperatingHours(branchId: string): Promise<BranchOperatingHoursDto[]> {

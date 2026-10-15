@@ -4,7 +4,7 @@ import { Controller, Get, HttpCode, Inject, Injectable, Param, Query } from '@ne
 import { z } from 'zod';
 
 import { BranchService } from './branch.service.js';
-import { RoutingService } from './routing/routing.service.js';
+import { RoutingService, calculateDistanceKm } from './routing/routing.service.js';
 
 /**
  * Storefront branch endpoints (document 06 + 29).
@@ -89,22 +89,65 @@ export class BranchController {
       };
     }
     const areas = await this.branchService.listServiceAreas();
-    const assignment = this.routingService.assign(
+    const assignments = this.routingService.assignAll(
       parsed.data.latitude,
       parsed.data.longitude,
       areas,
     );
-    if (!assignment) {
+    if (assignments.length === 0) {
       return {
-        data: { serviceable: false, branchId: null },
+        data: { serviceable: false, branchId: null, branches: [] },
         meta: { requestId: REQUEST_ID },
       };
     }
+
+    // Deduplicate by branchId (keep lowest priority per branch; assignments are already sorted ascending)
+    const uniqueByBranch = new Map<string, (typeof assignments)[number]>();
+    for (const a of assignments) {
+      if (!uniqueByBranch.has(a.branchId)) {
+        uniqueByBranch.set(a.branchId, a);
+      }
+    }
+    const deduped = [...uniqueByBranch.values()];
+
+    const branches = await Promise.all(
+      deduped.map(async (entry) => {
+        const branch = await this.branchService.getBranch(entry.branchId);
+        const distanceKm = calculateDistanceKm(
+          parsed.data.latitude,
+          parsed.data.longitude,
+          branch.latitude,
+          branch.longitude,
+        );
+        return {
+          branchId: entry.branchId,
+          branchName: branch.name,
+          serviceAreaId: entry.serviceAreaId,
+          priority: entry.priority,
+          distanceKm,
+          maxRadiusKm: 10,
+        };
+      }),
+    );
+
+    const within10Km = branches.filter((b) => b.distanceKm <= 10.0);
+    const bestMatch = within10Km[0];
+    if (!bestMatch) {
+      return {
+        data: { serviceable: false, branchId: null, branches: [] },
+        meta: { requestId: REQUEST_ID },
+      };
+    }
+
     return {
       data: {
         serviceable: true,
-        branchId: assignment.branchId,
-        serviceAreaId: assignment.serviceAreaId,
+        branchId: bestMatch.branchId,
+        branchName: bestMatch.branchName,
+        distanceKm: bestMatch.distanceKm,
+        maxRadiusKm: 10,
+        serviceAreaId: bestMatch.serviceAreaId,
+        branches: within10Km,
       },
       meta: { requestId: REQUEST_ID },
     };

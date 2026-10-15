@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>Şube Konumu Seç</title>
+    <link href="https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background: #0d1117;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+          sans-serif;
+        overflow: hidden;
+      }
+      #map,
+      #leaflet-map {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      #leaflet-map {
+        display: none;
+      }
+
+      /* Control styling */
+      .maplibregl-ctrl-group button {
+        background-color: #161b22;
+        border-bottom: 1px solid #30363d;
+        color: #e6edf3;
+      }
+      .maplibregl-ctrl-group button:hover {
+        background-color: #21262d;
+      }
+      .maplibregl-ctrl-scale {
+        background-color: rgba(13, 17, 23, 0.85);
+        border: 1px solid #30363d;
+        border-top: none;
+        color: #ffb74d;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+      }
+
+      /* Top hint overlay */
+      .hint-banner {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+        background: rgba(13, 17, 23, 0.88);
+        border: 1px solid #30363d;
+        backdrop-filter: blur(6px);
+        color: #e6edf3;
+        font-size: 11.5px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        pointer-events: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .hint-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ffb74d;
+        box-shadow: 0 0 6px rgba(255, 183, 77, 0.8);
+      }
+
+      /* Bottom status bar */
+      .coords-badge {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        z-index: 10;
+        background: rgba(13, 17, 23, 0.92);
+        border: 1px solid #30363d;
+        backdrop-filter: blur(6px);
+        color: #ffb74d;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Custom Branch Marker Pin */
+      .branch-pin-container {
+        cursor: grab;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transform: translate(-50%, -100%);
+      }
+      .branch-pin-container:active {
+        cursor: grabbing;
+      }
+      .branch-pin-head {
+        width: 32px;
+        height: 32px;
+        background: #ff9800;
+        border: 2px solid #ffffff;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .branch-pin-inner {
+        width: 12px;
+        height: 12px;
+        background: #1a1a1a;
+        border-radius: 50%;
+        transform: rotate(45deg);
+      }
+      .branch-pin-pulse {
+        position: absolute;
+        width: 38px;
+        height: 18px;
+        border-radius: 50%;
+        background: rgba(255, 152, 0, 0.35);
+        bottom: -9px;
+        animation: pulse 2s infinite ease-out;
+        pointer-events: none;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(0.6);
+          opacity: 0.9;
+        }
+        100% {
+          transform: scale(2.2);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map" aria-label="Şube konumu haritası"></div>
+    <div id="leaflet-map" aria-label="Şube konumu haritası (OSM)"></div>
+
+    <div class="hint-banner">
+      <div class="hint-dot"></div>
+      <span>Konum belirlemek için haritada bir noktaya tıklayın veya pini sürükleyin</span>
+    </div>
+
+    <div class="coords-badge" id="coords-badge">
+      Konum: Seçilmedi
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module">
+      import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.mjs';
+
+      const params = new URLSearchParams(window.location.search);
+      const urlLat = Number(params.get('lat'));
+      const urlLng = Number(params.get('lng'));
+      const validUrlCoords =
+        Number.isFinite(urlLat) &&
+        urlLat >= -90 &&
+        urlLat <= 90 &&
+        Number.isFinite(urlLng) &&
+        urlLng >= -180 &&
+        urlLng <= 180 &&
+        (urlLat !== 0 || urlLng !== 0);
+
+      let currentPoint = validUrlCoords ? { latitude: urlLat, longitude: urlLng } : null;
+      const defaultCenter = currentPoint ? [currentPoint.longitude, currentPoint.latitude] : [35.32, 38.6];
+      const defaultZoom = currentPoint ? 14 : 6;
+
+      const parentOrigin = (() => {
+        try {
+          return document.referrer ? new URL(document.referrer).origin : '*';
+        } catch {
+          return '*';
+        }
+      })();
+
+      const post = (message) => {
+        try {
+          window.parent.postMessage(JSON.stringify(message), parentOrigin);
+        } catch (e) {
+          console.warn('postMessage failed:', e);
+        }
+      };
+
+      const coordsBadge = document.getElementById('coords-badge');
+      function updateBadge(pt) {
+        if (!pt) {
+          coordsBadge.textContent = 'Konum: Seçilmedi';
+          return;
+        }
+        coordsBadge.textContent = `Şube: ${pt.latitude.toFixed(6)}, ${pt.longitude.toFixed(6)} (10km Kapsama)`;
+      }
+
+      function generateCircleGeoJson(centerLat, centerLng, radiusKm = 10, numPoints = 64) {
+        const ring = [];
+        const earthRadiusKm = 6371;
+        const latRad = (centerLat * Math.PI) / 180;
+        const lngRad = (centerLng * Math.PI) / 180;
+        const dOverR = radiusKm / earthRadiusKm;
+        for (let i = 0; i <= numPoints; i++) {
+          const angle = (2 * Math.PI * i) / numPoints;
+          const pointLatRad = Math.asin(
+            Math.sin(latRad) * Math.cos(dOverR) +
+              Math.cos(latRad) * Math.sin(dOverR) * Math.cos(angle)
+          );
+          const pointLngRad =
+            lngRad +
+            Math.atan2(
+              Math.sin(angle) * Math.sin(dOverR) * Math.cos(latRad),
+              Math.cos(dOverR) - Math.sin(latRad) * Math.sin(pointLatRad)
+            );
+          ring.push([(pointLngRad * 180) / Math.PI, (pointLatRad * 180) / Math.PI]);
+        }
+        return {
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [ring],
+          },
+          properties: {},
+        };
+      }
+
+      let map = null;
+      let marker = null;
+      let readySent = false;
+      let useLeaflet = false;
+      let leafletMap = null;
+      let leafletMarker = null;
+      let leafletCircle = null;
+
+      function createPinElement() {
+        const el = document.createElement('div');
+        el.className = 'branch-pin-container';
+        el.innerHTML = `
+          <div class="branch-pin-pulse"></div>
+          <div class="branch-pin-head">
+            <div class="branch-pin-inner"></div>
+          </div>
+        `;
+        return el;
+      }
+
+      function update10kmCircle(pt) {
+        if (!map || !map.getSource('service-area-10km')) return;
+        if (!pt) {
+          map.getSource('service-area-10km').setData({
+            type: 'FeatureCollection',
+            features: [],
+          });
+          return;
+        }
+        const feature = generateCircleGeoJson(pt.latitude, pt.longitude, 10);
+        map.getSource('service-area-10km').setData({
+          type: 'FeatureCollection',
+          features: [feature],
+        });
+      }
+
+      function setLocation(pt, emit = true, fly = false) {
+        currentPoint = pt;
+        updateBadge(pt);
+
+        if (useLeaflet) {
+          if (!leafletMarker) {
+            leafletMarker = L.marker([pt.latitude, pt.longitude], { draggable: true }).addTo(leafletMap);
+            leafletMarker.on('dragend', (e) => {
+              const pos = e.target.getLatLng();
+              setLocation({ latitude: pos.lat, longitude: pos.lng }, true, false);
+            });
+          } else {
+            leafletMarker.setLatLng([pt.latitude, pt.longitude]);
+          }
+
+          if (leafletCircle) {
+            leafletCircle.setLatLng([pt.latitude, pt.longitude]);
+          } else {
+            leafletCircle = L.circle([pt.latitude, pt.longitude], {
+              radius: 10000,
+              color: '#ff9800',
+              fillColor: '#ff9800',
+              fillOpacity: 0.15,
+              weight: 2,
+            }).addTo(leafletMap);
+          }
+
+          if (fly) {
+            leafletMap.setView([pt.latitude, pt.longitude], 14);
+          }
+        } else if (map) {
+          if (!marker) {
+            marker = new maplibregl.Marker({
+              element: createPinElement(),
+              draggable: true,
+              anchor: 'bottom',
+            })
+              .setLngLat([pt.longitude, pt.latitude])
+              .addTo(map);
+
+            marker.on('dragend', () => {
+              const lngLat = marker.getLngLat();
+              const newPt = {
+                latitude: Number(lngLat.lat.toFixed(6)),
+                longitude: Number(lngLat.lng.toFixed(6)),
+              };
+              setLocation(newPt, true, false);
+            });
+          } else {
+            marker.setLngLat([pt.longitude, pt.latitude]);
+          }
+
+          update10kmCircle(pt);
+
+          if (fly) {
+            map.flyTo({ center: [pt.longitude, pt.latitude], zoom: 14 });
+          }
+        }
+
+        if (emit) {
+          post({ type: 'location-selected', latitude: pt.latitude, longitude: pt.longitude });
+        }
+      }
+
+      function initMapLibre() {
+        try {
+          map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://tiles.openfreemap.org/styles/liberty',
+            center: defaultCenter,
+            zoom: defaultZoom,
+            attributionControl: false,
+          });
+
+          map.addControl(new maplibregl.NavigationControl(), 'top-right');
+          map.addControl(
+            new maplibregl.ScaleControl({
+              maxWidth: 180,
+              unit: 'metric',
+            }),
+            'bottom-left'
+          );
+
+          map.once('load', () => {
+            // Add 10km circle source and layers
+            map.addSource('service-area-10km', {
+              type: 'geojson',
+              data: {
+                type: 'FeatureCollection',
+                features: currentPoint ? [generateCircleGeoJson(currentPoint.latitude, currentPoint.longitude, 10)] : [],
+              },
+            });
+
+            map.addLayer({
+              id: 'service-area-10km-fill',
+              type: 'fill',
+              source: 'service-area-10km',
+              paint: {
+                'fill-color': '#ff9800',
+                'fill-opacity': 0.15,
+              },
+            });
+
+            map.addLayer({
+              id: 'service-area-10km-line',
+              type: 'line',
+              source: 'service-area-10km',
+              paint: {
+                'line-color': '#ff9800',
+                'line-width': 2,
+                'line-dasharray': [3, 2],
+              },
+            });
+
+            if (currentPoint) {
+              setLocation(currentPoint, false, false);
+            }
+
+            readySent = true;
+            post({ type: 'map-ready' });
+          });
+
+          map.on('click', (e) => {
+            const pt = {
+              latitude: Number(e.lngLat.lat.toFixed(6)),
+              longitude: Number(e.lngLat.lng.toFixed(6)),
+            };
+            setLocation(pt, true, false);
+          });
+
+          map.on('error', (e) => {
+            console.warn('MapLibre error:', e);
+            if (!readySent) {
+              initLeaflet();
+            }
+          });
+        } catch (err) {
+          console.warn('MapLibre init failed, falling back to Leaflet:', err);
+          initLeaflet();
+        }
+      }
+
+      function initLeaflet() {
+        if (useLeaflet) return;
+        useLeaflet = true;
+        document.getElementById('map').style.display = 'none';
+        const leafletEl = document.getElementById('leaflet-map');
+        leafletEl.style.display = 'block';
+
+        leafletMap = L.map('leaflet-map', {
+          zoomControl: true,
+          attributionControl: false,
+        }).setView([defaultCenter[1], defaultCenter[0]], defaultZoom);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+        }).addTo(leafletMap);
+
+        L.control.scale({ imperial: false, metric: true }).addTo(leafletMap);
+
+        if (currentPoint) {
+          setLocation(currentPoint, false, false);
+        }
+
+        leafletMap.on('click', (e) => {
+          const pt = {
+            latitude: Number(e.latlng.lat.toFixed(6)),
+            longitude: Number(e.latlng.lng.toFixed(6)),
+          };
+          setLocation(pt, true, false);
+        });
+
+        readySent = true;
+        post({ type: 'map-ready' });
+      }
+
+      // Start map
+      initMapLibre();
+
+      // Parent communication
+      window.addEventListener('message', (event) => {
+        let msg = event.data;
+        if (typeof msg === 'string') {
+          try {
+            msg = JSON.parse(msg);
+          } catch {
+            return;
+          }
+        }
+        if (!msg || typeof msg !== 'object') return;
+
+        if (msg.type === 'focus-location' || msg.type === 'set-location') {
+          const lat = Number(msg.latitude);
+          const lng = Number(msg.longitude);
+          if (
+            Number.isFinite(lat) &&
+            lat >= -90 &&
+            lat <= 90 &&
+            Number.isFinite(lng) &&
+            lng >= -180 &&
+            lng <= 180
+          ) {
+            setLocation({ latitude: lat, longitude: lng }, false, true);
+          }
+        }
+      });
+
+      // Readiness timeout fallback
+      setTimeout(() => {
+        if (!readySent) {
+          initLeaflet();
+        }
+      }, 10000);
+    </script>
+  </body>
+</html>

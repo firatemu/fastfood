@@ -3,6 +3,7 @@ import { safeValidate } from '@fastfood/validation';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Inject,
@@ -54,6 +55,8 @@ const productAvailabilitySchema = z.object({
 const updateBranchSchema = z.object({
   name: z.string().min(1).max(128).optional(),
   addressLine: z.string().min(1).max(255).optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
   phone: z
     .string()
     .regex(/^\+\d{10,15}$/)
@@ -141,13 +144,20 @@ export class AdminBranchController {
   @RequirePermissions('branches.write')
   @Patch('branches/:branchId')
   @HttpCode(200)
-  async patchBranch(@Param('branchId') branchId: string, @Body() body: unknown): Promise<unknown> {
+  async patchBranch(
+    @Param('branchId') branchId: string,
+    @Body() body: unknown,
+    @Req()
+    request: FastifyRequest & {
+      principal?: { actorType: string; isSuperAdmin?: boolean };
+    },
+  ): Promise<unknown> {
     const parsed = safeValidate(updateBranchSchema, body);
     if (!parsed.ok) {
       return {
         error: {
           code: ErrorCodes.VALIDATION_ERROR,
-          message: 'One or more fields are invalid.',
+          message: 'Bir veya daha fazla alan geçersiz.',
           details: { fields: parsed.issues },
           requestId: REQUEST_ID,
         },
@@ -157,12 +167,15 @@ export class AdminBranchController {
       const branch = await this.branchService.updateBranch(branchId, {
         name: parsed.data.name,
         addressLine: parsed.data.addressLine,
+        latitude: parsed.data.latitude,
+        longitude: parsed.data.longitude,
         phone: parsed.data.phone,
         isAcceptingOrders: parsed.data.isAcceptingOrders,
         minOrderMinor: parsed.data.minOrderMinor ? BigInt(parsed.data.minOrderMinor) : undefined,
         deliveryFeeMinor: parsed.data.deliveryFeeMinor
           ? BigInt(parsed.data.deliveryFeeMinor)
           : undefined,
+        isSuperAdmin: request.principal?.isSuperAdmin === true,
       } as UpdateBranchInput);
       return {
         data: {
@@ -173,12 +186,26 @@ export class AdminBranchController {
         meta: { requestId: REQUEST_ID },
       };
     } catch (err) {
-      const e = err as { name?: string };
+      const e = err as { name?: string; getResponse?: () => unknown; message?: string };
       if (e.name === 'NotFoundException') {
         return {
           error: {
             code: ErrorCodes.NOT_FOUND,
-            message: 'Branch not found.',
+            message: 'Şube bulunamadı.',
+            requestId: REQUEST_ID,
+          },
+        };
+      }
+      if (e.name === 'ConflictException') {
+        const resp =
+          typeof e.getResponse === 'function' ? (e.getResponse() as Record<string, unknown>) : null;
+        return {
+          error: {
+            code: (resp?.code as string) ?? 'BRANCH_ADMIN_REQUIRED',
+            message:
+              (resp?.message as string) ??
+              e.message ??
+              'Sipariş alımını açmak için şubeye aktif bir şube yöneticisi atanmış olmalıdır.',
             requestId: REQUEST_ID,
           },
         };
@@ -292,6 +319,140 @@ export class AdminBranchController {
       throw err;
     }
   }
+
+  @UseGuards(AuthGuard, AccountStatusGuard, RbacGuard, ResourceScopeGuard)
+  @RequirePermissions('branches.service_areas.write')
+  @Post('branches/:branchId/service-areas/generate-circle')
+  @HttpCode(201)
+  async generateCircleServiceArea(
+    @Param('branchId') branchId: string,
+    @Body() body: unknown,
+  ): Promise<unknown> {
+    const schema = z.object({
+      radiusKm: z.number().min(1).max(50).optional().default(10),
+    });
+    const parsed = safeValidate(schema, body ?? {});
+    if (!parsed.ok) {
+      return {
+        error: {
+          code: ErrorCodes.VALIDATION_ERROR,
+          message: 'Invalid radius.',
+          details: { fields: parsed.issues },
+          requestId: REQUEST_ID,
+        },
+      };
+    }
+    try {
+      const area = await this.branchService.generateServiceArea(branchId, parsed.data.radiusKm);
+      return { data: area, meta: { requestId: REQUEST_ID } };
+    } catch (err) {
+      const e = err as { name?: string };
+      if (e.name === 'NotFoundException') {
+        return {
+          error: {
+            code: ErrorCodes.NOT_FOUND,
+            message: 'Branch not found.',
+            requestId: REQUEST_ID,
+          },
+        };
+      }
+      throw err;
+    }
+  }
+
+  @UseGuards(AuthGuard, AccountStatusGuard, RbacGuard, ResourceScopeGuard)
+  @RequirePermissions('branches.service_areas.write')
+  @Post('branches/service-areas/generate-all')
+  @HttpCode(201)
+  async generateAllCirclesServiceArea(
+    @Body() body: unknown,
+  ): Promise<unknown> {
+    const schema = z.object({
+      radiusKm: z.number().min(1).max(50).optional().default(10),
+    });
+    const parsed = safeValidate(schema, body ?? {});
+    if (!parsed.ok) {
+      return {
+        error: {
+          code: ErrorCodes.VALIDATION_ERROR,
+          message: 'Invalid radius.',
+          details: { fields: parsed.issues },
+          requestId: REQUEST_ID,
+        },
+      };
+    }
+    const areas = await this.branchService.generateServiceAreasForAllBranches(parsed.data.radiusKm);
+    return { data: areas, meta: { requestId: REQUEST_ID } };
+  }
+
+  @UseGuards(AuthGuard, AccountStatusGuard, RbacGuard, ResourceScopeGuard)
+  @RequirePermissions('branches.service_areas.write')
+  @Patch('branches/:branchId/service-areas/:serviceAreaId')
+  @HttpCode(200)
+  async updateServiceArea(
+    @Param('branchId') branchId: string,
+    @Param('serviceAreaId') serviceAreaId: string,
+    @Body() body: unknown,
+  ): Promise<unknown> {
+    const schema = z.object({
+      name: z.string().min(1).max(128).optional(),
+      priority: z.number().int().min(0).optional(),
+    });
+    const parsed = safeValidate(schema, body);
+    if (!parsed.ok) {
+      return {
+        error: {
+          code: ErrorCodes.VALIDATION_ERROR,
+          message: 'One or more fields are invalid.',
+          details: { fields: parsed.issues },
+          requestId: REQUEST_ID,
+        },
+      };
+    }
+    try {
+      const area = await this.branchService.updateServiceArea(branchId, serviceAreaId, parsed.data);
+      return { data: area, meta: { requestId: REQUEST_ID } };
+    } catch (err) {
+      const e = err as { name?: string };
+      if (e.name === 'NotFoundException') {
+        return {
+          error: {
+            code: ErrorCodes.NOT_FOUND,
+            message: 'Service area not found.',
+            requestId: REQUEST_ID,
+          },
+        };
+      }
+      throw err;
+    }
+  }
+
+  @UseGuards(AuthGuard, AccountStatusGuard, RbacGuard, ResourceScopeGuard)
+  @RequirePermissions('branches.service_areas.write')
+  @Delete('branches/:branchId/service-areas/:serviceAreaId')
+  @HttpCode(204)
+  async deactivateServiceArea(
+    @Param('branchId') branchId: string,
+    @Param('serviceAreaId') serviceAreaId: string,
+  ): Promise<unknown> {
+    try {
+      await this.branchService.deactivateServiceArea(branchId, serviceAreaId);
+      return null;
+    } catch (err) {
+      const e = err as { name?: string };
+      if (e.name === 'NotFoundException') {
+        return {
+          error: {
+            code: ErrorCodes.NOT_FOUND,
+            message: 'Service area not found.',
+            requestId: REQUEST_ID,
+          },
+        };
+      }
+      throw err;
+    }
+  }
+
 
   @UseGuards(AuthGuard, AccountStatusGuard, RbacGuard, ResourceScopeGuard)
   @RequirePermissions('branches.write')

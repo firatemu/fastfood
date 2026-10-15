@@ -66,13 +66,33 @@ export class RoutingService {
     }
     return assignment;
   }
+
+  assignAll(
+    latitude: number,
+    longitude: number,
+    serviceAreas: readonly ServiceAreaDto[],
+  ): RoutingAssignment[] {
+    const matches: RoutingAssignment[] = [];
+    for (const sa of serviceAreas) {
+      if (!sa.isActive) continue;
+      if (!pointInPolygon(latitude, longitude, sa.polygonGeoJson)) continue;
+      matches.push({
+        branchId: sa.branchId,
+        serviceAreaId: sa.id,
+        priority: sa.priority,
+      });
+    }
+    // Sort by priority ascending (lower wins)
+    matches.sort((a, b) => a.priority - b.priority);
+    return matches;
+  }
 }
 
 /**
  * Ray-casting point-in-polygon for GeoJSON Polygon /
  * MultiPolygon. Coordinates are [longitude, latitude].
  */
-function pointInPolygon(
+export function pointInPolygon(
   latitude: number,
   longitude: number,
   geometry: { type: 'Polygon' | 'MultiPolygon'; coordinates: unknown },
@@ -110,3 +130,75 @@ function ringContainsPoint(latitude: number, longitude: number, rings: number[][
   }
   return inside;
 }
+
+const EARTH_RADIUS_KM = 6371;
+
+/**
+ * Generates a GeoJSON Polygon approximating a circle around (centerLat, centerLng).
+ * Coordinates in the resulting ring are [longitude, latitude] GeoJSON order.
+ * The ring is closed (first point equals last point).
+ */
+export function generateCirclePolygon(
+  centerLat: number,
+  centerLng: number,
+  radiusKm: number,
+  numPoints: number = 64,
+): { type: 'Polygon'; coordinates: [number, number][][] } {
+  const d = radiusKm / EARTH_RADIUS_KM;
+  const latRad = (centerLat * Math.PI) / 180;
+  const lngRad = (centerLng * Math.PI) / 180;
+  const ring: [number, number][] = [];
+
+  for (let i = 0; i < numPoints; i++) {
+    const bearing = (2 * Math.PI * i) / numPoints;
+    const sinLat = Math.sin(latRad);
+    const cosLat = Math.cos(latRad);
+    const sinD = Math.sin(d);
+    const cosD = Math.cos(d);
+    const sinBearing = Math.sin(bearing);
+    const cosBearing = Math.cos(bearing);
+
+    const ptLatRad = Math.asin(sinLat * cosD + cosLat * sinD * cosBearing);
+    const ptLngRad =
+      lngRad +
+      Math.atan2(sinBearing * sinD * cosLat, cosD - sinLat * Math.sin(ptLatRad));
+
+    const ptLat = (ptLatRad * 180) / Math.PI;
+    let ptLng = (ptLngRad * 180) / Math.PI;
+    ptLng = ((ptLng + 540) % 360) - 180;
+
+    ring.push([ptLng, ptLat]);
+  }
+
+  const firstPoint = ring[0];
+  if (firstPoint) {
+    ring.push([firstPoint[0], firstPoint[1]]);
+  }
+
+  return {
+    type: 'Polygon' as const,
+    coordinates: [ring],
+  };
+}
+
+/**
+ * Calculates Haversine distance in kilometers between two GPS coordinates.
+ */
+export function calculateDistanceKm(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number {
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Number((EARTH_RADIUS_KM * c).toFixed(2));
+}
+

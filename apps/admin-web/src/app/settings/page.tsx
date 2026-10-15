@@ -9,6 +9,7 @@ import { OpsBoundary } from '../../components/ops/ops-boundary';
 import { OpsPageHeader } from '../../components/ops/ops-page-header';
 import { useOpsSync } from '../../components/ops/ops-sync';
 import { OperationalTable } from '../../components/ops/ops-table';
+import { useOpsToast } from '../../components/ops/ops-toast';
 import { ActionButton, KeylineCard, StatusBadge } from '../../components/ops/ops-ui';
 import {
   canPatchSetting,
@@ -34,12 +35,11 @@ function toneFor(kind: SettingClass) {
 
 export default function SettingsPage() {
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [state, setState] = useState<LoadState<Setting[]>>({ status: 'loading' });
   const [selectedKey, setSelectedKey] = useState('');
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
-  const [flash, setFlash] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
 
   const load = useCallback(async () => {
@@ -79,23 +79,19 @@ export default function SettingsPage() {
   function selectRow(row: Setting) {
     setSelectedKey(row.key);
     setDraft(JSON.stringify(row.valueJson ?? null, null, 2));
-    setFormError(null);
-    setFlash(null);
   }
 
   async function save() {
     if (!selected || !canPatchSetting(selected)) {
-      setFormError('Bu ayar Admin UI’dan değiştirilemez.');
+      toast.error('Bu ayar Admin UI’dan değiştirilemez.');
       return;
     }
     const parsed = parseSettingJson(draft);
     if (!parsed.ok) {
-      setFormError('valueJson geçerli JSON olmalı.');
+      toast.error('valueJson geçerli JSON olmalı.');
       return;
     }
     setBusy(true);
-    setFormError(null);
-    setFlash(null);
     try {
       await createAdminClient().request({
         method: 'PATCH',
@@ -103,11 +99,11 @@ export default function SettingsPage() {
         body: { valueJson: parsed.value },
         schema: adminSettingPatchSchema,
       });
-      setFlash(`Kaydedildi: ${selected.key}`);
+      toast.success(`Kaydedildi: ${selected.key}`);
       setConfirm(false);
       await load();
     } catch (err) {
-      setFormError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -193,12 +189,6 @@ export default function SettingsPage() {
               >
                 Kaydet
               </ActionButton>
-              {flash ? <p className="ops-page__lede">{flash}</p> : null}
-              {formError ? (
-                <p className="ops-page__lede" role="alert">
-                  {formError}
-                </p>
-              ) : null}
             </div>
           ) : (
             <p className="ops-page__lede">Listeden bir ayar seçin.</p>

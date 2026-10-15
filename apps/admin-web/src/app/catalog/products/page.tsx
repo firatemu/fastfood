@@ -18,6 +18,7 @@ import { errorMessage, type LoadState } from '../../../components/async-boundary
 import { OpsBoundary } from '../../../components/ops/ops-boundary';
 import { OpsIcon } from '../../../components/ops/ops-icon';
 import { useOpsSync } from '../../../components/ops/ops-sync';
+import { useOpsToast } from '../../../components/ops/ops-toast';
 import { ActionButton, OpsEmpty } from '../../../components/ops/ops-ui';
 import { ProductsDataGrid } from '../../../components/ops/products-data-grid';
 import { createAdminClient } from '../../../lib/api';
@@ -77,7 +78,6 @@ type EditMediaState = {
   url: string;
   alt: string;
   file: File | null;
-  flash: { tone: 'ok' | 'err'; text: string } | null;
 };
 
 const SELECTED_STORAGE_KEY = 'ff-ops-selected-products';
@@ -105,7 +105,7 @@ function persistSelected(set: Set<string>): void {
 }
 
 function makeEmptyEditMedia(): EditMediaState {
-  return { rows: [], busy: false, url: '', alt: '', file: null, flash: null };
+  return { rows: [], busy: false, url: '', alt: '', file: null };
 }
 
 function formatImageBytes(bytes: number): string {
@@ -122,6 +122,7 @@ export default function CatalogProductsPage(): ReactElement {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [, startTransition] = useTransition();
 
   const [state, setState] = useState<LoadState<Product[]>>({ status: 'loading' });
@@ -158,7 +159,6 @@ export default function CatalogProductsPage(): ReactElement {
   const [createDisplayOrder, setCreateDisplayOrder] = useState('0');
 
   const [busy, setBusy] = useState(false);
-  const [flash, setFlash] = useState<{ tone: 'ok' | 'err'; text: string } | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => loadSelected());
 
   const debouncedQ = useDeferredValue(q.trim());
@@ -325,26 +325,23 @@ export default function CatalogProductsPage(): ReactElement {
 
   const loadEditMedia = useCallback(
     async (productId: string): Promise<void> => {
-      setEditMedia((prev) => ({ ...prev, busy: true, flash: null }));
       try {
         const client = createAdminClient();
         const res = await client.request({
           path: `admin/products/${productId}/media`,
           schema: adminMediaListSchema,
         });
-        setEditMedia((prev) => ({ ...prev, rows: res.data }));
+        setEditMedia((prev) => ({ ...prev, rows: res.data, busy: false }));
       } catch (error) {
-        setEditMedia((prev) => ({ ...prev, flash: { tone: 'err', text: errorMessage(error) } }));
-      } finally {
         setEditMedia((prev) => ({ ...prev, busy: false }));
+        toast.error(errorMessage(error));
       }
     },
-    [setEditMedia],
+    [setEditMedia, toast],
   );
 
   const openEdit = useCallback(
     (row: Product): void => {
-      setFlash(null);
       const minor = row.basePriceMinor ?? '0';
       let major = '99,90';
       try {
@@ -368,28 +365,22 @@ export default function CatalogProductsPage(): ReactElement {
         isActive: row.isActive !== false,
         displayOrder: row.displayOrder?.toString() ?? '0',
       });
-      setEditMedia(makeEmptyEditMedia());
+      setEditMedia({ ...makeEmptyEditMedia(), busy: true });
       setConfirmDeactivate(false);
       setArchiveAcknowledged(false);
       setModal({ kind: 'edit', productId: row.id, initialActive: row.isActive !== false });
+      // Fetched from the click handler rather than an effect on `modal`: the
+      // effect body only ran to kick off a state-setting fetch, which the
+      // react-hooks/set-state-in-effect rule correctly rejects.
+      void loadEditMedia(row.id);
     },
-    [setEditMedia],
+    [loadEditMedia, setEditMedia],
   );
-
-  // When the edit drawer opens, fetch its media list.
-  useEffect(() => {
-    if (modal.kind === 'edit') {
-      void loadEditMedia(modal.productId);
-    }
-    // loadEditMedia is stable; excluding it to avoid a circular type dependency
-    // with the openEdit callback that defines modal state.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modal]);
 
   const attachEditMedia = useCallback(async (): Promise<void> => {
     if (modal.kind !== 'edit') return;
     const { productId } = modal;
-    setEditMedia((prev) => ({ ...prev, busy: true, flash: null }));
+    setEditMedia((prev) => ({ ...prev, busy: true }));
     try {
       const client = createAdminClient();
       if (editMedia.file) {
@@ -398,11 +389,8 @@ export default function CatalogProductsPage(): ReactElement {
           file: editMedia.file,
           altText: editMedia.alt.trim() || undefined,
         });
-        setEditMedia((prev) => ({
-          ...prev,
-          file: null,
-          flash: { tone: 'ok', text: 'Görsel yüklendi.' },
-        }));
+        toast.success('Görsel yüklendi.');
+        setEditMedia((prev) => ({ ...prev, file: null }));
       } else if (editMedia.url.trim()) {
         await client.request({
           method: 'POST',
@@ -414,27 +402,21 @@ export default function CatalogProductsPage(): ReactElement {
           },
           schema: adminMediaSchema,
         });
-        setEditMedia((prev) => ({
-          ...prev,
-          url: '',
-          flash: { tone: 'ok', text: 'Medya URL eklendi.' },
-        }));
+        toast.success('Medya URL eklendi.');
+        setEditMedia((prev) => ({ ...prev, url: '' }));
       } else {
-        setEditMedia((prev) => ({
-          ...prev,
-          busy: false,
-          flash: { tone: 'err', text: 'Görsel dosyası veya URL gerekli.' },
-        }));
+        toast.error('Görsel dosyası veya URL gerekli.');
+        setEditMedia((prev) => ({ ...prev, busy: false }));
         return;
       }
       setEditMedia((prev) => ({ ...prev, alt: '' }));
       await loadEditMedia(productId);
     } catch (error) {
-      setEditMedia((prev) => ({ ...prev, flash: { tone: 'err', text: errorMessage(error) } }));
+      toast.error(errorMessage(error));
     } finally {
       setEditMedia((prev) => ({ ...prev, busy: false }));
     }
-  }, [setEditMedia, loadEditMedia, modal, editMedia.alt, editMedia.file, editMedia.url]);
+  }, [setEditMedia, loadEditMedia, modal, editMedia.alt, editMedia.file, editMedia.url, toast]);
 
   // -------------------------------------------------------------------------
   // Bulk actions
@@ -450,7 +432,6 @@ export default function CatalogProductsPage(): ReactElement {
   async function handleBulkUpdate(isActive: boolean): Promise<void> {
     if (selectedIds.size === 0) return;
     setBusy(true);
-    setFlash(null);
     try {
       const admin = createAdminClient();
       const ids = rows.filter((r) => selectedIds.has(r.id)).map((r) => r.id);
@@ -464,14 +445,11 @@ export default function CatalogProductsPage(): ReactElement {
           }),
         ),
       );
-      setFlash({
-        tone: 'ok',
-        text: `${ids.length} ürün ${isActive ? 'aktif' : 'arşiv'} yapıldı.`,
-      });
+      toast.success(`${ids.length} ürün ${isActive ? 'aktif' : 'arşiv'} yapıldı.`);
       clearSelection();
       await load();
     } catch (error) {
-      setFlash({ tone: 'err', text: errorMessage(error) });
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -480,7 +458,6 @@ export default function CatalogProductsPage(): ReactElement {
   async function handleBulkCategory(categoryId: string): Promise<void> {
     if (!categoryId || selectedIds.size === 0) return;
     setBusy(true);
-    setFlash(null);
     try {
       const admin = createAdminClient();
       const ids = rows.filter((r) => selectedIds.has(r.id)).map((r) => r.id);
@@ -494,11 +471,11 @@ export default function CatalogProductsPage(): ReactElement {
           }),
         ),
       );
-      setFlash({ tone: 'ok', text: `${ids.length} ürün kategori taşındı.` });
+      toast.success(`${ids.length} ürün kategori taşındı.`);
       clearSelection();
       await load();
     } catch (error) {
-      setFlash({ tone: 'err', text: errorMessage(error) });
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -525,25 +502,24 @@ export default function CatalogProductsPage(): ReactElement {
   async function saveEdit(): Promise<void> {
     if (modal.kind !== 'edit') return;
     setBusy(true);
-    setFlash(null);
     const minor = parseTryMajorToMinor(editForm.basePriceMajor);
     if (!editForm.name.trim()) {
-      setFlash({ tone: 'err', text: 'Ad zorunlu.' });
+      toast.error('Ad zorunlu.');
       setBusy(false);
       return;
     }
     if (!editForm.categoryId) {
-      setFlash({ tone: 'err', text: 'Kategori seçin.' });
+      toast.error('Kategori seçin.');
       setBusy(false);
       return;
     }
     if (!Number.isInteger(Number(editForm.displayOrder)) || Number(editForm.displayOrder) < 0) {
-      setFlash({ tone: 'err', text: 'Gösterim sırası sıfır veya daha büyük tam sayı olmalı.' });
+      toast.error('Gösterim sırası sıfır veya daha büyük tam sayı olmalı.');
       setBusy(false);
       return;
     }
     if (!minor && editForm.basePriceMajor.trim().length > 0) {
-      setFlash({ tone: 'err', text: 'Fiyat geçersiz.' });
+      toast.error('Fiyat geçersiz.');
       setBusy(false);
       return;
     }
@@ -565,11 +541,11 @@ export default function CatalogProductsPage(): ReactElement {
         },
         schema: envelope(z.unknown()),
       });
-      setFlash({ tone: 'ok', text: 'Ürün güncellendi.' });
+      toast.success('Ürün güncellendi.');
       setModal({ kind: 'closed' });
       await load();
     } catch (error) {
-      setFlash({ tone: 'err', text: errorMessage(error) });
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -577,20 +553,19 @@ export default function CatalogProductsPage(): ReactElement {
 
   async function createProduct(): Promise<void> {
     if (!createName.trim() || !createSlug.trim() || !createCategoryId) {
-      setFlash({ tone: 'err', text: 'Ad, slug ve kategori zorunlu.' });
+      toast.error('Ad, slug ve kategori zorunlu.');
       return;
     }
     const minor = parseTryMajorToMinor(createPriceMajor);
     if (!minor) {
-      setFlash({ tone: 'err', text: 'Fiyat geçersiz.' });
+      toast.error('Fiyat geçersiz.');
       return;
     }
     if (!Number.isInteger(Number(createDisplayOrder)) || Number(createDisplayOrder) < 0) {
-      setFlash({ tone: 'err', text: 'Gösterim sırası sıfır veya daha büyük tam sayı olmalı.' });
+      toast.error('Gösterim sırası sıfır veya daha büyük tam sayı olmalı.');
       return;
     }
     setBusy(true);
-    setFlash(null);
     try {
       const client = createAdminClient();
       const res = await client.request({
@@ -609,7 +584,7 @@ export default function CatalogProductsPage(): ReactElement {
         },
         schema: productCreateSchema,
       });
-      setFlash({ tone: 'ok', text: `Ürün oluşturuldu: ${res.data.name ?? createName}` });
+      toast.success(`Ürün oluşturuldu: ${res.data.name ?? createName}`);
       setCreateName('');
       setCreateSlug('');
       setCreateSlugTouched(false);
@@ -619,7 +594,7 @@ export default function CatalogProductsPage(): ReactElement {
       setModal({ kind: 'closed' });
       await load();
     } catch (error) {
-      setFlash({ tone: 'err', text: errorMessage(error) });
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -633,7 +608,6 @@ export default function CatalogProductsPage(): ReactElement {
     if (modal.kind !== 'delete') return;
     const ids = modal.productIds;
     setBusy(true);
-    setFlash(null);
     try {
       const client = createAdminClient();
       for (const id of ids) {
@@ -654,19 +628,17 @@ export default function CatalogProductsPage(): ReactElement {
         }
       }
       const verb = force ? 'kalıcı silindi' : 'arşivlendi';
-      setFlash({ tone: 'ok', text: `${ids.length} ürün ${verb}.` });
+      toast.success(`${ids.length} ürün ${verb}.`);
       setModal({ kind: 'closed' });
       clearSelection();
       await load();
     } catch (error) {
       const code = (error as { envelope?: { error?: { code?: string } } })?.envelope?.error?.code;
-      setFlash({
-        tone: 'err',
-        text:
-          code === 'VALIDATION_ERROR'
-            ? 'Ürün aktif siparişlerde kullanılıyor; kuvvetle silmek için onayı işaretleyin.'
-            : errorMessage(error),
-      });
+      toast.error(
+        code === 'VALIDATION_ERROR'
+          ? 'Ürün aktif siparişlerde kullanılıyor; kuvvetle silmek için onayı işaretleyin.'
+          : errorMessage(error),
+      );
     } finally {
       setBusy(false);
     }
@@ -811,16 +783,6 @@ export default function CatalogProductsPage(): ReactElement {
         </div>
       ) : null}
 
-      {flash ? (
-        <p
-          role="status"
-          aria-live="polite"
-          className={`${styles.notice} ${flash.tone === 'ok' ? styles.success : styles.error}`}
-        >
-          {flash.text}
-        </p>
-      ) : null}
-
       <OpsBoundary
         state={state}
         emptyTitle="Henüz ürün eklenmemiş"
@@ -883,7 +845,6 @@ export default function CatalogProductsPage(): ReactElement {
           archiveAcknowledged={archiveAcknowledged}
           setArchiveAcknowledged={setArchiveAcknowledged}
           busy={busy}
-          notice={flash}
           onClose={() => setModal({ kind: 'closed' })}
           onSave={() => void proceedWithSaveEdit()}
           onArchive={() => {
@@ -950,7 +911,6 @@ function ProductEditExperience(props: {
   archiveAcknowledged: boolean;
   setArchiveAcknowledged: (value: boolean) => void;
   busy: boolean;
-  notice: { tone: 'ok' | 'err'; text: string } | null;
   onClose: () => void;
   onSave: () => void;
   onArchive: () => void;
@@ -1145,14 +1105,6 @@ function ProductEditExperience(props: {
           </aside>
 
           <div className={styles.editorMain}>
-            {props.notice ? (
-              <p
-                className={`${styles.editorNotice} ${props.notice.tone === 'ok' ? styles.editorNoticeSuccess : styles.editorNoticeError}`}
-                role="status"
-              >
-                {props.notice.text}
-              </p>
-            ) : null}
             {props.confirmDeactivate && !props.form.isActive ? (
               <div className={styles.editorWarning} role="alert">
                 <OpsIcon name="warning" />
@@ -1621,15 +1573,6 @@ function ProductMediaWorkspace(props: {
           <OpsIcon name="image" /> {props.media.rows.length} görsel
         </span>
       </header>
-
-      {props.media.flash ? (
-        <p
-          className={`${styles.editorNotice} ${props.media.flash.tone === 'ok' ? styles.editorNoticeSuccess : styles.editorNoticeError}`}
-          role="status"
-        >
-          {props.media.flash.text}
-        </p>
-      ) : null}
 
       {props.media.rows.length > 0 ? (
         <div className={styles.mediaGallery}>

@@ -9,7 +9,7 @@ export function isA2Path(pathname: string): boolean {
   return pathname === '/catalog' || pathname.startsWith('/catalog/');
 }
 
-const A3_STATIC_BRANCH_SEGMENTS = ['service-areas', 'availability'] as const;
+const A3_STATIC_BRANCH_SEGMENTS = ['service-areas', 'availability', 'map'] as const;
 
 /** `/branches/:id` excluding static A3 siblings. */
 export function isRouteIdentifiedBranchPath(pathname: string): boolean {

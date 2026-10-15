@@ -57,7 +57,7 @@ export function DeliveryAddressCard({
               ) : null}
               {!location.serviceable ? (
                 <span className="px-2 py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-[10px] uppercase">
-                  Bölge dışı
+                  Bölge dışı (&gt; 10 km)
                 </span>
               ) : null}
             </div>

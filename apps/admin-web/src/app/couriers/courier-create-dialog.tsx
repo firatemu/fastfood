@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { OpsIcon } from '../../components/ops/ops-icon';
+import { useOpsToast } from '../../components/ops/ops-toast';
 import { ActionButton } from '../../components/ops/ops-ui';
 import {
   EMPTY_COURIER_DRAFT,
@@ -49,7 +50,7 @@ export function CourierCreateDialog({
   onSubmit,
 }: CourierCreateDialogProps) {
   const [draft, setDraft] = useState<CourierDraft>(EMPTY_COURIER_DRAFT);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useOpsToast();
 
   const lockedBranch = lockedBranchId
     ? branches.find((branch) => branch.id === lockedBranchId)
@@ -65,14 +66,13 @@ export function CourierCreateDialog({
 
   function update<K extends keyof CourierDraft>(key: K, value: CourierDraft[K]): void {
     setDraft((current) => ({ ...current, [key]: value }));
-    setError(null);
   }
 
   function submit(): void {
     const complete = lockedBranchId ? { ...draft, branchIds: [lockedBranchId] } : draft;
     const message = validateCourierDraft(complete);
     if (message) {
-      setError(message);
+      toast.error(message);
       return;
     }
     onSubmit(complete);
@@ -277,12 +277,6 @@ export function CourierCreateDialog({
               </p>
             )}
           </fieldset>
-
-          {error ? (
-            <p className={styles.formError} role="alert">
-              <OpsIcon name="error" /> {error}
-            </p>
-          ) : null}
         </div>
 
         <footer className={styles.modalFooter}>

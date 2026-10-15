@@ -1070,36 +1070,12 @@
 
 .selfNotice,
 .inlineError,
-.successMessage {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin: 9px 0 0;
-  padding: 8px;
-  border: 1px solid var(--ff-status-warn-border);
-  background: light-dark(rgba(244, 173, 52, 0.08), rgba(245, 158, 11, 0.08));
-  color: light-dark(#8f6c1f, #e0bd70);
-  font-size: 9px;
-  line-height: 1.45;
-}
-
 .selfNotice :global(.material-symbols-outlined),
 .inlineError :global(.material-symbols-outlined),
-.successMessage :global(.material-symbols-outlined) {
-  flex: 0 0 auto;
-  font-size: 14px;
-}
-
 .inlineError {
   border-color: light-dark(rgba(146, 160, 170, 0.36), rgba(239, 68, 68, 0.36));
   background: light-dark(rgba(246, 233, 233, 0.09), rgba(239, 68, 68, 0.09));
   color: light-dark(#a51c0d, #ffaaa1);
-}
-
-.successMessage {
-  border-color: var(--ff-status-ready-border);
-  background: var(--ff-status-ready-wash);
-  color: light-dark(#248e65, #69d9ad);
 }
 
 .scopeNotice {
@@ -1902,12 +1878,6 @@
 
 .selfNotice,
 .inlineError,
-.successMessage {
-  border-radius: 7px;
-  font-size: 11px;
-  line-height: 1.45;
-}
-
 .linkDialog[open] {
   width: min(520px, calc(100vw - 32px));
   max-width: none;

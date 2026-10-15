@@ -17,6 +17,7 @@ import type { z } from 'zod';
 import { errorMessage, type LoadState } from '../../../components/async-boundary';
 import { OpsIcon } from '../../../components/ops/ops-icon';
 import { useOpsSync } from '../../../components/ops/ops-sync';
+import { useOpsToast } from '../../../components/ops/ops-toast';
 import { ActionButton } from '../../../components/ops/ops-ui';
 import { createAdminClient } from '../../../lib/api';
 import { modifierBoundsValid } from '../../../lib/catalog-ops';
@@ -78,6 +79,7 @@ function shortId(id: string): string {
 
 export default function ModifiersPage() {
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [state, setState] = useState<LoadState<ModifierGroup[]>>({ status: 'loading' });
   const [products, setProducts] = useState<ModifierProduct[]>([]);
   const [viewFilter, setViewFilter] = useState<ViewFilter>('all');
@@ -90,8 +92,6 @@ export default function ModifiersPage() {
   const [selectionMin, setSelectionMin] = useState('0');
   const [selectionMax, setSelectionMax] = useState('1');
   const [busy, setBusy] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [groupDraft, setGroupDraft] = useState({ name: '', selectionMin: '0', selectionMax: '1' });
   const [optionDraft, setOptionDraft] = useState({ id: '', name: '', price: '' });
   const [productToLink, setProductToLink] = useState('');
@@ -303,17 +303,15 @@ export default function ModifiersPage() {
   async function createGroup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
-    setFormError(null);
-    setNotice(null);
     const min = Number(selectionMin);
     const max = Number(selectionMax);
     if (!name.trim()) {
-      setFormError('Grup adı zorunludur.');
+      toast.error('Grup adı zorunludur.');
       setBusy(false);
       return;
     }
     if (!Number.isInteger(min) || !Number.isInteger(max) || !modifierBoundsValid(min, max)) {
-      setFormError(
+      toast.error(
         'Seçim sınırları sıfır veya daha büyük tam sayı olmalı; minimum, maksimumu aşamaz.',
       );
       setBusy(false);
@@ -331,10 +329,10 @@ export default function ModifiersPage() {
       setName('');
       setSelectionMin('0');
       setSelectionMax('1');
-      setNotice('Modifier grubu oluşturuldu.');
+      toast.success('Modifier grubu oluşturuldu.');
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -358,8 +356,6 @@ export default function ModifiersPage() {
         (group.products ?? []).map((product) => [product.id, String(product.displayOrder)]),
       ),
     );
-    setFormError(null);
-    setNotice(null);
   }
 
   async function refreshSelected(groupId = selectedGroup?.id) {
@@ -381,11 +377,10 @@ export default function ModifiersPage() {
       !Number.isInteger(max) ||
       !modifierBoundsValid(min, max)
     ) {
-      setFormError('Grup adı ve geçerli minimum/maksimum seçim aralığı girin.');
+      toast.error('Grup adı ve geçerli minimum/maksimum seçim aralığı girin.');
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'PATCH',
@@ -393,10 +388,10 @@ export default function ModifiersPage() {
         body: { name: groupDraft.name.trim(), selectionMin: min, selectionMax: max },
         schema: modifierGroupCreateSchema,
       });
-      setNotice('Modifier grubu güncellendi.');
+      toast.success('Modifier grubu güncellendi.');
       await refreshSelected(selectedGroup.id);
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -419,11 +414,10 @@ export default function ModifiersPage() {
     if (!selectedGroup) return;
     const priceDeltaMinor = priceToMinor(optionDraft.price);
     if (!optionDraft.name.trim() || priceDeltaMinor === null) {
-      setFormError('Seçenek adı girin; fiyatı 0,00 biçiminde yazın.');
+      toast.error('Seçenek adı girin; fiyatı 0,00 biçiminde yazın.');
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       const editing = Boolean(optionDraft.id);
       await createAdminClient().request({
@@ -435,10 +429,10 @@ export default function ModifiersPage() {
         schema: modifierOptionCreateSchema,
       });
       setOptionDraft({ id: '', name: '', price: '' });
-      setNotice(editing ? 'Seçenek güncellendi.' : 'Seçenek eklendi.');
+      toast.success(editing ? 'Seçenek güncellendi.' : 'Seçenek eklendi.');
       await refreshSelected(selectedGroup.id);
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -447,7 +441,6 @@ export default function ModifiersPage() {
   async function setOptionActive(optionId: string, isActive: boolean) {
     if (!selectedGroup) return;
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'PATCH',
@@ -455,10 +448,10 @@ export default function ModifiersPage() {
         body: { isActive },
         schema: modifierOptionCreateSchema,
       });
-      setNotice(isActive ? 'Seçenek yeniden etkinleştirildi.' : 'Seçenek pasife alındı.');
+      toast.success(isActive ? 'Seçenek yeniden etkinleştirildi.' : 'Seçenek pasife alındı.');
       await refreshSelected(selectedGroup.id);
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -468,7 +461,6 @@ export default function ModifiersPage() {
     if (!selectedGroup) return;
     const isActive = selectedGroup.isActive === false;
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'PATCH',
@@ -476,10 +468,10 @@ export default function ModifiersPage() {
         body: { isActive },
         schema: modifierGroupCreateSchema,
       });
-      setNotice(isActive ? 'Grup yeniden etkinleştirildi.' : 'Grup pasife alındı.');
+      toast.success(isActive ? 'Grup yeniden etkinleştirildi.' : 'Grup pasife alındı.');
       await refreshSelected(selectedGroup.id);
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -490,11 +482,10 @@ export default function ModifiersPage() {
     if (!selectedGroup || !productToLink) return;
     const displayOrder = Number(productDisplayOrder);
     if (!Number.isInteger(displayOrder) || displayOrder < 0) {
-      setFormError('Ürün sırası sıfır veya daha büyük bir tam sayı olmalı.');
+      toast.error('Ürün sırası sıfır veya daha büyük bir tam sayı olmalı.');
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'POST',
@@ -503,10 +494,10 @@ export default function ModifiersPage() {
         schema: modifierGroupLinkSchema,
       });
       setProductToLink('');
-      setNotice('Grup ürüne bağlandı.');
+      toast.success('Grup ürüne bağlandı.');
       await refreshSelected(selectedGroup.id);
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -516,11 +507,10 @@ export default function ModifiersPage() {
     if (!selectedGroup) return;
     const displayOrder = Number(productOrderDrafts[productId]);
     if (!Number.isInteger(displayOrder) || displayOrder < 0) {
-      setFormError('Ürün sırası sıfır veya daha büyük bir tam sayı olmalı.');
+      toast.error('Ürün sırası sıfır veya daha büyük bir tam sayı olmalı.');
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'POST',
@@ -528,10 +518,10 @@ export default function ModifiersPage() {
         body: { displayOrder },
         schema: modifierGroupLinkSchema,
       });
-      setNotice('Ürün sırası güncellendi.');
+      toast.success('Ürün sırası güncellendi.');
       await refreshSelected(selectedGroup.id);
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -540,17 +530,16 @@ export default function ModifiersPage() {
   async function unlinkProduct(productId: string) {
     if (!selectedGroup) return;
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'DELETE',
         path: `admin/modifier-groups/${selectedGroup.id}/products/${productId}`,
         schema: modifierGroupLinkSchema,
       });
-      setNotice('Ürün bağlantısı kaldırıldı.');
+      toast.success('Ürün bağlantısı kaldırıldı.');
       await refreshSelected(selectedGroup.id);
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -575,15 +564,6 @@ export default function ModifiersPage() {
           Yeni grup
         </button>
       </header>
-
-      {notice && !selectedGroup ? (
-        <div className={styles.notice} role="status">
-          <OpsIcon name="check_circle" /> {notice}
-          <button type="button" aria-label="Bildirimi kapat" onClick={() => setNotice(null)}>
-            ×
-          </button>
-        </div>
-      ) : null}
 
       <section className={styles.gridPanel} aria-label="Modifier grupları tablosu">
         <div className={styles.gridHeading}>
@@ -960,12 +940,6 @@ export default function ModifiersPage() {
                     </span>
                   </div>
                 </div>
-                {formError ? (
-                  <p className={styles.formError} role="alert">
-                    <OpsIcon name="error" />
-                    {formError}
-                  </p>
-                ) : null}
               </div>
               <footer className={styles.dialogFooter}>
                 <button
@@ -1074,7 +1048,6 @@ export default function ModifiersPage() {
                 const nextTab = tabs[next];
                 if (!nextTab) return;
                 setEditTab(nextTab);
-                setFormError(null);
                 window.requestAnimationFrame(() =>
                   document.getElementById(`modifier-tab-${nextTab}`)?.focus(),
                 );
@@ -1098,7 +1071,6 @@ export default function ModifiersPage() {
                   className={`${styles.editTab} ${editTab === tab ? styles.editTabActive : ''}`}
                   onClick={() => {
                     setEditTab(tab);
-                    setFormError(null);
                   }}
                 >
                   <OpsIcon name={icon} />
@@ -1114,26 +1086,6 @@ export default function ModifiersPage() {
               role="tabpanel"
               aria-labelledby={`modifier-tab-${editTab}`}
             >
-              {notice ? (
-                <div className={styles.editNotice} role="status">
-                  <OpsIcon name="check_circle" />
-                  <span>{notice}</span>
-                  <button
-                    type="button"
-                    onClick={() => setNotice(null)}
-                    aria-label="Bildirimi kapat"
-                  >
-                    ×
-                  </button>
-                </div>
-              ) : null}
-              {formError ? (
-                <p className={styles.formError} role="alert">
-                  <OpsIcon name="error" />
-                  {formError}
-                </p>
-              ) : null}
-
               {editTab === 'settings' ? (
                 <form
                   className={styles.managementSection}

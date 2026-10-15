@@ -27,6 +27,7 @@ export function buildCheckoutQuotePayload(input: {
   latitude: number;
   longitude: number;
   pickupBranchId: string | null;
+  deliveryBranchId?: string | null;
   couponCode: string;
   tipMinor: string;
   scheduledFor: string | null;
@@ -56,6 +57,9 @@ export function buildCheckoutQuotePayload(input: {
   if (input.fulfillmentMode === 'DELIVERY') {
     body.latitude = input.latitude;
     body.longitude = input.longitude;
+    if (input.deliveryBranchId) {
+      body.deliveryBranchId = input.deliveryBranchId;
+    }
   } else if (input.pickupBranchId) {
     body.pickupBranchId = input.pickupBranchId;
   }

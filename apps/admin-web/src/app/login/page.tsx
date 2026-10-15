@@ -96,6 +96,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import { errorMessage } from '../../components/async-boundary';
+import { useOpsToast } from '../../components/ops/ops-toast';
 import { ADMIN_NAV_SECTIONS } from '../../lib/admin-nav';
 import { createAdminClient, setStaffSession } from '../../lib/api';
 import { staffLoginSchema, staffMfaSchema } from '../../lib/schemas';
@@ -158,6 +159,7 @@ function readFieldErrors(error: unknown): FieldErrors {
 }
 
 export default function LoginPage() {
+  const toast = useOpsToast();
   const router = useRouter();
   const [step, setStep] = useState<Step>('credentials');
   const [identifier, setIdentifier] = useState('');
@@ -166,7 +168,6 @@ export default function LoginPage() {
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [revealPassword, setRevealPassword] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [challengeExpired, setChallengeExpired] = useState(false);
 
@@ -203,7 +204,6 @@ export default function LoginPage() {
 
   async function signIn() {
     setBusy(true);
-    setError(null);
     setFieldErrors({});
     try {
       const res = await createAdminClient().request({
@@ -223,7 +223,7 @@ export default function LoginPage() {
       const perField = readFieldErrors(err);
       setFieldErrors(perField);
       if (Object.keys(perField).length === 0) {
-        setError(
+        toast.error(
           err instanceof ApiError && err.envelope.error.code === 'AUTH_INVALID_CREDENTIALS'
             ? INVALID_CREDENTIALS
             : errorMessage(err),
@@ -237,7 +237,6 @@ export default function LoginPage() {
   async function verifyMfa() {
     if (!refreshToken) return;
     setBusy(true);
-    setError(null);
     setFieldErrors({});
     try {
       const mfa = await createAdminClient().request({
@@ -257,7 +256,7 @@ export default function LoginPage() {
       setChallengeExpired(expired);
       setFieldErrors(perField);
       if (Object.keys(perField).length === 0) {
-        setError(
+        toast.error(
           expired
             ? CHALLENGE_EXPIRED
             : err instanceof ApiError && err.envelope.error.code === 'AUTH_INVALID_CREDENTIALS'
@@ -278,7 +277,6 @@ export default function LoginPage() {
     setRevealPassword(false);
     setChallengeExpired(false);
     setFieldErrors({});
-    setError(null);
   }
 
   return (
@@ -516,15 +514,6 @@ export default function LoginPage() {
               </button>
             </form>
           )}
-
-          {error ? (
-            <p className={`${styles.notice} ${styles.noticeError}`} role="alert">
-              <span className="material-symbols-outlined" aria-hidden="true">
-                error
-              </span>
-              <span>{error}</span>
-            </p>
-          ) : null}
         </div>
       </section>
     </main>

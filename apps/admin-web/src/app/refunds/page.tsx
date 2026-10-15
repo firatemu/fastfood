@@ -10,6 +10,7 @@ import { errorMessage } from '../../components/async-boundary';
 import { ConfirmDialog } from '../../components/ops/confirm-dialog';
 import { OpsPageHeader } from '../../components/ops/ops-page-header';
 import { useOpsSync } from '../../components/ops/ops-sync';
+import { useOpsToast } from '../../components/ops/ops-toast';
 import { ActionButton, KeylineCard, StatusBadge } from '../../components/ops/ops-ui';
 import { createAdminClient } from '../../lib/api';
 import {
@@ -29,6 +30,7 @@ type Payment = z.infer<typeof adminPaymentSchema>['data'];
 function RefundsInner() {
   const search = useSearchParams();
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [paymentId, setPaymentId] = useState(search.get('paymentId') ?? '');
   const [refundId, setRefundId] = useState('');
   const [payment, setPayment] = useState<Payment | null>(null);
@@ -36,8 +38,6 @@ function RefundsInner() {
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('customer_request');
   const [busy, setBusy] = useState(false);
-  const [flash, setFlash] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
   const [lookup, setLookup] = useState<{ id: string; amountMinor: string; status?: string } | null>(
     null,
@@ -47,7 +47,6 @@ function RefundsInner() {
 
   const loadPayment = useCallback(async () => {
     if (!isFinanceUuid(paymentId)) return;
-    setError(null);
     try {
       const client = createAdminClient();
       const [pay, list] = await Promise.all([
@@ -65,10 +64,10 @@ function RefundsInner() {
     } catch (err) {
       setPayment(null);
       setRefunds([]);
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
       markStale();
     }
-  }, [markStale, markSynced, paymentId]);
+  }, [markStale, markSynced, paymentId, toast]);
 
   useEffect(() => {
     registerRefresh(() => {
@@ -91,13 +90,11 @@ function RefundsInner() {
         remainingMinor: remaining,
       })
     ) {
-      setError('İade gönderilemez: PAID ve kalan bakiyeyi aşmayan kuruş tutarı gerekli.');
+      toast.error('İade gönderilemez: PAID ve kalan bakiyeyi aşmayan kuruş tutarı gerekli.');
       setConfirm(false);
       return;
     }
     setBusy(true);
-    setError(null);
-    setFlash(null);
     try {
       const res = await createAdminClient().request({
         method: 'POST',
@@ -105,12 +102,12 @@ function RefundsInner() {
         body: { amountMinor: amount.trim(), reason: reason.trim() || undefined },
         schema: refundSchema,
       });
-      setFlash(`İade ${res.data.id}`);
+      toast.success(`İade ${res.data.id}`);
       setRefundId(res.data.id);
       setConfirm(false);
       await loadPayment();
     } catch (err) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -118,11 +115,10 @@ function RefundsInner() {
 
   async function loadRefund() {
     if (!isFinanceUuid(refundId)) {
-      setError('Geçerli iade UUID girin.');
+      toast.error('Geçerli iade UUID girin.');
       return;
     }
     setBusy(true);
-    setError(null);
     try {
       const res = await createAdminClient().request({
         path: `admin/refunds/${refundId.trim()}`,
@@ -135,7 +131,7 @@ function RefundsInner() {
       });
       markSynced();
     } catch (err) {
-      setError(errorMessage(err));
+      toast.error(errorMessage(err));
       markStale();
     } finally {
       setBusy(false);
@@ -243,16 +239,6 @@ function RefundsInner() {
           </div>
         </KeylineCard>
       </div>
-      {flash ? (
-        <p className="ops-flash ops-flash--ok" role="status">
-          {flash}
-        </p>
-      ) : null}
-      {error ? (
-        <p className="ops-flash ops-flash--err" role="alert">
-          {error}
-        </p>
-      ) : null}
       <ConfirmDialog
         open={confirm}
         title="İade oluştur"

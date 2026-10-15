@@ -49,7 +49,7 @@ export class RbacGuard implements CanActivate {
       }
     >();
     const principal = request.principal;
-    const routePath = request.routeOptions?.url ?? request.url;
+    const routePath = request.routeOptions?.url ?? request.url ?? '';
     const adminRoute = isAdminPageRoute(routePath);
     if (!required?.length && !adminRoute) return true;
     if (!principal) {
@@ -84,12 +84,12 @@ export class RbacGuard implements CanActivate {
   }
 }
 
-function isAdminPageRoute(path: string): boolean {
-  return /(?:^|\/)admin(?:\/|$)/.test(path.split('?')[0] ?? '');
+function isAdminPageRoute(path: string = ''): boolean {
+  return /(?:^|\/)admin(?:\/|$)/.test((path ?? '').split('?')[0] ?? '');
 }
 
-function resolveAdminPagePermissions(path: string, method: string): PermissionCode[] | null {
-  const normalized = path.split('?')[0] ?? '';
+function resolveAdminPagePermissions(path: string = '', method: string = 'GET'): PermissionCode[] | null {
+  const normalized = (path ?? '').split('?')[0] ?? '';
   const adminPath = normalized.slice(normalized.indexOf('/admin'));
   if (!adminPath.startsWith('/admin/')) return null;
   const page: AdminPageKey | null = /^\/admin\/(?:orders|kitchen)(?:\/|$)/.test(adminPath)

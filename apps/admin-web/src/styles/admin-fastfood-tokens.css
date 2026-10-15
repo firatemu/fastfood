@@ -432,3 +432,130 @@ html[data-color-mode='light'] [data-admin-theme='fastfood-navy'] {
   color: var(--ff-on-surface);
   background: var(--ff-surface);
 }
+
+/* ---------------------------------------------------------------------
+ * Toast. Rank-2 authority under ADR-019 is
+ * `stitch_fastfood_admin_dashboard_prompts/r_n_m_saitli_i_men_fastfood/code.html`
+ * `id="toast"` — fixed bottom-right, surface-container-highest, rounded-xl,
+ * shadow-xl, `border-l-4 border-primary-container`, 3500ms auto-dismiss.
+ * The success accent keeps that primary-container orange; info takes
+ * tertiary-container and error/warning take the status-critical / status-warn
+ * roles. Foreground colours are the `-text` status variants, which are the
+ * only ones measured above 4.5:1 on this surface.
+ * ------------------------------------------------------------------- */
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-toast-viewport {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--ff-space-sm);
+  max-width: min(24rem, calc(100vw - 3rem));
+  pointer-events: none;
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--ff-space-md);
+  width: 100%;
+  padding: var(--ff-space-md) var(--ff-space-lg);
+  border-radius: var(--ff-radius-xl);
+  border: 1px solid var(--ff-keyline);
+  border-left: 4px solid var(--ff-primary-container);
+  background: var(--ff-surface-container-highest);
+  color: var(--ff-on-surface);
+  box-shadow: var(--ff-shadow-overlay);
+  animation: ops-toast-in 180ms ease-out;
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-toast__icon {
+  flex: 0 0 auto;
+  font-size: 20px;
+  color: var(--ff-primary-container);
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-toast__message {
+  flex: 1 1 auto;
+  font: 500 13px/18px var(--ff-font-body);
+  overflow-wrap: anywhere;
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-toast__dismiss {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ff-radius-lg);
+  background: transparent;
+  color: var(--ff-on-surface-variant);
+  cursor: pointer;
+  font-size: 18px;
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-toast__dismiss:hover {
+  background: var(--ff-hover-wash, rgb(255 255 255 / 8%));
+  color: var(--ff-on-surface);
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-toast__dismiss:focus-visible {
+  outline: 2px solid var(--ff-primary-container);
+  outline-offset: 2px;
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-toast--error {
+  border-left-color: var(--ff-status-critical-text);
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-toast--error
+  .ops-toast__icon {
+  color: var(--ff-status-critical-text);
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-toast--warning {
+  border-left-color: var(--ff-status-warn-text);
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-toast--warning
+  .ops-toast__icon {
+  color: var(--ff-status-warn-text);
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-toast--info {
+  border-left-color: var(--ff-tertiary-container);
+}
+
+:is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy'])
+  .ops-toast--info
+  .ops-toast__icon {
+  color: var(--ff-tertiary);
+}
+
+@keyframes ops-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is([data-admin-theme='kitchen-fleet'], [data-admin-theme='fastfood-navy']) .ops-toast {
+    animation: none;
+  }
+}

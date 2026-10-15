@@ -55,19 +55,6 @@
 }
 
 .scopeNote,
-.notice {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-height: 38px;
-  margin-bottom: 13px;
-  padding: 8px 11px;
-  border: 1px solid var(--ff-keyline);
-  background: var(--ff-surface-container);
-  color: var(--ff-status-info-text);
-  font-size: 11px;
-  line-height: 1.4;
-}
 .scopeIcon {
   display: grid;
   place-items: center;
@@ -80,19 +67,6 @@
   font:
     700 11px Georgia,
     serif;
-}
-.notice {
-  border-color: var(--ff-keyline);
-  background: light-dark(#eef4f1, #183126);
-  color: light-dark(#2e844d, #b7e4c7);
-}
-.notice button {
-  margin-left: auto;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: 18px;
 }
 
 .panel {

@@ -8,6 +8,7 @@ import type { z } from 'zod';
 
 import { errorMessage } from '../../../components/async-boundary';
 import { useOpsSync } from '../../../components/ops/ops-sync';
+import { useOpsToast } from '../../../components/ops/ops-toast';
 import { hasStaffPermission, useStaffAccess } from '../../../components/ops/staff-access-context';
 import { createAdminClient } from '../../../lib/api';
 import { adminHomeSlidesSchema } from '../../../lib/schemas';
@@ -37,6 +38,7 @@ function productImage(product: Product): string | null {
 
 export default function HomeSlidesPage(): ReactElement {
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const access = useStaffAccess();
   const canManage =
     hasStaffPermission(access, adminPagePermission('products', 'update')) &&
@@ -53,8 +55,6 @@ export default function HomeSlidesPage(): ReactElement {
   });
   const [status, setStatus] = useState<LoadStatus>('loading');
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -125,14 +125,11 @@ export default function HomeSlidesPage(): ReactElement {
       next[target] = currentId;
       return next;
     });
-    setNotice(null);
   }
 
   async function save(): Promise<void> {
     if (!canManage || !dirty || saving) return;
     setSaving(true);
-    setSaveError(null);
-    setNotice(null);
     try {
       const response = await createAdminClient().request({
         method: 'PUT',
@@ -144,10 +141,10 @@ export default function HomeSlidesPage(): ReactElement {
       setDraftIds(selectedIds(response.data.products));
       setSettings(response.data.settings);
       setDraftSettings(response.data.settings);
-      setNotice('Vitrin ayarları kaydedildi.');
+      toast.success('Vitrin ayarları kaydedildi.');
       markSynced();
     } catch (error) {
-      setSaveError(errorMessage(error));
+      toast.error(`Kaydedilemedi: ${errorMessage(error)}`);
       markStale();
     } finally {
       setSaving(false);
@@ -223,22 +220,6 @@ export default function HomeSlidesPage(): ReactElement {
             </span>
           </div>
 
-          {loadError ? (
-            <p className={styles.inlineError} role="alert">
-              {loadError}
-            </p>
-          ) : null}
-          {saveError ? (
-            <p className={styles.inlineError} role="alert">
-              Kaydedilemedi: {saveError}
-            </p>
-          ) : null}
-          {notice ? (
-            <p className={styles.inlineSuccess} role="status">
-              {notice}
-            </p>
-          ) : null}
-
           <div className={styles.layout}>
             <section className={styles.panel} aria-labelledby="selected-slides-title">
               <div className={styles.panelHeader}>
@@ -297,7 +278,6 @@ export default function HomeSlidesPage(): ReactElement {
                           disabled={!canManage}
                           onClick={() => {
                             setDraftIds((current) => current.filter((id) => id !== product.id));
-                            setNotice(null);
                           }}
                           title="Vitrinden kaldır"
                           type="button"
@@ -366,7 +346,6 @@ export default function HomeSlidesPage(): ReactElement {
                           disabled={!canManage}
                           onClick={() => {
                             setDraftIds((current) => [...current, product.id]);
-                            setNotice(null);
                           }}
                           type="button"
                         >

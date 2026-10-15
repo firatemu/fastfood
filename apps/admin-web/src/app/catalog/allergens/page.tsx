@@ -16,6 +16,7 @@ import type { z } from 'zod';
 
 import { errorMessage, type LoadState } from '../../../components/async-boundary';
 import { useOpsSync } from '../../../components/ops/ops-sync';
+import { useOpsToast } from '../../../components/ops/ops-toast';
 import { createAdminClient } from '../../../lib/api';
 import {
   adminAllergensSchema,
@@ -38,6 +39,7 @@ const PAGE_SIZES = [10, 20, 50];
 
 export default function AllergensPage() {
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [state, setState] = useState<LoadState<Allergen[]>>({ status: 'loading' });
   const [products, setProducts] = useState<Product[] | null>(null);
   const [query, setQuery] = useState('');
@@ -54,8 +56,6 @@ export default function AllergensPage() {
   const [busy, setBusy] = useState(false);
   const [busyProductId, setBusyProductId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const columnMenuRef = useRef<HTMLDivElement>(null);
@@ -133,7 +133,6 @@ export default function AllergensPage() {
     setName(allergen.name);
     setDescription(allergen.description ?? '');
     setProductQuery('');
-    setFormError(null);
     setConfirmDelete(false);
     setTab('details');
     setDialog({ kind: 'edit', id: allergen.id });
@@ -240,7 +239,6 @@ export default function AllergensPage() {
     dialogRef.current?.close();
     setDialog(null);
     setConfirmDelete(false);
-    setFormError(null);
     triggerRef.current?.focus();
   }
 
@@ -249,7 +247,6 @@ export default function AllergensPage() {
     setName('');
     setDescription('');
     setProductQuery('');
-    setFormError(null);
     setConfirmDelete(false);
     setTab('details');
     setDialog({ kind: 'create' });
@@ -258,11 +255,10 @@ export default function AllergensPage() {
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!name.trim()) {
-      setFormError('Alerjen adı zorunludur.');
+      toast.error('Alerjen adı zorunludur.');
       return;
     }
     setBusy(true);
-    setFormError(null);
     try {
       const client = createAdminClient();
       if (dialog?.kind === 'edit') {
@@ -273,7 +269,7 @@ export default function AllergensPage() {
           schema: allergenCreateSchema,
         });
         await load();
-        setNotice('Alerjen bilgileri güncellendi.');
+        toast.success('Alerjen bilgileri güncellendi.');
         setDialog(null);
         dialogRef.current?.close();
         triggerRef.current?.focus();
@@ -285,12 +281,12 @@ export default function AllergensPage() {
           schema: allergenCreateSchema,
         });
         await load();
-        setNotice('Alerjen oluşturuldu. Şimdi ürün bağlantılarını düzenleyebilirsiniz.');
+        toast.success('Alerjen oluşturuldu. Şimdi ürün bağlantılarını düzenleyebilirsiniz.');
         setDialog({ kind: 'edit', id: result.data.id });
         setTab('products');
       }
     } catch (cause) {
-      setFormError(errorMessage(cause));
+      toast.error(errorMessage(cause));
     } finally {
       setBusy(false);
     }
@@ -299,7 +295,6 @@ export default function AllergensPage() {
   async function toggleProduct(productId: string, linked: boolean) {
     if (!selected) return;
     setBusyProductId(productId);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: linked ? 'DELETE' : 'POST',
@@ -307,9 +302,9 @@ export default function AllergensPage() {
         schema: allergenProductLinkSchema,
       });
       await load();
-      setNotice(linked ? 'Ürün bağlantısı kaldırıldı.' : 'Alerjen ürüne bağlandı.');
+      toast.success(linked ? 'Ürün bağlantısı kaldırıldı.' : 'Alerjen ürüne bağlandı.');
     } catch (cause) {
-      setFormError(errorMessage(cause));
+      toast.error(errorMessage(cause));
     } finally {
       setBusyProductId(null);
     }
@@ -318,7 +313,6 @@ export default function AllergensPage() {
   async function remove() {
     if (!selected || selected.products.length) return;
     setBusy(true);
-    setFormError(null);
     try {
       await createAdminClient().request({
         method: 'DELETE',
@@ -327,11 +321,11 @@ export default function AllergensPage() {
       });
       setDialog(null);
       dialogRef.current?.close();
-      setNotice('Alerjen silindi.');
+      toast.success('Alerjen silindi.');
       await load();
       triggerRef.current?.focus();
     } catch (cause) {
-      setFormError(errorMessage(cause));
+      toast.error(errorMessage(cause));
     } finally {
       setBusy(false);
       setConfirmDelete(false);
@@ -356,15 +350,6 @@ export default function AllergensPage() {
           <span aria-hidden="true">＋</span> Yeni alerjen
         </button>
       </header>
-
-      {notice && (
-        <div className={styles.notice} role="status">
-          <span>{notice}</span>
-          <button type="button" onClick={() => setNotice(null)} aria-label="Bildirimi kapat">
-            ×
-          </button>
-        </div>
-      )}
 
       <section className={styles.panel} aria-label="Alerjen kayıtları">
         <div className={styles.panelHeader}>
@@ -612,7 +597,6 @@ export default function AllergensPage() {
                   className={tab === 'details' ? styles.tabActive : styles.tab}
                   onClick={() => {
                     setTab('details');
-                    setFormError(null);
                   }}
                 >
                   Bilgiler
@@ -624,7 +608,6 @@ export default function AllergensPage() {
                   className={tab === 'products' ? styles.tabActive : styles.tab}
                   onClick={() => {
                     setTab('products');
-                    setFormError(null);
                   }}
                 >
                   Bağlı ürünler <span>{selected?.products.length ?? 0}</span>
@@ -704,11 +687,6 @@ export default function AllergensPage() {
                       </div>
                     </div>
                   )}
-                  {formError && (
-                    <p className={styles.formError} role="alert">
-                      {formError}
-                    </p>
-                  )}
                 </div>
                 <div className={styles.dialogFooter}>
                   <button type="button" className={styles.secondaryButton} onClick={closeDialog}>
@@ -783,11 +761,6 @@ export default function AllergensPage() {
                       )}
                     </div>
                   </>
-                )}
-                {formError && (
-                  <p className={styles.formError} role="alert">
-                    {formError}
-                  </p>
                 )}
                 <div className={styles.relationFooter}>
                   <span>{selected?.products.length ?? 0} ürüne bağlı</span>

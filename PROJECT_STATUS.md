@@ -14,73 +14,74 @@ Canonical phase numbering follows
 
 ## Current state
 
-| Field                                        | Value                                    |
-| -------------------------------------------- | ---------------------------------------- |
-| **Current mode**                             | `FULL_PROJECT_AUTONOMOUS_DEVELOPMENT`    |
-| **Deployment**                               | `PROHIBITED / DEFERRED`                  |
-| **Production**                               | `NOT ACTIVE`                             |
-| **Owner VPS environment (ADR-021)**          | `AUTHORIZED / SANDBOX PROVIDERS`         |
-| **Project autonomous execution**             | `AUTHORIZED`                             |
-| **Human acceptance deferred to final gate**  | `NO`                                     |
-| **Autonomous execution**                     | `ARMED`                                  |
-| **Autonomous controller**                    | `INSTALLED / VALIDATED / HUMAN ACCEPTED` |
-| **Phase 0 status**                           | `ACCEPTED / CLOSED`                      |
-| **Phase 0 human acceptance**                 | `PASS`                                   |
-| **Phase 1 status**                           | `ACCEPTED / CLOSED`                      |
-| **Phase 1 authorization**                    | `NOT AUTHORIZED`                         |
-| **Phase 1 human acceptance**                 | `PASS`                                   |
-| **Phase 2**                                  | `TECHNICALLY COMPLETE`                   |
-| **Phase 2 authorization**                    | `AUTHORIZED`                             |
-| **Phase 2 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`      |
-| **Phase 2 ready for next phase**             | `YES`                                    |
-| **Phase 3**                                  | `TECHNICALLY COMPLETE`                   |
-| **Phase 3 authorization**                    | `AUTHORIZED`                             |
-| **Phase 3 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`      |
-| **Phase 3 ready for next phase**             | `YES`                                    |
-| **Phase 4**                                  | `TECHNICALLY COMPLETE`                   |
-| **Phase 4 authorization**                    | `AUTHORIZED`                             |
-| **Phase 4 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`      |
-| **Phase 4 ready for next phase**             | `YES`                                    |
-| **Phase 5**                                  | `TECHNICALLY COMPLETE`                   |
-| **Phase 5 authorization**                    | `AUTHORIZED`                             |
-| **Phase 5 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`      |
-| **Phase 5 ready for next phase**             | `YES`                                    |
-| **Phase 6**                                  | `TECHNICALLY COMPLETE`                   |
-| **Phase 6 authorization**                    | `AUTHORIZED`                             |
-| **Phase 6 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`      |
-| **Phase 6 ready for next phase**             | `YES`                                    |
-| **Phase 7**                                  | `TECHNICALLY COMPLETE`                   |
-| **Phase 7 authorization**                    | `AUTHORIZED`                             |
-| **Phase 7 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`      |
-| **Phase 7 ready for next phase**             | `YES`                                    |
-| **Phase 8**                                  | `TECHNICALLY COMPLETE`                   |
-| **Phase 8 authorization**                    | `AUTHORIZED`                             |
-| **Phase 8 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`      |
-| **Phase 8 ready for next phase**             | `YES`                                    |
-| **Phase 9**                                  | `TECHNICALLY COMPLETE`                   |
-| **Phase 9 authorization**                    | `AUTHORIZED`                             |
-| **Phase 9 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`      |
-| **Phase 9 ready for next phase**             | `YES`                                    |
-| **Phase 10**                                 | `TECHNICALLY COMPLETE`                   |
-| **Phase 10 authorization**                   | `AUTHORIZED`                             |
-| **Phase 10 human acceptance**                | `REQUIRED - FINAL PROJECT HUMAN GATE`    |
-| **Full project technically complete**        | `YES`                                    |
-| **Autonomous development complete**          | `YES`                                    |
-| **Human test required**                      | `YES`                                    |
-| **Human acceptance required**                | `YES`                                    |
-| **Human acceptance**                         | `NOT GRANTED`                            |
-| **Controller gate**                          | `FINAL_PROJECT_HUMAN_GATE`               |
-| **Controller work-item state**               | `HUMAN_REVIEW_REQUIRED`                  |
-| **FINAL_HUMAN_TEST**                         | `PAUSED_FOR_UI_MATURATION`               |
-| **ADR-010** (Phone OTP askıda — register)    | `ACCEPTED / ACTIVE`                      |
-| **ADR-019** (Admin visual — Navy design set) | `ACCEPTED / A1_PUBLISHED`                |
-| **ADMIN_VISUAL_NAVY_MIGRATION**              | `A9_GATE_GREEN / HUMAN_GO_PENDING`       |
-| **OPERATIONS_DESIGN_SYSTEM**                 | `TECHNICALLY_COMPLETE`                   |
-| **ADMIN_UI_TRANSFORMATION**                  | `TECHNICALLY_READY_FOR_HUMAN_QA`         |
-| **STOREFRONT_UI_TRANSFORM**                  | `TECHNICALLY_READY_FOR_HUMAN_QA`         |
-| **MOBILE_UI_TRANSFORM**                      | `TECHNICALLY_READY_FOR_HUMAN_QA`         |
-| **CUSTOMER_CROSS_PLATFORM_SYNC**             | `TECHNICALLY_COMPLETE`                   |
-| **Next authorized repository task**          | `ADMIN_VISUAL_NAVY_A9_COMPLETE`          |
+| Field                                        | Value                                      |
+| -------------------------------------------- | ------------------------------------------ |
+| **Current mode**                             | `FULL_PROJECT_AUTONOMOUS_DEVELOPMENT`      |
+| **Deployment**                               | `PROHIBITED / DEFERRED`                    |
+| **Production**                               | `NOT ACTIVE`                               |
+| **Owner VPS environment (ADR-021)**          | `AUTHORIZED / SANDBOX PROVIDERS`           |
+| **Project autonomous execution**             | `AUTHORIZED`                               |
+| **Human acceptance deferred to final gate**  | `NO`                                       |
+| **Autonomous execution**                     | `ARMED`                                    |
+| **Autonomous controller**                    | `INSTALLED / VALIDATED / HUMAN ACCEPTED`   |
+| **Phase 0 status**                           | `ACCEPTED / CLOSED`                        |
+| **Phase 0 human acceptance**                 | `PASS`                                     |
+| **Phase 1 status**                           | `ACCEPTED / CLOSED`                        |
+| **Phase 1 authorization**                    | `NOT AUTHORIZED`                           |
+| **Phase 1 human acceptance**                 | `PASS`                                     |
+| **Phase 2**                                  | `TECHNICALLY COMPLETE`                     |
+| **Phase 2 authorization**                    | `AUTHORIZED`                               |
+| **Phase 2 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`        |
+| **Phase 2 ready for next phase**             | `YES`                                      |
+| **Phase 3**                                  | `TECHNICALLY COMPLETE`                     |
+| **Phase 3 authorization**                    | `AUTHORIZED`                               |
+| **Phase 3 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`        |
+| **Phase 3 ready for next phase**             | `YES`                                      |
+| **Phase 4**                                  | `TECHNICALLY COMPLETE`                     |
+| **Phase 4 authorization**                    | `AUTHORIZED`                               |
+| **Phase 4 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`        |
+| **Phase 4 ready for next phase**             | `YES`                                      |
+| **Phase 5**                                  | `TECHNICALLY COMPLETE`                     |
+| **Phase 5 authorization**                    | `AUTHORIZED`                               |
+| **Phase 5 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`        |
+| **Phase 5 ready for next phase**             | `YES`                                      |
+| **Phase 6**                                  | `TECHNICALLY COMPLETE`                     |
+| **Phase 6 authorization**                    | `AUTHORIZED`                               |
+| **Phase 6 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`        |
+| **Phase 6 ready for next phase**             | `YES`                                      |
+| **Phase 7**                                  | `TECHNICALLY COMPLETE`                     |
+| **Phase 7 authorization**                    | `AUTHORIZED`                               |
+| **Phase 7 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`        |
+| **Phase 7 ready for next phase**             | `YES`                                      |
+| **Phase 8**                                  | `TECHNICALLY COMPLETE`                     |
+| **Phase 8 authorization**                    | `AUTHORIZED`                               |
+| **Phase 8 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`        |
+| **Phase 8 ready for next phase**             | `YES`                                      |
+| **Phase 9**                                  | `TECHNICALLY COMPLETE`                     |
+| **Phase 9 authorization**                    | `AUTHORIZED`                               |
+| **Phase 9 human acceptance**                 | `DEFERRED_UNTIL_PROJECT_COMPLETION`        |
+| **Phase 9 ready for next phase**             | `YES`                                      |
+| **Phase 10**                                 | `TECHNICALLY COMPLETE`                     |
+| **Phase 10 authorization**                   | `AUTHORIZED`                               |
+| **Phase 10 human acceptance**                | `REQUIRED - FINAL PROJECT HUMAN GATE`      |
+| **Full project technically complete**        | `YES`                                      |
+| **Autonomous development complete**          | `YES`                                      |
+| **Human test required**                      | `YES`                                      |
+| **Human acceptance required**                | `YES`                                      |
+| **Human acceptance**                         | `NOT GRANTED`                              |
+| **Controller gate**                          | `FINAL_PROJECT_HUMAN_GATE`                 |
+| **Controller work-item state**               | `HUMAN_REVIEW_REQUIRED`                    |
+| **FINAL_HUMAN_TEST**                         | `PAUSED_FOR_UI_MATURATION`                 |
+| **ADR-010** (Phone OTP askıda — register)    | `ACCEPTED / ACTIVE`                        |
+| **ADR-019** (Admin visual — Navy design set) | `ACCEPTED / A1_PUBLISHED`                  |
+| **ADMIN_VISUAL_NAVY_MIGRATION**              | `A9_GATE_GREEN / HUMAN_GO_PENDING`         |
+| **OPERATIONS_DESIGN_SYSTEM**                 | `TECHNICALLY_COMPLETE`                     |
+| **ADMIN_UI_TRANSFORMATION**                  | `TECHNICALLY_READY_FOR_HUMAN_QA`           |
+| **ADMIN_TOAST_NOTIFICATIONS**                | `TECHNICALLY_COMPLETE / AWAITING_HUMAN_QA` |
+| **STOREFRONT_UI_TRANSFORM**                  | `TECHNICALLY_READY_FOR_HUMAN_QA`           |
+| **MOBILE_UI_TRANSFORM**                      | `TECHNICALLY_READY_FOR_HUMAN_QA`           |
+| **CUSTOMER_CROSS_PLATFORM_SYNC**             | `TECHNICALLY_COMPLETE`                     |
+| **Next authorized repository task**          | `ADMIN_VISUAL_NAVY_A9_COMPLETE`            |
 
 ## Active objective
 
@@ -99,6 +100,45 @@ Current QA packs:
 Current technical summary:
 
 - `project-reports/final/FULL_PROJECT_AUTONOMOUS_COMPLETION_REPORT.md`
+
+## Admin toast notifications
+
+The Admin console had no toast surface. Eighteen routes each carried their own
+hand-written inline banner (`styles.notice`, `styles.flash`, `ops-flash--ok/--err`,
+`toastOk`/`toastErr`, `successNotice`, `inlineSuccess`, `editorNotice`, and a
+`flash: { tone, text }` object). All of them now emit a single toast.
+
+- `apps/admin-web/src/components/ops/ops-toast.tsx` — provider + `useOpsToast()`,
+  zero new dependency. Visual authority is the rank-2 ADR-019 artifact
+  `stitch_fastfood_admin_dashboard_prompts/r_n_m_saitli_i_men_fastfood/code.html`
+  (`id="toast"`): bottom-right, `surface-container-highest`, `rounded-xl`,
+  `shadow-xl`, `border-l-4`, 3500 ms auto-dismiss (6000 ms for errors).
+  Stack capped at 3; hover pauses the timer; `Esc` dismisses the newest.
+  The stack renders through a portal into the themed subtree, because the
+  provider mounts above the theme wrapper and a sibling viewport would land
+  outside `[data-admin-theme]`, where every `ops-toast*` declaration is dropped.
+- `apps/admin-web/src/styles/admin-fastfood-tokens.css` — `ops-toast*` rules
+  bound to the existing `--ff-*` Navy tokens, so both colour modes follow.
+- `apps/admin-web/src/components/admin-shell.tsx` — `OpsToastProvider` wraps
+  every branch, including `/login` and `/access-denied`.
+- `@fastfood/ui-web` is not used: ADR-019 removed it from the Admin surface and
+  its `ff-*` classes would reintroduce the retired design system.
+
+Scope boundary: save/write outcomes, validation errors, and submission failures
+are toasts. Durable load, empty, and retry states (`OpsBoundary`, `statePanel`,
+`dialogState`, the kitchen `pollWarning`) stay inline — they are page state, not
+notifications. The save buttons themselves are unchanged; they already carry a
+pending label.
+
+No ADR was required: no new dependency, no architectural change, and the Stitch
+token authority was applied rather than invented.
+
+Verification (2026-10-14): `pnpm typecheck` 30/30, `pnpm --filter
+@fastfood/admin-web build` success, admin-web lint 0 errors, `pnpm format:check`
+unchanged against the pre-existing 380-file baseline, e2e 43 passed / 34 failed
+identical to the pre-change baseline. Runtime-confirmed in the browser at
+`localhost:3101`: a failed login renders an `role="alert"` toast with
+`position: fixed`, 24px insets, and the `--ff-status-critical-text` accent.
 
 ## Admin visual migration (ADR-019)
 

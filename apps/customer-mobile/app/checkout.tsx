@@ -58,6 +58,7 @@ export default function CheckoutRoute() {
   const [location, setLocation] = useState(getDeliveryLocation);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [pickupBranchId, setPickupBranchId] = useState<string | null>(null);
+  const [deliveryBranchId, setDeliveryBranchId] = useState<string | null>(null);
   const [scheduleMode, setScheduleMode] = useState<ScheduleMode>('asap');
   const [slots, setSlots] = useState<Array<{ startAt: string; label: string }>>([]);
   const [scheduledFor, setScheduledFor] = useState<string | null>(null);
@@ -130,6 +131,7 @@ export default function CheckoutRoute() {
       JSON.stringify({
         mode,
         pickupBranchId,
+        deliveryBranchId,
         lat: location.latitude,
         lng: location.longitude,
         tipMinor,
@@ -147,6 +149,7 @@ export default function CheckoutRoute() {
     [
       mode,
       pickupBranchId,
+      deliveryBranchId,
       location.latitude,
       location.longitude,
       tipMinor,
@@ -177,6 +180,7 @@ export default function CheckoutRoute() {
               latitude: location.latitude,
               longitude: location.longitude,
               pickupBranchId,
+              deliveryBranchId,
               couponCode,
               tipMinor,
               scheduledFor,
@@ -270,6 +274,7 @@ export default function CheckoutRoute() {
           latitude: location.latitude,
           longitude: location.longitude,
           pickupBranchId,
+          deliveryBranchId,
           couponCode,
           tipMinor,
           scheduledFor,
@@ -419,8 +424,8 @@ export default function CheckoutRoute() {
             <Text style={styles.strong}>{location.label}</Text>
             <Text style={styles.muted}>
               {location.serviceable
-                ? 'Bu konum servis alanında.'
-                : 'Bu konum şu an servis dışında — ödeme kapalı.'}
+                ? 'Bu konum 10 km servis alanında.'
+                : 'Bu konum şubelerimize 10 km üzerinde — servis dışı (ödeme kapalı).'}
             </Text>
             {!authenticated ? (
               <View style={styles.gap}>
@@ -459,6 +464,45 @@ export default function CheckoutRoute() {
               style={styles.input}
               accessibilityLabel="Kapı kodu"
             />
+            {quote?.serviceableBranches && quote.serviceableBranches.length > 1 ? (
+              <View style={[styles.card, { marginTop: space.sm, borderColor: colors.mustard, borderWidth: 1 }]}>
+                <Text style={styles.cardTitle}>Teslimat Şubesi Seçimi</Text>
+                <Text style={styles.muted}>
+                  Adresiniz {quote.serviceableBranches.length} şubemizin azami 10.0 km servis mesafesi kesişiminde yer alıyor. Sipariş vereceğiniz şubeyi seçebilirsiniz:
+                </Text>
+                {quote.serviceableBranches.map((b) => {
+                  const on = (deliveryBranchId ?? quote.branchId) === b.branchId;
+                  return (
+                    <Pressable
+                      key={b.branchId}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: on }}
+                      onPress={() => setDeliveryBranchId(b.branchId)}
+                      style={[styles.row, on && styles.rowOn]}
+                    >
+                      <View style={[styles.radio, on && styles.radioOn]} />
+                      <View style={{ flex: 1 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Text style={styles.strong}>{b.branchName}</Text>
+                          {b.distanceKm != null ? (
+                            <Text style={[styles.muted, { color: colors.mustard, fontWeight: '700' }]}>
+                              {b.distanceKm} km
+                            </Text>
+                          ) : null}
+                        </View>
+                        {b.branchAddressLine ? <Text style={styles.muted}>{b.branchAddressLine}</Text> : null}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : quote?.branchName ? (
+              <View style={{ marginTop: space.xs, paddingHorizontal: space.xs }}>
+                <Text style={styles.muted}>
+                  Teslimat Şubesi: <Text style={styles.strong}>{quote.branchName}</Text> (Azami 10.0 km Kapsamında · Otomatik Yönlendirildi)
+                </Text>
+              </View>
+            ) : null}
           </View>
         ) : (
           <View style={styles.card}>

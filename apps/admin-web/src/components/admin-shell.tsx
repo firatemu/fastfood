@@ -11,6 +11,7 @@ import { clearStaffSession, getStaffAccessToken } from '../lib/api';
 import { BranchProvider } from './ops/branch-context';
 import { OpsShell } from './ops/ops-shell';
 import { OpsSyncProvider } from './ops/ops-sync';
+import { OpsToastProvider } from './ops/ops-toast';
 import { StaffAccessProvider } from './ops/staff-access-context';
 
 function subscribe(onStoreChange: () => void): () => void {
@@ -41,97 +42,105 @@ export function AdminShell({ children }: { children: ReactNode }) {
   // nothing and its whole declaration is dropped.
   if (isLogin) {
     return (
-      <div className="ff-admin-login" data-admin-theme="fastfood-navy">
-        {children}
-      </div>
+      <OpsToastProvider>
+        <div className="ff-admin-login" data-admin-theme="fastfood-navy">
+          {children}
+        </div>
+      </OpsToastProvider>
     );
   }
 
   if (pathname === '/access-denied') {
     return (
-      <div className="ff-admin-standalone" data-admin-theme="fastfood-navy">
-        {children}
-      </div>
+      <OpsToastProvider>
+        <div className="ff-admin-standalone" data-admin-theme="fastfood-navy">
+          {children}
+        </div>
+      </OpsToastProvider>
     );
   }
 
   if (isOpsShellPath(pathname)) {
     return (
-      <StaffAccessProvider enabled={loggedIn}>
-        <BranchProvider>
-          <OpsSyncProvider>
-            <OpsShell>{children}</OpsShell>
-          </OpsSyncProvider>
-        </BranchProvider>
-      </StaffAccessProvider>
+      <OpsToastProvider>
+        <StaffAccessProvider enabled={loggedIn}>
+          <BranchProvider>
+            <OpsSyncProvider>
+              <OpsShell>{children}</OpsShell>
+            </OpsSyncProvider>
+          </BranchProvider>
+        </StaffAccessProvider>
+      </OpsToastProvider>
     );
   }
 
   return (
-    <div className="ff-admin-scaffold">
-      <a href="#admin-main" className="ff-admin-skip">
-        İçeriğe geç
-      </a>
-      <p className="ff-admin-banner" role="status">
-        A0 rebuild scaffold — Stitch Admin visual is not implemented. APIs, auth, and permissions
-        are unchanged.
-      </p>
-      <div className="ff-admin-scaffold__layout">
-        <aside className="ff-admin-scaffold__aside" aria-label="Uygulama menüsü">
-          <p className="ff-admin-scaffold__brand">
-            <Link href="/">BURGER HOME Admin</Link>
-          </p>
-          <p className="ff-admin-scaffold__session">{loggedIn ? 'oturum açık' : 'oturum yok'}</p>
-          <nav aria-label="Birincil navigasyon">
-            {ADMIN_NAV_SECTIONS.map((section) => (
-              <div key={section.id} className="ff-admin-scaffold__section">
-                <p className="ff-admin-scaffold__section-label">{section.label}</p>
-                <ul>
-                  {section.items.map((item) => {
-                    const active = isNavActive(pathname, item);
-                    return (
-                      <li key={item.id}>
-                        <Link
-                          href={item.href}
-                          aria-current={active ? 'page' : undefined}
-                          className={
-                            active
-                              ? 'ff-admin-scaffold__link ff-admin-scaffold__link--active'
-                              : 'ff-admin-scaffold__link'
-                          }
-                        >
-                          {item.label}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
-          </nav>
-          <div className="ff-admin-scaffold__footer">
-            {loggedIn ? (
-              <button
-                type="button"
-                className="ff-admin-scaffold__button"
-                onClick={() => {
-                  clearStaffSession();
-                  router.push('/login');
-                }}
-              >
-                Çıkış
-              </button>
-            ) : (
-              <Link href="/login" className="ff-admin-scaffold__link">
-                Giriş
-              </Link>
-            )}
-          </div>
-        </aside>
-        <main id="admin-main" className="ff-admin-scaffold__main" aria-label="Yönetim içeriği">
-          {children}
-        </main>
+    <OpsToastProvider>
+      <div className="ff-admin-scaffold">
+        <a href="#admin-main" className="ff-admin-skip">
+          İçeriğe geç
+        </a>
+        <p className="ff-admin-banner" role="status">
+          A0 rebuild scaffold — Stitch Admin visual is not implemented. APIs, auth, and permissions
+          are unchanged.
+        </p>
+        <div className="ff-admin-scaffold__layout">
+          <aside className="ff-admin-scaffold__aside" aria-label="Uygulama menüsü">
+            <p className="ff-admin-scaffold__brand">
+              <Link href="/">BURGER HOME Admin</Link>
+            </p>
+            <p className="ff-admin-scaffold__session">{loggedIn ? 'oturum açık' : 'oturum yok'}</p>
+            <nav aria-label="Birincil navigasyon">
+              {ADMIN_NAV_SECTIONS.map((section) => (
+                <div key={section.id} className="ff-admin-scaffold__section">
+                  <p className="ff-admin-scaffold__section-label">{section.label}</p>
+                  <ul>
+                    {section.items.map((item) => {
+                      const active = isNavActive(pathname, item);
+                      return (
+                        <li key={item.id}>
+                          <Link
+                            href={item.href}
+                            aria-current={active ? 'page' : undefined}
+                            className={
+                              active
+                                ? 'ff-admin-scaffold__link ff-admin-scaffold__link--active'
+                                : 'ff-admin-scaffold__link'
+                            }
+                          >
+                            {item.label}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </nav>
+            <div className="ff-admin-scaffold__footer">
+              {loggedIn ? (
+                <button
+                  type="button"
+                  className="ff-admin-scaffold__button"
+                  onClick={() => {
+                    clearStaffSession();
+                    router.push('/login');
+                  }}
+                >
+                  Çıkış
+                </button>
+              ) : (
+                <Link href="/login" className="ff-admin-scaffold__link">
+                  Giriş
+                </Link>
+              )}
+            </div>
+          </aside>
+          <main id="admin-main" className="ff-admin-scaffold__main" aria-label="Yönetim içeriği">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </OpsToastProvider>
   );
 }

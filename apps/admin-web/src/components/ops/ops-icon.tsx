@@ -22,6 +22,7 @@ export const NAV_ICON: Record<string, string> = {
   allergens: 'warning',
   'branch-list': 'storefront',
   'service-areas': 'near_me',
+  'service-map': 'map',
   availability: 'toggle_on',
   'customer-list': 'people',
   loyalty: 'loyalty',

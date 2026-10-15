@@ -196,7 +196,7 @@ function PreferenceRow(props: {
         <div className="ff-row-hint">{props.description}</div>
       </label>
       <div className="ff-row-actions">
-        <span className="ff-switch">
+        <label className="ff-switch" htmlFor={props.id}>
           <input
             id={props.id}
             type="checkbox"
@@ -206,7 +206,7 @@ function PreferenceRow(props: {
             onChange={(event) => props.onChange(event.target.checked)}
           />
           <span className="ff-switch-track" aria-hidden />
-        </span>
+        </label>
       </div>
     </div>
   );

@@ -351,7 +351,7 @@ export function AddressComposer(props: {
                           </span>
                         </label>
                         <div className="ff-row-actions">
-                          <span className="ff-switch">
+                          <label className="ff-switch" htmlFor="address-is-default">
                             <input
                               id="address-is-default"
                               type="checkbox"
@@ -359,7 +359,7 @@ export function AddressComposer(props: {
                               onChange={(event) => set('isDefault', event.target.checked)}
                             />
                             <span className="ff-switch-track" aria-hidden />
-                          </span>
+                          </label>
                         </div>
                       </div>
                     </div>

@@ -9,7 +9,7 @@ import { Inject, Injectable, Optional } from '@nestjs/common';
 
 import { PrismaService } from '../../common/database/prisma.service.js';
 import { BranchService } from '../branch/branch.service.js';
-import { RoutingService } from '../branch/routing/routing.service.js';
+import { calculateDistanceKm, RoutingService } from '../branch/routing/routing.service.js';
 import { CartService, type CartDto } from '../cart/cart.service.js';
 import { CatalogService } from '../catalog/catalog.service.js';
 import { ClubService } from '../loyalty/club.service.js';
@@ -50,6 +50,7 @@ export interface CheckoutQuoteInput {
   latitude?: number;
   longitude?: number;
   pickupBranchId?: string;
+  deliveryBranchId?: string;
   couponCode?: string;
   loyaltyRequestedMinor?: bigint;
   loyaltyAvailablePoints?: bigint;
@@ -95,6 +96,14 @@ export interface CheckoutQuoteDto {
   deliveryNote: string | null;
   paymentMethods: typeof STOREFRONT_PAYMENT_METHODS;
   validationErrors: string[];
+  serviceableBranches?: Array<{
+    branchId: string;
+    branchName: string;
+    branchAddressLine?: string;
+    serviceAreaId: string;
+    priority: number;
+    distanceKm?: number;
+  }>;
 }
 
 export interface CheckoutSessionSnapshot {
@@ -191,6 +200,7 @@ export class CheckoutService {
 
     let branchId: string;
     let serviceAreaId: string | null = null;
+    let serviceableBranches: CheckoutQuoteDto['serviceableBranches'] = undefined;
 
     if (fulfillmentMode === 'DELIVERY') {
       if (input.latitude === undefined || input.longitude === undefined) {
@@ -201,16 +211,78 @@ export class CheckoutService {
         };
       }
       const areas = await this.branches.listServiceAreas();
-      const assignment = this.routing.assign(input.latitude, input.longitude, areas);
-      if (!assignment) {
+      const assignments = this.routing.assignAll(input.latitude, input.longitude, areas);
+      if (assignments.length === 0) {
         return {
           ok: false,
           code: ErrorCodes.ADDRESS_NOT_SERVICEABLE,
           message: 'No branch serves this location.',
         };
       }
-      branchId = assignment.branchId;
-      serviceAreaId = assignment.serviceAreaId;
+
+      // Deduplicate by branchId, keeping lowest priority for each branch
+      const branchMap = new Map<string, (typeof assignments)[number]>();
+      for (const a of assignments) {
+        if (!branchMap.has(a.branchId) || a.priority < branchMap.get(a.branchId)!.priority) {
+          branchMap.set(a.branchId, a);
+        }
+      }
+      const uniqueAssignments = [...branchMap.values()].sort((a, b) => a.priority - b.priority);
+
+      const enriched = await Promise.all(
+        uniqueAssignments.map(async (a) => {
+          try {
+            const b = await this.branches.getBranch(a.branchId);
+            const distanceKm = calculateDistanceKm(
+              input.latitude!,
+              input.longitude!,
+              b.latitude,
+              b.longitude,
+            );
+            return {
+              branchId: a.branchId,
+              branchName: b.name,
+              branchAddressLine: b.addressLine,
+              serviceAreaId: a.serviceAreaId,
+              priority: a.priority,
+              isAcceptingOrders: b.isAcceptingOrders,
+              distanceKm,
+            };
+          } catch {
+            return {
+              branchId: a.branchId,
+              branchName: 'Şube',
+              branchAddressLine: '',
+              serviceAreaId: a.serviceAreaId,
+              priority: a.priority,
+              isAcceptingOrders: true,
+              distanceKm: undefined,
+            };
+          }
+        }),
+      );
+
+      // Sadece sipariş kabul eden ve azami 10.0 km mesafe içinde bulunan şubeler uygundur
+      const activeEligible = enriched.filter(
+        (sb) => sb.isAcceptingOrders && (sb.distanceKm === undefined || sb.distanceKm <= 10.0),
+      );
+      if (activeEligible.length === 0) {
+        return {
+          ok: false,
+          code: ErrorCodes.ADDRESS_NOT_SERVICEABLE,
+          message: 'No branch serves this location within the maximum 10.0 km radius.',
+        };
+      }
+
+      serviceableBranches = activeEligible.map(({ isAcceptingOrders, ...rest }) => rest);
+
+      const requestedBranchId = input.deliveryBranchId;
+      const matchingRequested = requestedBranchId
+        ? activeEligible.find((sb) => sb.branchId === requestedBranchId)
+        : null;
+      const chosen = matchingRequested ?? activeEligible[0]!;
+      branchId = chosen.branchId;
+      serviceAreaId = chosen.serviceAreaId;
     } else {
       const requested = input.pickupBranchId ?? cart.branchId;
       const list = await this.branches.listBranches();
@@ -356,6 +428,7 @@ export class CheckoutService {
       deliveryNote: input.deliveryNote ?? null,
       paymentMethods: STOREFRONT_PAYMENT_METHODS,
       validationErrors,
+      serviceableBranches,
     };
 
     const snapshot: CheckoutSessionSnapshot = {

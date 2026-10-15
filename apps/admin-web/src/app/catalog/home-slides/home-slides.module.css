@@ -554,21 +554,10 @@
 }
 
 .inlineError,
-.inlineSuccess {
-  margin: 0;
-  padding: 9px 12px;
-  border: 1px solid;
-  font-size: 12px;
-}
 .inlineError {
   border-color: color-mix(in srgb, #ef4444 35%, var(--slide-line));
   background: color-mix(in srgb, #ef4444 8%, var(--slide-surface));
   color: var(--ff-status-critical-text);
-}
-.inlineSuccess {
-  border-color: color-mix(in srgb, var(--ff-status-ready) 35%, var(--slide-line));
-  background: color-mix(in srgb, var(--ff-status-ready) 8%, var(--slide-surface));
-  color: var(--ff-status-ready-text);
 }
 .durationSetting {
   display: grid;

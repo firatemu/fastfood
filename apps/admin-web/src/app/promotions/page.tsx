@@ -18,6 +18,7 @@ import type { z } from 'zod';
 import { errorMessage, type LoadState } from '../../components/async-boundary';
 import { OpsIcon } from '../../components/ops/ops-icon';
 import { useOpsSync } from '../../components/ops/ops-sync';
+import { useOpsToast } from '../../components/ops/ops-toast';
 import { createAdminClient } from '../../lib/api';
 import { keepTabInsideDialog } from '../../lib/dialog-focus';
 import { PROMOTION_KINDS, percentToBps, promotionKindLabel } from '../../lib/finance-ops';
@@ -117,6 +118,7 @@ function periodOf(p: Promo): 'Geçerli' | 'Planlandı' | 'Süresi doldu' {
 
 export default function PromotionsPage() {
   const { markStale, markSynced, registerRefresh } = useOpsSync();
+  const toast = useOpsToast();
   const [state, setState] = useState<LoadState<Promo[]>>({ status: 'loading' });
   const [branches, setBranches] = useState<LoadState<Branch[]>>({ status: 'loading' });
   const [query, setQuery] = useState('');
@@ -132,8 +134,6 @@ export default function PromotionsPage() {
   const [detail, setDetail] = useState<Promo | null>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [flash, setFlash] = useState<string | null>(null);
   const [confirmOff, setConfirmOff] = useState(false);
   const dialogRef = useRef<HTMLElement>(null);
   const confirmRef = useRef<HTMLElement>(null);
@@ -203,7 +203,6 @@ export default function PromotionsPage() {
       if (event.key === 'Escape' && !busy && !confirmOff) {
         detailRequest.current += 1;
         setDialog(null);
-        setFormError(null);
         window.requestAnimationFrame(() => triggerRef.current?.focus());
       }
     };
@@ -259,7 +258,6 @@ export default function PromotionsPage() {
   function openCreate() {
     rememberTrigger();
     setDraft(draftInitial());
-    setFormError(null);
     setDialog({ kind: 'create' });
   }
   const openDetail = useCallback(async (promo: Promo) => {
@@ -267,7 +265,6 @@ export default function PromotionsPage() {
     const request = ++detailRequest.current;
     setDetail(promo);
     setDetailError(null);
-    setFormError(null);
     setDialog({ kind: 'detail', promo });
     try {
       const result = await createAdminClient().request({
@@ -284,7 +281,6 @@ export default function PromotionsPage() {
     detailRequest.current += 1;
     setDialog(null);
     setConfirmOff(false);
-    setFormError(null);
     window.requestAnimationFrame(() => triggerRef.current?.focus());
   }
   function createBody(): Record<string, unknown> | string {
@@ -335,12 +331,10 @@ export default function PromotionsPage() {
     event.preventDefault();
     const body = createBody();
     if (typeof body === 'string') {
-      setFormError(body);
+      toast.error(body);
       return;
     }
     setBusy(true);
-    setFormError(null);
-    setFlash(null);
     try {
       const result = await createAdminClient().request({
         method: 'POST',
@@ -348,21 +342,19 @@ export default function PromotionsPage() {
         body,
         schema: adminPromotionSchema,
       });
-      setFlash(`“${result.data.name ?? draft.name}” oluşturuldu.`);
+      toast.success(`“${result.data.name ?? draft.name}” oluşturuldu.`);
       setDialog(null);
       setDraft(draftInitial());
       window.requestAnimationFrame(() => triggerRef.current?.focus());
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
     } finally {
       setBusy(false);
     }
   }
   async function changeActive(promo: Promo, isActive: boolean) {
     setBusy(true);
-    setFormError(null);
-    setFlash(null);
     try {
       const result = await createAdminClient().request({
         method: 'PATCH',
@@ -372,12 +364,12 @@ export default function PromotionsPage() {
       });
       setDetail(result.data);
       setConfirmOff(false);
-      setFlash(
+      toast.success(
         `“${promo.name ?? promo.code ?? 'Promosyon'}” ${isActive ? 'etkinleştirildi' : 'pasifleştirildi'}.`,
       );
       await load();
     } catch (error) {
-      setFormError(errorMessage(error));
+      toast.error(errorMessage(error));
       setConfirmOff(false);
     } finally {
       setBusy(false);
@@ -490,15 +482,6 @@ export default function PromotionsPage() {
           <OpsIcon name="add" /> Yeni promosyon
         </button>
       </header>
-      {flash && (
-        <div className={styles.flash} role="status">
-          <OpsIcon name="check_circle" />
-          {flash}
-          <button type="button" onClick={() => setFlash(null)} aria-label="Bildirimi kapat">
-            ×
-          </button>
-        </div>
-      )}
       <section className={styles.gridPanel} aria-label="Promosyon dizini">
         <div className={styles.gridHeader}>
           <div>
@@ -984,11 +967,6 @@ export default function PromotionsPage() {
                     aktiflik değiştirilebilir. Yeni promosyon müşteri vitrininde otomatik
                     listelenmez.
                   </p>
-                  {formError && (
-                    <p className={styles.formError} role="alert">
-                      {formError}
-                    </p>
-                  )}
                 </div>
                 <div className={styles.dialogFooter}>
                   <button
@@ -1092,11 +1070,6 @@ export default function PromotionsPage() {
                       <OpsIcon name="info" /> Uygunluk ve indirim tutarı sipariş sırasında sunucu
                       tarafından hesaplanır.
                     </p>
-                    {formError && (
-                      <p className={styles.formError} role="alert">
-                        {formError}
-                      </p>
-                    )}
                   </div>
                   <div className={styles.dialogFooter}>
                     <button
