@@ -26,6 +26,7 @@
     "@fastfood/api-client": "workspace:*",
     "@fastfood/config": "workspace:*",
     "@fastfood/contracts": "workspace:*",
+    "@fastfood/design-tokens": "workspace:*",
     "@fastfood/domain-types": "workspace:*",
     "@tailwindcss/postcss": "4.1.13",
     "next": "16.3.5",

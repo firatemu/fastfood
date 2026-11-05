@@ -193,6 +193,9 @@ importers:
       '@fastfood/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@fastfood/design-tokens':
+        specifier: workspace:*
+        version: link:../../packages/design-tokens
       '@fastfood/domain-types':
         specifier: workspace:*
         version: link:../../packages/domain-types
@@ -573,6 +576,9 @@ importers:
       '@fastfood/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@fastfood/design-tokens':
+        specifier: workspace:*
+        version: link:../../packages/design-tokens
       '@tailwindcss/postcss':
         specifier: 4.1.13
         version: 4.1.13
@@ -628,6 +634,9 @@ importers:
       '@fastfood/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@fastfood/design-tokens':
+        specifier: workspace:*
+        version: link:../../packages/design-tokens
       '@fastfood/domain-types':
         specifier: workspace:*
         version: link:../../packages/domain-types
