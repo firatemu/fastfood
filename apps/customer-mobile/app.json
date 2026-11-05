@@ -2,7 +2,7 @@
   "expo": {
     "name": "BURGER HOME",
     "slug": "fastfood-customer",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "dark",
@@ -40,7 +40,7 @@
     },
     "android": {
       "package": "com.azemyazilim.fastfoodcustomer",
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#121316"
