@@ -46,22 +46,19 @@
  * A9-20 — the verification-code step is gone when the server says so
  * ---------------------------------------------------------------------------
  * `POST /auth/staff/login` NEVER returns an access token. It returns
- * `{ userId, refreshToken, refreshExpiresAt, mfaRequired }`, so a session
- * cannot be opened without a second call — and for admin-web there is only one
- * such call.
+ * `{ userId, refreshExpiresAt, mfaRequired }`, so a session cannot be opened
+ * without a second call — and for admin-web there is only one such call.
  *
- * `POST /auth/staff/refresh` is NOT it. That endpoint opens with
- * `if (!browserSession) throw AUTH_SCOPE_DENIED` and then reads the
- * `ff_courier_refresh` cookie, and `browserSession` is `isCourierWebRequest`,
- * which requires the request origin to equal `COURIER_WEB_ORIGIN` (default
- * `http://localhost:3102`). Admin runs on 3101, so from this page that endpoint
- * is unreachable — it answers 403 `AUTH_SCOPE_DENIED`, never a token. An earlier
- * revision of this file exchanged the login refresh token there and looked
- * correct against every static gate; it could not have worked at runtime.
+ * The refresh credential is an HttpOnly cookie (production-readiness audit
+ * P0-3). The API writes `ff_staff_mfa` for the challenge and `ff_staff_refresh`
+ * for the session; admin-web never sees either one, so this page carries no
+ * credential in the request body at all. The courier console keeps its own
+ * cookie family (`ff_courier_*`) and native clients keep the credential in the
+ * platform secure store, so one console can never refresh another's session.
  *
- * What is left is `POST /auth/staff/mfa/verify`, which accepts the refresh
- * token in the request body for non-browser sessions and requires a
- * syntactically valid six-digit code.
+ * `POST /auth/staff/refresh` exchanges the session cookie for an access token.
+ * It is reachable from this page: the API resolves the cookie family from the
+ * request origin, and the admin console has its own family.
  *
  * But locally that code is not a factor at all. `StaffAuthService` reports
  * `mfaRequired: !this.#mfaBypassEnabled`, and the repository `.env` leaves
@@ -184,18 +181,18 @@ export default function LoginPage() {
   /**
    * Opens the session when the server reported `mfaRequired: false`.
    *
-   * `auth/staff/refresh` cannot be used here — it is courier-web only. This calls
-   * the same endpoint the human step would have called, with a well-formed
-   * placeholder instead of a typed one. The gate is the server's own answer: it
-   * has already said the second factor does not apply here and will not read the
-   * digits, so nothing is asserted that `login` did not already establish. With
-   * bypass off, `mfaRequired` is `true` and this function is never reached.
+   * The refresh credential is an HttpOnly cookie set by `POST /auth/staff/login`,
+   * so this call carries no credential at all: the API reads the challenge from
+   * the cookie. The gate is the server's own answer — it has already said the
+   * second factor does not apply here and will not read the digits, so nothing
+   * is asserted that `login` did not already establish. With bypass off the
+   * server reports `mfaRequired: true` and this function is never reached.
    */
-  async function openSessionWithoutChallenge(challengeToken: string) {
+  async function openSessionWithoutChallenge(challengeToken?: string | null) {
     const mfa = await createAdminClient().request({
       method: 'POST',
       path: 'auth/staff/mfa/verify',
-      body: { refreshToken: challengeToken, totp: BYPASS_PLACEHOLDER_TOTP },
+      body: challengeToken ? { refreshToken: challengeToken, totp: BYPASS_PLACEHOLDER_TOTP } : { totp: BYPASS_PLACEHOLDER_TOTP },
       schema: staffMfaSchema,
     });
     setStaffSession({ accessToken: mfa.data.accessToken, userId: mfa.data.userId });
@@ -213,11 +210,15 @@ export default function LoginPage() {
         schema: staffLoginSchema,
       });
 
+      // The browser transport keeps the challenge in an HttpOnly cookie, so the
+      // body usually carries no credential. If the API answered with one
+      // anyway (the body transport), it is kept for the MFA step.
+      setRefreshToken(res.data.refreshToken ?? null);
+
       if (!res.data.mfaRequired) {
         await openSessionWithoutChallenge(res.data.refreshToken);
         return;
       }
-      setRefreshToken(res.data.refreshToken);
       setStep('mfa');
     } catch (err) {
       const perField = readFieldErrors(err);
@@ -235,14 +236,13 @@ export default function LoginPage() {
   }
 
   async function verifyMfa() {
-    if (!refreshToken) return;
     setBusy(true);
     setFieldErrors({});
     try {
       const mfa = await createAdminClient().request({
         method: 'POST',
         path: 'auth/staff/mfa/verify',
-        body: { refreshToken, totp },
+        body: refreshToken ? { refreshToken, totp } : { totp },
         schema: staffMfaSchema,
       });
       setStaffSession({ accessToken: mfa.data.accessToken, userId: mfa.data.userId });
@@ -281,76 +281,124 @@ export default function LoginPage() {
 
   return (
     <main className={styles.page}>
-      <aside className={styles.rail}>
-        <div className={styles.railInner}>
-          <div className={styles.brand}>
-            <Image
-              alt="Burger Home"
-              className={styles.logo}
-              height={200}
-              priority
-              src="/brand/burger-home-wordmark.png"
-              unoptimized
-              width={600}
-            />
+      {/* --------------------------------------------------------------------
+          Left Column: Cinematic Ops Hero Canvas
+          -------------------------------------------------------------------- */}
+      <section className={styles.heroSide} aria-label="Operasyon tanıtımı">
+        <div className={styles.heroContent}>
+          {/* Top Brand Bar */}
+          <div className={styles.heroTopBar}>
+            <div className={styles.heroLogoWrapper}>
+              <Image
+                alt="Burger Home"
+                className={styles.heroLogo}
+                height={48}
+                priority
+                src="/brand/burger-home-wordmark.png"
+                unoptimized
+                width={144}
+              />
+            </div>
+            <div className={styles.heroStatusPill}>
+              <span className={styles.heroStatusDot} aria-hidden="true" />
+              <span>HQ &amp; OPS KONSOLU</span>
+            </div>
           </div>
 
-          <div className={styles.railCopy}>
-            <span className={styles.railEyebrow}>Yetkili personel erişimi</span>
-            <p className={styles.railName}>Operasyon konsolu</p>
-            <p className={styles.railText}>
-              Siparişten teslimata kadar şube, mutfak ve kurye akışlarını yöneten tek ekran. Giriş
-              yalnızca yetkili personel içindir.
+          {/* Center Story & Headline */}
+          <div className={styles.heroLead}>
+            <span className={styles.heroEyebrow}>FASTFOOD Ops Enterprise</span>
+            <h2 className={styles.heroHeadline}>
+              Şubelerden Mutfağa <br />
+              <span className={styles.heroHighlight}>Kesintisiz Akış.</span>
+            </h2>
+            <p className={styles.heroText}>
+              Sipariş kabulü, KDS mutfak hazırlık ekranları, kurye sevkiyatı ve anlık stok yönetimi
+              tek bir kurumsal merkezden gerçek zamanlı yönetilir.
             </p>
           </div>
 
-          <figure className={styles.hero}>
-            <Image
-              alt="Servise hazırlanan bir şube mutfağı"
-              className={styles.heroImage}
-              height={672}
-              sizes="(max-width: 900px) 100vw, 520px"
-              src="/brand/ops-pass.jpg"
-              unoptimized
-              width={900}
-            />
-            <figcaption className={styles.heroCaption}>Şube mutfağından kapıya tek akış</figcaption>
-          </figure>
+          {/* Live Operations Feature Cards */}
+          <div className={styles.heroMetrics}>
+            <div className={styles.metricCard}>
+              <div className={styles.metricIconBox}>
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  storefront
+                </span>
+              </div>
+              <div className={styles.metricDetails}>
+                <div className={styles.metricTitle}>9 Aktif Şube</div>
+                <div className={styles.metricSub}>Merkez &amp; franchise noktaları çevrimiçi</div>
+              </div>
+            </div>
 
-          <div className={styles.scope}>
-            <span className={styles.scopeLabel}>Konsol kapsamı</span>
-            <ul className={styles.scopeList}>
-              {RAIL_AREAS.map((area) => (
-                <li key={area.id} className={styles.scopeRow}>
-                  <span className={styles.scopeName}>{area.label}</span>
-                  <span className={styles.scopeCount}>{area.count}</span>
-                </li>
-              ))}
-            </ul>
+            <div className={styles.metricCard}>
+              <div className={styles.metricIconBox}>
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  cooking
+                </span>
+              </div>
+              <div className={styles.metricDetails}>
+                <div className={styles.metricTitle}>Canlı KDS &amp; Mutfak</div>
+                <div className={styles.metricSub}>Anlık sipariş ve hazırlık senkronizasyonu</div>
+              </div>
+            </div>
+
+            <div className={styles.metricCard}>
+              <div className={styles.metricIconBox}>
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  two_wheeler
+                </span>
+              </div>
+              <div className={styles.metricDetails}>
+                <div className={styles.metricTitle}>Akıllı Kurye Sevk</div>
+                <div className={styles.metricSub}>Dinamik bölge &amp; rota optimizasyonu</div>
+              </div>
+            </div>
           </div>
 
-          <p className={styles.railMeta}>
-            {RAIL_SCREEN_COUNT} ekran · {RAIL_AREAS.length} alan · tek oturum
-          </p>
+          {/* Bottom Trust & Scope Footnote */}
+          <div className={styles.heroFooter}>
+            <div className={styles.scopeBadge}>
+              <span className={styles.scopeDot} aria-hidden="true" />
+              <span>
+                {RAIL_SCREEN_COUNT} Yönetim Ekranı · {RAIL_AREAS.length} Operasyon Alanı
+              </span>
+            </div>
+            <div className={styles.trustBadge}>
+              <span className="material-symbols-outlined" aria-hidden="true">
+                lock
+              </span>
+              <span>256-Bit Uçtan Uca Güvenlik &amp; Denetim İzi</span>
+            </div>
+          </div>
         </div>
-      </aside>
+      </section>
 
-      <section className={styles.pane}>
+      {/* --------------------------------------------------------------------
+          Right Column: Authentication Terminal
+          -------------------------------------------------------------------- */}
+      <section className={styles.authSide}>
         <div className={styles.card}>
           <div className={styles.head}>
-            <span className={styles.eyebrow}>Yetki doğrulama</span>
+            <div className={styles.badgeRow}>
+              <div className={styles.headIconBox}>
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  admin_panel_settings
+                </span>
+              </div>
+              <span className={styles.eyebrow}>Yetkili Personel Erişimi</span>
+            </div>
             <h1 id="login-title" className={styles.title}>
-              Personel girişi
+              FASTFOOD Ops · Personel Girişi
             </h1>
-            <p className={styles.subtitle}>Şube ve merkez operasyon paneline erişim.</p>
+            <p className={styles.subtitle}>
+              Şube ve merkez operasyon konsoluna erişmek için kimliğinizi doğrulayın.
+            </p>
           </div>
 
-          {/* The second step exists only once the server has actually asked for a
-              code. Rendering it before that would advertise a step this
-              environment never reaches. `.step` is always present; only the
-              modifier changes — step 1 used to render `.stepActive` on its own,
-              losing `display: flex` and stacking its index above the label. */}
-          <ol className={styles.steps}>
+          {/* Stepper Header */}
+          <ol className={styles.steps} aria-label="Doğrulama adımları">
             <li
               className={
                 step === 'credentials'
@@ -360,14 +408,14 @@ export default function LoginPage() {
               aria-current={step === 'credentials' ? 'step' : undefined}
             >
               <span className={styles.stepIndex}>{step === 'mfa' ? '✓' : '1'}</span>
-              <span>Kimlik</span>
+              <span>Kimlik &amp; Şifre</span>
             </li>
             {step === 'mfa' ? (
               <>
                 <span className={styles.stepDivider} aria-hidden="true" />
                 <li className={`${styles.step} ${styles.stepActive}`} aria-current="step">
                   <span className={styles.stepIndex}>2</span>
-                  <span>Doğrulama</span>
+                  <span>2FA Doğrulama</span>
                 </li>
               </>
             ) : null}
@@ -383,22 +431,28 @@ export default function LoginPage() {
             >
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="identifier">
-                  Kimlik
+                  Kimlik (E-posta veya Kullanıcı Adı)
                 </label>
-                <input
-                  id="identifier"
-                  ref={identifierRef}
-                  name="identifier"
-                  className={
-                    fieldErrors.identifier ? `${styles.input} ${styles.inputInvalid}` : styles.input
-                  }
-                  autoComplete="username"
-                  required
-                  value={identifier}
-                  aria-invalid={fieldErrors.identifier ? true : undefined}
-                  aria-describedby={fieldErrors.identifier ? 'identifier-error' : 'identifier-hint'}
-                  onChange={(event) => setIdentifier(event.target.value)}
-                />
+                <div className={styles.inputContainer}>
+                  <span className={styles.inputIconBox} aria-hidden="true">
+                    <span className="material-symbols-outlined">person</span>
+                  </span>
+                  <input
+                    id="identifier"
+                    ref={identifierRef}
+                    name="identifier"
+                    className={
+                      fieldErrors.identifier ? `${styles.input} ${styles.inputInvalid}` : styles.input
+                    }
+                    autoComplete="username"
+                    placeholder="ornek@alanadi.com veya kullanıcı adı"
+                    required
+                    value={identifier}
+                    aria-invalid={fieldErrors.identifier ? true : undefined}
+                    aria-describedby={fieldErrors.identifier ? 'identifier-error' : 'identifier-hint'}
+                    onChange={(event) => setIdentifier(event.target.value)}
+                  />
+                </div>
                 {fieldErrors.identifier ? (
                   <p id="identifier-error" className={styles.fieldError}>
                     <span className="material-symbols-outlined" aria-hidden="true">
@@ -408,7 +462,7 @@ export default function LoginPage() {
                   </p>
                 ) : (
                   <span id="identifier-hint" className={styles.hint}>
-                    E-posta, telefon veya kullanıcı adı.
+                    Merkez veya şube yetkili hesabınız.
                   </span>
                 )}
               </div>
@@ -417,7 +471,10 @@ export default function LoginPage() {
                 <label className={styles.label} htmlFor="password">
                   Şifre
                 </label>
-                <div className={styles.control}>
+                <div className={styles.inputContainer}>
+                  <span className={styles.inputIconBox} aria-hidden="true">
+                    <span className="material-symbols-outlined">lock</span>
+                  </span>
                   <input
                     id="password"
                     name="password"
@@ -426,6 +483,7 @@ export default function LoginPage() {
                     }`}
                     type={revealPassword ? 'text' : 'password'}
                     autoComplete="current-password"
+                    placeholder="••••••••••••"
                     required
                     value={password}
                     aria-invalid={fieldErrors.password ? true : undefined}
@@ -439,9 +497,39 @@ export default function LoginPage() {
                     aria-label={revealPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
                     onClick={() => setRevealPassword((prev) => !prev)}
                   >
-                    <span className="material-symbols-outlined" aria-hidden="true">
-                      {revealPassword ? 'visibility_off' : 'visibility'}
-                    </span>
+                    {revealPassword ? (
+                      <svg
+                        aria-hidden="true"
+                        className={styles.toggleSvg}
+                        fill="none"
+                        height="18"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        width="18"
+                      >
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                        <line x1="1" x2="23" y1="1" y2="23" />
+                      </svg>
+                    ) : (
+                      <svg
+                        aria-hidden="true"
+                        className={styles.toggleSvg}
+                        fill="none"
+                        height="18"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        width="18"
+                      >
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    )}
                   </button>
                 </div>
                 {fieldErrors.password ? (
@@ -455,7 +543,10 @@ export default function LoginPage() {
               </div>
 
               <button className={styles.button} type="submit" disabled={busy}>
-                {busy ? 'Gönderiliyor…' : 'Devam et'}
+                <span>{busy ? 'Giriş yapılıyor…' : 'Giriş yap'}</span>
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  arrow_forward
+                </span>
               </button>
             </form>
           ) : (
@@ -468,27 +559,35 @@ export default function LoginPage() {
             >
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="totp">
-                  Doğrulama kodu
+                  İki Aşamalı Doğrulama Kodu (2FA)
                 </label>
-                <input
-                  id="totp"
-                  ref={totpRef}
-                  name="totp"
-                  className={
-                    fieldErrors.totp ? `${styles.input} ${styles.inputInvalid}` : styles.input
-                  }
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  pattern="[0-9]{6}"
-                  maxLength={6}
-                  required
-                  value={totp}
-                  aria-invalid={fieldErrors.totp ? true : undefined}
-                  aria-describedby="totp-hint"
-                  onChange={(event) => setTotp(event.target.value.replace(/\D/g, ''))}
-                />
+                <div className={styles.inputContainer}>
+                  <span className={styles.inputIconBox} aria-hidden="true">
+                    <span className="material-symbols-outlined">security</span>
+                  </span>
+                  <input
+                    id="totp"
+                    ref={totpRef}
+                    name="totp"
+                    className={
+                      fieldErrors.totp
+                        ? `${styles.input} ${styles.inputTotp} ${styles.inputInvalid}`
+                        : `${styles.input} ${styles.inputTotp}`
+                    }
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    pattern="[0-9]{6}"
+                    placeholder="000000"
+                    maxLength={6}
+                    required
+                    value={totp}
+                    aria-invalid={fieldErrors.totp ? true : undefined}
+                    aria-describedby="totp-hint"
+                    onChange={(event) => setTotp(event.target.value.replace(/\D/g, ''))}
+                  />
+                </div>
                 <span id="totp-hint" className={styles.hint}>
-                  Kimlik bilgileriniz doğrulandı. Authenticator uygulamanızdaki altı haneli kodu
+                  Kimlik bilgileriniz doğrulandı. Authenticator uygulamanızdaki 6 haneli kodu
                   girin.
                 </span>
                 {fieldErrors.totp ? (
@@ -502,7 +601,10 @@ export default function LoginPage() {
               </div>
 
               <button className={styles.button} type="submit" disabled={busy || totp.length !== 6}>
-                {busy ? 'Doğrulanıyor…' : 'Girişi tamamla'}
+                <span>{busy ? 'Doğrulanıyor…' : 'Girişi tamamla'}</span>
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  verified_user
+                </span>
               </button>
               <button
                 className={styles.buttonGhost}
@@ -514,6 +616,16 @@ export default function LoginPage() {
               </button>
             </form>
           )}
+
+          <div className={styles.cardFooter}>
+            <span className="material-symbols-outlined" aria-hidden="true">
+              shield_locked
+            </span>
+            <span>
+              Güvenliğiniz için tüm oturum açma girişimleri IP ve cihaz bazında kayıt altına
+              alınmaktadır.
+            </span>
+          </div>
         </div>
       </section>
     </main>

@@ -18,10 +18,18 @@ export function envelope<T extends z.ZodTypeAny>(dataSchema: T) {
   });
 }
 
+/**
+ * `POST /auth/staff/login`.
+ *
+ * A browser console receives the refresh credential as an HttpOnly cookie, so
+ * `refreshToken` is absent from the body for that transport (production-readiness
+ * audit P0-3). Native clients keep it in the platform secure store and send it
+ * in the body, so the field stays optional.
+ */
 export const staffLoginSchema = envelope(
   z.object({
     userId: z.string(),
-    refreshToken: z.string(),
+    refreshToken: z.string().optional(),
     refreshExpiresAt: z.string(),
     mfaRequired: z.boolean(),
   }),
@@ -31,6 +39,15 @@ export const staffMfaSchema = envelope(
   z.object({
     userId: z.string(),
     accessToken: z.string(),
+  }),
+);
+
+/** `POST /auth/staff/refresh` — the session cookie is exchanged for a token. */
+export const staffRefreshSchema = envelope(
+  z.object({
+    userId: z.string(),
+    accessToken: z.string(),
+    refreshExpiresAt: z.string().optional(),
   }),
 );
 

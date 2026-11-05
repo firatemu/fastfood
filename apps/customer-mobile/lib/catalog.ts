@@ -9,4 +9,3 @@ export async function fetchProductDetail(idOrSlug: string): Promise<ProductDetai
   });
   return res.data;
 }
-

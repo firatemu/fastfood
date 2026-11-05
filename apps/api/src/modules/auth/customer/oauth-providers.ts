@@ -26,7 +26,11 @@ export class GoogleOAuthAdapter implements OAuthProviderAdapter {
 
   isConfigured(): boolean {
     const cfg = getAppConfig();
-    return configured(cfg.GOOGLE_OAUTH_CLIENT_ID, cfg.GOOGLE_OAUTH_CLIENT_SECRET, cfg.GOOGLE_OAUTH_REDIRECT_URI);
+    return configured(
+      cfg.GOOGLE_OAUTH_CLIENT_ID,
+      cfg.GOOGLE_OAUTH_CLIENT_SECRET,
+      cfg.GOOGLE_OAUTH_REDIRECT_URI,
+    );
   }
 
   authorizationUrl(state: string, redirectUri: string): string {
@@ -169,8 +173,7 @@ export class AppleOAuthAdapter implements OAuthProviderAdapter {
     return {
       subject: payload.sub,
       emailNormalized: payload.email?.trim().toLowerCase() || undefined,
-      emailVerifiedByProvider:
-        payload.email_verified === true || payload.email_verified === 'true',
+      emailVerifiedByProvider: payload.email_verified === true || payload.email_verified === 'true',
     };
   }
 }

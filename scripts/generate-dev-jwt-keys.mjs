@@ -20,13 +20,19 @@
 import { generateKeyPairSync } from 'node:crypto';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const force = process.argv.includes('--force');
-const root = process.cwd();
 
-/** Resolve a key path the same way `staff-access-token.ts` does. */
+/**
+ * Resolve a key path the same way `apps/api/src/modules/auth/access-token.ts`
+ * does: relative paths resolve against the `apps/api` package root, so the
+ * key pair is found no matter which directory the API is started from.
+ */
+const apiPackageRoot = resolve(fileURLToPath(new URL('../apps/api/', import.meta.url)));
+
 function resolveKey(path) {
-  return isAbsolute(path) ? path : resolve(root, path);
+  return isAbsolute(path) ? path : resolve(apiPackageRoot, path);
 }
 
 function readKeyPath(envName, fallback) {

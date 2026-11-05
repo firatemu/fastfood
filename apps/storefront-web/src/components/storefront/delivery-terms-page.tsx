@@ -10,10 +10,10 @@ const SECTIONS: LegalSection[] = [
     title: 'Hizmet ve Teslimat Bölgeleri',
     content: (
       <p>
-        <strong>{BRAND_NAME}</strong>, lezzetin ve sıcaklığın korunabilmesi amacıyla belirlenen şube teslimat
-        yarıçapları içerisinde hizmet vermektedir. Teslimat adresinizi harita üzerinde seçtiğinizde veya kayıtlı
-        adresinizi belirlediğinizde sistemimiz adresinizin servis bölgesinde olup olmadığını otomatik olarak
-        doğrular.
+        <strong>{BRAND_NAME}</strong>, lezzetin ve sıcaklığın korunabilmesi amacıyla belirlenen şube
+        teslimat yarıçapları içerisinde hizmet vermektedir. Teslimat adresinizi harita üzerinde
+        seçtiğinizde veya kayıtlı adresinizi belirlediğinizde sistemimiz adresinizin servis
+        bölgesinde olup olmadığını otomatik olarak doğrular.
       </p>
     ),
   },
@@ -23,12 +23,12 @@ const SECTIONS: LegalSection[] = [
     content: (
       <>
         <p>
-          Ortalama teslimat süresi, sipariş anındaki mutfak hazırlık yoğunluğu ve hava/trafik şartlarına göre 30 ile
-          45 dakika arasındadır.
+          Ortalama teslimat süresi, sipariş anındaki mutfak hazırlık yoğunluğu ve hava/trafik
+          şartlarına göre 30 ile 45 dakika arasındadır.
         </p>
         <p>
-          Burgerler ve patatesler, buharlaşmayı engelleyen ve çıtırlığı koruyan patentli hava kanallı termal taşıma
-          çantalarında kuryelerimiz tarafından taşınır.
+          Burgerler ve patatesler, buharlaşmayı engelleyen ve çıtırlığı koruyan patentli hava
+          kanallı termal taşıma çantalarında kuryelerimiz tarafından taşınır.
         </p>
       </>
     ),
@@ -40,11 +40,12 @@ const SECTIONS: LegalSection[] = [
       <ul className="list-disc pl-5 space-y-1">
         <li>Her teslimat bölgesi için belirlenmiş bir minimum sipariş tutarı mevcuttur.</li>
         <li>
-          Belirli sepet tutarının üzerindeki siparişlerde teslimat ücretsizdir (&quot;Ateş Kargo&quot; kampanyası).
+          Belirli sepet tutarının üzerindeki siparişlerde teslimat ücretsizdir (&quot;Ateş
+          Kargo&quot; kampanyası).
         </li>
         <li>
-          Minimum tutarın altındaki siparişlerde mesafe bazlı cüzi teslimat ücreti sepet ve ödeme ekranında açıkça
-          gösterilir.
+          Minimum tutarın altındaki siparişlerde mesafe bazlı cüzi teslimat ücreti sepet ve ödeme
+          ekranında açıkça gösterilir.
         </li>
         <li>Şubeden Gel-Al yöntemiyle verilen tüm siparişlerde teslimat ücreti 0 TL&apos;dir.</li>
       </ul>
@@ -55,9 +56,9 @@ const SECTIONS: LegalSection[] = [
     title: 'Temassız Teslimat ve Kapıda Bırakma',
     content: (
       <p>
-        Sipariş verirken &quot;Temassız Teslimat&quot; seçeneğini işaretleyebilir ve bina giriş kodu, kapı notu
-        ekleyebilirsiniz. Kuryemiz siparişinizi kapınıza asar/bırakır, zilinizi çalar ve güvenli mesafede bekleyerek
-        teslimatı tamamlar.
+        Sipariş verirken &quot;Temassız Teslimat&quot; seçeneğini işaretleyebilir ve bina giriş
+        kodu, kapı notu ekleyebilirsiniz. Kuryemiz siparişinizi kapınıza asar/bırakır, zilinizi
+        çalar ve güvenli mesafede bekleyerek teslimatı tamamlar.
       </p>
     ),
   },

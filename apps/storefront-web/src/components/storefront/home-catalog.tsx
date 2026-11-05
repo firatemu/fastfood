@@ -42,19 +42,19 @@ export function HomeCatalog({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-secondary-container" />
-            <span className="font-label-sm text-label-sm text-primary uppercase tracking-widest">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(254,179,0,0.6)]" />
+            <span className="font-label-sm text-label-sm text-amber-400 font-semibold uppercase tracking-widest">
               {eyebrow}
             </span>
           </div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface uppercase">{heading}</h2>
+          <h2 className="font-headline-lg text-headline-lg text-white font-anton uppercase tracking-wide">{heading}</h2>
         </div>
         <div className="flex items-center gap-space-sm">
           <Link
             href="/legal#alerjen-rehberi"
-            className="px-space-md py-2 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface font-label-md text-label-md uppercase flex items-center gap-2 transition-all"
+            className="px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-neutral-300 hover:text-white hover:border-amber-400/40 hover:bg-white/[0.08] font-label-md text-label-md uppercase flex items-center gap-2 transition-all shadow-sm"
           >
-            <MaterialIcon name="tune" className="text-base" />
+            <MaterialIcon name="tune" className="text-base text-amber-400" />
             <span>Alerjen & Tercih</span>
           </Link>
         </div>
@@ -63,7 +63,7 @@ export function HomeCatalog({
           interaction; narrow ones keep the single-row scroll. That scroll needs inset
           padding, because its scrollbar is hidden and a chip flush against the edge
           reads as clipped rather than scrollable. */}
-      <div className="sf-chip-scroll flex w-full flex-nowrap items-center gap-space-sm overflow-x-auto px-1 pb-2 pr-space-sm lg:flex-wrap lg:overflow-x-visible lg:px-0 lg:pr-0 lg:pb-0">
+      <div className="sf-chip-scroll flex w-full flex-nowrap items-center gap-2.5 overflow-x-auto px-1 pb-2 pr-space-sm lg:flex-wrap lg:overflow-x-visible lg:px-0 lg:pr-0 lg:pb-0">
         <button
           type="button"
           onClick={() => onSelectCategory(null)}
@@ -85,7 +85,7 @@ export function HomeCatalog({
         ))}
       </div>
       {home.products.length === 0 ? (
-        <div className="rounded-xl bg-surface-container p-space-xl text-on-surface-variant font-body-md">
+        <div className="rounded-2xl bg-[#12151f]/80 border border-white/10 p-space-xl text-neutral-400 font-body-md text-center">
           Bu kategoride ürün yok.
         </div>
       ) : (
@@ -106,6 +106,6 @@ export function HomeCatalog({
 
 function chipClass(active: boolean): string {
   return active
-    ? 'shrink-0 px-space-md py-2.5 rounded-lg bg-secondary-container text-on-secondary-container font-label-md text-label-md uppercase tracking-wider shadow-md font-bold'
-    : 'shrink-0 px-space-md py-2.5 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md uppercase tracking-wider hover:bg-surface-container-high transition-colors';
+    ? 'shrink-0 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-neutral-950 font-label-md text-label-md uppercase tracking-wider shadow-[0_4px_16px_rgba(254,179,0,0.35)] font-bold scale-[1.02] transition-all'
+    : 'shrink-0 px-5 py-2.5 rounded-full bg-[#12151f]/80 border border-white/10 text-neutral-300 font-label-md text-label-md uppercase tracking-wider hover:bg-white/[0.08] hover:border-amber-400/40 hover:text-white transition-all font-medium';
 }

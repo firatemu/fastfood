@@ -66,7 +66,11 @@ export function securityPosture(input: {
   const level: SecurityLevel = score === total ? 'strong' : score >= total - 1 ? 'fair' : 'weak';
 
   const headline =
-    level === 'strong' ? 'Hesabın güçlü korunuyor' : level === 'fair' ? 'Bir adım kaldı' : 'Hesabın korunmaya muhtaç';
+    level === 'strong'
+      ? 'Hesabın güçlü korunuyor'
+      : level === 'fair'
+        ? 'Bir adım kaldı'
+        : 'Hesabın korunmaya muhtaç';
 
   const remaining = total - score;
   const summary =

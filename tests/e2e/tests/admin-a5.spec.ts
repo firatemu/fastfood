@@ -10,7 +10,8 @@ const USERS = '/home/azem/projects/fastfood/apps/admin-web/src/app/users/page.ts
 const ROLES = '/home/azem/projects/fastfood/apps/admin-web/src/app/roles/page.tsx';
 const AUDIT = '/home/azem/projects/fastfood/apps/admin-web/src/app/audit/page.tsx';
 const SETTINGS = '/home/azem/projects/fastfood/apps/admin-web/src/app/settings/page.tsx';
-const REPORTING = '/home/azem/projects/fastfood/apps/api/src/modules/reporting/reporting.controller.ts';
+const REPORTING =
+  '/home/azem/projects/fastfood/apps/api/src/modules/reporting/reporting.controller.ts';
 
 test.describe('Admin A5 analytics/access/system contracts', () => {
   test('A5 routes use OpsShell and not A0 scaffold', () => {
@@ -36,7 +37,7 @@ test.describe('Admin A5 analytics/access/system contracts', () => {
     expect(readFileSync(USERS, 'utf8')).toContain('ConfirmDialog');
     expect(readFileSync(USERS, 'utf8')).toContain('canAssignRole');
     expect(readFileSync(ROLES, 'utf8')).toContain('permission atama API yok');
-    expect(readFileSync(ROLES, 'utf8')).not.toContain('method: \'PATCH\'');
+    expect(readFileSync(ROLES, 'utf8')).not.toContain("method: 'PATCH'");
   });
 
   test('audit has no payload dump and settings redact secrets', () => {

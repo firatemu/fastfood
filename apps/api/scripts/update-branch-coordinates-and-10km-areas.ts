@@ -3,7 +3,8 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { generateCirclePolygon } from '../src/modules/branch/routing/routing.service.js';
 
 const connectionString =
-  process.env.DATABASE_URL || 'postgresql://fastfood:fastfood@localhost:5439/fastfood?schema=public';
+  process.env.DATABASE_URL ||
+  'postgresql://fastfood:fastfood@localhost:5439/fastfood?schema=public';
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 

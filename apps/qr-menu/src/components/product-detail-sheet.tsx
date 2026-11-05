@@ -167,7 +167,9 @@ export function ProductDetailSheet({ product, onClose }: ProductDetailSheetProps
 
           {product.removalOptions.length > 0 ? (
             <section className="mt-6">
-              <SectionTitle hint="garsonumuza söyleyin">İstediğiniz malzeme çıkarılabilir</SectionTitle>
+              <SectionTitle hint="garsonumuza söyleyin">
+                İstediğiniz malzeme çıkarılabilir
+              </SectionTitle>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {product.removalOptions.map((option) => (
                   <span

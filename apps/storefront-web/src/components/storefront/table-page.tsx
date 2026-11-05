@@ -30,68 +30,65 @@ export function TableLookupPage() {
   const [code, setCode] = useState('');
 
   return (
-    <div className="ff-acct min-h-screen w-full bg-background pt-20" data-ff-surface="table-lookup">
-      <main className="mx-auto flex w-full max-w-xl flex-col justify-center px-margin-sm py-space-xl">
-        <span className="ff-toolbar-eyebrow">Masa bağlamı</span>
-        <h1 className="ff-toolbar-title" style={{ fontSize: '24px', marginTop: '0.25rem' }}>
-          Masa Kodu
-        </h1>
-        <p className="ff-lead">
-          Masandaki QR etiketindeki kodu gir. Bu bir giriş işlemi değildir; yalnızca şube ve masa
-          bağlamını kurar, sepetini etkilemez.
-        </p>
+    <div className="ff-acct min-h-screen w-full bg-background pt-24 pb-16" data-ff-surface="table-lookup">
+      <main className="mx-auto flex w-full max-w-lg flex-col justify-center px-4">
+        <div className="ff-card">
+          <div className="flex items-center gap-3.5 pb-4 mb-4 border-b border-outline-variant/60">
+            <div className="w-12 h-12 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center border border-secondary/25 shadow-sm">
+              <MaterialIcon name="table_restaurant" />
+            </div>
+            <div>
+              <span className="ff-toolbar-eyebrow">Restoran İçi Masa Servisi</span>
+              <h1 className="text-xl font-extrabold text-white">Masa Kodu Girişi</h1>
+            </div>
+          </div>
 
-        <form
-          className="ff-cluster"
-          style={{ marginTop: '0.5rem', flexWrap: 'nowrap', alignItems: 'flex-end' }}
-          onSubmit={(event) => {
-            event.preventDefault();
-            router.push(`/table/${encodeURIComponent(code.trim())}`);
-          }}
-        >
-          <label className="ff-field" style={{ flex: 1 }}>
-            <span className="ff-field-label">Masa kodu</span>
-            <input
-              className="ff-input"
-              value={code}
-              onChange={(event) => setCode(event.target.value)}
-              placeholder="ör. A12"
-              autoComplete="off"
-              spellCheck={false}
-              inputMode="text"
-              data-ff-table-code
-            />
-          </label>
-          <button type="submit" className="ff-btn ff-btn-primary" disabled={!code.trim()}>
-            Kodu aç
-          </button>
-        </form>
+          <p className="text-sm text-on-surface-variant leading-relaxed mb-5">
+            Masandaki QR etiketindeki masa kodunu girerek menüyü masana bağlayabilirsin. Siparişlerin doğrudan masana servis edilir.
+          </p>
 
-        <div className="ff-notice" data-tone="info" style={{ marginTop: '1.25rem' }}>
-          <MaterialIcon name="info" />
-          <span>Kodu bilmiyorsan masadan yardım iste.</span>
-        </div>
-
-        <p className="ff-row-hint" style={{ marginTop: '0.75rem' }}>
-          Kod olmadan da{' '}
-          <button
-            type="button"
-            onClick={() => router.push('/')}
-            style={{
-              background: 'none',
-              border: 0,
-              padding: 0,
-              color: 'var(--color-secondary-container)',
-              font: 'inherit',
-              textDecoration: 'underline',
-              textUnderlineOffset: 3,
-              cursor: 'pointer',
+          <form
+            className="flex items-end gap-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              router.push(`/table/${encodeURIComponent(code.trim())}`);
             }}
           >
-            menüden devam edebilirsin
-          </button>
-          .
-        </p>
+            <label className="ff-field flex-1">
+              <span className="ff-field-label">Masa Numarası / Kodu</span>
+              <input
+                className="ff-input text-base uppercase font-semibold tracking-wider"
+                value={code}
+                onChange={(event) => setCode(event.target.value)}
+                placeholder="Ör. A12"
+                autoComplete="off"
+                spellCheck={false}
+                inputMode="text"
+                data-ff-table-code
+              />
+            </label>
+            <button type="submit" className="ff-btn ff-btn-primary" disabled={!code.trim()}>
+              <MaterialIcon name="login" />
+              Masayı Aç
+            </button>
+          </form>
+
+          <div className="ff-notice mt-5" data-tone="info">
+            <MaterialIcon name="info" />
+            <span>Masa kodunu bulamadıysan servis personelimizden yardım isteyebilirsin.</span>
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-outline-variant/40 text-center">
+            <span className="text-xs text-on-surface-variant">Kod olmadan devam etmek için </span>
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="text-xs font-semibold text-secondary hover:underline cursor-pointer"
+            >
+              Doğrudan Menüye Git →
+            </button>
+          </div>
+        </div>
       </main>
     </div>
   );
@@ -130,7 +127,10 @@ export function TableContextPage() {
 
   if (status === 'loading') {
     return (
-      <main className="ff-acct w-full pt-20 min-h-screen bg-background px-margin-sm" data-ff-surface="table">
+      <main
+        className="ff-acct w-full pt-20 min-h-screen bg-background px-margin-sm"
+        data-ff-surface="table"
+      >
         <ShopSkeleton />
       </main>
     );
@@ -146,7 +146,10 @@ export function TableContextPage() {
   }
 
   return (
-    <main className="ff-acct w-full pt-20 min-h-screen bg-background px-margin-sm" data-ff-surface="table">
+    <main
+      className="ff-acct w-full pt-20 min-h-screen bg-background px-margin-sm"
+      data-ff-surface="table"
+    >
       <div className="ff-toolbar-eyebrow" style={{ marginTop: '2.5rem' }}>
         Masa bağlamı
       </div>

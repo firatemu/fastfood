@@ -91,154 +91,186 @@ export function SpinPage() {
 
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'error' || !state) {
-    return <ShopError title="Ateş Çarkı" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />;
+    return (
+      <ShopError title="Ateş Çarkı" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />
+    );
   }
 
   const blocked = !state.eligible;
-  const spinState = spinning ? 'spinning' : result ? 'result' : state.eligible ? 'ready' : 'blocked';
+  const spinState = spinning
+    ? 'spinning'
+    : result
+      ? 'result'
+      : state.eligible
+        ? 'ready'
+        : 'blocked';
 
   return (
     <AccountShell
       surface="spin"
-      eyebrow="Ayrıcalıklar"
-      title="Ateş Çarkı"
-      description="Günlük hakkınla kampanya ödüllerinden birini kazan."
+      eyebrow="Ayrıcalıklar & Kampanyalar"
+      title="Ateş Çarkıfelek"
+      description="Her gün şansını dene, nefis burgerler, indirim kuponları ve binlerce Ateş Puanı kazan."
       actions={
         <span
           className="ff-tag"
           data-tone={state.eligible ? 'ok' : 'warn'}
           data-ff-spin-state={spinState}
         >
-          {spinning ? 'Çevriliyor' : state.eligible ? 'Hak hazır' : 'Hak kullanıldı'}
+          {spinning ? 'Çevriliyor...' : state.eligible ? 'Günlük Hak Hazır' : 'Bugünkü Hak Kullanıldı'}
         </span>
       }
     >
-      <section className="ff-section">
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Kampanya</h2>
-          <p className="ff-section-desc">
-            {state.campaign?.endsAt
-              ? `${formatDate(state.campaign.endsAt)} tarihinde bitiyor.`
-              : 'Aktif kampanya yok.'}
-          </p>
-        </div>
-        <div className="ff-section-body">
-          <div className="ff-rows">
-            <div className="ff-row">
-              <div className="ff-row-key">
-                <div className="ff-row-label">{state.campaign?.name ?? 'Aktif kampanya yok'}</div>
-                <div className="ff-row-hint">
-                  {blocked
-                    ? reasonCopy(state.reason)
-                    : `${state.spinsRemaining} hak kaldı.`}
-                </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Çark Ana Kartı */}
+        <div className="lg:col-span-2">
+          <div className="ff-card flex flex-col items-center justify-center p-8 text-center">
+            <div className="w-full flex items-center justify-between pb-4 mb-6 border-b border-outline-variant/60">
+              <div className="text-left">
+                <span className="text-xs font-bold uppercase tracking-wider text-secondary">
+                  {state.campaign?.name ?? 'Günlük Şans Çarkı'}
+                  {state.campaign?.endsAt ? ` · Bitiş: ${formatDate(state.campaign.endsAt)}` : ''}
+                </span>
+                <p className="text-xs text-on-surface-variant mt-0.5">
+                  {blocked ? reasonCopy(state.reason) : `Bugün ${state.spinsRemaining} çevirme hakkın var.`}
+                </p>
               </div>
-              <div className="ff-row-value">
-                {state.prizes.length > 0 ? `${state.prizes.length} ödül` : 'Ödül yok'}
-              </div>
-            </div>
-          </div>
-
-          {/* The dial. When the campaign has no prizes it states that instead of
-              spinning an empty wheel. */}
-          <div className="ff-spin-stage">
-            <div
-              className="ff-dial"
-              data-ff-spin-wheel
-              data-state={spinning ? 'spinning' : result ? 'result' : blocked ? 'blocked' : 'ready'}
-              role="img"
-              aria-label={
-                spinning
-                  ? 'Çarkı çevriliyor'
-                  : result
-                    ? `Sonuç: ${result.prize.label}`
-                    : blocked
-                      ? 'Bugünkü hak kullanıldı'
-                      : 'Çarkı çevirmeye hazır'
-              }
-            >
-              <span className="ff-dial-label">
-                {spinning
-                  ? 'Çevriliyor'
-                  : result
-                    ? result.prize.label
-                    : state.eligible
-                      ? 'Çarkı çevir'
-                      : 'Bugün bitti'}
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant text-white">
+                {state.prizes.length} Ödül
               </span>
             </div>
-          </div>
 
-          {state.prizes.length > 0 ? (
-            <ul className="ff-cluster" style={{ marginTop: '0.75rem' }}>
-              {state.prizes.map((prize) => (
-                <li key={prize.code} className="ff-tag ff-tag-plain" data-tone="info">
-                  {prize.label}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="ff-row-hint" style={{ marginTop: '0.75rem' }}>
-              Bu kampanyada tanımlı ödül yok.
-            </p>
-          )}
-
-          <div className="ff-cluster ff-cluster-end" style={{ marginTop: '1rem' }}>
-            <button
-              type="button"
-              className="ff-btn ff-btn-primary"
-              disabled={blocked || runSpin.pending}
-              onClick={() => void spin()}
-              data-ff-spin
-            >
-              <MaterialIcon name="casino" />
-              {runSpin.pending ? 'Çevriliyor' : 'Çarkı çevir'}
-            </button>
-          </div>
-
-          {blocked ? (
-            <div className="ff-notice" data-tone="info" style={{ marginTop: '1rem' }}>
-              <MaterialIcon name="schedule" />
-              <span>
-                Yeni hakkı sunucu belirliyor; bu ekranda uydurma bir geri sayım gösterilmez.
-              </span>
-            </div>
-          ) : null}
-        </div>
-      </section>
-
-      {result ? (
-        <section className="ff-section" data-ff-spin-result>
-          <div className="ff-section-head">
-            <h2 className="ff-section-title">
-              {result.replayed ? 'Bu çekiliş daha önce oynanmış' : 'Kazandığın'}
-            </h2>
-            <p className="ff-section-desc">Son çekilişin sonucu.</p>
-          </div>
-          <div className="ff-section-body">
-            <div className="ff-rows">
-              <div className="ff-row">
-                <div className="ff-row-key">
-                  <div className="ff-row-label">{result.prize.label}</div>
-                </div>
-                <div className="ff-row-actions">
-                  {result.prize.couponCode ? (
-                    <span className="ff-tag" data-tone="brand">
-                      {result.prize.couponCode}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-              {BigInt(result.prize.pointsAwarded) > 0n ? (
-                <div className="ff-row">
-                  <div className="ff-row-key">
-                    <div className="ff-row-label">Puan</div>
-                    <div className="ff-row-hint">Hesabına eklendi.</div>
+            {/* Glowing Wheel Stage */}
+            <div className="my-4 relative">
+              <div
+                className="ff-dial shadow-2xl shadow-secondary/15 relative z-10"
+                data-ff-spin-wheel
+                data-state={spinning ? 'spinning' : result ? 'result' : blocked ? 'blocked' : 'ready'}
+                role="img"
+                aria-label={
+                  spinning
+                    ? 'Çarkı çevriliyor'
+                    : result
+                      ? `Sonuç: ${result.prize.label}`
+                      : blocked
+                        ? 'Bugünkü hak kullanıldı'
+                        : 'Çarkı çevirmeye hazır'
+                }
+                style={{
+                  width: '16rem',
+                  height: '16rem',
+                  background: 'radial-gradient(circle at 50% 40%, #2a2215 0%, #121318 80%)',
+                  border: '3px solid rgba(254, 179, 0, 0.4)',
+                }}
+              >
+                <div className="flex flex-col items-center justify-center p-4">
+                  <div className="text-3xl text-secondary mb-2">
+                    <MaterialIcon name={spinning ? 'casino' : result ? 'celebration' : 'stars'} />
                   </div>
-                  <div className="ff-row-value">+{result.prize.pointsAwarded}</div>
+                  <span className="ff-dial-label text-base font-extrabold text-white">
+                    {spinning
+                      ? 'Çevriliyor...'
+                      : result
+                        ? result.prize.label
+                        : state.eligible
+                          ? 'ÇEVİR'
+                          : 'Yarın Tekrar Gel'}
+                  </span>
                 </div>
+              </div>
+            </div>
+
+            {/* Çevir Butonu */}
+            <div className="mt-6 flex flex-col items-center gap-3">
+              <button
+                type="button"
+                className="ff-btn ff-btn-primary px-8 py-3 text-base font-bold shadow-lg shadow-secondary/30"
+                disabled={blocked || runSpin.pending}
+                onClick={() => void spin()}
+                data-ff-spin
+              >
+                <MaterialIcon name="casino" />
+                {runSpin.pending ? 'Çark Dönüyor...' : 'Çarkı Çevir'}
+              </button>
+              {blocked ? (
+                <p className="text-xs text-on-surface-variant">
+                  Yeni çevirme hakkı her gece yenilenir.
+                </p>
               ) : null}
             </div>
+          </div>
+        </div>
+
+        {/* Sağ Sütun: Olası Ödüller & Kurallar */}
+        <div className="lg:col-span-1 flex flex-col gap-4">
+          <div className="ff-card">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-3">
+              <MaterialIcon name="card_giftcard" />
+              Kazanabileceğin Ödüller
+            </h3>
+            {state.prizes.length > 0 ? (
+              <div className="flex flex-col gap-2">
+                {state.prizes.map((prize) => (
+                  <div
+                    key={prize.code}
+                    className="p-2.5 rounded-xl bg-surface-container-lowest/70 border border-outline-variant/60 flex items-center justify-between text-xs"
+                  >
+                    <span className="font-semibold text-white">{prize.label}</span>
+                    <span className="text-secondary font-bold">Hediye</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-on-surface-variant">Bu kampanyada tanımlı ödül bulunmuyor.</p>
+            )}
+          </div>
+
+          <div className="ff-card">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
+              <MaterialIcon name="info" />
+              Çark Kuralları
+            </h3>
+            <ul className="text-xs text-on-surface-variant space-y-2 leading-relaxed">
+              <li>• Her gün 1 ücretsiz çevirme hakkı tanımlanır.</li>
+              <li>• Kazanılan indirim kuponları anında hesabına işlenir.</li>
+              <li>• Kazanılan puanlar ömür boyu üyelik seviyeni artırır.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Sonuç Kartı */}
+      {result ? (
+        <section className="ff-card mb-6 border-secondary/40 bg-secondary/5" data-ff-spin-result>
+          <div className="ff-card-header">
+            <div>
+              <h2 className="ff-card-title text-secondary">
+                <MaterialIcon name="celebration" />
+                {result.replayed ? 'Son Oynanan Çekiliş' : 'Tebrikler, Kazandın!'}
+              </h2>
+              <p className="ff-card-desc">Ödül detayları aşağıdadır.</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-surface-container-low border border-outline-variant">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center text-2xl">
+                <MaterialIcon name="card_giftcard" />
+              </div>
+              <div>
+                <div className="text-base font-bold text-white">{result.prize.label}</div>
+                {result.prize.couponCode ? (
+                  <div className="text-xs text-secondary font-mono mt-0.5">
+                    Kupon Kodu: <span className="font-bold">{result.prize.couponCode}</span>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            {BigInt(result.prize.pointsAwarded) > 0n ? (
+              <div className="px-4 py-2 rounded-lg bg-ok/15 text-ok border border-ok/30 font-bold text-sm">
+                +{result.prize.pointsAwarded} Ateş Puanı
+              </div>
+            ) : null}
           </div>
         </section>
       ) : null}
@@ -263,7 +295,9 @@ function reasonCopy(reason: string): string {
 function formatDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }).format(
-    date,
-  );
+  return new Intl.DateTimeFormat('tr-TR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
 }

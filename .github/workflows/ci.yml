@@ -56,6 +56,12 @@ jobs:
       - name: Generate Prisma client
         run: pnpm db:generate
 
+      - name: Generate development JWT key pair
+        # Document 32 §5: access tokens are RS256 JWTs. The key pair is
+        # git-ignored, so CI provisions a throwaway one before any gate that
+        # signs or verifies an access token.
+        run: pnpm keys:dev
+
       - name: Format check
         run: pnpm format:check
 

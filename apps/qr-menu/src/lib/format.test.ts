@@ -84,11 +84,7 @@ describe('productMatchesQuery', () => {
 });
 
 describe('groupByCategory', () => {
-  const categories = [
-    { id: 'c1' },
-    { id: 'c2' },
-    { id: 'c3' },
-  ];
+  const categories = [{ id: 'c1' }, { id: 'c2' }, { id: 'c3' }];
   const products = [
     { categoryId: 'c2', name: 'b' },
     { categoryId: 'c1', name: 'a' },

@@ -2,15 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  AppState,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { AppState, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { QtyStepper } from '../components/qty-stepper';
 import { RequireCustomer } from '../components/require-customer';
@@ -43,9 +35,9 @@ function CartScreen() {
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [code, setCode] = useState(getStoredCouponCode());
-  const [couponStatus, setCouponStatus] = useState<'idle' | 'validating' | 'valid' | 'invalid' | 'rejected'>(
-    'idle',
-  );
+  const [couponStatus, setCouponStatus] = useState<
+    'idle' | 'validating' | 'valid' | 'invalid' | 'rejected'
+  >('idle');
   const [couponMessage, setCouponMessage] = useState<string | null>(null);
   const [promo, setPromo] = useState<PromotionValidate | null>(null);
 
@@ -78,9 +70,11 @@ function CartScreen() {
   );
 
   const lines = cart?.lineItems ?? [];
-  const snapshotSubtotal = lines.reduce((acc, line) => {
-    return acc + BigInt(multiplyMinor(cartLineUnitMinor(line), line.quantity));
-  }, 0n).toString();
+  const snapshotSubtotal = lines
+    .reduce((acc, line) => {
+      return acc + BigInt(multiplyMinor(cartLineUnitMinor(line), line.quantity));
+    }, 0n)
+    .toString();
   const merchandiseMinor = quoteMinor ?? snapshotSubtotal;
   const currency = lines[0]?.currencySnapshot ?? 'TRY';
   const preview = promo
@@ -232,7 +226,10 @@ function CartScreen() {
                     {chips.length > 0 ? (
                       <View style={styles.chips}>
                         {chips.map((chip) => (
-                          <Text key={chip.label} style={[styles.chip, chip.priced && styles.chipPriced]}>
+                          <Text
+                            key={chip.label}
+                            style={[styles.chip, chip.priced && styles.chipPriced]}
+                          >
                             {chip.label}
                           </Text>
                         ))}
@@ -249,7 +246,11 @@ function CartScreen() {
                       onPress={() => router.push(`/products/${line.productId}`)}
                       style={styles.customize}
                     >
-                      <MaterialCommunityIcons name="tune-variant" size={14} color={colors.mustard} />
+                      <MaterialCommunityIcons
+                        name="tune-variant"
+                        size={14}
+                        color={colors.mustard}
+                      />
                       <Text style={styles.customizeLabel}>ÖZELLEŞTİRMEYİ DÜZENLE</Text>
                     </Pressable>
                     <View style={styles.lineFooter}>
@@ -292,13 +293,7 @@ function CartScreen() {
                 </Pressable>
               </View>
               {couponMessage ? (
-                <Text
-                  style={
-                    uiCouponStatus === 'valid'
-                      ? styles.couponOk
-                      : styles.couponBad
-                  }
-                >
+                <Text style={uiCouponStatus === 'valid' ? styles.couponOk : styles.couponBad}>
                   {couponMessage}
                 </Text>
               ) : null}
@@ -345,7 +340,12 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.canvas },
   padded: { padding: space.gutter },
   scroll: { padding: space.gutter, gap: space.md },
-  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+  rowBetween: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+  },
   section: {
     fontFamily: fonts.jakartaBold,
     fontSize: 18,
@@ -391,8 +391,18 @@ const styles = StyleSheet.create({
     minHeight: 30,
   },
   customizeLabel: { fontFamily: fonts.jakartaBold, fontSize: 12, color: colors.mustard },
-  lineFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
-  linePrice: { fontFamily: fonts.anton, fontSize: 22, color: colors.mustard, fontVariant: ['tabular-nums'] },
+  lineFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  linePrice: {
+    fontFamily: fonts.anton,
+    fontSize: 22,
+    color: colors.mustard,
+    fontVariant: ['tabular-nums'],
+  },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
@@ -448,5 +458,10 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: colors.ash,
   },
-  payableValue: { fontFamily: fonts.anton, fontSize: 28, color: colors.mustard, fontVariant: ['tabular-nums'] },
+  payableValue: {
+    fontFamily: fonts.anton,
+    fontSize: 28,
+    color: colors.mustard,
+    fontVariant: ['tabular-nums'],
+  },
 });

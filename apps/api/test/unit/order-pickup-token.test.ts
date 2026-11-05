@@ -3,7 +3,10 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { OrderPickupTokenService, generateToken } from '../../src/modules/order/order-pickup-token.service.js';
+import {
+  OrderPickupTokenService,
+  generateToken,
+} from '../../src/modules/order/order-pickup-token.service.js';
 
 describe('generateToken', () => {
   it('returns a PICKUP- prefix + random hex', () => {

@@ -92,14 +92,89 @@ human owner may record final acceptance.
 
 Current QA packs:
 
-- Admin: `docs/admin-rebuild/12_ADMIN_HUMAN_QA_CHECKLIST.md`
-- Storefront: `docs/storefront-rebuild/15_HUMAN_QA_CHECKLIST.md`
-- Customer mobile: `docs/mobile-rebuild/12_HUMAN_QA_CHECKLIST.md`
+- Unified QA & Human Testing Guide: `docs/QA_TEST_GUIDE.md`
 - Cross-surface plan: `project-reports/final/FULL_PROJECT_HUMAN_TEST_PLAN.md`
 
 Current technical summary:
 
 - `project-reports/final/FULL_PROJECT_AUTONOMOUS_COMPLETION_REPORT.md`
+
+## Production-readiness remediation (audit 2026-10-23)
+
+The production-readiness architectural audit
+(`project-reports/final/FASTFOOD_PRODUCTION_READINESS_ARCHITECTURAL_AUDIT.md`)
+recorded six P0 blockers, four P1 blockers and a set of P2/P3 findings, and
+reported the repository's own gates as red. The remediation plan is being
+applied in the audit's order (Sprint 0 → Sprint 1 → Sprint 2 → …). This entry
+records factual implementation progress only; no human acceptance is claimed or
+implied.
+
+**Sprint 0 — base gates green.** Complete.
+
+| Gate                     | Result                                                                    |
+| ------------------------ | ------------------------------------------------------------------------- |
+| `pnpm format:check`      | exit 0 — "All matched files use Prettier code style!"                     |
+| `pnpm lint`              | exit 0 — 30/30 turbo tasks successful                                     |
+| `pnpm typecheck`         | exit 0 — 30/30 turbo tasks successful                                     |
+| `pnpm test:unit --force` | exit 0 — 28/28 turbo tasks successful                                     |
+| `pnpm build`             | exit 0                                                                    |
+| `pnpm db:validate`       | exit 0 — "The schema at prisma/schema.prisma is valid"                    |
+| `pnpm test:integration`  | exit 0 — 11/11 turbo tasks successful (8 API integration files, 31 tests) |
+
+The integration gate was `NOT RUN` in the audit because `DATABASE_URL` was not
+present in the test environment. `apps/api/test/setup-integration-env.ts` now
+loads `apps/api/.env` (an already-exported variable still wins), and
+`apps/api/vitest.integration.config.ts` registers it, so the gate is
+reproducible.
+
+**Sprint 1 — P0 closure.** P0-2, P0-4, P0-1 and P0-5 are complete.
+
+- **P0-2 — server-authoritative pricing.** `CartPricingAuthorityService` and
+  `CheckoutRepricingService` re-read the catalog; `CheckoutService.quote()` and
+  `finalizePaid()` price from the catalog, and a client-posted unit price is
+  ignored. Verified by `apps/api/test/unit/cart-pricing-authority.test.ts` and
+  `apps/api/test/integration/checkout-quote.integration.test.ts`.
+- **P0-4 — referential integrity.** Migration
+  `20261024130000_referential_integrity_fks` adds 27 foreign keys across
+  `orders`, `checkout_sessions`, `loyalty_ledger_entries`,
+  `loyalty_reservations` and `refunds`, and restores the eight foreign keys
+  that `20260922143150_order_pickup_tokens` had dropped. The Prisma schema
+  models the same relations, so `prisma migrate diff --from-config-datasource
+--to-schema prisma/schema.prisma --script` now reports "This is an empty
+  migration."
+- **P0-1 — refund dispatch.** `PaymentPort` gained `refund()`; the iyzico
+  adapter calls `POST /payment/iyzipos/refund/auth/ecom` and the simulated
+  adapter records the sandbox refund. `RefundService.create()` derives the
+  order from the payment attempt (`payment_attempts.checkout_session_id` →
+  `checkout_sessions.order_id` / `orders.checkout_session_id`), locks the
+  payment row (`SELECT … FOR UPDATE`), writes the refund as `PENDING`, calls
+  the gateway, and settles the row to `SUCCEEDED`/`FAILED` in the same
+  transaction as the `payment.refund` audit-log entry. Migration
+  `20261024140000_refund_order_not_null` backfills `refunds.order_id` and makes
+  it `NOT NULL`, so a refund can no longer be unattributable to an order and
+  branch-scoped revenue reporting sees it. Verified by
+  `apps/api/test/unit/refund-provider-dispatch.test.ts` (6 tests) and
+  `apps/api/test/integration/refund-provider-dispatch.integration.test.ts`
+  (3 tests), the latter asserting the stored row, the audit entry and the
+  branch-scoped sales report.
+- **P0-5 — loyalty balance locking.** `LoyaltyService` no longer sums the
+  ledger in application memory: `getBalance()` and `getLifetimeEarned()` use
+  Prisma `aggregate({ _sum: { pointsDelta: true } })`, and every balance
+  mutation (`reserve()`, `release()`, `credit()`, `setBalance()`) runs inside a
+  transaction that first takes a PostgreSQL row lock on the customer
+  (`SELECT id FROM users WHERE id = $1::uuid FOR UPDATE`). The lock is always
+  acquired before the ledger row is written and the order is identical in all
+  four flows, so concurrent reservations cannot oversell the balance. `release()`
+  resolves the reservation owner before locking, so a foreign reservation id is
+  rejected as "Loyalty reservation not found" instead of leaking the
+  lock-owner lookup. Verified by
+  `apps/api/test/integration/loyalty-balance-locking.integration.test.ts`
+  (4 tests) — eight concurrent `reserve()` calls against a 100-point balance
+  settle at exactly two successful reservations and a zero floor — and by
+  `apps/api/test/unit/loyalty*.test.ts`.
+
+Remaining Sprint 1 items, in the audit's order: P0-3 (HttpOnly refresh-token
+cookie) and P0-6 (`PAYMENT_GATEWAY=simulated` production fail-fast guard).
 
 ## Admin toast notifications
 

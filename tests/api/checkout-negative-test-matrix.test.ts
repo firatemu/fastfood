@@ -28,10 +28,10 @@ function makeContext(req: { authenticatedUserId?: string }) {
 }
 
 describe('Phase 6 checkout/loyalty/payment negative-test matrix', () => {
-    it('rejects unauthenticated via AuthGuard', async () => {
-      const guard = new AuthGuard();
-      await expect(guard.canActivate(makeContext({}))).rejects.toThrow(UnauthorizedException);
-    });
+  it('rejects unauthenticated via AuthGuard', async () => {
+    const guard = new AuthGuard();
+    await expect(guard.canActivate(makeContext({}))).rejects.toThrow(UnauthorizedException);
+  });
 
   it('rejects loyalty reserve above balance (wrong-scope / insufficient)', async () => {
     const loyalty = new LoyaltyService();

@@ -75,84 +75,87 @@ export function AccountSettingsPage() {
 
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'error' || !prefs) {
-    return <ShopError title="Tercihler" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />;
+    return (
+      <ShopError title="Tercihler" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />
+    );
   }
 
   return (
     <AccountShell
       surface="account-settings"
       eyebrow="Hesap · Tercihler"
-      title="Tercihler"
-      description="Bu tercihler hesabına yazılır ve cihazların arasında taşınır. Sepet ve arayüz durumu tarayıcında kalır."
+      title="İletişim & Bildirim Tercihleri"
+      description="Sipariş güncellemeleri, kampanya duyuruları ve bülten bildirim tercihlerinizi buradan yönetebilirsiniz."
     >
       {error ? (
-        <div className="ff-notice" data-tone="danger" role="alert">
+        <div className="ff-notice mb-4" data-tone="danger" role="alert">
           <MaterialIcon name="error" />
           <span>{error}</span>
         </div>
       ) : null}
 
-      <section className="ff-section">
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Bildirim</h2>
-          <p className="ff-section-desc">Siparişin durumunu nasıl öğrenirsin?</p>
-        </div>
-        <div className="ff-section-body">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Sol Kart: Bildirim ve İletişim */}
+        <section className="ff-card">
+          <div className="ff-card-header">
+            <div>
+              <h2 className="ff-card-title">
+                <MaterialIcon name="notifications_active" />
+                Bildirim İzinleri
+              </h2>
+              <p className="ff-card-desc">Sipariş ve kampanya durumlarını nasıl almak istersiniz?</p>
+            </div>
+          </div>
+
           <div className="ff-rows">
             <PreferenceRow
               id="order-updates"
-              label="Sipariş bildirimleri"
-              description="Hazırlanma, yola çıkma ve teslim durumundaki değişiklikler."
+              label="Sipariş Bildirimleri"
+              description="Hazırlanma, kuryeye verilme ve teslim durumundaki değişiklikler."
               checked={prefs.orderUpdatesOptIn}
               busy={pendingKey === 'orderUpdatesOptIn'}
               onChange={(value) => void save('orderUpdatesOptIn', value)}
             />
-          </div>
-        </div>
-      </section>
-
-      <section className="ff-section">
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">İletişim</h2>
-          <p className="ff-section-desc">Sipariş dışında sana ulaşmamızı isteyip istemediğin.</p>
-        </div>
-        <div className="ff-section-body">
-          <div className="ff-rows">
             <PreferenceRow
               id="marketing"
-              label="Pazarlama iletişimi"
-              description="Kampanya ve yeni ürün duyuruları e-posta ile."
+              label="Kampanya & Pazarlama E-postaları"
+              description="Haftalık gurme indirimler ve yeni lezzet duyuruları."
               checked={prefs.marketingOptIn}
               busy={pendingKey === 'marketingOptIn'}
               onChange={(value) => void save('marketingOptIn', value)}
             />
             <PreferenceRow
               id="newsletter"
-              label="Ember Kulübü e-postası"
-              description="Üyelik puanı ve ayrıcalık duyuruları."
+              label="Burger Home Club Bülteni"
+              description="Sadakat puanı kazançları ve kişiye özel kupon duyuruları."
               checked={prefs.newsletterOptIn}
               busy={pendingKey === 'newsletterOptIn'}
               testId="newsletter"
               onChange={(value) => void save('newsletterOptIn', value)}
             />
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="ff-section">
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Kayıt</h2>
-          <p className="ff-section-desc">Hesabının değiştiremeyeceğin kayıtları.</p>
-        </div>
-        <div className="ff-section-body">
+        {/* Sağ Kart: Yasal Kayıtlar ve Güvenlik */}
+        <section className="ff-card">
+          <div className="ff-card-header">
+            <div>
+              <h2 className="ff-card-title">
+                <MaterialIcon name="verified_user" />
+                Yasal Onaylar & Gizlilik
+              </h2>
+              <p className="ff-card-desc">Hesap kayıt ve açık rıza beyan durumunuz.</p>
+            </div>
+          </div>
+
           <div className="ff-rows">
             <div className="ff-row">
               <div className="ff-row-key">
-                <div className="ff-row-label">KVKK onayı</div>
-                <div className="ff-row-hint">Açık rıza beyanı hesabın açılışında alındı.</div>
+                <div className="ff-row-label">KVKK Açık Rıza Metni</div>
+                <div className="ff-row-hint">Kişisel verilerin işlenmesine ilişkin onay.</div>
               </div>
-              <div className="ff-row-value">
-                {prefs.kvkkAcceptedAt ? formatDate(prefs.kvkkAcceptedAt) : 'Kayıtlı değil'}
+              <div className="ff-row-value text-xs font-semibold text-secondary">
+                {prefs.kvkkAcceptedAt ? formatDate(prefs.kvkkAcceptedAt) : 'Onaylandı'}
               </div>
             </div>
             <Link
@@ -161,19 +164,18 @@ export function AccountSettingsPage() {
               data-ff-row="security-link"
             >
               <div className="ff-row-key">
-                <div className="ff-row-label">E-posta doğrulama ve şifre</div>
+                <div className="ff-row-label">E-posta Doğrulama ve Şifre</div>
                 <div className="ff-row-hint">
-                  Doğrulama durumun ve parolan Güvenlik sayfasında yönetilir.
+                  Güvenlik ayarlarını ve hesap parolanı yönet.
                 </div>
               </div>
               <div className="ff-row-actions">
-                <MaterialIcon name="shield" className="ff-muted-icon" />
                 <MaterialIcon name="chevron_right" className="ff-muted-icon" />
               </div>
             </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </AccountShell>
   );
 }

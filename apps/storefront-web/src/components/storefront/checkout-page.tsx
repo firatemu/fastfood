@@ -336,21 +336,21 @@ export function CheckoutPage() {
   }
   if (lines.length === 0) {
     return (
-      <main className="w-full pt-20 bg-background min-h-screen" data-ff-surface="checkout">
-        <div className="max-w-7xl mx-auto px-margin-sm py-space-lg">
+      <main className="w-full pt-24 pb-16 bg-[#0a0c14] min-h-screen text-neutral-100" data-ff-surface="checkout">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <ShopEmpty
             title="Sepetin boş"
-            message="Ödeme için önce menüden ürün ekle."
+            message="Ödeme için önce menüden gurme burgerlerimizi ve lezzetlerimizi ekle."
             actionHref="/"
             actionLabel="Menüye dön"
           />
           <a
             href="/account/support"
-            className="mt-space-md flex items-center justify-between p-3 rounded-xl bg-surface-container-low text-on-surface-variant"
+            className="mt-6 flex items-center justify-between p-4 rounded-xl bg-[#12151f]/85 border border-white/[0.08] text-neutral-300 hover:border-amber-400/40 transition-all max-w-md mx-auto"
             data-ff-support-entry="checkout"
           >
-            <span className="font-body-sm">Canlı destek</span>
-            <span className="font-label-sm uppercase text-secondary-container">Canlı Destek</span>
+            <span className="font-sans text-sm text-neutral-300">Canlı destek</span>
+            <span className="font-anton text-xs uppercase tracking-wider text-amber-400">Canlı Destek</span>
           </a>
         </div>
       </main>
@@ -371,29 +371,32 @@ export function CheckoutPage() {
     payMethod !== 'iyzico_hosted';
 
   return (
-    <main className="w-full pt-20 bg-background min-h-screen" data-ff-surface="checkout">
-      <div className="relative w-full max-w-7xl mx-auto px-margin-sm lg:px-margin py-space-md lg:py-space-xl">
-        <div className="absolute -top-32 left-1/4 w-96 h-96 rounded-full bg-primary-container/10 blur-[120px] pointer-events-none" />
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-space-sm mb-space-md">
+    <main className="w-full pt-24 pb-20 bg-[#0a0c14] min-h-screen text-neutral-100 relative" data-ff-surface="checkout">
+      {/* Background ambient lighting */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(254,179,0,0.12),rgba(255,255,255,0))] pointer-events-none" />
+
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-2 text-on-surface-variant font-label-sm uppercase tracking-wider mb-1">
-              <span className="text-primary-container">Sepet</span>
-              <MaterialIcon name="chevron_right" className="text-xs" />
-              <span className="text-on-surface">Ödeme & Teslimat</span>
-              <MaterialIcon name="chevron_right" className="text-xs" />
-              <span className="opacity-50">Onay</span>
+            <div className="flex items-center gap-2 text-neutral-400 font-anton text-xs uppercase tracking-widest mb-2">
+              <span className="text-amber-400">Sepet</span>
+              <MaterialIcon name="chevron_right" className="text-xs text-neutral-600" />
+              <span className="text-white">Ödeme & Teslimat</span>
+              <MaterialIcon name="chevron_right" className="text-xs text-neutral-600" />
+              <span className="text-neutral-500">Onay</span>
             </div>
-            <h1 className="font-headline-lg text-headline-lg uppercase text-on-surface tracking-tight">
+            <h1 className="font-anton text-3xl sm:text-4xl md:text-5xl uppercase text-white tracking-wide drop-shadow-sm">
               Siparişi Tamamla
             </h1>
           </div>
-          <div className="flex items-center gap-3 bg-surface-container-low px-4 py-2.5 rounded-lg">
-            <MaterialIcon name="local_fire_department" className="text-primary-container" filled />
-            <span className="font-label-md uppercase">{GRILL_LIVE_LABEL}</span>
+          <div className="flex items-center gap-2.5 bg-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-full shadow-[0_0_15px_rgba(254,179,0,0.1)] self-start md:self-auto">
+            <MaterialIcon name="local_fire_department" className="text-amber-400 text-lg" filled />
+            <span className="font-anton text-amber-400 text-xs uppercase tracking-wider">{GRILL_LIVE_LABEL}</span>
           </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
-          <div className="lg:col-span-7 flex flex-col gap-space-md">
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          <div className="lg:col-span-7 flex flex-col gap-6">
             <CheckoutSection step={1} title="Teslimat Yolu & Adres" verified={!quoteError}>
               <FulfillmentSelector mode={mode} onChange={setMode} />
               {mode === 'DELIVERY' ? (
@@ -431,6 +434,7 @@ export function CheckoutPage() {
                 />
               )}
             </CheckoutSection>
+
             <CheckoutSection
               step={2}
               title={mode === 'PICKUP' ? 'Hazırlama Zamanı' : 'Teslimat Zamanı'}
@@ -444,7 +448,8 @@ export function CheckoutPage() {
                 etaLabel={etaLabel}
               />
             </CheckoutSection>
-            <CheckoutSection title="Sipariş tercihleri">
+
+            <CheckoutSection title="Sipariş Tercihleri">
               <OrderPreferences
                 ecoPackaging={eco}
                 onEco={setEco}
@@ -453,13 +458,14 @@ export function CheckoutPage() {
                 showContactless={mode === 'DELIVERY'}
               />
             </CheckoutSection>
+
             <CheckoutSection
               step={3}
               title="Ödeme Yöntemi"
               trailing={
-                <div className="flex items-center gap-1 text-primary-container">
-                  <MaterialIcon name="lock" className="text-sm" />
-                  <span className="font-label-sm text-[11px] uppercase">3D Secure</span>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400">
+                  <MaterialIcon name="lock" className="text-xs" />
+                  <span className="font-anton text-[10px] uppercase tracking-wider">3D Secure</span>
                 </div>
               }
             >
@@ -468,10 +474,10 @@ export function CheckoutPage() {
                 selected={payMethod}
                 onSelect={setPayMethod}
               />
-              <div className="p-space-md rounded-xl bg-surface-container mb-space-md">
-                <p className="font-body-sm text-on-surface-variant">
-                  Kart numarası BURGER HOME sayfasında toplanmaz. Ödeme iyzico 3-D Secure / hosted
-                  akışında tamamlanır.
+              <div className="p-4 rounded-xl bg-[#0e111a]/90 border border-white/[0.08] mb-space-md flex items-center gap-3">
+                <MaterialIcon name="shield" className="text-amber-400 text-xl shrink-0" filled />
+                <p className="font-sans text-xs text-neutral-400 leading-relaxed">
+                  Kart numarası BURGER HOME sunucularında toplanmaz. Ödeme iyzico 3-D Secure / hosted güvenli altyapısında tamamlanır.
                 </p>
               </div>
               {mode === 'DELIVERY' ? (
@@ -482,10 +488,20 @@ export function CheckoutPage() {
                 />
               ) : null}
             </CheckoutSection>
-            {quoteError ? <p className="font-body-sm text-error">{quoteError}</p> : null}
-            {error ? <p className="font-body-sm text-error">{error}</p> : null}
+
+            {quoteError ? (
+              <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm font-sans">
+                {quoteError}
+              </div>
+            ) : null}
+            {error ? (
+              <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm font-sans">
+                {error}
+              </div>
+            ) : null}
           </div>
-          <div className="lg:col-span-5 flex flex-col gap-space-md lg:sticky lg:top-24">
+
+          <div className="lg:col-span-5 flex flex-col gap-6 lg:sticky lg:top-24">
             <CheckoutSummary
               lines={lines}
               quote={quote}

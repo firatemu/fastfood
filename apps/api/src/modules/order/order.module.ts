@@ -37,6 +37,12 @@ import { ReorderService } from './reorder.service.js';
     ReorderService,
     OrderPickupTokenService,
   ],
-  exports: [OrderService, OrderOutboxService, CustomerOrderQueryService, ReorderService, OrderPickupTokenService],
+  exports: [
+    OrderService,
+    OrderOutboxService,
+    CustomerOrderQueryService,
+    ReorderService,
+    OrderPickupTokenService,
+  ],
 })
 export class OrderModule {}

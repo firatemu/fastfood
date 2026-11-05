@@ -10,9 +10,11 @@ describe('oauth readiness', () => {
     expect(
       classifyOAuthProvider({ configured: true, platform: 'android', provider: 'google' }),
     ).toBe('MOBILE_NATIVE_CONFIG_REQUIRED');
-    expect(
-      classifyOAuthProvider({ configured: true, platform: 'ios', provider: 'apple' }),
-    ).toBe('MOBILE_NATIVE_CONFIG_REQUIRED');
-    expect(oauthUnavailableCopy('CONFIG_READY_BUT_CREDENTIALS_MISSING', 'google')).toMatch(/Google/);
+    expect(classifyOAuthProvider({ configured: true, platform: 'ios', provider: 'apple' })).toBe(
+      'MOBILE_NATIVE_CONFIG_REQUIRED',
+    );
+    expect(oauthUnavailableCopy('CONFIG_READY_BUT_CREDENTIALS_MISSING', 'google')).toMatch(
+      /Google/,
+    );
   });
 });

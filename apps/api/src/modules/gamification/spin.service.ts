@@ -69,8 +69,12 @@ export class SpinService {
 
   constructor(
     @Inject(LoyaltyService) private readonly loyalty: LoyaltyService,
-    @Optional() @Inject(PromotionService) private readonly promotions: PromotionService | null = null,
-    @Optional() @Inject(NotificationService) private readonly notifications: NotificationService | null = null,
+    @Optional()
+    @Inject(PromotionService)
+    private readonly promotions: PromotionService | null = null,
+    @Optional()
+    @Inject(NotificationService)
+    private readonly notifications: NotificationService | null = null,
     @Optional() @Inject(PrismaService) private readonly prisma: PrismaService | null = null,
   ) {
     this.seedDefaultCampaign();
@@ -118,11 +122,7 @@ export class SpinService {
     };
   }
 
-  async spin(
-    userId: string,
-    idempotencyKey: string,
-    now = new Date(),
-  ): Promise<SpinPlayResult> {
+  async spin(userId: string, idempotencyKey: string, now = new Date()): Promise<SpinPlayResult> {
     const campaign = await this.activeCampaign(now);
     const periodKey = campaign ? istanbulDateKey(now) : 'none';
     const lockKey = `${userId}:${campaign?.id ?? 'none'}:${periodKey}:${idempotencyKey}`;
@@ -323,7 +323,9 @@ export class SpinService {
     idempotencyKey: string,
   ): Promise<SpinPlayResult | null> {
     if (!this.prisma) {
-      return this.#plays.find((p) => p.userId === userId && p.idempotencyKey === idempotencyKey) ?? null;
+      return (
+        this.#plays.find((p) => p.userId === userId && p.idempotencyKey === idempotencyKey) ?? null
+      );
     }
     const row = await this.prisma.spinPlay.findUnique({
       where: { userId_idempotencyKey: { userId, idempotencyKey } },

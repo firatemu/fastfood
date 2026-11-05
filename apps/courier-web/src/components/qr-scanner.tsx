@@ -47,10 +47,13 @@ export function QrScanner({ onRead }: { onRead: (value: string) => void }) {
       }
       if (!cancelled) frame.current = requestAnimationFrame(() => void scan());
     };
-    void videoElement.play().then(() => {
-      setMessage('QR kodu çerçevenin içine al.');
-      frame.current = requestAnimationFrame(() => void scan());
-    }).catch(() => setMessage('Kamera görüntüsü başlatılamadı.'));
+    void videoElement
+      .play()
+      .then(() => {
+        setMessage('QR kodu çerçevenin içine al.');
+        frame.current = requestAnimationFrame(() => void scan());
+      })
+      .catch(() => setMessage('Kamera görüntüsü başlatılamadı.'));
 
     return () => {
       cancelled = true;
@@ -58,10 +61,7 @@ export function QrScanner({ onRead }: { onRead: (value: string) => void }) {
     };
   }, [open, onRead]);
 
-  useEffect(
-    () => () => stream.current?.getTracks().forEach((track) => track.stop()),
-    [],
-  );
+  useEffect(() => () => stream.current?.getTracks().forEach((track) => track.stop()), []);
 
   async function start() {
     if (!(window as BarcodeWindow).BarcodeDetector) {
@@ -86,11 +86,19 @@ export function QrScanner({ onRead }: { onRead: (value: string) => void }) {
 
   return (
     <div className="scanner">
-      <button type="button" className="outline-button scanner-button" onClick={() => open ? stop() : void start()}>
+      <button
+        type="button"
+        className="outline-button scanner-button"
+        onClick={() => (open ? stop() : void start())}
+      >
         {open ? 'Kamerayı kapat' : '▦ Kamerayla okut'} <span>{open ? '×' : '↗'}</span>
       </button>
       {open && <video ref={video} className="scanner-video" muted playsInline />}
-      {message && <p className="scanner-message" role="status">{message}</p>}
+      {message && (
+        <p className="scanner-message" role="status">
+          {message}
+        </p>
+      )}
     </div>
   );
 }

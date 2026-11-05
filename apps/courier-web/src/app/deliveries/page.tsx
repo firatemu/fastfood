@@ -24,7 +24,10 @@ export default function DeliveriesPage() {
 
   const refresh = useCallback(async () => {
     try {
-      const result = await api.request({ path: '/courier/deliveries', schema: deliveriesResponseSchema });
+      const result = await api.request({
+        path: '/courier/deliveries',
+        schema: deliveriesResponseSchema,
+      });
       setDeliveries(result.data);
       setError('');
     } catch (caught) {
@@ -119,7 +122,10 @@ export default function DeliveriesPage() {
             </button>
           </div>
           <div className="filter-tabs" role="group" aria-label="Teslimat filtresi">
-            <button className={filter === 'ACTIVE' ? 'selected' : ''} onClick={() => setFilter('ACTIVE')}>
+            <button
+              className={filter === 'ACTIVE' ? 'selected' : ''}
+              onClick={() => setFilter('ACTIVE')}
+            >
               Aktif <b>{counts.active}</b>
             </button>
             <button className={filter === 'ALL' ? 'selected' : ''} onClick={() => setFilter('ALL')}>
@@ -134,7 +140,9 @@ export default function DeliveriesPage() {
           </div>
 
           {loading ? (
-            <div className="empty-panel" role="status">Seferler yükleniyor…</div>
+            <div className="empty-panel" role="status">
+              Seferler yükleniyor…
+            </div>
           ) : error ? (
             <div className="empty-panel" role="alert">
               <b>Bağlantı kurulamadı</b>
@@ -176,20 +184,34 @@ export default function DeliveriesPage() {
           <div className="route-slip-head">
             <div>
               <span className="eyebrow">KURYE NOTU</span>
-              <h3>Her teslimat<br />bir iz bırakır.</h3>
+              <h3>
+                Her teslimat
+                <br />
+                bir iz bırakır.
+              </h3>
             </div>
-            <span className="route-stamp">FF<br />GO</span>
+            <span className="route-stamp">
+              FF
+              <br />
+              GO
+            </span>
           </div>
           <div className="route-slip-body">
             <div className="slip-perforation" />
             <div className="slip-point">
               <i className="origin-point" />
-              <div><small>SEFER DURUMU</small><b>Atama → teslimat</b></div>
+              <div>
+                <small>SEFER DURUMU</small>
+                <b>Atama → teslimat</b>
+              </div>
             </div>
             <div className="slip-path" />
             <div className="slip-point">
               <i className="target-point" />
-              <div><small>GÜVENLİK</small><b>Web’den konum gönderilmez</b></div>
+              <div>
+                <small>GÜVENLİK</small>
+                <b>Web’den konum gönderilmez</b>
+              </div>
             </div>
           </div>
           <p className="aside-note">Kurye Web cihaz konumunu istemez veya arka planda göndermez.</p>

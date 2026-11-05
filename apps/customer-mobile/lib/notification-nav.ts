@@ -22,7 +22,12 @@ export function notificationDestination(href: string | null | undefined): string
   if (!href || typeof href !== 'string') return null;
   const trimmed = href.trim();
   if (!trimmed.startsWith('/') || trimmed.startsWith('//')) return null;
-  if (trimmed.includes('://') || trimmed.includes('..') || trimmed.includes('\\') || trimmed.includes('@')) {
+  if (
+    trimmed.includes('://') ||
+    trimmed.includes('..') ||
+    trimmed.includes('\\') ||
+    trimmed.includes('@')
+  ) {
     return null;
   }
   const path = trimmed.split('?')[0] ?? trimmed;

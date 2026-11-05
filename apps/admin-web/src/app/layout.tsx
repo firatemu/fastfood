@@ -1,4 +1,4 @@
-import { Anton, Inter, JetBrains_Mono, Plus_Jakarta_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
 
@@ -13,30 +13,59 @@ import '../styles/admin-fastfood-tokens.css';
 import '../styles/admin-ops.css';
 import '../styles/admin-sidebar.css';
 
-const anton = Anton({
+/**
+ * Self-hosted fonts (audit P2-7 / A9).
+ *
+ * Previously loaded through `next/font/google`, which downloads the binaries
+ * from `fonts.googleapis.com` at build time and therefore made the build
+ * non-hermetic. The runtime stylesheet link to `fonts.googleapis.com` also
+ * leaked visitor IPs to Google. The binaries live in
+ * `@fastfood/design-tokens/fonts` and are subset to Latin + Latin-Extended-A
+ * (Turkish ğ/ş/İ/ı included).
+ */
+const anton = localFont({
+  src: '../../../../packages/design-tokens/fonts/anton-400.woff2',
   weight: '400',
-  subsets: ['latin'],
+  style: 'normal',
+  display: 'swap',
   variable: '--font-anton',
-  display: 'swap',
+  fallback: ['Anton', 'ui-sans-serif', 'sans-serif'],
 });
 
-const inter = Inter({
-  subsets: ['latin', 'latin-ext'],
+const inter = localFont({
+  src: '../../../../packages/design-tokens/fonts/inter-var.woff2',
+  weight: '100 900',
+  style: 'normal',
+  display: 'swap',
   variable: '--font-inter',
-  display: 'swap',
+  fallback: ['Inter', 'ui-sans-serif', 'sans-serif'],
 });
 
-const jetbrains = JetBrains_Mono({
-  subsets: ['latin'],
+const jetbrains = localFont({
+  src: '../../../../packages/design-tokens/fonts/jetbrains-mono-var.woff2',
+  weight: '100 800',
+  style: 'normal',
+  display: 'swap',
   variable: '--font-jetbrains',
-  display: 'swap',
+  fallback: ['JetBrains Mono', 'ui-monospace', 'monospace'],
 });
 
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin', 'latin-ext'],
-  weight: ['600', '700', '800'],
-  variable: '--font-jakarta',
+const plusJakarta = localFont({
+  src: '../../../../packages/design-tokens/fonts/plus-jakarta-sans-var.woff2',
+  weight: '200 800',
+  style: 'normal',
   display: 'swap',
+  variable: '--font-jakarta',
+  fallback: ['Plus Jakarta Sans', 'ui-sans-serif', 'sans-serif'],
+});
+
+const materialSymbols = localFont({
+  src: '../../../../packages/design-tokens/fonts/material-symbols-400.ttf',
+  weight: '400',
+  style: 'normal',
+  display: 'swap',
+  variable: '--font-material-symbols',
+  fallback: ['Material Symbols Outlined', 'sans-serif'],
 });
 
 export const metadata = {
@@ -50,7 +79,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="tr"
       data-theme="operations"
       data-color-mode="dark"
-      className={`${anton.variable} ${inter.variable} ${jetbrains.variable} ${plusJakarta.variable}`}
+      className={`${anton.variable} ${inter.variable} ${jetbrains.variable} ${plusJakarta.variable} ${materialSymbols.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -61,10 +90,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             __html:
               "try{const mode=window.localStorage.getItem('fastfood-admin-color-mode');if(mode==='light'||mode==='dark'){document.documentElement.dataset.colorMode=mode;document.documentElement.style.colorScheme=mode}}catch{}",
           }}
-        />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
       </head>
       <body>

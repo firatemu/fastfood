@@ -133,17 +133,20 @@ body {
 }
 
 .material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
+  font-family: var(--font-material-symbols), 'Material Symbols Outlined';
   font-weight: 400;
   font-style: normal;
   font-size: 1.25rem;
   line-height: 1;
   letter-spacing: normal;
-  text-transform: none;
+  text-transform: none !important;
   display: inline-block;
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
   font-variation-settings:
     'FILL' 0,
     'wght' 400,
@@ -370,15 +373,15 @@ body {
   --color-info-border: rgba(138, 180, 248, 0.34);
 
   /* Layout metrics the primitives share. */
-  --ff-rail-w: 15rem;
+  --ff-rail-w: 18.25rem;
   --ff-label-w: 13rem;
-  --ff-row-h: 2.75rem;
+  --ff-row-h: 3.25rem;
 
-  /* -- density: tighter radii than the storefront's ---------------------- */
-  --radius: 0.1875rem;
-  --radius-lg: 0.375rem;
-  --radius-xl: 0.5rem;
-  --radius-2xl: 0.75rem;
+  /* -- density: modern rounded radii ------------------------------------- */
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
 
   /* -- typography: Jakarta carries everything except a hero figure ------- */
   --font-headline-xl: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
@@ -441,170 +444,122 @@ body {
 }
 
 /* ==========================================================================
-   1. Frame — rail band + content column, separated by one hairline
+   1. Frame — rail band + content column, centered corporate dashboard
    ========================================================================== */
 
 .ff-frame {
   display: grid;
   grid-template-columns: var(--ff-rail-w) minmax(0, 1fr);
+  gap: 1.75rem;
+  max-width: 84rem;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 4rem;
   align-items: start;
-  /*
-   * `align-content: start` is load-bearing, not cosmetic. The frame is a grid
-   * with two auto rows and a `min-height` of one viewport. On a page shorter
-   * than that, `align-content` defaults to `stretch`, so the leftover height is
-   * split between both rows: measured on /account/club at 834x1112 the rail's
-   * 57px row was stretched to 201px and pushed the content 144px down, opening a
-   * hole between the nav and the page. Pinning the rows to the top leaves the
-   * slack at the end of the frame where it belongs.
-   */
-  align-content: start;
   min-height: calc(100vh - 5rem);
-  /*
-   * The rail column is painted here, not on `.ff-rail`, because the rail is a
-   * sticky box with its own height: painting it would leave a visible seam
-   * wherever the nav ends on a long page. The gradient also draws the 1px
-   * divider, so it spans the full column rather than stopping with the nav.
-   */
-  background-image: linear-gradient(
-    to right,
-    var(--color-surface-container-lowest) 0,
-    var(--color-surface-container-lowest) calc(var(--ff-rail-w) - 1px),
-    var(--color-outline-variant) calc(var(--ff-rail-w) - 1px),
-    var(--color-outline-variant) var(--ff-rail-w),
-    transparent var(--ff-rail-w)
-  );
 }
 
 .ff-rail {
   position: sticky;
-  top: 5rem;
+  top: 5.75rem;
   align-self: start;
-  max-height: calc(100vh - 5rem);
+  max-height: calc(100vh - 6.5rem);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 1.25rem 0 2rem;
-  background: transparent;
+  padding: 0.875rem 0.75rem;
+  background: linear-gradient(180deg, rgba(18, 20, 28, 0.9) 0%, rgba(11, 13, 19, 0.95) 100%);
+  backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  box-shadow: 
+    0 20px 48px -12px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 32px rgba(254, 179, 0, 0.02);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-/* One nav item. 36px tall, hairline-separated, 2px accent bar when active.
-   Hover is the primary interaction on desktop, so it carries real state. */
-.ff-rail-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  width: 100%;
-  min-height: 2.25rem;
-  padding: 0 1rem 0 1.75rem;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 18px;
-  letter-spacing: 0;
-  text-decoration: none;
-  color: var(--color-on-surface-variant);
-  transition:
-    background-color 120ms ease,
-    color 120ms ease;
-}
-.ff-rail-item:hover {
-  background: var(--color-surface-container);
-  color: var(--color-on-surface);
-}
-.ff-rail-item[aria-current='page'] {
-  color: var(--color-on-surface);
-  background: var(--color-surface-container-low);
-  font-weight: 600;
-}
-.ff-rail-item[aria-current='page']::before {
+.ff-rail::before {
   content: '';
   position: absolute;
-  left: 0;
   top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--color-secondary-container);
-}
-.ff-rail-item .material-symbols-outlined {
-  font-size: 18px;
-  color: var(--color-on-surface-variant);
-  transition: color 120ms ease;
-}
-.ff-rail-item:hover .material-symbols-outlined,
-.ff-rail-item[aria-current='page'] .material-symbols-outlined {
-  color: var(--color-secondary-container);
-}
-.ff-rail-item[data-tone='danger'] {
-  color: var(--color-danger);
-}
-.ff-rail-item[data-tone='danger']:hover {
-  background: var(--color-danger-container);
-  color: var(--color-danger);
-}
-.ff-rail-item[data-tone='danger'] .material-symbols-outlined {
-  color: var(--color-danger);
-}
-
-/* Rail group label — a quiet uppercase eyebrow above a run of items. */
-.ff-rail-label {
-  padding: 1.125rem 1rem 0.375rem 1.75rem;
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 14px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #8b8c95;
-}
-.ff-rail-label:first-child {
-  padding-top: 0;
-}
-
-.ff-rail-divider {
+  left: 15%;
+  right: 15%;
   height: 1px;
-  margin: 1rem 0 0;
-  background: var(--color-outline-variant);
+  background: linear-gradient(90deg, transparent, rgba(254, 179, 0, 0.5), transparent);
+  pointer-events: none;
 }
 
-/* Identity block at the top of the rail. */
+/* Identity block — modern corporate / VIP card snippet */
 .ff-identity {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0 1rem 1.125rem 1.75rem;
-  margin-bottom: 0.875rem;
-  border-bottom: 1px solid var(--color-outline-variant);
+  gap: 0.75rem;
+  padding: 0.25rem 0.25rem 0.75rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: radial-gradient(circle at 10% 20%, rgba(254, 179, 0, 0.06) 0%, transparent 70%);
+  border-radius: 1rem 1rem 0 0;
 }
+
+.ff-identity-avatar-ring {
+  position: relative;
+  flex: none;
+  padding: 2px;
+  border-radius: 0.875rem;
+  background: linear-gradient(135deg, #feb300 0%, #ff5722 50%, #e11d48 100%);
+  box-shadow: 0 4px 12px rgba(254, 179, 0, 0.25);
+}
+
 .ff-identity-mark {
   display: grid;
   place-items: center;
-  flex: none;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.375rem;
-  background: var(--color-primary-container);
-  color: var(--color-on-primary-container);
+  width: 2.375rem;
+  height: 2.375rem;
+  border-radius: 0.75rem;
+  background: #141721;
+  color: #feb300;
   font-family: var(--font-anton), Anton, sans-serif;
-  font-size: 17px;
-  line-height: 1;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
+
+.ff-identity-live-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid #141721;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+}
+
 .ff-identity-text {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
 }
+
+.ff-identity-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
 .ff-identity-name {
-  /* Must be a block box: overflow/text-overflow are ignored on inline
-     elements, so a long email would push the rail wider instead of
-     ellipsising. */
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 18px;
-  color: var(--color-on-surface);
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #ffffff;
 }
+
 .ff-identity-meta {
   display: block;
   overflow: hidden;
@@ -613,8 +568,260 @@ body {
   font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 500;
-  line-height: 15px;
-  color: var(--color-on-surface-variant);
+  color: #8b8e9e;
+}
+
+.ff-identity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.1875rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  background: rgba(254, 179, 0, 0.12);
+  border: 1px solid rgba(254, 179, 0, 0.25);
+  color: #feb300;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.ff-identity-badge-spark {
+  font-size: 9px;
+  line-height: 1;
+}
+
+/* Rail group label — a sleek uppercase eyebrow with micro-accent dot */
+.ff-rail-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.5rem 0.2rem;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #717482;
+}
+.ff-rail-label:first-child {
+  padding-top: 0;
+}
+
+.ff-rail-label-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #feb300;
+  box-shadow: 0 0 6px rgba(254, 179, 0, 0.8);
+}
+
+.ff-rail-divider {
+  height: 1px;
+  margin: 0.4rem 0.25rem;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.07) 30%, rgba(255, 255, 255, 0.07) 70%, transparent 100%);
+}
+
+/* Nav items — modern floating capsule with squircle icon pods & micro-interactions */
+.ff-rail-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.3125rem 0.5rem;
+  margin-bottom: 0.125rem;
+  border-radius: 0.625rem;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-decoration: none;
+  color: #9fa2b2;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.ff-rail-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.ff-rail-item[aria-current='page'] {
+  color: #ffffff;
+  background: linear-gradient(90deg, rgba(254, 179, 0, 0.16) 0%, rgba(255, 87, 34, 0.05) 100%);
+  border-color: rgba(254, 179, 0, 0.32);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 #feb300, 0 4px 18px -4px rgba(254, 179, 0, 0.22);
+}
+
+.ff-rail-item[aria-current='page']::before {
+  display: none;
+}
+
+/* Squircle Icon Box inside nav item */
+.ff-rail-icon-box {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #8b8e9e;
+  transition: all 180ms ease;
+}
+
+.ff-rail-icon-box .material-symbols-outlined {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.ff-rail-item:hover .ff-rail-icon-box {
+  background: rgba(254, 179, 0, 0.14);
+  border-color: rgba(254, 179, 0, 0.3);
+  color: #feb300;
+  transform: scale(1.06);
+  box-shadow: 0 0 12px rgba(254, 179, 0, 0.2);
+}
+
+.ff-rail-item[aria-current='page'] .ff-rail-icon-box {
+  background: linear-gradient(135deg, #feb300 0%, #ff5722 100%);
+  border-color: transparent;
+  color: #12141c;
+  transform: scale(1.04);
+  box-shadow: 0 2px 10px rgba(254, 179, 0, 0.4);
+}
+
+.ff-rail-item-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Feature badges */
+.ff-rail-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: auto;
+  padding: 0.08rem 0.375rem;
+  border-radius: 9999px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  transition: all 180ms ease;
+}
+
+.ff-rail-badge--ember {
+  background: rgba(254, 179, 0, 0.15);
+  color: #feb300;
+  border: 1px solid rgba(254, 179, 0, 0.32);
+}
+
+.ff-rail-badge--live {
+  background: rgba(16, 185, 129, 0.14);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.ff-rail-badge--accent {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.ff-rail-badge--neutral {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ff-rail-pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: ff-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes ff-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* Slide-in Chevron on hover */
+.ff-rail-chevron {
+  display: grid;
+  place-items: center;
+  margin-left: 0.1rem;
+  color: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 180ms ease;
+}
+
+.ff-rail-chevron .material-symbols-outlined {
+  font-size: 14px;
+}
+
+.ff-rail-item:hover .ff-rail-chevron {
+  opacity: 1;
+  transform: translateX(0);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ff-rail-item[aria-current='page'] .ff-rail-chevron {
+  opacity: 1;
+  transform: translateX(0);
+  color: #feb300;
+}
+
+/* Danger logout item */
+.ff-rail-item[data-tone='danger'] {
+  margin-top: 0.125rem;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.05);
+  border-color: rgba(239, 68, 68, 0.12);
+}
+
+.ff-rail-item[data-tone='danger']:hover {
+  background: rgba(239, 68, 68, 0.14);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.35);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
+  transform: translateX(4px);
+}
+
+.ff-rail-item[data-tone='danger'] .ff-rail-icon-box {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+}
+
+.ff-rail-item[data-tone='danger']:hover .ff-rail-icon-box {
+  background: rgba(239, 68, 68, 0.22);
+  color: #fee2e2;
+  transform: scale(1.06) rotate(-8deg);
+}
+
+.ff-rail-item[data-tone='danger']:hover .ff-rail-chevron {
+  color: #fca5a5;
 }
 
 /* ==========================================================================
@@ -623,72 +830,78 @@ body {
 
 .ff-content {
   min-width: 0;
-  padding: 0 0 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
-/* A compact command bar, not a hero. Title and actions share one baseline. */
+/* A compact corporate header bar */
 .ff-toolbar {
-  position: sticky;
-  top: 5rem;
-  z-index: 20;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  min-height: 3.75rem;
-  padding: 0.875rem 1.75rem;
-  background: color-mix(in srgb, var(--color-background) 88%, transparent);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--color-outline-variant);
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  background: rgba(18, 20, 26, 0.75);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.45);
 }
 .ff-toolbar-id {
   min-width: 0;
 }
 .ff-toolbar-eyebrow {
+  display: inline-flex;
+  align-items: center;
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  line-height: 14px;
-  letter-spacing: 0.1em;
+  line-height: 1;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #8b8c95;
+  color: #feb300;
+  background: rgba(254, 179, 0, 0.1);
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(254, 179, 0, 0.2);
+  margin-bottom: 0.375rem;
 }
 .ff-toolbar-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--font-sans);
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 26px;
-  letter-spacing: -0.01em;
-  color: var(--color-on-surface);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: #ffffff;
 }
 .ff-toolbar-actions {
   display: flex;
   flex: none;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
 }
 
 .ff-body {
-  padding: 1.5rem 1.75rem 0;
-  max-width: 72rem;
+  padding: 0;
+  max-width: 100%;
 }
 
-/* The page's one-paragraph intro, under the toolbar rather than beside it. */
+/* The page's one-paragraph intro, under the toolbar */
 .ff-lead {
-  max-width: 46rem;
-  margin-bottom: 1.5rem;
+  max-width: 52rem;
+  margin-bottom: 1.25rem;
   font-family: var(--font-sans);
   font-size: 13.5px;
   font-weight: 400;
-  line-height: 20px;
-  color: var(--color-on-surface-variant);
+  line-height: 1.6;
+  color: #a3a3ad;
 }
 
-/* Vertical rhythm. Replaces ad-hoc `flex flex-col gap-*` stacks per page so
-   spacing decisions live in one place. */
+/* Vertical rhythm */
 .ff-stack {
   display: flex;
   flex-direction: column;
@@ -714,63 +927,161 @@ body {
   margin-left: auto;
 }
 
-/* A two-column label/value line without the box, for inside a `.ff-rows`. */
-.ff-split {
+/* Modern Corporate Cards */
+.ff-card {
+  background: rgba(18, 20, 26, 0.75);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 12px 36px -12px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+.ff-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.ff-card-title {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ff-card-desc {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #8b8c95;
+  margin-top: 0.125rem;
+}
+
+/* Stat metrics grid */
+.ff-stat-grid {
   display: grid;
-  grid-template-columns: minmax(7rem, 40%) minmax(0, 1fr);
-  gap: 0.75rem;
-  align-items: baseline;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.ff-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  background: rgba(18, 20, 26, 0.75);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.125rem;
+  padding: 1rem 1.125rem;
+  text-decoration: none;
+  transition: all 160ms ease;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.4);
+}
+.ff-stat-card:hover {
+  background: rgba(28, 31, 41, 0.85);
+  border-color: rgba(254, 179, 0, 0.35);
+  transform: translateY(-2px);
+}
+.ff-stat-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.875rem;
+  background: rgba(254, 179, 0, 0.12);
+  color: #feb300;
+  border: 1px solid rgba(254, 179, 0, 0.22);
+}
+.ff-stat-icon .material-symbols-outlined {
+  font-size: 22px;
+}
+.ff-stat-content {
+  min-width: 0;
+  flex: 1;
+}
+.ff-stat-label {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #8b8c95;
+  line-height: 1.2;
+}
+.ff-stat-val {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-top: 0.25rem;
+}
+.ff-stat-sub {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: #feb300;
+  margin-top: 0.125rem;
 }
 
 /* ==========================================================================
-   3. Sections — label column + content, the enterprise data-book layout
+   3. Sections — modern corporate panels
    ========================================================================== */
 
 .ff-section {
-  display: grid;
-  grid-template-columns: var(--ff-label-w) minmax(0, 1fr);
-  gap: 0 1.5rem;
-  padding: 1.75rem 0;
-  border-top: 1px solid var(--color-outline-variant);
+  background: rgba(18, 20, 26, 0.75);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 12px 36px -12px rgba(0, 0, 0, 0.5);
+  margin-bottom: 1.25rem;
+  display: block;
 }
 .ff-section:first-child {
-  border-top: 0;
-  padding-top: 0.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1.5rem;
 }
 .ff-section-head {
-  grid-column: 1;
-  grid-row: 1;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 .ff-section-title {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 17px;
   font-weight: 700;
-  line-height: 18px;
-  letter-spacing: 0;
-  color: var(--color-on-surface);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: #ffffff;
 }
 .ff-section-desc {
   margin-top: 0.25rem;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 400;
-  line-height: 17px;
+  line-height: 1.5;
   color: #8b8c95;
 }
 .ff-section-body {
-  grid-column: 2;
-  grid-row: 1;
   min-width: 0;
 }
 
 /* ==========================================================================
-   4. Data rows — the replacement for "cards"
+   4. Data rows
    ========================================================================== */
 
 .ff-rows {
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 0.5rem;
-  background: var(--color-surface-container-low);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.875rem;
+  background: rgba(13, 14, 18, 0.6);
   overflow: hidden;
 }
 .ff-row {
@@ -932,26 +1243,23 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4375rem;
-  height: 2rem;
-  padding: 0 0.75rem;
+  gap: 0.5rem;
+  height: 2.375rem;
+  padding: 0 0.875rem;
   border: 1px solid transparent;
-  border-radius: 0.375rem;
+  border-radius: 0.625rem;
   font-family: var(--font-sans);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  transition:
-    background-color 120ms ease,
-    border-color 120ms ease,
-    color 120ms ease;
+  transition: all 140ms ease;
 }
 .ff-btn .material-symbols-outlined {
-  font-size: 16px;
+  font-size: 17px;
 }
 .ff-btn:disabled,
 .ff-btn[aria-disabled='true'] {
@@ -964,20 +1272,23 @@ body {
   background: var(--color-secondary-container);
   border-color: var(--color-secondary-container);
   color: var(--color-on-secondary-container);
+  box-shadow: 0 4px 14px rgba(254, 179, 0, 0.28);
 }
 .ff-btn-primary:hover:not(:disabled) {
   background: #ffc733;
   border-color: #ffc733;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(254, 179, 0, 0.38);
 }
 
 .ff-btn-outline {
-  background: transparent;
-  border-color: var(--color-outline);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.14);
   color: var(--color-on-surface);
 }
 .ff-btn-outline:hover:not(:disabled) {
-  background: var(--color-surface-container);
-  border-color: #8b8c95;
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
 .ff-btn-ghost {
@@ -986,7 +1297,7 @@ body {
   color: var(--color-on-surface-variant);
 }
 .ff-btn-ghost:hover:not(:disabled) {
-  background: var(--color-surface-container);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--color-on-surface);
 }
 
@@ -1222,28 +1533,28 @@ body {
   margin-top: 0.875rem;
 }
 
-/* Product tile — the one place an image is the content. Still a hairline box
-   with an 8px radius, not a large rounded card. */
+/* Product tile — modern corporate card */
 .ff-tile {
   position: relative;
   display: flex;
   min-width: 0;
   flex-direction: column;
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 0.5rem;
-  background: var(--color-surface-container-low);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  background: rgba(18, 20, 26, 0.75);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.4);
   overflow: hidden;
-  transition:
-    border-color 120ms ease,
-    background-color 120ms ease;
+  transition: all 160ms ease;
 }
 .ff-tile:hover {
-  border-color: var(--color-outline);
-  background: var(--color-surface-container);
+  border-color: rgba(254, 179, 0, 0.35);
+  transform: translateY(-2px);
+  background: rgba(28, 31, 41, 0.85);
 }
 .ff-tile[data-unavailable='true'] {
-  border-color: var(--color-outline-variant);
-  background: var(--color-surface-container-lowest);
+  border-color: rgba(255, 255, 255, 0.05);
+  background: rgba(13, 14, 18, 0.6);
 }
 .ff-tile-media {
   position: relative;
@@ -1467,27 +1778,28 @@ body {
 }
 .ff-field-label {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 16px;
-  color: var(--color-on-surface-variant);
+  line-height: 18px;
+  color: #d8d9e0;
 }
 .ff-input,
 .ff-select,
 .ff-textarea {
   width: 100%;
-  min-height: 2.125rem;
-  padding: 0.5rem 0.625rem;
-  border: 1px solid var(--color-outline);
-  border-radius: 0.375rem;
-  background: var(--color-surface-container-lowest);
+  min-height: 2.625rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.625rem;
+  background: rgba(13, 14, 18, 0.7);
   color: var(--color-on-surface);
   font-family: var(--font-sans);
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 13.5px;
+  line-height: 20px;
   transition:
-    border-color 120ms ease,
-    background-color 120ms ease;
+    border-color 140ms ease,
+    background-color 140ms ease,
+    box-shadow 140ms ease;
 }
 .ff-input::placeholder,
 .ff-textarea::placeholder {
@@ -1496,23 +1808,23 @@ body {
 .ff-input:hover:not(:disabled),
 .ff-select:hover:not(:disabled),
 .ff-textarea:hover:not(:disabled) {
-  border-color: #8b8c95;
+  border-color: rgba(255, 255, 255, 0.25);
 }
 .ff-input:focus,
 .ff-select:focus,
 .ff-textarea:focus {
   outline: none;
   border-color: var(--color-secondary-container);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-secondary-container) 18%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-secondary-container) 20%, transparent);
 }
 .ff-input:disabled,
 .ff-select:disabled,
 .ff-textarea:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 .ff-textarea {
-  min-height: 5rem;
+  min-height: 5.5rem;
   resize: vertical;
 }
 .ff-select {
@@ -1715,30 +2027,36 @@ body {
 .ff-empty {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.375rem;
-  padding: 2rem 0.875rem;
-  border: 1px dashed var(--color-outline);
-  border-radius: 0.5rem;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  padding: 3rem 1.5rem;
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  border-radius: 1.125rem;
+  background: rgba(13, 14, 18, 0.5);
 }
 .ff-empty-title {
   font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 18px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 20px;
   color: var(--color-on-surface);
 }
 .ff-empty-text {
   font-family: var(--font-sans);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 400;
-  line-height: 18px;
+  line-height: 19px;
   color: #8b8c95;
-  max-width: 34rem;
+  max-width: 28rem;
 }
 .ff-empty .material-symbols-outlined {
-  font-size: 22px;
-  color: #8b8c95;
+  font-size: 28px;
+  color: var(--color-secondary-container);
+  background: rgba(254, 179, 0, 0.1);
+  padding: 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(254, 179, 0, 0.2);
 }
 
 .ff-notice {
@@ -1791,13 +2109,14 @@ body {
 }
 .ff-dialog {
   width: min(26rem, 100%);
-  border: 1px solid var(--color-outline);
-  border-radius: 0.625rem;
-  background: var(--color-surface-container-low);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.25rem;
+  background: #14161d;
   box-shadow:
-    0 24px 60px -16px rgb(0 0 0 / 0.7),
-    0 0 0 1px rgb(255 255 255 / 0.04);
+    0 24px 60px -16px rgb(0 0 0 / 0.8),
+    0 0 0 1px rgb(255 255 255 / 0.06);
   animation: ff-dialog-in 160ms cubic-bezier(0.2, 0.8, 0.3, 1);
+  overflow: hidden;
 }
 .ff-dialog-head {
   display: flex;
@@ -2160,13 +2479,27 @@ body {
     display: none;
   }
 
+  .ff-rail::before {
+    display: none;
+  }
+
+  .ff-rail-chevron {
+    display: none !important;
+  }
+
+  .ff-rail-footer {
+    display: contents;
+  }
+
   .ff-rail-item {
     width: auto;
     flex: none;
     min-height: 2.5rem;
     padding: 0 0.75rem;
+    margin-bottom: 0;
     border-radius: 0.5rem;
     white-space: nowrap;
+    transform: none !important;
   }
 
   /* Inside a pill row the 2px active bar reads as an underline. */

@@ -11,6 +11,7 @@ import { fetchSpin, playSpin } from '../../lib/engagement';
 import { newClientRequestId, spinResultCopy } from '../../lib/engagement-map';
 import type { SpinEligibility, SpinPlay } from '../../lib/schemas';
 import { formatStorefrontDateTime } from '../../lib/tracking-map';
+import { haptic } from '../../lib/haptics';
 import { colors, fonts, minTouch, radius, space } from '../../theme';
 
 function reasonCopy(reason: string): string {
@@ -86,15 +87,23 @@ function SpinBody() {
 
   async function onSpin() {
     if (!state?.eligible || busy) return;
+    haptic.medium();
     setBusy(true);
     setError(null);
     try {
       // Server first. Nothing spins until the outcome is known.
       const result = await playSpin(newClientRequestId('spin'));
+      haptic.success();
       setPlay(result);
       setState((prev) =>
         prev
-          ? { ...prev, eligible: false, reason: 'ALREADY_USED', spinsRemaining: 0, lastPlay: result }
+          ? {
+              ...prev,
+              eligible: false,
+              reason: 'ALREADY_USED',
+              spinsRemaining: 0,
+              lastPlay: result,
+            }
           : prev,
       );
     } catch (err) {
@@ -151,11 +160,21 @@ function SpinBody() {
               },
             ]}
             accessibilityLabel={
-              play ? `Sonuç: ${play.prize.label}` : state.eligible ? 'Çarkı çevirebilirsin' : 'Bugün bitti'
+              play
+                ? `Sonuç: ${play.prize.label}`
+                : state.eligible
+                  ? 'Çarkı çevirebilirsin'
+                  : 'Bugün bitti'
             }
           >
             <Text style={styles.dialLabel} numberOfLines={3}>
-              {busy ? 'Çevriliyor…' : play ? play.prize.label : state.eligible ? 'Çarkı çevir' : 'Bugün bitti'}
+              {busy
+                ? 'Çevriliyor…'
+                : play
+                  ? play.prize.label
+                  : state.eligible
+                    ? 'Çarkı çevir'
+                    : 'Bugün bitti'}
             </Text>
           </Animated.View>
 
@@ -204,7 +223,9 @@ function SpinBody() {
             style={[styles.result, { opacity: reveal }]}
             accessibilityLiveRegion="assertive"
           >
-            <Text style={styles.resultKicker}>{play?.replayed ? 'Daha önce oynanmış' : 'Kazandığın'}</Text>
+            <Text style={styles.resultKicker}>
+              {play?.replayed ? 'Daha önce oynanmış' : 'Kazandığın'}
+            </Text>
             <Text style={styles.resultLabel}>{resultText}</Text>
             {play?.prize.couponCode ? (
               <Text style={styles.meta}>Kupon kodu: {play.prize.couponCode}</Text>
@@ -223,11 +244,11 @@ const styles = StyleSheet.create({
   scroll: { padding: space.gutter, gap: 12, paddingBottom: 40 },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
+    borderRadius: radius.xl,
     padding: space.lg,
     gap: space.md,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: colors.hairline,
   },
   headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.md },
   headCopy: { flex: 1, minWidth: 0, gap: 4 },

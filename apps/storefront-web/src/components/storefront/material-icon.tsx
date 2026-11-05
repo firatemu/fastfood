@@ -17,12 +17,13 @@ export function MaterialIcon({
 }) {
   return (
     <span
-      className={`material-symbols-outlined ${className ?? ''}`.trim()}
+      className={`material-symbols-outlined notranslate select-none ${className ?? ''}`.trim()}
       style={{
         ...(filled ? { fontVariationSettings: "'FILL' 1" } : {}),
         ...(size !== undefined ? { fontSize: size } : {}),
       }}
       aria-hidden
+      translate="no"
     >
       {name}
     </span>

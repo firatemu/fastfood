@@ -2,7 +2,11 @@ import { safeValidate } from '@fastfood/validation';
 import { Controller, Get, Inject, Injectable, Param, Query } from '@nestjs/common';
 import { z } from 'zod';
 
-import { CatalogService, type ProductDto, type StorefrontProductDetailDto } from './catalog.service.js';
+import {
+  CatalogService,
+  type ProductDto,
+  type StorefrontProductDetailDto,
+} from './catalog.service.js';
 
 /**
  * Public storefront catalog endpoints (document 06 + 29).

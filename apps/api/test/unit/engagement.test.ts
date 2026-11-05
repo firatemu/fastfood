@@ -3,7 +3,10 @@ import { describe, expect, it } from 'vitest';
 
 import { DiningTableService } from '../../src/modules/dining/dining-table.service.js';
 import { NotificationService } from '../../src/modules/notification/notification.service.js';
-import { sanitizeBody, SupportChatService } from '../../src/modules/support/support-chat.service.js';
+import {
+  sanitizeBody,
+  SupportChatService,
+} from '../../src/modules/support/support-chat.service.js';
 
 describe('Table QR', () => {
   it('resolves an opaque public code without exposing internal ids as the token', async () => {

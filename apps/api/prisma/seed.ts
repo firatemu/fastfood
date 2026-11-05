@@ -14,6 +14,8 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { CANONICAL_ADMIN_PAGE_PERMISSION_CODES } from '@fastfood/domain-types';
 
 import { PrismaClient } from './generated/client/client.js';
+import { seedAddressGeography } from './seed-address-geography.js';
+import { seedBranches } from './seed-branches.js';
 import { seedCatalogCustomization } from './seed-catalog-customization.js';
 import { seedMenuFromXlsx } from './seed-menu-xlsx.js';
 import { seedClubEngagement } from './seed-club-engagement.js';
@@ -140,13 +142,55 @@ const MENU_CATEGORIES: ReadonlyArray<{
   description: string;
   displayOrder: number;
 }> = [
-  { id: '01900000-0000-7000-8000-00000e359a1a', slug: 'et-burgerler', name: 'ET BURGERLER', description: '100% dana burgerler, özel soslar, özel ekmek', displayOrder: 1 },
-  { id: '01900000-0000-7000-8000-00006db4fd36', slug: 'tavuk-burgerler', name: 'TAVUK BURGERLER', description: 'Çıtır tavuk fileto burgerler', displayOrder: 2 },
-  { id: '01900000-0000-7000-8000-00001c8a7a04', slug: 'cocuk-burgerler', name: 'ÇOCUK BURGERLER', description: 'Çocuklar için 65 gr burgerler', displayOrder: 3 },
-  { id: '01900000-0000-7000-8000-000048358e31', slug: 'hotdog', name: 'HOTDOG', description: 'Dana sosis, özel soslar, sandviç ekmeği', displayOrder: 4 },
-  { id: '01900000-0000-7000-8000-00001ccac113', slug: 'aperatifler', name: 'APERATİFLER', description: 'Patates, nugget, mozzarella, soğan halkası ve daha fazlası', displayOrder: 5 },
-  { id: '01900000-0000-7000-8000-00007dcf860f', slug: 'soguk-icecekler', name: 'SOĞUK İÇECEKLER', description: 'Meşrubat, soda, ayran, su', displayOrder: 6 },
-  { id: '01900000-0000-7000-8000-000072529488', slug: 'kampanyali-menuler', name: 'KAMPANYALI MENÜLER', description: 'Menü + patates + içecek bir arada, avantajlı', displayOrder: 7 },
+  {
+    id: '01900000-0000-7000-8000-00000e359a1a',
+    slug: 'et-burgerler',
+    name: 'ET BURGERLER',
+    description: '100% dana burgerler, özel soslar, özel ekmek',
+    displayOrder: 1,
+  },
+  {
+    id: '01900000-0000-7000-8000-00006db4fd36',
+    slug: 'tavuk-burgerler',
+    name: 'TAVUK BURGERLER',
+    description: 'Çıtır tavuk fileto burgerler',
+    displayOrder: 2,
+  },
+  {
+    id: '01900000-0000-7000-8000-00001c8a7a04',
+    slug: 'cocuk-burgerler',
+    name: 'ÇOCUK BURGERLER',
+    description: 'Çocuklar için 65 gr burgerler',
+    displayOrder: 3,
+  },
+  {
+    id: '01900000-0000-7000-8000-000048358e31',
+    slug: 'hotdog',
+    name: 'HOTDOG',
+    description: 'Dana sosis, özel soslar, sandviç ekmeği',
+    displayOrder: 4,
+  },
+  {
+    id: '01900000-0000-7000-8000-00001ccac113',
+    slug: 'aperatifler',
+    name: 'APERATİFLER',
+    description: 'Patates, nugget, mozzarella, soğan halkası ve daha fazlası',
+    displayOrder: 5,
+  },
+  {
+    id: '01900000-0000-7000-8000-00007dcf860f',
+    slug: 'soguk-icecekler',
+    name: 'SOĞUK İÇECEKLER',
+    description: 'Meşrubat, soda, ayran, su',
+    displayOrder: 6,
+  },
+  {
+    id: '01900000-0000-7000-8000-000072529488',
+    slug: 'kampanyali-menuler',
+    name: 'KAMPANYALI MENÜLER',
+    description: 'Menü + patates + içecek bir arada, avantajlı',
+    displayOrder: 7,
+  },
 ];
 
 function homeMenuProductId(slug: string): string {
@@ -171,7 +215,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00000e359a1a',
     slug: '1-home-classic-burger',
     name: '1- HOME CLASSIC BURGER',
-    description: '100% dana eti , akdeniz yeşillikleri , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
+    description:
+      '100% dana eti , akdeniz yeşillikleri , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
     basePriceMinor: 42995n,
     displayOrder: 1,
     allergenIds: [],
@@ -182,7 +227,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00000e359a1a',
     slug: '2-home-cheese-burger',
     name: '2- HOME CHEESE BURGER',
-    description: '100% dana eti , çift cheddar peyniri , akdeniz yeşillikleri , domates , turşu , karamelize soğan , home sos , özel burger ekmeği , patates kızartması',
+    description:
+      '100% dana eti , çift cheddar peyniri , akdeniz yeşillikleri , domates , turşu , karamelize soğan , home sos , özel burger ekmeği , patates kızartması',
     basePriceMinor: 44495n,
     displayOrder: 2,
     allergenIds: [],
@@ -193,7 +239,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00000e359a1a',
     slug: '3-home-bacon-burger',
     name: '3- HOME BACON BURGER',
-    description: '100% dana eti , dana bacon , cheddar peyniri , karamelize soğan , turşu , home sos , özel burger ekmeği , patates kızartması',
+    description:
+      '100% dana eti , dana bacon , cheddar peyniri , karamelize soğan , turşu , home sos , özel burger ekmeği , patates kızartması',
     basePriceMinor: 45895n,
     displayOrder: 3,
     allergenIds: [],
@@ -204,7 +251,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00000e359a1a',
     slug: '4-home-mushroom-burger',
     name: '4- HOME MUSHROOM BURGER',
-    description: '100% dana eti , özel soslu mantar , cheddar peyniri , karamelize soğan , akdeniz yeşillikleri , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
+    description:
+      '100% dana eti , özel soslu mantar , cheddar peyniri , karamelize soğan , akdeniz yeşillikleri , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
     basePriceMinor: 44895n,
     displayOrder: 4,
     allergenIds: [],
@@ -215,7 +263,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00000e359a1a',
     slug: '5-home-fire-burger',
     name: '5- HOME FIRE BURGER',
-    description: '100% dana eti , mix biber , cheddar peyniri , acı sos , jalapeno biber , karamelize soğan , akdeniz yeşillikleri , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
+    description:
+      '100% dana eti , mix biber , cheddar peyniri , acı sos , jalapeno biber , karamelize soğan , akdeniz yeşillikleri , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
     basePriceMinor: 45795n,
     displayOrder: 5,
     allergenIds: [],
@@ -226,7 +275,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00000e359a1a',
     slug: '6-home-3-shot-burger',
     name: '6- HOME 3 SHOT BURGER',
-    description: '100% dana eti , [40gr X 3 adet dana eti] , [classic , cheese , lui] , özel burger ekmeği , patates kızartması',
+    description:
+      '100% dana eti , [40gr X 3 adet dana eti] , [classic , cheese , lui] , özel burger ekmeği , patates kızartması',
     basePriceMinor: 48095n,
     displayOrder: 6,
     allergenIds: [],
@@ -237,7 +287,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00000e359a1a',
     slug: '7-home-diet-burger',
     name: '7- HOME DIET BURGER',
-    description: '100% dana eti , iceberg marul içerisinde(tercihe göre kepekli ekmek ile) , taze nane , ızgara hellim peyniri , domates , mix biber , turşu , home sos , mevsim sebzeleri',
+    description:
+      '100% dana eti , iceberg marul içerisinde(tercihe göre kepekli ekmek ile) , taze nane , ızgara hellim peyniri , domates , mix biber , turşu , home sos , mevsim sebzeleri',
     basePriceMinor: 46495n,
     displayOrder: 7,
     allergenIds: [],
@@ -248,7 +299,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00000e359a1a',
     slug: '9-home-lui-burger',
     name: '9- HOME LUI BURGER',
-    description: '100% dana eti , çift cheddar peyniri , coleslow salata , domates , turşu , kibrit patates , özel burger ekmeği , patates kızartması',
+    description:
+      '100% dana eti , çift cheddar peyniri , coleslow salata , domates , turşu , kibrit patates , özel burger ekmeği , patates kızartması',
     basePriceMinor: 46295n,
     displayOrder: 8,
     allergenIds: [],
@@ -259,7 +311,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00000e359a1a',
     slug: '11-home-peak-burger',
     name: '11- HOME PEAK BURGER',
-    description: '100% dana eti , trüff sos , cheddar peyniri , turşu , özel burger ekmeği , patates kızartması',
+    description:
+      '100% dana eti , trüff sos , cheddar peyniri , turşu , özel burger ekmeği , patates kızartması',
     basePriceMinor: 45795n,
     displayOrder: 9,
     allergenIds: [],
@@ -270,7 +323,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00000e359a1a',
     slug: '12-home-warm-burger',
     name: '12- HOME WARM BURGER',
-    description: '100% dana eti , crispy sos , cheddar peyniri , turşu , özel burger ekmeği , patates kızartması',
+    description:
+      '100% dana eti , crispy sos , cheddar peyniri , turşu , özel burger ekmeği , patates kızartması',
     basePriceMinor: 45795n,
     displayOrder: 10,
     allergenIds: [],
@@ -281,7 +335,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00000e359a1a',
     slug: 'home-craft-burger',
     name: 'HOME CRAFT BURGER',
-    description: '100% dana eti , home craft bbq sos , cheddar peyniri , turşu , özel burger ekmeği , patates kızartması',
+    description:
+      '100% dana eti , home craft bbq sos , cheddar peyniri , turşu , özel burger ekmeği , patates kızartması',
     basePriceMinor: 45795n,
     displayOrder: 11,
     allergenIds: [],
@@ -292,7 +347,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00006db4fd36',
     slug: '13-home-crispy-chicken-burger',
     name: '13- HOME CRISPY CHICKEN BURGER',
-    description: '100% çıtır tavuk fleto , cheddar peyniri , turşu , iceberg marul , mor lahana , home acı sos , (az acı %21) , özel burger ekmeği , patates kızartması',
+    description:
+      '100% çıtır tavuk fleto , cheddar peyniri , turşu , iceberg marul , mor lahana , home acı sos , (az acı %21) , özel burger ekmeği , patates kızartması',
     basePriceMinor: 43395n,
     displayOrder: 1,
     allergenIds: [],
@@ -303,7 +359,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00006db4fd36',
     slug: '14-home-truffle-chicken-burger',
     name: '14- HOME TRUFFLE CHICKEN BURGER',
-    description: '100% çıtır tavuk fleto , cheddar peyniri , turşu , trüff sos , özel burger ekmeği , patates kızartması',
+    description:
+      '100% çıtır tavuk fleto , cheddar peyniri , turşu , trüff sos , özel burger ekmeği , patates kızartması',
     basePriceMinor: 43895n,
     displayOrder: 2,
     allergenIds: [],
@@ -314,7 +371,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00006db4fd36',
     slug: '15-home-chicken-burger',
     name: '15- HOME CHICKEN BURGER',
-    description: '100% tavuk fleto , mozzarella peyniri , mix biber , karamelize soğan , taze nane , akdeniz yeşillikleri , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
+    description:
+      '100% tavuk fleto , mozzarella peyniri , mix biber , karamelize soğan , taze nane , akdeniz yeşillikleri , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
     basePriceMinor: 42995n,
     displayOrder: 3,
     allergenIds: [],
@@ -325,7 +383,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00006db4fd36',
     slug: 'home-craft-chicken-burger',
     name: 'HOME CRAFT CHICKEN BURGER',
-    description: '100% çıtır tavuk fleto , cheddar peyniri , turşu , iceberg marul , home craft bbq sos , özel burger ekmeği , patates kızartması',
+    description:
+      '100% çıtır tavuk fleto , cheddar peyniri , turşu , iceberg marul , home craft bbq sos , özel burger ekmeği , patates kızartması',
     basePriceMinor: 43895n,
     displayOrder: 4,
     allergenIds: [],
@@ -336,7 +395,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00001c8a7a04',
     slug: '17-home-kids-chicken-burger',
     name: '17- HOME KIDS CHICKEN BURGER',
-    description: '100% çıtır tavuk fleto , iceberg marul , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
+    description:
+      '100% çıtır tavuk fleto , iceberg marul , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
     basePriceMinor: 38795n,
     displayOrder: 1,
     allergenIds: [],
@@ -347,7 +407,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-00001c8a7a04',
     slug: '18-home-kids-classic-burger',
     name: '18- HOME KIDS CLASSIC BURGER',
-    description: '100% dana eti , akdeniz yeşillikleri , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
+    description:
+      '100% dana eti , akdeniz yeşillikleri , domates , turşu , home sos , özel burger ekmeği , patates kızartması',
     basePriceMinor: 40595n,
     displayOrder: 2,
     allergenIds: [],
@@ -358,7 +419,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-000048358e31',
     slug: '1-home-classic-hotdog',
     name: '1- HOME CLASSIC HOTDOG',
-    description: '100% dana sosis , turşu , home sos , hardal , özel sandviç ekmeği , patates kızartması',
+    description:
+      '100% dana sosis , turşu , home sos , hardal , özel sandviç ekmeği , patates kızartması',
     basePriceMinor: 39595n,
     displayOrder: 1,
     allergenIds: [],
@@ -369,7 +431,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-000048358e31',
     slug: 'home-spicy-hotdog',
     name: 'HOME SPICY HOTDOG',
-    description: '100% dana sosis , çift cheddar peyniri , turşu , home acı sos (az acı%21) , özel sandviç ekmeği , patates kızartması',
+    description:
+      '100% dana sosis , çift cheddar peyniri , turşu , home acı sos (az acı%21) , özel sandviç ekmeği , patates kızartması',
     basePriceMinor: 42995n,
     displayOrder: 2,
     allergenIds: [],
@@ -380,7 +443,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-000048358e31',
     slug: 'home-curry-hotdog',
     name: 'HOME CURRY HOTDOG',
-    description: '100% dana sosis , çift cheddar peyniri , turşu , curry sos , yeşil soğan , özel sandviç ekmeği , patates kızartması',
+    description:
+      '100% dana sosis , çift cheddar peyniri , turşu , curry sos , yeşil soğan , özel sandviç ekmeği , patates kızartması',
     basePriceMinor: 41995n,
     displayOrder: 3,
     allergenIds: [],
@@ -391,7 +455,8 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     categoryId: '01900000-0000-7000-8000-000048358e31',
     slug: 'home-craft-hotdog',
     name: 'HOME CRAFT HOTDOG',
-    description: '100% dana sosis , çift cheddar peyniri , turşu , home craft bbq sos , kibrit patates , özel sandviç ekmeği , patates kızartması',
+    description:
+      '100% dana sosis , çift cheddar peyniri , turşu , home craft bbq sos , kibrit patates , özel sandviç ekmeği , patates kızartması',
     basePriceMinor: 42995n,
     displayOrder: 4,
     allergenIds: [],
@@ -643,8 +708,9 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     availabilityId: '01900000-0000-7000-8000-0000278319d5',
     categoryId: '01900000-0000-7000-8000-000072529488',
     slug: '2li-home-crispy-chicken-menu',
-    name: '2\'Lİ HOME CRISPY CHICKEN MENÜ',
-    description: '2 ADET HOME CRISPY CHICKEN BURGER + 2 ADET PATATES KIZARTMASI + 2 ADET POSMİX İÇECEK',
+    name: "2'Lİ HOME CRISPY CHICKEN MENÜ",
+    description:
+      '2 ADET HOME CRISPY CHICKEN BURGER + 2 ADET PATATES KIZARTMASI + 2 ADET POSMİX İÇECEK',
     basePriceMinor: 91995n,
     displayOrder: 4,
     allergenIds: [],
@@ -654,12 +720,14 @@ const DEMO_CATALOG_PRODUCTS: SeedCatalogProduct[] = [
     availabilityId: '01900000-0000-7000-8000-0000308023b0',
     categoryId: '01900000-0000-7000-8000-000072529488',
     slug: '2li-home-warm-menu',
-    name: '2\'Lİ HOME WARM MENÜ',
-    description: '2 ADET 100 GR HOME WARM BURGER + 2 ADET PATATES KIZARTMASI + 2 ADET POSMİX İÇECEK',
+    name: "2'Lİ HOME WARM MENÜ",
+    description:
+      '2 ADET 100 GR HOME WARM BURGER + 2 ADET PATATES KIZARTMASI + 2 ADET POSMİX İÇECEK',
     basePriceMinor: 99195n,
     displayOrder: 5,
     allergenIds: [],
-  },];
+  },
+];
 
 async function upsertDemoCatalogProduct(item: SeedCatalogProduct): Promise<void> {
   await prisma.product.upsert({
@@ -1187,6 +1255,9 @@ async function main(): Promise<void> {
     },
     update: { displayName: 'Dev Courier', isActive: true },
   });
+
+  await seedAddressGeography(prisma);
+  await seedBranches(prisma);
 
   // Excel menüsü katalog için tek kaynak: isim, fiyat, varyant ve
   // modifier gruplarını buradan yeniden yazar.

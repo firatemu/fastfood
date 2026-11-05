@@ -14,6 +14,7 @@ import {
   type PasswordHasher,
 } from '../../../common/crypto/index.js';
 import { PrismaService } from '../../../common/database/prisma.service.js';
+import { signAccessToken, verifyAccessToken } from '../access-token.js';
 
 import {
   createDefaultOAuthAdapters,
@@ -23,6 +24,7 @@ import {
 } from './oauth-providers.js';
 
 interface CustomerSessionRecord {
+  id: string;
   refreshTokenHash: string;
   familyId: string;
   customerId: string;
@@ -49,12 +51,24 @@ interface OAuthStateRecord {
   provider: OAuthProviderCode;
   returnTo: string;
   linkUserId: string | null;
+  clientPlatform: 'browser' | 'native';
   expiresAt: number;
 }
 
 export type AuthSessionOk = {
   ok: true;
   customerId: string;
+  /**
+   * Short-lived RS256 access token (document 32 §5). It travels as
+   * `Authorization: Bearer` and is never persisted by a browser client.
+   */
+  accessToken: string;
+  accessExpiresAt: Date;
+  sessionId: string;
+  /**
+   * Long-lived opaque refresh credential. A browser receives it in an
+   * HttpOnly cookie; a native client receives it in the response body.
+   */
   refreshToken: string;
   refreshExpiresAt: Date;
 };
@@ -304,6 +318,7 @@ export class CustomerAuthService {
     const digits = raw.replace(/\D/g, '');
     if (digits.startsWith('90')) return `+${digits}`;
     if (digits.startsWith('0')) return `+9${digits}`;
+    if (digits.startsWith('5') && digits.length === 10) return `+90${digits}`;
     return `+${digits}`;
   }
 
@@ -511,6 +526,7 @@ export class CustomerAuthService {
     provider: OAuthProviderCode,
     returnTo = '/account',
     linkUserId?: string,
+    clientPlatform: 'browser' | 'native' = 'browser',
   ):
     | { ok: true; authorizationUrl: string }
     | { ok: false; reason: 'OAUTH_UNAVAILABLE' | 'OAUTH_UNKNOWN_PROVIDER' } {
@@ -525,6 +541,7 @@ export class CustomerAuthService {
       provider,
       returnTo: returnTo.startsWith('/') ? returnTo : '/account',
       linkUserId: linkUserId ?? null,
+      clientPlatform,
       expiresAt: Date.now() + 10 * 60 * 1000,
     });
     return { ok: true, authorizationUrl: adapter.authorizationUrl(state, redirectUri) };
@@ -534,7 +551,7 @@ export class CustomerAuthService {
     provider: OAuthProviderCode,
     input: { code?: string; state?: string; error?: string },
   ): Promise<
-    | (AuthSessionOk & { returnTo: string })
+    | (AuthSessionOk & { returnTo: string; clientPlatform: 'browser' | 'native' })
     | {
         ok: false;
         reason: 'OAUTH_CANCELLED' | 'OAUTH_FAILED' | 'OAUTH_UNAVAILABLE' | 'STATE_INVALID';
@@ -574,39 +591,43 @@ export class CustomerAuthService {
     const prismaProvider = provider === 'google' ? 'GOOGLE' : 'APPLE';
     const customerId = await this.#resolveOAuthUser(prismaProvider, profile, stateRow.linkUserId);
     const session = await this.#issueSession(customerId);
-    return { ...session, returnTo: stateRow.returnTo };
+    return { ...session, returnTo: stateRow.returnTo, clientPlatform: stateRow.clientPlatform };
   }
 
   /**
    * Resolve a customer from an opaque refresh token without rotating it.
    * Used by AuthGuard / storefront identity — X-User-Id is never trusted.
+   *
+   * The bearer value is the short-lived RS256 access token (document 32 §5).
+   * The opaque refresh credential is NOT accepted as a bearer: that is the
+   * credential the browser keeps in an HttpOnly cookie.
    */
-  async resolveSession(
-    refreshToken: string,
+  async resolveAccessToken(
+    accessToken: string,
   ): Promise<{ customerId: string; sessionId: string } | null> {
-    if (!verifyRefreshTokenShape(refreshToken)) {
+    const claims = verifyAccessToken(accessToken, (parsed) => parsed.actorType === 'CUSTOMER');
+    if (!claims) {
       return null;
     }
-    const tokenHash = hashRefreshToken(refreshToken);
     if (!this.prisma) {
-      for (const [key, entry] of this.#sessions) {
-        if (entry.refreshTokenHash === tokenHash) {
+      for (const entry of this.#sessions.values()) {
+        if (entry.id === claims.sid) {
           if (entry.expiresAt.getTime() < Date.now()) {
-            this.#sessions.delete(key);
             return null;
           }
-          return { customerId: entry.customerId, sessionId: entry.familyId };
+          return { customerId: entry.customerId, sessionId: entry.id };
         }
       }
       return null;
     }
-    const row = await this.prisma.session.findUnique({
-      where: { refreshTokenHash: tokenHash },
-    });
+    const row = await this.prisma.session.findUnique({ where: { id: claims.sid } });
     if (!row || row.revokedAt) {
       return null;
     }
     if (row.expiresAt.getTime() < Date.now()) {
+      return null;
+    }
+    if (row.userId !== claims.sub) {
       return null;
     }
     return { customerId: row.userId, sessionId: row.id };
@@ -621,6 +642,9 @@ export class CustomerAuthService {
       return { ok: false, reason: 'TOKEN_MALFORMED' };
     }
     const tokenHash = hashRefreshToken(refreshToken);
+    const nextRefreshToken = generateRefreshToken();
+    const nextRefreshTokenHash = hashRefreshToken(nextRefreshToken);
+    const refreshExpiresAt = new Date(Date.now() + this.#refreshSessionTtlMs());
     if (!this.prisma) {
       let foundKey: string | null = null;
       let foundEntry: CustomerSessionRecord | null = null;
@@ -638,8 +662,19 @@ export class CustomerAuthService {
         this.#sessions.delete(foundKey);
         return { ok: false, reason: 'TOKEN_EXPIRED' };
       }
-      this.#sessions.delete(foundKey);
-      return this.#issueSession(foundEntry.customerId, foundEntry.familyId);
+      // Rotate the refresh credential in place. The session row keeps its id so
+      // an access token issued before the rotation stays valid until it
+      // expires — rotating must not invalidate a parallel browser tab.
+      foundEntry.refreshTokenHash = nextRefreshTokenHash;
+      foundEntry.expiresAt = refreshExpiresAt;
+      return {
+        ok: true,
+        customerId: foundEntry.customerId,
+        sessionId: foundEntry.id,
+        ...this.#issueAccessToken(foundEntry.customerId, foundEntry.id),
+        refreshToken: nextRefreshToken,
+        refreshExpiresAt,
+      };
     }
 
     const row = await this.prisma.session.findUnique({
@@ -657,9 +692,16 @@ export class CustomerAuthService {
     }
     await this.prisma.session.update({
       where: { id: row.id },
-      data: { revokedAt: new Date(), revokedReason: 'ROTATED' },
+      data: { refreshTokenHash: nextRefreshTokenHash, expiresAt: refreshExpiresAt },
     });
-    return this.#issueSession(row.userId, row.familyId);
+    return {
+      ok: true,
+      customerId: row.userId,
+      sessionId: row.id,
+      ...this.#issueAccessToken(row.userId, row.id),
+      refreshToken: nextRefreshToken,
+      refreshExpiresAt,
+    };
   }
 
   async logout(refreshToken: string): Promise<{ ok: true }> {
@@ -725,26 +767,66 @@ export class CustomerAuthService {
   async #issueSession(customerId: string, familyId?: string): Promise<AuthSessionOk> {
     const family = familyId ?? crypto.randomUUID();
     const refreshToken = generateRefreshToken();
-    const refreshExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const refreshExpiresAt = new Date(Date.now() + this.#refreshSessionTtlMs());
     const refreshTokenHash = hashRefreshToken(refreshToken);
     if (!this.prisma) {
+      const sessionId = crypto.randomUUID();
       this.#sessions.set(family, {
+        id: sessionId,
         refreshTokenHash,
         familyId: family,
         customerId,
         expiresAt: refreshExpiresAt,
       });
-    } else {
-      await this.prisma.session.create({
-        data: {
-          userId: customerId,
-          refreshTokenHash,
-          familyId: family,
-          expiresAt: refreshExpiresAt,
-        },
-      });
+      return {
+        ok: true,
+        customerId,
+        sessionId,
+        ...this.#issueAccessToken(customerId, sessionId),
+        refreshToken,
+        refreshExpiresAt,
+      };
     }
-    return { ok: true, customerId, refreshToken, refreshExpiresAt };
+    const row = await this.prisma.session.create({
+      data: {
+        userId: customerId,
+        refreshTokenHash,
+        familyId: family,
+        expiresAt: refreshExpiresAt,
+      },
+    });
+    return {
+      ok: true,
+      customerId,
+      sessionId: row.id,
+      ...this.#issueAccessToken(customerId, row.id),
+      refreshToken,
+      refreshExpiresAt,
+    };
+  }
+
+  #refreshSessionTtlMs(): number {
+    return getAppConfig().REFRESH_SESSION_TTL_DAYS * 24 * 60 * 60 * 1000;
+  }
+
+  #issueAccessToken(
+    customerId: string,
+    sessionId: string,
+  ): {
+    accessToken: string;
+    accessExpiresAt: Date;
+  } {
+    const now = new Date();
+    const accessToken = signAccessToken({
+      userId: customerId,
+      sessionId,
+      actorType: 'CUSTOMER',
+      now,
+    });
+    const accessExpiresAt = new Date(
+      now.getTime() + getAppConfig().ACCESS_TOKEN_TTL_MINUTES * 60 * 1000,
+    );
+    return { accessToken, accessExpiresAt };
   }
 
   async #ensurePhoneCustomer(phoneNormalized: string, displayName?: string): Promise<string> {

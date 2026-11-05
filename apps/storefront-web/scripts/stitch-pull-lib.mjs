@@ -66,8 +66,7 @@ export async function mcpGetDownloadUrl(screenId, key) {
   const line = text.split('\n').find((l) => l.includes('"htmlCode"')) ?? text;
   const json = JSON.parse(line.startsWith('{') ? line : text);
   const inner =
-    json?.result?.structuredContent ??
-    JSON.parse(json?.result?.content?.[0]?.text ?? '{}');
+    json?.result?.structuredContent ?? JSON.parse(json?.result?.content?.[0]?.text ?? '{}');
   return inner?.htmlCode?.downloadUrl;
 }
 

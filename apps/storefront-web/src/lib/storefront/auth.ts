@@ -3,8 +3,8 @@ import { ApiError } from '@fastfood/api-client';
 import {
   clearCustomerSession,
   createStorefrontClient,
-  getCustomerRefreshToken,
   getGuestSessionId,
+  refreshCustomerSession,
   sessionHeaders,
   setCustomerSession,
 } from '../api';
@@ -37,19 +37,42 @@ export function looksLikePhone(raw: string): boolean {
   return digits.length >= 10 && !raw.includes('@');
 }
 
-async function establishSession(customerId: string, refreshToken: string): Promise<string> {
+async function establishSession(payload: {
+  customerId: string;
+  accessToken: string;
+  accessExpiresAt: string;
+}): Promise<string> {
   const guestSessionId = getGuestSessionId();
-  setCustomerSession(customerId, refreshToken);
+  setCustomerSession({
+    customerId: payload.customerId,
+    accessToken: payload.accessToken,
+    accessExpiresAt: payload.accessExpiresAt,
+  });
   try {
     await mergeGuestCart(guestSessionId);
   } catch {
     // Empty guest carts are expected.
   }
-  return customerId;
+  return payload.customerId;
 }
 
-export function completeOAuthCallback(customerId: string, refreshToken: string): Promise<string> {
-  return establishSession(customerId, refreshToken);
+/**
+ * OAuth callback. The API no longer puts the refresh credential in the
+ * redirect URL — the browser session already holds it as an HttpOnly cookie,
+ * so the callback only has to exchange it for an access token.
+ */
+export async function completeOAuthCallback(): Promise<string> {
+  const guestSessionId = getGuestSessionId();
+  const session = await refreshCustomerSession();
+  if (!session) {
+    throw new Error('Oturum kurulamadı.');
+  }
+  try {
+    await mergeGuestCart(guestSessionId);
+  } catch {
+    // Empty guest carts are expected.
+  }
+  return session.customerId;
 }
 
 export async function fetchAuthMethods(): Promise<{
@@ -91,7 +114,7 @@ export async function verifyCustomerOtp(
     body: { phoneNormalized: phone, code, displayName },
     schema: authSessionResponseSchema,
   });
-  return establishSession(res.data.customerId, res.data.refreshToken);
+  return establishSession(res.data);
 }
 
 /**
@@ -121,7 +144,7 @@ export async function registerByPhoneAndPassword(input: {
     },
     schema: authSessionResponseSchema,
   });
-  return establishSession(res.data.customerId, res.data.refreshToken);
+  return establishSession(res.data);
 }
 
 export async function loginWithPassword(identifier: string, password: string): Promise<string> {
@@ -132,7 +155,7 @@ export async function loginWithPassword(identifier: string, password: string): P
     body: { identifier, password },
     schema: authSessionResponseSchema,
   });
-  return establishSession(res.data.customerId, res.data.refreshToken);
+  return establishSession(res.data);
 }
 
 export async function registerWithPassword(input: {
@@ -149,7 +172,7 @@ export async function registerWithPassword(input: {
     body: input,
     schema: authSessionResponseSchema,
   });
-  return establishSession(res.data.customerId, res.data.refreshToken);
+  return establishSession(res.data);
 }
 
 export async function requestPasswordReset(email: string): Promise<void> {
@@ -185,20 +208,23 @@ export async function requestOAuthStart(
   return res.data.authorizationUrl;
 }
 
+/**
+ * Logout revokes the server session. The browser has no refresh credential
+ * to send — the API reads it from the HttpOnly cookie — so the request only
+ * needs the cookie transport.
+ */
 export async function logoutCustomer(): Promise<void> {
-  const refreshToken = getCustomerRefreshToken();
-  if (refreshToken) {
-    try {
-      const client = createStorefrontClient();
-      await client.request({
-        method: 'POST',
-        path: 'auth/customer/logout',
-        body: { refreshToken },
-        schema: okResponseSchema,
-      });
-    } catch {
-      // Local session is cleared regardless of network.
-    }
+  try {
+    const client = createStorefrontClient();
+    await client.request({
+      method: 'POST',
+      path: 'auth/customer/logout',
+      body: {},
+      credentials: 'include',
+      schema: okResponseSchema,
+    });
+  } catch {
+    // Local session is cleared regardless of network.
   }
   clearCustomerSession();
 }

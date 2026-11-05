@@ -128,11 +128,11 @@ export function BranchesPage(): React.ReactElement {
   const hint =
     locationError ??
     (finder.sort === 'distance' && !origin
-      ? 'Yakınlık sıralaması için Yakınımdakini bul düğmesini kullan.'
+      ? 'Yakınlık sıralaması için "Yakınımdakini Bul" butonuna basarak konum izni verin.'
       : null);
 
   return (
-    <main className="min-h-screen w-full bg-background pt-20" data-ff-surface="branches">
+    <main className="min-h-screen w-full bg-[#0a0c14] text-neutral-100 pt-20" data-ff-surface="branches">
       <BranchPass
         views={views}
         facts={facts}
@@ -163,26 +163,29 @@ export function BranchesPage(): React.ReactElement {
         hint={hint}
       />
 
-      <div className="mx-auto flex max-w-7xl flex-col gap-space-lg px-margin-sm py-space-xl lg:px-margin">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:gap-10 px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {visible.length === 0 ? (
-          <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-outline-variant/40 bg-surface-container/40 p-space-lg">
-            <MaterialIcon name="search_off" className="text-4xl text-on-surface-variant" />
-            <p className="font-headline-sm text-headline-sm uppercase text-on-surface">
-              Bu filtrelerde şube yok
-            </p>
-            <p className="max-w-sm font-body-md text-on-surface-variant">
-              Aramayı kısalt, şehir filtresini temizle ya da şu an açık seçimini kaldır.
+          <div className="flex flex-col items-center justify-center text-center gap-3.5 rounded-2xl border border-white/[0.08] bg-[#12151f]/80 backdrop-blur-xl p-8 sm:p-12 shadow-xl max-w-xl mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+              <MaterialIcon name="search_off" className="text-3xl" />
+            </div>
+            <h3 className="font-anton text-2xl uppercase text-white tracking-wide">
+              Eşleşen Şube Bulunamadı
+            </h3>
+            <p className="font-sans text-sm text-neutral-400 leading-relaxed max-w-md">
+              Arama ifadenizi kısaltabilir, seçili şehir filtresini &apos;Tümü&apos; olarak değiştirebilir veya filtreleri sıfırlayabilirsiniz.
             </p>
             <button
               type="button"
               onClick={() => patch({ ...DEFAULT_FINDER })}
-              className="rounded-xl border border-outline-variant/40 px-4 py-2.5 font-label-md uppercase tracking-[0.08em] text-on-surface transition-colors hover:border-secondary-container/50 hover:text-secondary-container"
+              className="mt-2 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 hover:from-amber-300 hover:via-amber-400 hover:to-orange-400 text-neutral-950 px-5 py-2.5 font-anton text-xs uppercase tracking-wider shadow-[0_4px_16px_rgba(254,179,0,0.3)] transition-all"
             >
-              Filtreleri temizle
+              <MaterialIcon name="restart_alt" className="text-base" />
+              Filtreleri Temizle
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-space-md lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2">
             {visible.map((branch) => (
               <BranchTicket
                 key={branch.id}

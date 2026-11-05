@@ -10,9 +10,12 @@ import {
   Optional,
 } from '@nestjs/common';
 
+import type { Prisma } from '../../../prisma/generated/client/client.js';
 import { PrismaService } from '../../common/database/prisma.service.js';
 
 import { LIFETIME_EXCLUDE_TYPES } from './club.config.js';
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export interface LoyaltyActivityItem {
   id: string;
@@ -80,29 +83,42 @@ export class LoyaltyService {
       });
       return;
     }
-    await this.prisma.loyaltyLedgerEntry.create({
-      data: {
-        userId: input.userId,
-        entryType: input.entryType ?? 'CREDIT',
-        pointsDelta: input.points,
-        valueMinorDelta: 0n,
-        reason: input.reason,
-      },
+    await this.prisma.$transaction(async (tx) => {
+      // Audit P0-5: a credit changes the balance, so it runs under the same
+      // customer lock as `reserve()` / `release()`.
+      await this.#lockCustomer(tx, input.userId);
+      await tx.loyaltyLedgerEntry.create({
+        data: {
+          userId: input.userId,
+          entryType: input.entryType ?? 'CREDIT',
+          pointsDelta: input.points,
+          valueMinorDelta: 0n,
+          reason: input.reason,
+        },
+      });
     });
   }
 
   async getLifetimeEarned(userId: string): Promise<bigint> {
-    const rows = this.prisma
-      ? await this.prisma.loyaltyLedgerEntry.findMany({
-          where: { userId },
-          select: { pointsDelta: true, entryType: true },
-        })
-      : this.#ledger.filter((row) => row.userId === userId);
-    return rows.reduce((sum, row) => {
-      if (row.pointsDelta <= 0n) return sum;
-      if (LIFETIME_EXCLUDE_TYPES.has(row.entryType)) return sum;
-      return sum + row.pointsDelta;
-    }, 0n);
+    if (!this.prisma) {
+      return this.#ledger
+        .filter((row) => row.userId === userId)
+        .reduce((sum, row) => {
+          if (row.pointsDelta <= 0n) return sum;
+          if (LIFETIME_EXCLUDE_TYPES.has(row.entryType)) return sum;
+          return sum + row.pointsDelta;
+        }, 0n);
+    }
+    // Audit P0-5: the lifetime metric is aggregated in the database as well.
+    const aggregate = await this.prisma.loyaltyLedgerEntry.aggregate({
+      where: {
+        userId,
+        pointsDelta: { gt: 0n },
+        entryType: { notIn: [...LIFETIME_EXCLUDE_TYPES] },
+      },
+      _sum: { pointsDelta: true },
+    });
+    return aggregate._sum.pointsDelta ?? 0n;
   }
 
   async listCustomerActivity(userId: string, limit = 20): Promise<LoyaltyActivityItem[]> {
@@ -131,7 +147,11 @@ export class LoyaltyService {
     if (entryType === 'CREDIT' || entryType === 'EARN' || entryType === 'EARN_CONFIRMED') {
       return 'EARNED';
     }
-    if (entryType === 'ADJUST' || entryType === 'ADJUSTMENT_CREDIT' || entryType === 'ADJUSTMENT_DEBIT') {
+    if (
+      entryType === 'ADJUST' ||
+      entryType === 'ADJUSTMENT_CREDIT' ||
+      entryType === 'ADJUSTMENT_DEBIT'
+    ) {
       return 'ADJUSTMENT';
     }
     return 'ACTIVITY';
@@ -165,29 +185,78 @@ export class LoyaltyService {
       }
       return;
     }
-    const current = await this.getBalance(userId);
-    const delta = points - current;
-    if (delta === 0n) return;
-    await this.prisma.loyaltyLedgerEntry.create({
-      data: {
-        userId,
-        entryType: delta > 0n ? 'CREDIT' : 'ADJUST',
-        pointsDelta: delta,
-        valueMinorDelta: 0n,
-        reason: 'set_balance',
-      },
+    // Audit P0-5: the delta is computed from the balance read under the
+    // customer lock, so a concurrent reserve/release cannot make the
+    // adjustment overwrite it.
+    await this.prisma.$transaction(async (tx) => {
+      await this.#lockCustomer(tx, userId);
+      const current = await this.#balanceIn(tx, userId);
+      const delta = points - current;
+      if (delta === 0n) return;
+      await tx.loyaltyLedgerEntry.create({
+        data: {
+          userId,
+          entryType: delta > 0n ? 'CREDIT' : 'ADJUST',
+          pointsDelta: delta,
+          valueMinorDelta: 0n,
+          reason: 'set_balance',
+        },
+      });
     });
   }
 
+  /**
+   * Loyalty balance — the sum of the user's ledger deltas.
+   *
+   * The aggregate is computed in the database (audit P0-5) instead of
+   * streaming every ledger row into the process, so the cost stays constant
+   * as the customer's history grows.
+   */
   async getBalance(userId: string): Promise<bigint> {
     if (!this.prisma) {
       return this.#balances.get(userId) ?? 0n;
     }
-    const rows = await this.prisma.loyaltyLedgerEntry.findMany({
+    const aggregate = await this.prisma.loyaltyLedgerEntry.aggregate({
       where: { userId },
-      select: { pointsDelta: true },
+      _sum: { pointsDelta: true },
     });
-    return rows.reduce((sum, r) => sum + r.pointsDelta, 0n);
+    return aggregate._sum.pointsDelta ?? 0n;
+  }
+
+  /** Balance read inside a transaction that already holds the user lock. */
+  async #balanceIn(tx: Prisma.TransactionClient, userId: string): Promise<bigint> {
+    const aggregate = await tx.loyaltyLedgerEntry.aggregate({
+      where: { userId },
+      _sum: { pointsDelta: true },
+    });
+    return aggregate._sum.pointsDelta ?? 0n;
+  }
+
+  /**
+   * Serialise every balance mutation of one customer.
+   *
+   * Audit P0-5: the balance used to be read outside the writing transaction,
+   * so two concurrent checkouts both saw the same balance and both reserved
+   * points the customer did not have. The `users` row is now locked with
+   * `FOR UPDATE` for the duration of the transaction, so the balance read and
+   * the ledger write happen under the same lock.
+   */
+  async #lockCustomer(tx: Prisma.TransactionClient, userId: string): Promise<void> {
+    if (!UUID_PATTERN.test(userId)) {
+      throw new NotFoundException({
+        code: ErrorCodes.NOT_FOUND,
+        message: 'User not found.',
+      });
+    }
+    const rows = await tx.$queryRaw<Array<{ id: string }>>`
+      SELECT id FROM users WHERE id = ${userId}::uuid FOR UPDATE
+    `;
+    if (rows.length === 0) {
+      throw new NotFoundException({
+        code: ErrorCodes.NOT_FOUND,
+        message: 'User not found.',
+      });
+    }
   }
 
   async reserve(input: {
@@ -202,16 +271,16 @@ export class LoyaltyService {
         message: 'points must be positive.',
       });
     }
-    const balance = await this.getBalance(input.userId);
-    if (input.points > balance) {
-      throw new BadRequestException({
-        code: ErrorCodes.VALIDATION_ERROR,
-        message: 'Insufficient loyalty points.',
-        details: { available: balance.toString(), requested: input.points.toString() },
-      });
-    }
     const pointValue = input.pointValueMinor ?? 1n;
     if (!this.prisma) {
+      const balance = await this.getBalance(input.userId);
+      if (input.points > balance) {
+        throw new BadRequestException({
+          code: ErrorCodes.VALIDATION_ERROR,
+          message: 'Insufficient loyalty points.',
+          details: { available: balance.toString(), requested: input.points.toString() },
+        });
+      }
       const reservation: LoyaltyReservationDto = {
         id: this.#newId(),
         userId: input.userId,
@@ -227,7 +296,19 @@ export class LoyaltyService {
       return reservation;
     }
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    // Audit P0-5: the balance check, the reservation and the ledger entry
+    // happen under one customer lock, so two concurrent checkouts can never
+    // both spend the same points.
     const reservation = await this.prisma.$transaction(async (tx) => {
+      await this.#lockCustomer(tx, input.userId);
+      const balance = await this.#balanceIn(tx, input.userId);
+      if (input.points > balance) {
+        throw new BadRequestException({
+          code: ErrorCodes.VALIDATION_ERROR,
+          message: 'Insufficient loyalty points.',
+          details: { available: balance.toString(), requested: input.points.toString() },
+        });
+      }
       const created = await tx.loyaltyReservation.create({
         data: {
           userId: input.userId,
@@ -281,29 +362,44 @@ export class LoyaltyService {
       this.#balances.set(userId, (await this.getBalance(userId)) + reservation.pointsReserved);
       return reservation;
     }
-    const reservation = await this.prisma.loyaltyReservation.findUnique({
-      where: { id: reservationId },
-    });
-    if (!reservation || reservation.userId !== userId) {
-      throw new NotFoundException({
-        code: ErrorCodes.NOT_FOUND,
-        message: 'Loyalty reservation not found.',
-      });
-    }
-    if (reservation.status !== 'ACTIVE') {
-      throw new BadRequestException({
-        code: ErrorCodes.VALIDATION_ERROR,
-        message: `Reservation is ${reservation.status}.`,
-      });
-    }
     const updated = await this.prisma.$transaction(async (tx) => {
+      // Ownership is checked before the lock, because the lock is taken on
+      // the reservation owner's row — not on the caller-supplied id.
+      const existing = await tx.loyaltyReservation.findUnique({
+        where: { id: reservationId },
+      });
+      if (!existing || existing.userId !== userId) {
+        throw new NotFoundException({
+          code: ErrorCodes.NOT_FOUND,
+          message: 'Loyalty reservation not found.',
+        });
+      }
+      // Audit P0-5: the release writes a positive delta, so it takes the same
+      // customer lock as `reserve()` — the lock order is identical in both
+      // flows, which keeps the two from deadlocking each other.
+      await this.#lockCustomer(tx, existing.userId);
+      const reservation = await tx.loyaltyReservation.findUnique({
+        where: { id: reservationId },
+      });
+      if (!reservation) {
+        throw new NotFoundException({
+          code: ErrorCodes.NOT_FOUND,
+          message: 'Loyalty reservation not found.',
+        });
+      }
+      if (reservation.status !== 'ACTIVE') {
+        throw new BadRequestException({
+          code: ErrorCodes.VALIDATION_ERROR,
+          message: `Reservation is ${reservation.status}.`,
+        });
+      }
       const row = await tx.loyaltyReservation.update({
         where: { id: reservationId },
         data: { status: 'RELEASED' },
       });
       await tx.loyaltyLedgerEntry.create({
         data: {
-          userId,
+          userId: reservation.userId,
           entryType: 'RELEASE',
           pointsDelta: reservation.pointsReserved,
           valueMinorDelta: reservation.valueMinor,

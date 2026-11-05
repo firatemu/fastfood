@@ -1,6 +1,17 @@
 import { ErrorCodes } from '@fastfood/contracts';
 import { safeValidate } from '@fastfood/validation';
-import { Body, Controller, Get, HttpCode, Inject, Injectable, Param, Post, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Inject,
+  Injectable,
+  Param,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { z } from 'zod';
 

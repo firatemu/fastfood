@@ -1,6 +1,6 @@
 {
   "name": "@fastfood/customer-mobile",
-  "version": "0.0.0",
+  "version": "1.0.1",
   "private": true,
   "license": "UNLICENSED",
   "description": "BURGER HOME customer iOS + Android app. Expo SDK 57 / React Native 0.86. Visual rebuild from Mobile Stitch; APIs shared with the completed Web Storefront.",

@@ -14,7 +14,11 @@ export function parseTableCode(raw: string | null | undefined): string | null {
     return trimmed;
   }
   try {
-    const parsed = new URL(trimmed.includes('://') ? trimmed : `https://local.invalid${trimmed.startsWith('/') ? trimmed : `/${trimmed}`}`);
+    const parsed = new URL(
+      trimmed.includes('://')
+        ? trimmed
+        : `https://local.invalid${trimmed.startsWith('/') ? trimmed : `/${trimmed}`}`,
+    );
     const parts = parsed.pathname.split('/').filter(Boolean);
     const tableIdx = parts.findIndex((part) => part === 'table');
     const candidate =

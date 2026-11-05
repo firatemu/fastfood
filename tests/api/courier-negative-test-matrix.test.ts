@@ -26,10 +26,10 @@ function makeContext(req: { authenticatedUserId?: string }) {
 }
 
 describe('Phase 8 courier/delivery negative-test matrix', () => {
-    it('rejects unauthenticated via AuthGuard', async () => {
-      const guard = new AuthGuard();
-      await expect(guard.canActivate(makeContext({}))).rejects.toThrow(UnauthorizedException);
-    });
+  it('rejects unauthenticated via AuthGuard', async () => {
+    const guard = new AuthGuard();
+    await expect(guard.canActivate(makeContext({}))).rejects.toThrow(UnauthorizedException);
+  });
 
   it('rejects QR claim with garbage token', async () => {
     const svc = new DeliveryService();

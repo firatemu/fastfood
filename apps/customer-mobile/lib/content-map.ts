@@ -2,10 +2,9 @@ import { formatTryMinor } from './money';
 import type { CustomerBranch, PublicDeal, StorefrontContent } from './schemas';
 import { parseTableCode } from './table-code';
 
-export function branchFulfillmentLabel(branch: Pick<
-  CustomerBranch,
-  'isAcceptingOrders' | 'deliveryEnabled' | 'pickupEnabled'
->): string {
+export function branchFulfillmentLabel(
+  branch: Pick<CustomerBranch, 'isAcceptingOrders' | 'deliveryEnabled' | 'pickupEnabled'>,
+): string {
   const delivery = branch.deliveryEnabled !== false;
   const pickup = branch.pickupEnabled !== false;
   if (!branch.isAcceptingOrders) return 'Şu an sipariş almıyor';
@@ -32,7 +31,9 @@ export function isLegalDocument(kind: string): boolean {
 }
 
 export function legalDocuments(docs: StorefrontContent[]): StorefrontContent[] {
-  return docs.filter((doc) => isLegalDocument(doc.kind)).sort((a, b) => a.displayOrder - b.displayOrder);
+  return docs
+    .filter((doc) => isLegalDocument(doc.kind))
+    .sort((a, b) => a.displayOrder - b.displayOrder);
 }
 
 export function allergenDisclaimer(docs: StorefrontContent[]): StorefrontContent | null {

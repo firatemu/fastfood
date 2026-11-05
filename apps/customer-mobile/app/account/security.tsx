@@ -40,16 +40,14 @@ type Level = 'strong' | 'fair' | 'weak';
  * Web security screen shows, so the two clients cannot disagree about the
  * customer's state.
  */
-function posture(input: {
-  hasPassword: boolean;
-  emailVerified: boolean;
-  phoneVerified: boolean;
-}): { level: Level; headline: string; summary: string; score: number; total: number } {
-  const checks = [
-    input.hasPassword,
-    input.emailVerified,
-    input.phoneVerified,
-  ];
+function posture(input: { hasPassword: boolean; emailVerified: boolean; phoneVerified: boolean }): {
+  level: Level;
+  headline: string;
+  summary: string;
+  score: number;
+  total: number;
+} {
+  const checks = [input.hasPassword, input.emailVerified, input.phoneVerified];
   const score = checks.filter(Boolean).length;
   const total = 3;
   const remaining = total - score;
@@ -233,10 +231,17 @@ function SecurityBody() {
   const ratio = state.total === 0 ? 0 : Math.round((state.score / state.total) * 100);
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ padding: space.margin, paddingBottom: insets.bottom + 32, gap: 12 }}
+        contentContainerStyle={{
+          padding: space.margin,
+          paddingBottom: insets.bottom + 32,
+          gap: 12,
+        }}
       >
         <View style={styles.posture}>
           <View style={styles.postureCopy}>
@@ -331,9 +336,7 @@ function SecurityBody() {
             label="Parola"
             satisfied={identities.hasPassword}
             hint={
-              identities.hasPassword
-                ? 'Parolan tanımlı.'
-                : 'Oturum açmak için bir parola belirle.'
+              identities.hasPassword ? 'Parolan tanımlı.' : 'Oturum açmak için bir parola belirle.'
             }
           />
           <CheckRow
@@ -357,11 +360,7 @@ function SecurityBody() {
           <CheckRow
             label="Telefon doğrulaması"
             satisfied={identities.phoneVerified}
-            hint={
-              identities.phoneVerified
-                ? 'Telefonun doğrulandı.'
-                : 'Telefonuna OTP gönder.'
-            }
+            hint={identities.phoneVerified ? 'Telefonun doğrulandı.' : 'Telefonuna OTP gönder.'}
           />
         </View>
 
@@ -371,7 +370,10 @@ function SecurityBody() {
             <Text style={styles.hint}>Bağlı bir sosyal hesap yok.</Text>
           ) : (
             identities.identities.map((identity) => (
-              <View key={`${identity.provider}-${identity.emailNormalized ?? 'none'}`} style={styles.identityRow}>
+              <View
+                key={`${identity.provider}-${identity.emailNormalized ?? 'none'}`}
+                style={styles.identityRow}
+              >
                 <Text style={styles.body}>{identity.provider.replace(/_/g, ' ')}</Text>
                 <Text style={styles.meta} numberOfLines={1}>
                   {identity.emailNormalized ?? 'E-posta bağlı değil'}

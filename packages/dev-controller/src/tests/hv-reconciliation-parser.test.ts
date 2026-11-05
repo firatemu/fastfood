@@ -3,14 +3,47 @@
  * PROJECT_STATUS.md (canonical numbering) still parses correctly into
  * the controller's ProjectStatusView.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { describe, it, expect } from 'vitest';
 
 import { parseProjectStatusView, isPhaseAuthorized } from '../authz.js';
 
-const PS_PATH = path.resolve('/home/azem/projects/fastfood/PROJECT_STATUS.md');
+/**
+ * Resolve the canonical PROJECT_STATUS.md by walking up from this file
+ * until the repository root marker is found. Hardcoding an absolute path
+ * made the test machine-specific; walking up keeps it portable across
+ * developer machines and CI runners.
+ */
+function resolveProjectStatusPath(): string {
+  let dir = path.dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 8; i++) {
+    const candidate = path.join(dir, 'PROJECT_STATUS.md');
+    if (existsSync(candidate)) return candidate;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  throw new Error('PROJECT_STATUS.md not found while walking up from the test file');
+}
+
+const PS_PATH = resolveProjectStatusPath();
+
+/**
+ * Extract the canonical value of a `**Label**` table row straight from the
+ * source document. The parser test asserts round-trip fidelity, so the
+ * expectation is derived from the canonical file instead of being hardcoded
+ * — a hardcoded task id silently rots whenever the human owner updates
+ * PROJECT_STATUS.md.
+ */
+function canonicalRowValue(raw: string, label: string): string {
+  const pattern = new RegExp(`^\\|\\s*\\*\\*${label}\\*\\*\\s*\\|\\s*\`([^\`]+)\`\\s*\\|`, 'm');
+  const match = pattern.exec(raw);
+  if (!match?.[1]) throw new Error(`row not found in PROJECT_STATUS.md: ${label}`);
+  return match[1];
+}
 
 describe('Post-reconciliation PROJECT_STATUS parser compatibility', () => {
   it('parses the canonical PROJECT_STATUS.md correctly', () => {
@@ -38,9 +71,11 @@ describe('Post-reconciliation PROJECT_STATUS parser compatibility', () => {
     // Autonomous
     expect(view.autonomousExecution).toBe('ARMED');
     expect(view.autonomousController).toBe('INSTALLED / VALIDATED / HUMAN ACCEPTED');
-    // Technical development is complete; Admin / Operations human QA
-    // is the current authorized task at the final human gate.
-    expect(view.nextAuthorizedTask).toBe('LOCAL_HUMAN_QA_OPERATIONS_ADMIN');
+    // Technical development is complete; the current authorized task is the
+    // one the human owner recorded. Asserted against the canonical file so
+    // the expectation tracks owner updates instead of rotting.
+    expect(view.nextAuthorizedTask).toBe(canonicalRowValue(raw, 'Next authorized repository task'));
+    expect(view.nextAuthorizedTask).toBe('ADMIN_VISUAL_NAVY_A9_COMPLETE');
     expect(view.fatal).toBeNull();
   });
 

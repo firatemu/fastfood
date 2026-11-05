@@ -23,7 +23,9 @@ export function FavoritesSection({
     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3" data-ff-favorites>
       {favorites.map((favorite) => {
         const product = favorite.product;
-        const href = product?.slug ? `/products/${product.slug}` : `/products/${favorite.productId}`;
+        const href = product?.slug
+          ? `/products/${product.slug}`
+          : `/products/${favorite.productId}`;
         const unavailable = !product || !product.isAvailable;
         return (
           <li key={favorite.id} className="rounded-xl bg-surface-container p-space-md min-w-0">

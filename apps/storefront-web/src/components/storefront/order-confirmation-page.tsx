@@ -17,7 +17,9 @@ export function OrderConfirmationPage() {
   const orderId = params.orderId;
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
-  const [order, setOrder] = useState<Awaited<ReturnType<typeof fetchOrderConfirmation>> | null>(null);
+  const [order, setOrder] = useState<Awaited<ReturnType<typeof fetchOrderConfirmation>> | null>(
+    null,
+  );
   const [nonce, setNonce] = useState(0);
 
   useDeferredLoad(() => {
@@ -71,10 +73,14 @@ export function OrderConfirmationPage() {
             </div>
           </div>
           {order.branch?.addressLine ? (
-            <p className="font-body-sm text-on-surface-variant break-words">{order.branch.addressLine}</p>
+            <p className="font-body-sm text-on-surface-variant break-words">
+              {order.branch.addressLine}
+            </p>
           ) : null}
           {order.scheduledFor ? (
-            <p className="font-body-sm">Planlanan saat: {new Date(order.scheduledFor).toLocaleString('tr-TR')}</p>
+            <p className="font-body-sm">
+              Planlanan saat: {new Date(order.scheduledFor).toLocaleString('tr-TR')}
+            </p>
           ) : order.branch?.etaMinutesMin !== undefined ? (
             <p className="font-body-sm text-primary-container">
               Tahmini {order.branch.etaMinutesMin}-{order.branch.etaMinutesMax} dk

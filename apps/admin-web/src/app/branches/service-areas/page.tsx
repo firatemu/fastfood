@@ -61,6 +61,8 @@ const serviceabilityResponseSchema = z.object({
 
 type TabKey = 'areas' | 'generator' | 'simulator' | 'composer';
 
+const EMPTY_AREAS: readonly Area[] = [];
+
 export default function ServiceAreasCommandCenter() {
   const branchContext = useBranchContext();
   const branchId = branchContext.branchId;
@@ -150,7 +152,12 @@ export default function ServiceAreasCommandCenter() {
   useDeferredLoad(() => void load(), [load]);
 
   // Polygon facts caching
-  const areas: readonly Area[] = state.status === 'ready' ? state.data : [];
+  // The empty fallback must be a stable reference: a fresh `[]` on every
+  // render would invalidate every `useMemo` that depends on `areas`.
+  const areas: readonly Area[] = useMemo(
+    () => (state.status === 'ready' ? state.data : EMPTY_AREAS),
+    [state],
+  );
   const factsById = useMemo(() => {
     const map = new Map<string, PolygonFacts | null>();
     for (const a of areas) {

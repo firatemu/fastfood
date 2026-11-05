@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
@@ -14,6 +15,7 @@ import {
 } from 'react-native';
 
 import { customizeLabel } from '../lib/customize-label';
+import { haptic } from '../lib/haptics';
 import { formatTryMinor } from '../lib/money';
 import type { VitrineProduct } from '../lib/schemas';
 import { colors, fonts, hitSlop, radius, space } from '../theme';
@@ -21,12 +23,9 @@ import { colors, fonts, hitSlop, radius, space } from '../theme';
 import { FavoriteHeart } from './favorite-heart';
 
 /**
- * Compact CTA height in dp. The card is only two columns wide, so a full-height
- * 44dp button beside the price would squeeze the label. The *touch* target stays
- * at 44dp through `hitSlop` (28 + 8 + 8), so the chip looks compact without becoming
- * hard to hit — and neighbouring links get no hitSlop, so nothing steals each other's taps.
+ * Compact CTA height in dp.
  */
-const CTA_MIN_HEIGHT = 28;
+const CTA_MIN_HEIGHT = 30;
 
 /**
  * Vitrine card. The product's only action is "open it and customize it", which
@@ -59,9 +58,7 @@ export function ProductCard(props: { product: VitrineProduct }): ReactElement {
             ) : (
               <View style={[styles.image, styles.imageFallback]} />
             )}
-            {props.product.badge ? (
-              <Text style={styles.badge}>{props.product.badge}</Text>
-            ) : null}
+            {props.product.badge ? <Text style={styles.badge}>{props.product.badge}</Text> : null}
           </View>
         </CardLink>
         <FavoriteHeart productId={props.product.id} name={props.product.name} />
@@ -88,9 +85,12 @@ export function ProductCard(props: { product: VitrineProduct }): ReactElement {
           hitSlop={hitSlop}
           style={({ pressed }) => [styles.customize, pressed && styles.customizePressed]}
         >
-          <Text style={styles.customizeText} numberOfLines={1}>
-            {label}
-          </Text>
+          <View style={styles.customizeContent}>
+            <MaterialCommunityIcons name="plus" size={13} color={colors.onMustard} />
+            <Text style={styles.customizeText} numberOfLines={1}>
+              {label}
+            </Text>
+          </View>
         </CardLink>
       </View>
     </View>
@@ -101,24 +101,19 @@ function CardLink(props: {
   href: Href;
   accessibilityLabel: string;
   hitSlop?: Insets;
-  style?:
-    | StyleProp<ViewStyle>
-    | ((state: PressableStateCallbackType) => StyleProp<ViewStyle>);
+  style?: StyleProp<ViewStyle> | ((state: PressableStateCallbackType) => StyleProp<ViewStyle>);
   children: ReactNode;
 }): ReactElement {
-  // Deliberately not `<Link asChild>`: expo-router renders the child through
-  // Radix's `Slot`, whose `mergeProps` combines `style` with an object spread
-  // (`overrideProps.style = { ...slotStyle, ...childStyle }`). Spreading a
-  // function yields `{}`, so a function style — i.e. any Pressable that reacts
-  // to `pressed` — silently renders unstyled: no background, no minHeight,
-  // nothing. Routing through `router.push` keeps the style function intact.
   const router = useRouter();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={props.accessibilityLabel}
       hitSlop={props.hitSlop}
-      onPress={() => router.push(props.href)}
+      onPress={() => {
+        haptic.light();
+        router.push(props.href);
+      }}
       style={props.style}
     >
       {props.children}
@@ -130,7 +125,7 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.hairline,
     overflow: 'hidden',
@@ -139,7 +134,7 @@ const styles = StyleSheet.create({
   imageWrap: { position: 'relative' },
   image: {
     width: '100%',
-    height: 132,
+    height: 136,
     backgroundColor: colors.surfaceLow,
   },
   imageFallback: { backgroundColor: colors.surfaceHigh },
@@ -148,41 +143,46 @@ const styles = StyleSheet.create({
     top: 8,
     left: 8,
     overflow: 'hidden',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: radius.sm,
-    backgroundColor: colors.mustardPressed,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: radius.xs,
+    backgroundColor: colors.flame,
     fontFamily: fonts.jakartaBold,
-    fontSize: 10,
-    letterSpacing: 0.8,
+    fontSize: 9,
+    letterSpacing: 0.6,
     textTransform: 'uppercase',
-    color: colors.onMustard,
+    color: colors.white,
   },
   customize: {
-    // Shrinkable on purpose: the price is the information the card exists to
-    // carry, so the CTA yields first. Its label is `numberOfLines={1}`, so an
-    // unusually long one ellipsizes instead of pushing the price out.
     flexShrink: 1,
     minHeight: CTA_MIN_HEIGHT,
-    paddingHorizontal: 7,
-    paddingVertical: 4,
-    borderRadius: radius.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: radius.md,
     backgroundColor: colors.mustard,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  customizePressed: { backgroundColor: colors.mustardPressed },
+  customizePressed: {
+    backgroundColor: colors.mustardPressed,
+    transform: [{ scale: 0.95 }],
+  },
+  customizeContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
   customizeText: {
     fontFamily: fonts.jakartaBold,
-    fontSize: 10,
+    fontSize: 11,
     letterSpacing: 0.1,
     color: colors.onMustard,
   },
-  body: { padding: space.sm, gap: 4, minHeight: 72 },
+  body: { padding: space.sm, gap: 4, minHeight: 74 },
   name: {
     fontFamily: fonts.jakartaBold,
     fontSize: 14,
-    lineHeight: 18,
+    lineHeight: 19,
     color: colors.onSurface,
   },
   desc: {
@@ -200,7 +200,6 @@ const styles = StyleSheet.create({
     paddingBottom: space.sm,
   },
   price: {
-    // Never truncate: a cut-off price is worse than a tight CTA label.
     flexShrink: 0,
     fontFamily: fonts.jakartaBold,
     fontSize: 15,

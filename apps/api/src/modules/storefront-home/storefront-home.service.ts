@@ -1,7 +1,11 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 
 import { PrismaService } from '../../common/database/prisma.service.js';
-import { BranchService, type BranchDto, type BranchOperatingHoursDto } from '../branch/branch.service.js';
+import {
+  BranchService,
+  type BranchDto,
+  type BranchOperatingHoursDto,
+} from '../branch/branch.service.js';
 import { CatalogService, type ProductDto } from '../catalog/catalog.service.js';
 import {
   DEFAULT_HOME_SLIDE_SETTINGS,
@@ -145,7 +149,11 @@ function parseHeroSpecs(value: unknown): HeroSpecDto[] {
   for (const item of record.items) {
     if (!item || typeof item !== 'object') continue;
     const row = item as Record<string, unknown>;
-    if (typeof row.key !== 'string' || typeof row.label !== 'string' || typeof row.value !== 'string') {
+    if (
+      typeof row.key !== 'string' ||
+      typeof row.label !== 'string' ||
+      typeof row.value !== 'string'
+    ) {
       continue;
     }
     out.push({
@@ -225,14 +233,22 @@ export class StorefrontHomeService {
     });
   }
 
-  async getHome(input: { branchId?: string; categoryId?: string; q?: string }): Promise<HomePayloadDto> {
+  async getHome(input: {
+    branchId?: string;
+    categoryId?: string;
+    q?: string;
+  }): Promise<HomePayloadDto> {
     if (!this.prisma) {
       return this.#memoryHome(input);
     }
     return this.#prismaHome(input);
   }
 
-  async subscribeNewsletter(emailRaw: string, source = 'ember_club', userId?: string): Promise<NewsletterResultDto> {
+  async subscribeNewsletter(
+    emailRaw: string,
+    source = 'ember_club',
+    userId?: string,
+  ): Promise<NewsletterResultDto> {
     const email = emailRaw.trim().toLowerCase();
     if (!this.prisma) {
       const already = this.#newsletter.has(email);
@@ -270,7 +286,11 @@ export class StorefrontHomeService {
     return { email, unsubscribed: true };
   }
 
-  async #prismaHome(input: { branchId?: string; categoryId?: string; q?: string }): Promise<HomePayloadDto> {
+  async #prismaHome(input: {
+    branchId?: string;
+    categoryId?: string;
+    q?: string;
+  }): Promise<HomePayloadDto> {
     const db = this.prisma;
     if (!db) return this.#memoryHome(input);
     const branch = await this.#resolveBranch(input.branchId);
@@ -286,61 +306,61 @@ export class StorefrontHomeService {
       socialRow,
       heroSliderSettingsRow,
     ] = await Promise.all([
-        db.category.findMany({
-          where: { isActive: true },
-          orderBy: { displayOrder: 'asc' },
-          include: { _count: { select: { products: { where: { isActive: true } } } } },
-        }),
-        db.product.findMany({
-          where: {
-            isActive: true,
-            ...(input.q
-              ? {
-                  OR: [
-                    { name: { contains: input.q, mode: 'insensitive' } },
-                    { slug: { contains: input.q, mode: 'insensitive' } },
-                    { description: { contains: input.q, mode: 'insensitive' } },
-                  ],
-                }
-              : {}),
+      db.category.findMany({
+        where: { isActive: true },
+        orderBy: { displayOrder: 'asc' },
+        include: { _count: { select: { products: { where: { isActive: true } } } } },
+      }),
+      db.product.findMany({
+        where: {
+          isActive: true,
+          ...(input.q
+            ? {
+                OR: [
+                  { name: { contains: input.q, mode: 'insensitive' } },
+                  { slug: { contains: input.q, mode: 'insensitive' } },
+                  { description: { contains: input.q, mode: 'insensitive' } },
+                ],
+              }
+            : {}),
+        },
+        orderBy: { displayOrder: 'asc' },
+        include: {
+          media: { orderBy: { displayOrder: 'asc' }, take: 1 },
+          merchandising: true,
+          branchAvailability: true,
+        },
+      }),
+      db.storefrontComboOffer.findFirst({
+        where: { isActive: true },
+        orderBy: { displayOrder: 'asc' },
+        include: {
+          items: {
+            orderBy: { displayOrder: 'asc' },
+            include: { product: { select: { id: true, name: true } } },
           },
-          orderBy: { displayOrder: 'asc' },
-          include: {
-            media: { orderBy: { displayOrder: 'asc' }, take: 1 },
-            merchandising: true,
-            branchAvailability: true,
-          },
-        }),
-        db.storefrontComboOffer.findFirst({
-          where: { isActive: true },
-          orderBy: { displayOrder: 'asc' },
-          include: {
-            items: {
-              orderBy: { displayOrder: 'asc' },
-              include: { product: { select: { id: true, name: true } } },
-            },
-          },
-        }),
-        db.storefrontPublishedReview.findMany({
-          where: { isPublished: true },
-          orderBy: { displayOrder: 'asc' },
-        }),
-        branchId
-          ? db.order.count({
-              where: { branchId, status: { in: [...KITCHEN_BOARD_STATUSES] } },
-            })
-          : Promise.resolve(0),
-        db.order.findMany({
-          where: { status: 'DELIVERED', userId: { not: null } },
-          distinct: ['userId'],
-          select: { userId: true },
-        }),
-        db.storefrontSocialProof.findFirst(),
-        db.businessSetting.findUnique({
-          where: { key: HOME_SLIDE_SETTINGS_KEY },
-          select: { valueJson: true },
-        }),
-      ]);
+        },
+      }),
+      db.storefrontPublishedReview.findMany({
+        where: { isPublished: true },
+        orderBy: { displayOrder: 'asc' },
+      }),
+      branchId
+        ? db.order.count({
+            where: { branchId, status: { in: [...KITCHEN_BOARD_STATUSES] } },
+          })
+        : Promise.resolve(0),
+      db.order.findMany({
+        where: { status: 'DELIVERED', userId: { not: null } },
+        distinct: ['userId'],
+        select: { userId: true },
+      }),
+      db.storefrontSocialProof.findFirst(),
+      db.businessSetting.findUnique({
+        where: { key: HOME_SLIDE_SETTINGS_KEY },
+        select: { valueJson: true },
+      }),
+    ]);
 
     const vitrine = products.map((p) => {
       const merch = p.merchandising;
@@ -425,10 +445,8 @@ export class StorefrontHomeService {
     const merchRating =
       merchWeight > 0
         ? Math.round(
-            catalogProducts.reduce(
-              (n, p) => n + (p.averageRatingBps ?? 0) * p.ratingCount,
-              0,
-            ) / merchWeight,
+            catalogProducts.reduce((n, p) => n + (p.averageRatingBps ?? 0) * p.ratingCount, 0) /
+              merchWeight,
           )
         : null;
     const averageRatingBps =
@@ -483,11 +501,11 @@ export class StorefrontHomeService {
       categories: categories
         .filter((c) => visibleCategoryIds.has(c.id))
         .map((c) => ({
-        id: c.id,
-        slug: c.slug,
-        name: c.name,
-        productCount: c._count.products,
-      })),
+          id: c.id,
+          slug: c.slug,
+          name: c.name,
+          productCount: c._count.products,
+        })),
       products: catalogProducts,
       combo,
       reviews: reviewDtos,
@@ -500,7 +518,11 @@ export class StorefrontHomeService {
     };
   }
 
-  async #memoryHome(input: { branchId?: string; categoryId?: string; q?: string }): Promise<HomePayloadDto> {
+  async #memoryHome(input: {
+    branchId?: string;
+    categoryId?: string;
+    q?: string;
+  }): Promise<HomePayloadDto> {
     const products = this.catalog ? await this.catalog.listProducts(input.categoryId) : [];
     const categories = this.catalog ? await this.catalog.listCategories() : [];
     let filtered = products;
@@ -522,9 +544,8 @@ export class StorefrontHomeService {
         id: p.id,
       };
     });
-    const branch = this.branches ? (await this.branches.listBranches())[0] ?? null : null;
-    const hours =
-      branch && this.branches ? await this.branches.getOperatingHours(branch.id) : [];
+    const branch = this.branches ? ((await this.branches.listBranches())[0] ?? null) : null;
+    const hours = branch && this.branches ? await this.branches.getOperatingHours(branch.id) : [];
     const reviews = [...this.#reviews.values()];
     const ratingSum = reviews.reduce((n, r) => n + r.rating, 0);
     const configuredSlides = vitrine
@@ -567,7 +588,8 @@ export class StorefrontHomeService {
       combo: this.#combos[0] ?? null,
       reviews,
       socialProof: {
-        averageRatingBps: reviews.length > 0 ? Math.round((ratingSum / reviews.length) * 100) : null,
+        averageRatingBps:
+          reviews.length > 0 ? Math.round((ratingSum / reviews.length) * 100) : null,
         reviewCount: reviews.length,
         happyCustomerCount: reviews.length,
       },

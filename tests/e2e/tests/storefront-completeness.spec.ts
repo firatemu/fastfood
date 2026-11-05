@@ -3,7 +3,7 @@
  */
 import { test, expect } from '@playwright/test';
 
-const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3100);
+const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3110);
 
 test.describe('storefront-web completeness', () => {
   test.use({ baseURL: `http://localhost:${STOREFRONT_PORT}` });
@@ -34,7 +34,9 @@ test.describe('storefront-web completeness', () => {
     const card = page.locator('[data-ff-product]').first();
     await expect(card).toBeVisible();
     await card.getByRole('link').first().click();
-    await expect(page.locator('[data-ff-surface="product-detail"]')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-ff-surface="product-detail"]')).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test('legal allergen section', async ({ page }) => {
@@ -46,7 +48,9 @@ test.describe('storefront-web completeness', () => {
 
   test('table QR continuity still works', async ({ page }) => {
     await page.goto('/table/bhx7k2m9q4wp');
-    await expect(page.locator('[data-ff-dining-banner], [data-ff-surface="golden-home"]')).toBeVisible({
+    await expect(
+      page.locator('[data-ff-dining-banner], [data-ff-surface="golden-home"]'),
+    ).toBeVisible({
       timeout: 20_000,
     });
   });

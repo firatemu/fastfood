@@ -78,10 +78,7 @@ function parseHm(value: string): { hour: number; minute: number } {
   return { hour: h ?? 0, minute: m ?? 0 };
 }
 
-function findHours(
-  hours: readonly OperatingHourRow[],
-  dow: number,
-): OperatingHourRow | undefined {
+function findHours(hours: readonly OperatingHourRow[], dow: number): OperatingHourRow | undefined {
   return hours.find((row) => row.dayOfWeek === dow);
 }
 
@@ -123,7 +120,9 @@ export function listEligibleSlots(input: {
     closeUtc = new Date(closeUtc.getTime() + 24 * 60 * 60 * 1000);
   }
 
-  const earliest = new Date(Math.max(input.now.getTime() + PREP_MINUTES * 60_000, openUtc.getTime()));
+  const earliest = new Date(
+    Math.max(input.now.getTime() + PREP_MINUTES * 60_000, openUtc.getTime()),
+  );
   const horizon = new Date(input.now.getTime() + HORIZON_HOURS * 60 * 60 * 1000);
   const last = new Date(Math.min(closeUtc.getTime(), horizon.getTime()));
   let cursor = ceilToStep(earliest, SLOT_STEP_MINUTES);

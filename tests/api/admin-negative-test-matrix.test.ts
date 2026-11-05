@@ -155,8 +155,16 @@ describe('Phase 4 admin-endpoint negative-test matrix (document 39 §10)', () =>
     });
 
     it('accepts HQ staff with empty branch scope (global access)', () => {
-      const principal = makePrincipal({ branchIds: new Set<string>() });
+      // Document 39 §4: a missing scope never means global access. Only the
+      // Super Admin role carries global scope, and a Super Admin principal
+      // is exactly the one whose branch scope is empty.
+      const principal = makePrincipal({ branchIds: new Set<string>(), isSuperAdmin: true });
       expect(() => policy.enforce(principal, { branchId: 'any' })).not.toThrow();
+    });
+
+    it('rejects a non-super-admin staff principal with empty branch scope', () => {
+      const principal = makePrincipal({ branchIds: new Set<string>() });
+      expect(() => policy.enforce(principal, { branchId: 'any' })).toThrow(ForbiddenException);
     });
   });
 });

@@ -682,9 +682,11 @@ export default function BranchDetailPage() {
                     branch.latitude != null && branch.longitude != null ? (
                       <ActionButton
                         onClick={() => {
-                          setLatitude(String(branch.latitude));
-                          setLongitude(String(branch.longitude));
-                          sendLocationToMap(branch.latitude!, branch.longitude!);
+                          const savedLatitude = branch.latitude ?? 0;
+                          const savedLongitude = branch.longitude ?? 0;
+                          setLatitude(String(savedLatitude));
+                          setLongitude(String(savedLongitude));
+                          sendLocationToMap(savedLatitude, savedLongitude);
                         }}
                       >
                         Kayıtlı Konuma Sıfırla

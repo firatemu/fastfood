@@ -104,7 +104,10 @@ export class FavoritesService {
     return this.#hydrate(row);
   }
 
-  async #find(userId: string, productId: string): Promise<{
+  async #find(
+    userId: string,
+    productId: string,
+  ): Promise<{
     id: string;
     userId: string;
     productId: string;

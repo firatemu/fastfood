@@ -78,11 +78,9 @@ function resolveAccessToken() {
   }
   const gcloud = resolveGcloudBin();
   if (!gcloud) return null;
-  const result = spawnSync(
-    gcloud,
-    ['auth', 'application-default', 'print-access-token'],
-    { encoding: 'utf8' },
-  );
+  const result = spawnSync(gcloud, ['auth', 'application-default', 'print-access-token'], {
+    encoding: 'utf8',
+  });
   if (result.status !== 0) return null;
   const token = result.stdout.trim();
   return token || null;
@@ -110,8 +108,7 @@ async function mcpGetScreen(screenId, key) {
   const line = text.split('\n').find((l) => l.includes('"htmlCode"')) ?? text;
   const json = JSON.parse(line.startsWith('{') ? line : text);
   const inner =
-    json?.result?.structuredContent ??
-    JSON.parse(json?.result?.content?.[0]?.text ?? '{}');
+    json?.result?.structuredContent ?? JSON.parse(json?.result?.content?.[0]?.text ?? '{}');
   return inner?.htmlCode?.downloadUrl;
 }
 

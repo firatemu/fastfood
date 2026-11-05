@@ -10,9 +10,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Health"
-        ]
+        "tags": ["Health"]
       }
     },
     "/health/ready": {
@@ -24,9 +22,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Health"
-        ]
+        "tags": ["Health"]
       }
     },
     "/version": {
@@ -38,9 +34,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Version"
-        ]
+        "tags": ["Version"]
       }
     },
     "/auth/customer/methods": {
@@ -52,9 +46,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/otp/request": {
@@ -66,9 +58,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/otp/verify": {
@@ -80,9 +70,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/register-phone": {
@@ -94,9 +82,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/password/register": {
@@ -108,9 +94,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/password/login": {
@@ -122,9 +106,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/password/forgot": {
@@ -136,9 +118,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/password/reset": {
@@ -150,9 +130,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/password/change": {
@@ -164,9 +142,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/password/create": {
@@ -178,9 +154,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/email/verify/request": {
@@ -192,9 +166,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/email/verify": {
@@ -206,9 +178,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/oauth/{provider}/start": {
@@ -220,9 +190,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/oauth/{provider}/callback": {
@@ -234,9 +202,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/refresh": {
@@ -248,9 +214,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/logout": {
@@ -262,9 +226,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/customer/identities": {
@@ -276,9 +238,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerAuth"
-        ]
+        "tags": ["CustomerAuth"]
       }
     },
     "/auth/staff/me": {
@@ -290,9 +250,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StaffAuth"
-        ]
+        "tags": ["StaffAuth"]
       }
     },
     "/auth/staff/email/confirm": {
@@ -304,9 +262,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StaffAuth"
-        ]
+        "tags": ["StaffAuth"]
       }
     },
     "/auth/staff/login": {
@@ -318,9 +274,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StaffAuth"
-        ]
+        "tags": ["StaffAuth"]
       }
     },
     "/auth/staff/mfa/verify": {
@@ -332,9 +286,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StaffAuth"
-        ]
+        "tags": ["StaffAuth"]
       }
     },
     "/auth/staff/refresh": {
@@ -346,9 +298,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StaffAuth"
-        ]
+        "tags": ["StaffAuth"]
       }
     },
     "/auth/staff/logout": {
@@ -360,9 +310,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StaffAuth"
-        ]
+        "tags": ["StaffAuth"]
       }
     },
     "/storefront/branches": {
@@ -374,9 +322,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Branch"
-        ]
+        "tags": ["Branch"]
       }
     },
     "/storefront/branches/{branchId}/operating-hours": {
@@ -388,9 +334,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Branch"
-        ]
+        "tags": ["Branch"]
       }
     },
     "/storefront/serviceability": {
@@ -402,9 +346,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Branch"
-        ]
+        "tags": ["Branch"]
       }
     },
     "/storefront/catalog/builder": {
@@ -416,9 +358,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Catalog"
-        ]
+        "tags": ["Catalog"]
       }
     },
     "/storefront/catalog/categories": {
@@ -430,9 +370,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Catalog"
-        ]
+        "tags": ["Catalog"]
       }
     },
     "/storefront/catalog/products/{productIdOrSlug}": {
@@ -444,9 +382,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Catalog"
-        ]
+        "tags": ["Catalog"]
       }
     },
     "/storefront/catalog/products": {
@@ -458,9 +394,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Catalog"
-        ]
+        "tags": ["Catalog"]
       }
     },
     "/storefront/catalog/allergens": {
@@ -472,9 +406,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Catalog"
-        ]
+        "tags": ["Catalog"]
       }
     },
     "/storefront/cart": {
@@ -486,9 +418,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Cart"
-        ]
+        "tags": ["Cart"]
       },
       "delete": {
         "operationId": "CartController_clearCart",
@@ -498,9 +428,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Cart"
-        ]
+        "tags": ["Cart"]
       }
     },
     "/storefront/cart/lines": {
@@ -512,9 +440,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Cart"
-        ]
+        "tags": ["Cart"]
       }
     },
     "/storefront/cart/lines/{lineId}": {
@@ -526,9 +452,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Cart"
-        ]
+        "tags": ["Cart"]
       },
       "delete": {
         "operationId": "CartController_removeLine",
@@ -538,9 +462,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Cart"
-        ]
+        "tags": ["Cart"]
       }
     },
     "/storefront/cart/merge": {
@@ -552,9 +474,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Cart"
-        ]
+        "tags": ["Cart"]
       }
     },
     "/storefront/cart/quote": {
@@ -566,9 +486,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Cart"
-        ]
+        "tags": ["Cart"]
       }
     },
     "/checkout/payment-methods": {
@@ -580,9 +498,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Checkout"
-        ]
+        "tags": ["Checkout"]
       }
     },
     "/checkout/slots": {
@@ -594,9 +510,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Checkout"
-        ]
+        "tags": ["Checkout"]
       }
     },
     "/checkout/orders/{orderId}": {
@@ -608,9 +522,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Checkout"
-        ]
+        "tags": ["Checkout"]
       }
     },
     "/checkout/quote": {
@@ -622,9 +534,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Checkout"
-        ]
+        "tags": ["Checkout"]
       }
     },
     "/admin/promotions": {
@@ -636,9 +546,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminPromotion"
-        ]
+        "tags": ["AdminPromotion"]
       },
       "post": {
         "operationId": "AdminPromotionController_create",
@@ -648,9 +556,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminPromotion"
-        ]
+        "tags": ["AdminPromotion"]
       }
     },
     "/admin/promotions/{promotionId}": {
@@ -662,9 +568,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminPromotion"
-        ]
+        "tags": ["AdminPromotion"]
       },
       "patch": {
         "operationId": "AdminPromotionController_patch",
@@ -674,9 +578,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminPromotion"
-        ]
+        "tags": ["AdminPromotion"]
       }
     },
     "/storefront/promotions": {
@@ -688,9 +590,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StorefrontPromotion"
-        ]
+        "tags": ["StorefrontPromotion"]
       }
     },
     "/storefront/promotions/validate": {
@@ -702,9 +602,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StorefrontPromotion"
-        ]
+        "tags": ["StorefrontPromotion"]
       }
     },
     "/checkout/loyalty/balance": {
@@ -716,9 +614,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Loyalty"
-        ]
+        "tags": ["Loyalty"]
       }
     },
     "/checkout/loyalty/reserve": {
@@ -730,9 +626,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Loyalty"
-        ]
+        "tags": ["Loyalty"]
       }
     },
     "/checkout/loyalty/reservation/{reservationId}": {
@@ -744,9 +638,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Loyalty"
-        ]
+        "tags": ["Loyalty"]
       }
     },
     "/me/club": {
@@ -758,9 +650,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Club"
-        ]
+        "tags": ["Club"]
       }
     },
     "/me/club/welcome": {
@@ -772,9 +662,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Club"
-        ]
+        "tags": ["Club"]
       }
     },
     "/me/notifications": {
@@ -786,9 +674,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerNotification"
-        ]
+        "tags": ["CustomerNotification"]
       }
     },
     "/me/notifications/{id}/read": {
@@ -800,9 +686,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerNotification"
-        ]
+        "tags": ["CustomerNotification"]
       }
     },
     "/me/notifications/read-all": {
@@ -814,9 +698,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "CustomerNotification"
-        ]
+        "tags": ["CustomerNotification"]
       }
     },
     "/me/orders": {
@@ -828,9 +710,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/orders/{orderId}": {
@@ -842,9 +722,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/orders/{orderId}/timeline": {
@@ -856,9 +734,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/orders/{orderId}/courier-location": {
@@ -870,9 +746,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/orders/{orderId}/reorder": {
@@ -884,9 +758,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/orders": {
@@ -898,9 +770,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/admin/orders/summary": {
@@ -912,9 +782,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/admin/orders": {
@@ -926,9 +794,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/admin/orders/{orderId}": {
@@ -940,9 +806,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/admin/orders/{orderId}/transitions": {
@@ -954,9 +818,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/admin/orders/{orderId}/pickup-token": {
@@ -968,9 +830,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/orders/pickup-tokens/{prefix}/scan": {
@@ -982,9 +842,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/admin/orders/{orderId}/reassign-branch": {
@@ -996,9 +854,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/admin/kitchen": {
@@ -1010,9 +866,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Order"
-        ]
+        "tags": ["Order"]
       }
     },
     "/admin/couriers": {
@@ -1024,9 +878,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       },
       "get": {
         "operationId": "CourierController_listCouriers",
@@ -1036,9 +888,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/admin/deliveries": {
@@ -1050,9 +900,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/admin/deliveries/{deliveryId}/assign": {
@@ -1064,9 +912,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/admin/deliveries/{deliveryId}/reassign": {
@@ -1078,9 +924,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/admin/deliveries/{deliveryId}/qr-token": {
@@ -1092,9 +936,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/courier/deliveries": {
@@ -1106,9 +948,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/courier/deliveries/{deliveryId}": {
@@ -1120,9 +960,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/courier/claims/qr": {
@@ -1134,9 +972,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/courier/deliveries/{deliveryId}/pickup": {
@@ -1148,9 +984,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/courier/deliveries/{deliveryId}/on-the-way": {
@@ -1162,9 +996,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/courier/deliveries/{deliveryId}/deliver": {
@@ -1176,9 +1008,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/courier/deliveries/{deliveryId}/location": {
@@ -1190,9 +1020,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/courier/me/performance": {
@@ -1204,9 +1032,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/courier/deliveries/{deliveryId}/navigation": {
@@ -1218,9 +1044,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Courier"
-        ]
+        "tags": ["Courier"]
       }
     },
     "/checkout/payment/initialize": {
@@ -1232,9 +1056,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Payment"
-        ]
+        "tags": ["Payment"]
       }
     },
     "/checkout/status/{checkoutId}": {
@@ -1246,9 +1068,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Payment"
-        ]
+        "tags": ["Payment"]
       }
     },
     "/integrations/iyzico/callback": {
@@ -1260,9 +1080,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "IyzicoIntegration"
-        ]
+        "tags": ["IyzicoIntegration"]
       }
     },
     "/integrations/iyzico/webhook": {
@@ -1274,9 +1092,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "IyzicoIntegration"
-        ]
+        "tags": ["IyzicoIntegration"]
       }
     },
     "/admin/payments/{paymentId}/refunds": {
@@ -1288,9 +1104,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Refund"
-        ]
+        "tags": ["Refund"]
       },
       "get": {
         "operationId": "RefundController_listByPayment",
@@ -1300,9 +1114,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Refund"
-        ]
+        "tags": ["Refund"]
       }
     },
     "/admin/refunds/{refundId}": {
@@ -1314,9 +1126,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Refund"
-        ]
+        "tags": ["Refund"]
       }
     },
     "/admin/reports/sales": {
@@ -1328,9 +1138,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Reporting"
-        ]
+        "tags": ["Reporting"]
       }
     },
     "/admin/reports/branches": {
@@ -1354,9 +1162,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Reporting"
-        ]
+        "tags": ["Reporting"]
       }
     },
     "/admin/reports/products": {
@@ -1368,9 +1174,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Reporting"
-        ]
+        "tags": ["Reporting"]
       }
     },
     "/admin/reports/couriers": {
@@ -1382,9 +1186,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Reporting"
-        ]
+        "tags": ["Reporting"]
       }
     },
     "/me": {
@@ -1396,9 +1198,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       },
       "patch": {
         "operationId": "CustomerController_patchMe",
@@ -1408,9 +1208,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       }
     },
     "/me/preferences": {
@@ -1422,9 +1220,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       },
       "patch": {
         "operationId": "CustomerController_patchPreferences",
@@ -1434,9 +1230,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       }
     },
     "/me/loyalty": {
@@ -1448,9 +1242,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       }
     },
     "/me/addresses": {
@@ -1462,9 +1254,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       },
       "post": {
         "operationId": "CustomerController_createAddress",
@@ -1474,9 +1264,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       }
     },
     "/me/address-geography/provinces": {
@@ -1488,9 +1276,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       }
     },
     "/me/address-geography/provinces/{provinceId}/districts": {
@@ -1502,9 +1288,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       }
     },
     "/me/address-geography/districts/{districtId}/neighborhoods": {
@@ -1516,9 +1300,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       }
     },
     "/me/addresses/{addressId}": {
@@ -1530,9 +1312,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       },
       "delete": {
         "operationId": "CustomerController_deleteAddress",
@@ -1542,9 +1322,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       }
     },
     "/me/favorites": {
@@ -1556,9 +1334,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       },
       "post": {
         "operationId": "CustomerController_addFavorite",
@@ -1568,9 +1344,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       }
     },
     "/me/favorites/{favoriteId}": {
@@ -1582,9 +1356,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Customer"
-        ]
+        "tags": ["Customer"]
       }
     },
     "/admin/categories": {
@@ -1596,9 +1368,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       },
       "post": {
         "operationId": "AdminCatalogController_createCategory",
@@ -1608,9 +1378,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       }
     },
     "/admin/categories/{categoryId}": {
@@ -1622,9 +1390,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       }
     },
     "/admin/products": {
@@ -1636,9 +1402,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       },
       "post": {
         "operationId": "AdminCatalogController_createProduct",
@@ -1648,9 +1412,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       }
     },
     "/admin/home-slides": {
@@ -1662,9 +1424,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       },
       "put": {
         "operationId": "AdminCatalogController_replaceHomeSlides",
@@ -1674,9 +1434,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       }
     },
     "/admin/products/{productId}": {
@@ -1688,9 +1446,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       },
       "patch": {
         "operationId": "AdminCatalogController_patchProduct",
@@ -1700,9 +1456,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       },
       "delete": {
         "operationId": "AdminCatalogController_deleteProduct",
@@ -1712,9 +1466,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       }
     },
     "/admin/products/{productId}/media": {
@@ -1726,9 +1478,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       },
       "post": {
         "operationId": "AdminCatalogController_addMedia",
@@ -1738,9 +1488,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       }
     },
     "/admin/products/{productId}/media/upload": {
@@ -1752,9 +1500,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       }
     },
     "/admin/allergens": {
@@ -1766,9 +1512,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       },
       "post": {
         "operationId": "AdminCatalogController_createAllergen",
@@ -1779,9 +1523,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "name"
-                ],
+                "required": ["name"],
                 "properties": {
                   "name": {
                     "type": "string"
@@ -1800,9 +1542,7 @@
           }
         },
         "summary": "Create an allergen with a generated internal code",
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       }
     },
     "/admin/allergens/{allergenId}": {
@@ -1843,9 +1583,7 @@
           }
         },
         "summary": "Update allergen name or description",
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       },
       "delete": {
         "operationId": "AdminCatalogController_deleteAllergen",
@@ -1865,9 +1603,7 @@
           }
         },
         "summary": "Delete an allergen that is not linked to products",
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       }
     },
     "/admin/allergens/{allergenId}/products/{productId}": {
@@ -1897,9 +1633,7 @@
           }
         },
         "summary": "Link an allergen to a product",
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       },
       "delete": {
         "operationId": "AdminCatalogController_unlinkAllergenProduct",
@@ -1927,9 +1661,7 @@
           }
         },
         "summary": "Unlink an allergen from a product",
-        "tags": [
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog"]
       }
     },
     "/admin/modifier-groups": {
@@ -1951,10 +1683,7 @@
           }
         },
         "summary": "List modifier groups with options and product links",
-        "tags": [
-          "AdminCatalog",
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog", "AdminCatalog"]
       },
       "post": {
         "operationId": "AdminCatalogController_createModifierGroup",
@@ -1965,9 +1694,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "name"
-                ],
+                "required": ["name"],
                 "properties": {
                   "name": {
                     "type": "string"
@@ -1989,10 +1716,7 @@
           }
         },
         "summary": "Create a modifier group",
-        "tags": [
-          "AdminCatalog",
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog", "AdminCatalog"]
       }
     },
     "/admin/modifier-groups/{groupId}": {
@@ -2038,10 +1762,7 @@
           }
         },
         "summary": "Update modifier group rules or active state",
-        "tags": [
-          "AdminCatalog",
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog", "AdminCatalog"]
       }
     },
     "/admin/modifier-groups/{groupId}/modifiers": {
@@ -2063,10 +1784,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "name",
-                  "priceDeltaMinor"
-                ],
+                "required": ["name", "priceDeltaMinor"],
                 "properties": {
                   "name": {
                     "type": "string"
@@ -2087,10 +1805,7 @@
           }
         },
         "summary": "Add a modifier option to a group",
-        "tags": [
-          "AdminCatalog",
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog", "AdminCatalog"]
       }
     },
     "/admin/modifier-groups/{groupId}/modifiers/{modifierId}": {
@@ -2142,10 +1857,7 @@
           }
         },
         "summary": "Update a modifier option or active state",
-        "tags": [
-          "AdminCatalog",
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog", "AdminCatalog"]
       }
     },
     "/admin/modifier-groups/{groupId}/products/{productId}": {
@@ -2191,10 +1903,7 @@
           }
         },
         "summary": "Attach a modifier group to a product",
-        "tags": [
-          "AdminCatalog",
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog", "AdminCatalog"]
       },
       "delete": {
         "operationId": "AdminCatalogController_unlinkModifierProduct",
@@ -2222,10 +1931,7 @@
           }
         },
         "summary": "Detach a modifier group from a product",
-        "tags": [
-          "AdminCatalog",
-          "AdminCatalog"
-        ]
+        "tags": ["AdminCatalog", "AdminCatalog"]
       }
     },
     "/admin/branches": {
@@ -2237,9 +1943,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminBranch"
-        ]
+        "tags": ["AdminBranch"]
       },
       "post": {
         "operationId": "AdminBranchController_createBranch",
@@ -2249,9 +1953,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminBranch"
-        ]
+        "tags": ["AdminBranch"]
       }
     },
     "/admin/branches/{branchId}": {
@@ -2263,9 +1965,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminBranch"
-        ]
+        "tags": ["AdminBranch"]
       },
       "patch": {
         "operationId": "AdminBranchController_patchBranch",
@@ -2275,9 +1975,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminBranch"
-        ]
+        "tags": ["AdminBranch"]
       }
     },
     "/admin/branches/{branchId}/service-areas": {
@@ -2289,9 +1987,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminBranch"
-        ]
+        "tags": ["AdminBranch"]
       },
       "post": {
         "operationId": "AdminBranchController_createServiceArea",
@@ -2301,9 +1997,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminBranch"
-        ]
+        "tags": ["AdminBranch"]
       }
     },
     "/admin/branches/{branchId}/operating-hours": {
@@ -2315,9 +2009,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminBranch"
-        ]
+        "tags": ["AdminBranch"]
       },
       "put": {
         "operationId": "AdminBranchController_putOperatingHours",
@@ -2327,9 +2019,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminBranch"
-        ]
+        "tags": ["AdminBranch"]
       }
     },
     "/admin/branches/{branchId}/product-availability": {
@@ -2341,9 +2031,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminBranch"
-        ]
+        "tags": ["AdminBranch"]
       }
     },
     "/admin/branches/{branchId}/product-availability/{productId}": {
@@ -2355,9 +2043,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminBranch"
-        ]
+        "tags": ["AdminBranch"]
       }
     },
     "/admin/payments": {
@@ -2369,9 +2055,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminPayment"
-        ]
+        "tags": ["AdminPayment"]
       }
     },
     "/admin/payments/{paymentId}": {
@@ -2383,9 +2067,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminPayment"
-        ]
+        "tags": ["AdminPayment"]
       }
     },
     "/admin/audit": {
@@ -2397,9 +2079,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminAudit"
-        ]
+        "tags": ["AdminAudit"]
       }
     },
     "/admin/settings": {
@@ -2411,9 +2091,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminSettings"
-        ]
+        "tags": ["AdminSettings"]
       }
     },
     "/admin/settings/{key}": {
@@ -2425,9 +2103,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminSettings"
-        ]
+        "tags": ["AdminSettings"]
       }
     },
     "/admin/users": {
@@ -2439,9 +2115,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       },
       "post": {
         "operationId": "AdminUserController_createStaff",
@@ -2451,9 +2125,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       }
     },
     "/admin/roles": {
@@ -2465,9 +2137,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       }
     },
     "/admin/permissions": {
@@ -2479,9 +2149,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       }
     },
     "/admin/users/{userId}": {
@@ -2493,9 +2161,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       }
     },
     "/admin/users/{userId}/password": {
@@ -2507,9 +2173,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       }
     },
     "/admin/users/{userId}/email-change": {
@@ -2521,9 +2185,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       }
     },
     "/admin/users/{userId}/status": {
@@ -2535,9 +2197,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       }
     },
     "/admin/users/{userId}/branches": {
@@ -2549,9 +2209,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       }
     },
     "/admin/users/{userId}/permissions": {
@@ -2563,9 +2221,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       }
     },
     "/admin/users/{userId}/roles": {
@@ -2577,9 +2233,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       }
     },
     "/admin/users/{userId}/roles/{roleId}": {
@@ -2591,9 +2245,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminUser"
-        ]
+        "tags": ["AdminUser"]
       }
     },
     "/admin/customers": {
@@ -2605,9 +2257,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCustomer"
-        ]
+        "tags": ["AdminCustomer"]
       }
     },
     "/admin/customers/{userId}/club": {
@@ -2619,9 +2269,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCustomer"
-        ]
+        "tags": ["AdminCustomer"]
       }
     },
     "/admin/customers/{userId}": {
@@ -2633,9 +2281,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "AdminCustomer"
-        ]
+        "tags": ["AdminCustomer"]
       }
     },
     "/storefront/home": {
@@ -2647,9 +2293,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StorefrontHome"
-        ]
+        "tags": ["StorefrontHome"]
       }
     },
     "/storefront/newsletter": {
@@ -2661,9 +2305,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StorefrontHome"
-        ]
+        "tags": ["StorefrontHome"]
       }
     },
     "/storefront/newsletter/unsubscribe": {
@@ -2675,9 +2317,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StorefrontHome"
-        ]
+        "tags": ["StorefrontHome"]
       }
     },
     "/storefront/content": {
@@ -2689,9 +2329,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StorefrontContent"
-        ]
+        "tags": ["StorefrontContent"]
       }
     },
     "/storefront/content/{slug}": {
@@ -2703,9 +2341,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "StorefrontContent"
-        ]
+        "tags": ["StorefrontContent"]
       }
     },
     "/public/media/products/{file}": {
@@ -2717,9 +2353,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "PublicMedia"
-        ]
+        "tags": ["PublicMedia"]
       }
     },
     "/me/spin": {
@@ -2731,9 +2365,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Spin"
-        ]
+        "tags": ["Spin"]
       },
       "post": {
         "operationId": "SpinController_spin",
@@ -2743,9 +2375,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Spin"
-        ]
+        "tags": ["Spin"]
       }
     },
     "/storefront/tables/{code}": {
@@ -2757,9 +2387,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "DiningTable"
-        ]
+        "tags": ["DiningTable"]
       }
     },
     "/storefront/tables/{code}/scan": {
@@ -2771,9 +2399,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "DiningTable"
-        ]
+        "tags": ["DiningTable"]
       }
     },
     "/me/support/conversations": {
@@ -2785,9 +2411,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "SupportChat"
-        ]
+        "tags": ["SupportChat"]
       },
       "post": {
         "operationId": "SupportChatController_open",
@@ -2797,9 +2421,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "SupportChat"
-        ]
+        "tags": ["SupportChat"]
       }
     },
     "/me/support/conversations/{id}": {
@@ -2811,9 +2433,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "SupportChat"
-        ]
+        "tags": ["SupportChat"]
       }
     },
     "/me/support/conversations/{id}/messages": {
@@ -2825,9 +2445,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "SupportChat"
-        ]
+        "tags": ["SupportChat"]
       }
     }
   },

@@ -101,9 +101,7 @@ function SettingsBody() {
     <ScrollView
       contentContainerStyle={{ padding: space.margin, paddingBottom: insets.bottom + 24, gap: 12 }}
     >
-      <Text style={styles.lead}>
-        Bu tercihler hesabına yazılır ve cihazların arasında taşınır.
-      </Text>
+      <Text style={styles.lead}>Bu tercihler hesabına yazılır ve cihazların arasında taşınır.</Text>
 
       <Section title="Bildirim" hint="Siparişin durumunu nasıl öğrenirsin?">
         <ToggleRow
@@ -258,7 +256,13 @@ const styles = StyleSheet.create({
   copy: { flex: 1, minWidth: 0 },
   linkCopy: { flex: 1, minWidth: 0 },
   label: { fontFamily: fonts.jakartaSemibold, fontSize: 15, color: colors.onSurface },
-  hint: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash, marginTop: 4, lineHeight: 17 },
+  hint: {
+    fontFamily: fonts.jakarta,
+    fontSize: 12,
+    color: colors.ash,
+    marginTop: 4,
+    lineHeight: 17,
+  },
   error: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.error },
   ok: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.ok },
 });

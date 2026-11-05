@@ -18,7 +18,9 @@ function valid(html) {
 
 mkdirSync(OUT, { recursive: true });
 let n = 0;
-for (const slug of readdirSync(EXPORT, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)) {
+for (const slug of readdirSync(EXPORT, { withFileTypes: true })
+  .filter((d) => d.isDirectory())
+  .map((d) => d.name)) {
   const src = join(EXPORT, slug, 'code.html');
   if (!existsSync(src)) continue;
   const html = readFileSync(src, 'utf8');

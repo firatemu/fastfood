@@ -10,7 +10,10 @@ export default function ErrorBoundary({
   reset: () => void;
 }) {
   return (
-    <main className="w-full min-h-screen bg-background flex items-center justify-center px-margin-sm" data-ff-surface="error">
+    <main
+      className="w-full min-h-screen bg-background flex items-center justify-center px-margin-sm"
+      data-ff-surface="error"
+    >
       <div className="max-w-lg rounded-xl bg-surface-container p-space-lg text-center">
         <p className="font-label-sm uppercase text-primary-container">BURGER HOME</p>
         <h1 className="font-headline-md uppercase mt-2">Bir sorun oluştu</h1>
@@ -25,7 +28,10 @@ export default function ErrorBoundary({
           >
             Tekrar dene
           </button>
-          <Link href="/" className="px-space-lg py-3 rounded-lg bg-surface-container-high font-label-lg uppercase">
+          <Link
+            href="/"
+            className="px-space-lg py-3 rounded-lg bg-surface-container-high font-label-lg uppercase"
+          >
             Ana sayfa
           </Link>
         </div>

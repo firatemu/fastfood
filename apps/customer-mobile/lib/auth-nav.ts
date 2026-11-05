@@ -24,14 +24,7 @@ const ALLOWED_EXACT = new Set([
   '/legal/allergens',
 ]);
 
-const ALLOWED_PREFIXES = [
-  '/products/',
-  '/orders/',
-  '/account/',
-  '/(tabs)/',
-  '/table/',
-  '/legal/',
-];
+const ALLOWED_PREFIXES = ['/products/', '/orders/', '/account/', '/(tabs)/', '/table/', '/legal/'];
 
 const BLOCKED_PREFIXES = ['/auth', '/payment/return', '/payment/'];
 

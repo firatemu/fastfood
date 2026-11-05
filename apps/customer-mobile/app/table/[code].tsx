@@ -18,7 +18,9 @@ export default function TableCodeRoute() {
   const raw = Array.isArray(params.code) ? params.code[0] : params.code;
   const code = parseTableCode(raw);
   const [table, setTable] = useState<DiningTable | null>(null);
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'invalid'>(code ? 'loading' : 'invalid');
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'invalid'>(
+    code ? 'loading' : 'invalid',
+  );
   const [error, setError] = useState<string | null>(code ? null : 'Kod geçersiz.');
 
   useEffect(() => {
@@ -34,7 +36,10 @@ export default function TableCodeRoute() {
         setError(null);
       } catch (err) {
         if (!alive) return;
-        if (err instanceof ApiError && (err.status === 404 || err.envelope.error.code === 'NOT_FOUND')) {
+        if (
+          err instanceof ApiError &&
+          (err.status === 404 || err.envelope.error.code === 'NOT_FOUND')
+        ) {
           setStatus('invalid');
           setError('Masa kodu geçersiz veya kullanılamıyor.');
           return;
@@ -60,7 +65,11 @@ export default function TableCodeRoute() {
       ) : null}
       {status === 'error' ? (
         <View style={styles.padded}>
-          <ErrorBlock title="Masa doğrulanamadı" message={error ?? ''} onRetry={() => router.replace(`/table/${code ?? ''}`)} />
+          <ErrorBlock
+            title="Masa doğrulanamadı"
+            message={error ?? ''}
+            onRetry={() => router.replace(`/table/${code ?? ''}`)}
+          />
         </View>
       ) : null}
       {status === 'ready' && table ? (
@@ -71,7 +80,8 @@ export default function TableCodeRoute() {
             <Text style={styles.body}>Kod: {table.publicCode}</Text>
             {!table.isActive ? <Text style={styles.warn}>Bu masa şu an aktif değil.</Text> : null}
             <Text style={styles.body}>
-              Bu bağlam giriş yapmaz. Sipariş teslimat veya gel-al olarak kalır; masa içi sipariş yok.
+              Bu bağlam giriş yapmaz. Sipariş teslimat veya gel-al olarak kalır; masa içi sipariş
+              yok.
             </Text>
             <MustardButton label="Menüye dön" onPress={() => router.replace('/')} />
           </View>
@@ -93,8 +103,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.hairline,
   },
-  kicker: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.mustard, textTransform: 'uppercase' },
-  title: { fontFamily: fonts.anton, fontSize: 32, color: colors.onSurface, textTransform: 'uppercase' },
+  kicker: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    color: colors.mustard,
+    textTransform: 'uppercase',
+  },
+  title: {
+    fontFamily: fonts.anton,
+    fontSize: 32,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
   body: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.ash, lineHeight: 20 },
   warn: { fontFamily: fonts.jakartaBold, fontSize: 13, color: colors.error },
 });

@@ -23,7 +23,10 @@ export function LegalPage() {
   useDeferredLoad(() => {
     void (async () => {
       try {
-        const [content, allergenRows] = await Promise.all([fetchPublishedContent(), fetchAllergens()]);
+        const [content, allergenRows] = await Promise.all([
+          fetchPublishedContent(),
+          fetchAllergens(),
+        ]);
         setDocs(content);
         setAllergens(allergenRows);
         setStatus('ready');
@@ -44,10 +47,18 @@ export function LegalPage() {
 
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'error') {
-    return <ShopError title="Yasal" message={error ?? 'İçerik yüklenemedi.'} onRetry={() => setNonce((n) => n + 1)} />;
+    return (
+      <ShopError
+        title="Yasal"
+        message={error ?? 'İçerik yüklenemedi.'}
+        onRetry={() => setNonce((n) => n + 1)}
+      />
+    );
   }
 
-  const legal = docs.filter((d) => d.kind === 'LEGAL' || d.kind === 'COMPANY' || d.kind === 'ALLERGEN_DISCLAIMER');
+  const legal = docs.filter(
+    (d) => d.kind === 'LEGAL' || d.kind === 'COMPANY' || d.kind === 'ALLERGEN_DISCLAIMER',
+  );
 
   return (
     <main className="w-full pt-20 bg-background min-h-screen" data-ff-surface="legal">
@@ -67,11 +78,15 @@ export function LegalPage() {
                 Yürürlük: {new Date(doc.effectiveAt).toLocaleDateString('tr-TR')}
               </p>
             ) : null}
-            <p className="font-body-md text-on-surface-variant mt-2 whitespace-pre-wrap">{doc.body}</p>
+            <p className="font-body-md text-on-surface-variant mt-2 whitespace-pre-wrap">
+              {doc.body}
+            </p>
             {doc.sections.map((section) => (
               <div key={section.id} className="mt-space-sm">
                 <h3 className="font-headline-sm text-headline-sm">{section.heading}</h3>
-                <p className="font-body-md text-on-surface-variant mt-1 whitespace-pre-wrap">{section.body}</p>
+                <p className="font-body-md text-on-surface-variant mt-1 whitespace-pre-wrap">
+                  {section.body}
+                </p>
               </div>
             ))}
           </article>
@@ -82,7 +97,9 @@ export function LegalPage() {
             {allergens.map((item) => (
               <li key={item.id} className="rounded-lg bg-surface-container-low p-space-sm">
                 <p className="font-label-md uppercase">{item.name}</p>
-                {item.description ? <p className="font-body-sm text-on-surface-variant">{item.description}</p> : null}
+                {item.description ? (
+                  <p className="font-body-sm text-on-surface-variant">{item.description}</p>
+                ) : null}
               </li>
             ))}
           </ul>

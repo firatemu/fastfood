@@ -23,7 +23,10 @@ export function classifyOAuthProvider(input: {
   return 'MOBILE_NATIVE_CONFIG_REQUIRED';
 }
 
-export function oauthUnavailableCopy(readiness: OAuthReadiness, provider: OAuthProviderCode): string {
+export function oauthUnavailableCopy(
+  readiness: OAuthReadiness,
+  provider: OAuthProviderCode,
+): string {
   const name = provider === 'google' ? 'Google' : 'Apple';
   if (readiness === 'CONFIG_READY_BUT_CREDENTIALS_MISSING') {
     return `${name} girişi henüz yapılandırılmadı.`;

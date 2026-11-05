@@ -5,6 +5,7 @@ import { Link } from 'expo-router';
 import type { ReactElement } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { haptic } from '../lib/haptics';
 import { formatTryMinor } from '../lib/money';
 import type { VitrineProduct } from '../lib/schemas';
 import { colors, fonts, hitSlop, minTouch, radius, space } from '../theme';
@@ -30,7 +31,7 @@ export function HomeHeroCard(props: {
           <View style={[styles.image, styles.fallback]} />
         )}
         <LinearGradient
-          colors={['transparent', colors.surface]}
+          colors={['transparent', 'rgba(13, 14, 17, 0.4)', colors.surface]}
           style={StyleSheet.absoluteFill}
         />
         {spec ? (
@@ -50,16 +51,14 @@ export function HomeHeroCard(props: {
       <View style={styles.body}>
         <View style={styles.titleRow}>
           <View style={styles.titleCol}>
-            <Text style={styles.eyebrow}>
-              {props.product.eyebrow ?? 'Ayın Smash Yıldızı'}
-            </Text>
+            <Text style={styles.eyebrow}>{props.product.eyebrow ?? 'Ayın Smash Yıldızı'}</Text>
             <Text style={styles.name}>{props.product.name}</Text>
           </View>
           <Text style={styles.price}>
             {formatTryMinor(props.product.basePriceMinor, props.product.currency)}
           </Text>
         </View>
-        {props.product.heroDescription ?? props.product.description ? (
+        {(props.product.heroDescription ?? props.product.description) ? (
           <Text style={styles.desc} numberOfLines={3}>
             {props.product.heroDescription ?? props.product.description}
           </Text>
@@ -68,7 +67,10 @@ export function HomeHeroCard(props: {
           <Pressable
             accessibilityRole="button"
             disabled={!props.product.isAvailable || props.busy}
-            onPress={props.onAdd}
+            onPress={() => {
+              haptic.medium();
+              props.onAdd?.();
+            }}
             style={({ pressed }) => [
               styles.ctaWrap,
               (pressed || props.busy) && styles.ctaPressed,
@@ -82,17 +84,16 @@ export function HomeHeroCard(props: {
               style={styles.cta}
             >
               <MaterialCommunityIcons name="cart-outline" size={18} color={colors.onMustard} />
-              <Text style={styles.ctaLabel}>
-                {props.busy ? 'Ekleniyor…' : 'Hemen Sepete Ekle'}
-              </Text>
+              <Text style={styles.ctaLabel}>{props.busy ? 'Ekleniyor…' : 'Hemen Sepete Ekle'}</Text>
             </LinearGradient>
           </Pressable>
           <Link href={`/products/${props.product.id}`} asChild>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Burger detay"
+              onPress={() => haptic.light()}
               hitSlop={hitSlop}
-              style={styles.tune}
+              style={({ pressed }) => [styles.tune, pressed && styles.tunePressed]}
             >
               <MaterialCommunityIcons name="tune" size={20} color={colors.onSurface} />
             </Pressable>
@@ -105,13 +106,13 @@ export function HomeHeroCard(props: {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.lg,
+    borderRadius: radius.xxl,
     overflow: 'hidden',
-    backgroundColor: colors.surfaceLow,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.hairline,
+    borderColor: colors.hairlineBright,
   },
-  imageWrap: { height: 220, position: 'relative' },
+  imageWrap: { height: 228, position: 'relative' },
   image: { width: '100%', height: '100%', backgroundColor: colors.surfaceLow },
   fallback: { backgroundColor: colors.surfaceHigh },
   specPill: {
@@ -124,7 +125,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: radius.full,
-    backgroundColor: 'rgba(18,19,22,0.85)',
+    backgroundColor: 'rgba(15, 16, 20, 0.85)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   specText: {
     fontFamily: fonts.jakartaBold,
@@ -179,7 +182,7 @@ const styles = StyleSheet.create({
   },
   ctaRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingTop: 4 },
   ctaWrap: { flex: 1, borderRadius: radius.md, overflow: 'hidden' },
-  ctaPressed: { opacity: 0.85 },
+  ctaPressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
   disabled: { opacity: 0.4 },
   cta: {
     minHeight: minTouch,
@@ -201,7 +204,13 @@ const styles = StyleSheet.create({
     height: minTouch,
     borderRadius: radius.md,
     backgroundColor: colors.surfaceHigh,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  tunePressed: {
+    backgroundColor: colors.surfaceHighest,
+    transform: [{ scale: 0.94 }],
   },
 });

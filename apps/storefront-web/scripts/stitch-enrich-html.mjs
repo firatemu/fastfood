@@ -2,15 +2,17 @@
 /** Inject bridge script + data-ff-* hooks into Stitch export HTML. */
 import * as cheerio from 'cheerio';
 
-const BRIDGE_TAG =
-  '<script src="/stitch-raw/stitch-bridge.js" defer></script>';
+const BRIDGE_TAG = '<script src="/stitch-raw/stitch-bridge.js" defer></script>';
 
 export function enrichStitchHtml(html) {
   const $ = cheerio.load(html, { decodeEntities: false });
 
   $('header button').each((_, el) => {
     const text = $(el).text();
-    if (/sepet/i.test(text) || $(el).find('.material-symbols-outlined').text().includes('shopping_bag')) {
+    if (
+      /sepet/i.test(text) ||
+      $(el).find('.material-symbols-outlined').text().includes('shopping_bag')
+    ) {
       $(el).attr('data-ff-action', 'open-cart');
       if (!$(el).find('[data-ff-cart-count]').length) {
         $(el).append('<span data-ff-cart-count="" class="ml-1"></span>');

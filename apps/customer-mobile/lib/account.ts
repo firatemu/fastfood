@@ -52,7 +52,9 @@ export async function fetchCustomerPreferences(): Promise<CustomerPreference> {
 }
 
 export async function patchCustomerPreferences(
-  patch: Partial<Pick<CustomerPreference, 'marketingOptIn' | 'newsletterOptIn' | 'orderUpdatesOptIn' | 'locale'>>,
+  patch: Partial<
+    Pick<CustomerPreference, 'marketingOptIn' | 'newsletterOptIn' | 'orderUpdatesOptIn' | 'locale'>
+  >,
 ): Promise<CustomerPreference> {
   const res = await getApiClient().request({
     method: 'PATCH',

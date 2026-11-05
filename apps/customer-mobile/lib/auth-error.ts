@@ -16,8 +16,10 @@ export function authErrorMessage(err: unknown): string {
     if (reason === 'PASSWORD_POLICY') return 'Şifre en az 10 karakter olmalı.';
     if (reason === 'OAUTH_UNAVAILABLE') return 'Bu giriş yöntemi henüz yapılandırılmadı.';
     if (err.envelope.error.code === 'RATE_LIMITED') return 'Çok fazla deneme. Lütfen bekleyin.';
-    if (err.envelope.error.code === 'AUTH_INVALID_CREDENTIALS') return 'Giriş bilgileri doğrulanamadı.';
-    if (err.envelope.error.code === 'AUTH_SESSION_EXPIRED') return 'Oturum sona erdi. Yeniden giriş yapın.';
+    if (err.envelope.error.code === 'AUTH_INVALID_CREDENTIALS')
+      return 'Giriş bilgileri doğrulanamadı.';
+    if (err.envelope.error.code === 'AUTH_SESSION_EXPIRED')
+      return 'Oturum sona erdi. Yeniden giriş yapın.';
     if (err.envelope.error.code === 'VALIDATION_ERROR') return 'Girilen bilgiler doğrulanamadı.';
     return err.envelope.error.message;
   }

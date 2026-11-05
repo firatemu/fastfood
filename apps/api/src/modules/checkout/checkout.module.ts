@@ -9,6 +9,7 @@ import { OrderModule } from '../order/order.module.js';
 import { PricingModule } from '../pricing/pricing.module.js';
 import { PromotionModule } from '../promotion/promotion.module.js';
 
+import { CheckoutRepricingService } from './checkout-repricing.service.js';
 import { CheckoutController } from './checkout.controller.js';
 import { CheckoutService } from './checkout.service.js';
 
@@ -24,7 +25,7 @@ import { CheckoutService } from './checkout.service.js';
     forwardRef(() => OrderModule),
   ],
   controllers: [CheckoutController],
-  providers: [CheckoutService],
-  exports: [CheckoutService],
+  providers: [CheckoutService, CheckoutRepricingService],
+  exports: [CheckoutService, CheckoutRepricingService],
 })
 export class CheckoutModule {}

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { isEligibleScheduledInstant, listEligibleSlots } from '../../src/modules/checkout/checkout-slots.js';
+import {
+  isEligibleScheduledInstant,
+  listEligibleSlots,
+} from '../../src/modules/checkout/checkout-slots.js';
 
 const HOURS = [
   { dayOfWeek: 1, opensAt: '09:00', closesAt: '23:00', isClosed: false },

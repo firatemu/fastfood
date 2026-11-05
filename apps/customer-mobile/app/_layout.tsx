@@ -9,6 +9,7 @@ import { useBurgerHomeFonts } from '../components/use-fonts';
 import { getApiClient } from '../lib/api';
 import { configureDiningStore, restoreDiningContext } from '../lib/dining-context';
 import { durableKv, secureKv } from '../lib/native-kv';
+import { registerPushToken } from '../lib/push-token';
 import { authSessionResponseSchema } from '../lib/schemas';
 import {
   configureSessionStores,
@@ -40,12 +41,15 @@ export default function RootLayout() {
       });
       return {
         customerId: res.data.customerId,
-        accessToken: res.data.refreshToken,
+        accessToken: res.data.accessToken,
         refreshToken: res.data.refreshToken,
         refreshExpiresAt: res.data.refreshExpiresAt,
       };
     });
-    void restoreSession().finally(() => setSessionReady(true));
+    void restoreSession().finally(() => {
+      setSessionReady(true);
+      void registerPushToken();
+    });
   }, []);
 
   useEffect(() => {

@@ -43,6 +43,7 @@ export const colors = {
   flame: '#ff5722',
   ember: '#E64A19',
   flameDeep: '#fc5a29',
+  flameGlow: 'rgba(255, 87, 34, 0.25)',
   onFlame: '#3a0d00',
 
   /** Status vocabulary. Its own hues, never the accent. */
@@ -74,10 +75,13 @@ export const colors = {
    * account palette; new code should use the ok/warn/danger/info roles.
    */
   mustardBloom: 'rgba(255,179,0,0.18)',
+  mustardGlowSoft: 'rgba(254, 179, 0, 0.15)',
+  surfaceGlass: 'rgba(25, 26, 31, 0.88)',
   errorContainer: 'rgba(255, 143, 133, 0.12)',
   onErrorContainer: '#ffdad6',
   white: '#ffffff',
   hairline: 'rgba(255,255,255,0.08)',
+  hairlineBright: 'rgba(255,255,255,0.16)',
   scrim: 'rgba(0,0,0,0.72)',
   shadowOverlay: '#000000',
 } as const;
@@ -103,6 +107,10 @@ export const radius = {
   md: 8,
   /** 12px — large surfaces only. */
   lg: 12,
+  /** 16px — modern cards and modals. */
+  xl: 16,
+  /** 24px — bottom sheets and hero cards. */
+  xxl: 24,
   full: 9999,
 } as const;
 
@@ -124,7 +132,12 @@ export const type = {
   headlineXl: { fontFamily: fonts.jakartaBold, fontSize: 20, lineHeight: 28, letterSpacing: -0.2 },
   headlineLg: { fontFamily: fonts.jakartaBold, fontSize: 20, lineHeight: 28, letterSpacing: -0.2 },
   headlineMd: { fontFamily: fonts.jakartaBold, fontSize: 17, lineHeight: 24, letterSpacing: -0.1 },
-  headlineSm: { fontFamily: fonts.jakartaSemibold, fontSize: 15, lineHeight: 22, letterSpacing: -0.1 },
+  headlineSm: {
+    fontFamily: fonts.jakartaSemibold,
+    fontSize: 15,
+    lineHeight: 22,
+    letterSpacing: -0.1,
+  },
 
   bodyLg: { fontFamily: fonts.jakarta, fontSize: 15, lineHeight: 24 },
   bodyMd: { fontFamily: fonts.jakarta, fontSize: 14, lineHeight: 21 },

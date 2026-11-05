@@ -56,7 +56,9 @@ function splitSlots(rawHtml) {
     if (!slotNames.includes(m[1])) slotNames.push(m[1]);
   }
   const parts = rawHtml.split(/<!--\s*stitch-slot:[a-zA-Z0-9_-]+\s*-->/);
-  const markers = [...rawHtml.matchAll(/<!--\s*stitch-slot:([a-zA-Z0-9_-]+)\s*-->/g)].map((x) => x[1]);
+  const markers = [...rawHtml.matchAll(/<!--\s*stitch-slot:([a-zA-Z0-9_-]+)\s*-->/g)].map(
+    (x) => x[1],
+  );
   return { parts, markers, slotNames };
 }
 

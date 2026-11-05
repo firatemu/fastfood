@@ -2,22 +2,22 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useSyncExternalStore, type ReactNode } from 'react';
+import { useEffect, useSyncExternalStore, type ReactNode } from 'react';
 
 import { ADMIN_NAV_SECTIONS, isNavActive } from '../lib/admin-nav';
 import { isOpsShellPath } from '../lib/admin-routes';
-import { clearStaffSession, getStaffAccessToken } from '../lib/api';
+import {
+  clearStaffSession,
+  getStaffAccessToken,
+  restoreStaffSession,
+  subscribeStaffSession,
+} from '../lib/api';
 
 import { BranchProvider } from './ops/branch-context';
 import { OpsShell } from './ops/ops-shell';
 import { OpsSyncProvider } from './ops/ops-sync';
 import { OpsToastProvider } from './ops/ops-toast';
 import { StaffAccessProvider } from './ops/staff-access-context';
-
-function subscribe(onStoreChange: () => void): () => void {
-  window.addEventListener('storage', onStoreChange);
-  return () => window.removeEventListener('storage', onStoreChange);
-}
 
 /**
  * A0 neutral rebuild scaffold.
@@ -29,11 +29,19 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const loggedIn = useSyncExternalStore(
-    subscribe,
+    subscribeStaffSession,
     () => Boolean(getStaffAccessToken()),
     () => false,
   );
   const isLogin = pathname === '/login' || pathname.startsWith('/invite/');
+
+  // The access token lives in memory only (audit P0-3), so a full page load
+  // starts without one. The HttpOnly session cookie still holds the server
+  // session and is exchanged for a new access token here.
+  useEffect(() => {
+    if (isLogin) return;
+    void restoreStaffSession();
+  }, [isLogin]);
 
   // Standalone auth surfaces render outside OpsShell, so they carry no theme
   // attribute of their own. The Navy token layer is scoped to

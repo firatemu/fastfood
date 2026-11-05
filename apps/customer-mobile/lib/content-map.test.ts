@@ -12,13 +12,21 @@ import {
 describe('branchFulfillmentLabel', () => {
   it('reports accepting delivery+pickup', () => {
     expect(
-      branchFulfillmentLabel({ isAcceptingOrders: true, deliveryEnabled: true, pickupEnabled: true }),
+      branchFulfillmentLabel({
+        isAcceptingOrders: true,
+        deliveryEnabled: true,
+        pickupEnabled: true,
+      }),
     ).toBe('Teslimat ve gel-al');
   });
 
   it('reports closed kitchen honestly', () => {
     expect(
-      branchFulfillmentLabel({ isAcceptingOrders: false, deliveryEnabled: true, pickupEnabled: true }),
+      branchFulfillmentLabel({
+        isAcceptingOrders: false,
+        deliveryEnabled: true,
+        pickupEnabled: true,
+      }),
     ).toBe('Şu an sipariş almıyor');
   });
 });
@@ -76,7 +84,9 @@ describe('legalDocuments', () => {
       displayOrder: 0,
     };
     expect(legalDocuments([hikaye, kvkk, company]).map((d) => d.slug)).toEqual(['sirket', 'kvkk']);
-    expect(allergenDisclaimer([{ ...kvkk, kind: 'ALLERGEN_DISCLAIMER', slug: 'alerjen' }])?.slug).toBe('alerjen');
+    expect(
+      allergenDisclaimer([{ ...kvkk, kind: 'ALLERGEN_DISCLAIMER', slug: 'alerjen' }])?.slug,
+    ).toBe('alerjen');
   });
 });
 

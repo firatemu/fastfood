@@ -68,13 +68,17 @@ function dealValue(deal: PublicDeal): { kicker: string; value: string } {
   const min = BigInt(deal.minMerchandiseMinor) > 0n;
   if (deal.kind === 'PERCENT_CART' && pct != null) {
     return {
-      kicker: min ? `Alt Limit: ${formatTryMinor(deal.minMerchandiseMinor, 'TRY')}` : 'Tüm Menülerde',
+      kicker: min
+        ? `Alt Limit: ${formatTryMinor(deal.minMerchandiseMinor, 'TRY')}`
+        : 'Tüm Menülerde',
       value: `%${pct} İNDİRİM`,
     };
   }
   if (deal.kind === 'FIXED_CART_MINOR' && deal.discountMinor) {
     return {
-      kicker: min ? `Alt Limit: ${formatTryMinor(deal.minMerchandiseMinor, 'TRY')}` : 'Sepette anında',
+      kicker: min
+        ? `Alt Limit: ${formatTryMinor(deal.minMerchandiseMinor, 'TRY')}`
+        : 'Sepette anında',
       value: `−${formatTryMinor(deal.discountMinor, 'TRY')} NET`,
     };
   }
@@ -179,7 +183,8 @@ export function DealsPage(): React.ReactElement {
     [deals],
   );
   const comboCount = combo ? 1 : 0;
-  const visibleDeals = filter === 'cart' ? cartDeals : filter === 'takeaway' ? takeawayDeals : deals;
+  const visibleDeals =
+    filter === 'cart' ? cartDeals : filter === 'takeaway' ? takeawayDeals : deals;
   const showCombo = Boolean(combo) && (filter === 'all' || filter === 'combo');
   const showGrid = filter !== 'combo';
   const empty = !showCombo && visibleDeals.length === 0;
@@ -221,9 +226,7 @@ export function DealsPage(): React.ReactElement {
     <main className="w-full pt-20 bg-background min-h-screen" data-ff-surface="deals">
       <div
         className={`fixed bottom-6 right-6 z-50 flex items-center gap-space-sm px-space-md py-3 rounded-lg bg-surface-container-high shadow-xl text-on-surface transition-all duration-300 ${
-          toast
-            ? 'translate-y-0 opacity-100'
-            : 'translate-y-32 opacity-0 pointer-events-none'
+          toast ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'
         }`}
         role="status"
       >
@@ -280,12 +283,7 @@ export function DealsPage(): React.ReactElement {
       </section>
 
       {showCombo && combo ? (
-        <ComboSpotlight
-          combo={combo}
-          now={now}
-          busy={comboBusy}
-          onAdd={() => void addCombo()}
-        />
+        <ComboSpotlight combo={combo} now={now} busy={comboBusy} onAdd={() => void addCombo()} />
       ) : null}
 
       <section className="w-full max-w-7xl mx-auto px-margin-sm lg:px-margin mb-space-xl">
@@ -329,12 +327,7 @@ export function DealsPage(): React.ReactElement {
           >
             {visibleDeals.map((deal) => (
               <li key={deal.id}>
-                <DealCard
-                  deal={deal}
-                  copiedCode={copiedCode}
-                  onCopy={copyCode}
-                  onUse={useCode}
-                />
+                <DealCard deal={deal} copiedCode={copiedCode} onCopy={copyCode} onUse={useCode} />
               </li>
             ))}
           </ul>
@@ -354,8 +347,7 @@ function ComboSpotlight(props: {
 }): React.ReactElement {
   const { combo, now, busy, onAdd } = props;
   const [lead, rest] = splitComboName(combo.name);
-  const remaining =
-    now != null && combo.endsAt ? formatHms(Date.parse(combo.endsAt) - now) : null;
+  const remaining = now != null && combo.endsAt ? formatHms(Date.parse(combo.endsAt) - now) : null;
   const features =
     combo.items.length > 0
       ? combo.items.slice(0, 3).map((item, i) => ({
@@ -416,7 +408,10 @@ function ComboSpotlight(props: {
                   key={feature.title}
                   className="flex items-center gap-2 p-2.5 rounded-lg bg-surface-container"
                 >
-                  <MaterialIcon name={feature.icon} className="text-secondary-container text-base" />
+                  <MaterialIcon
+                    name={feature.icon}
+                    className="text-secondary-container text-base"
+                  />
                   <div className="flex flex-col text-left">
                     <span className="font-label-sm text-label-sm text-on-surface uppercase">
                       {feature.title}
@@ -658,7 +653,9 @@ function HowToStep(props: {
       <div className="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-secondary-container mb-space-sm shadow-md">
         <MaterialIcon name={props.icon} className={`text-2xl ${color}`} />
       </div>
-      <span className={`font-label-sm text-label-sm uppercase tracking-wider font-bold mb-1 ${color}`}>
+      <span
+        className={`font-label-sm text-label-sm uppercase tracking-wider font-bold mb-1 ${color}`}
+      >
         {props.step}
       </span>
       <h3 className="font-headline-sm text-headline-sm text-on-surface uppercase mb-2">

@@ -1,14 +1,34 @@
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { AppState, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  AppState,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { FormField } from '../../components/form-field';
 import { RequireCustomer } from '../../components/require-customer';
 import { StackHeader } from '../../components/stack-header';
-import { EmptyBlock, ErrorBlock, LoadingBlock, MustardButton, SecondaryButton } from '../../components/ui';
+import {
+  EmptyBlock,
+  ErrorBlock,
+  LoadingBlock,
+  MustardButton,
+  SecondaryButton,
+} from '../../components/ui';
 import { formatApiError } from '../../lib/api';
 import { fetchSupport, listSupport, openSupport, sendSupportMessage } from '../../lib/engagement';
-import { clampSupportBody, dedupeSupportMessages, isSystemSender, newClientRequestId } from '../../lib/engagement-map';
+import {
+  clampSupportBody,
+  dedupeSupportMessages,
+  isSystemSender,
+  newClientRequestId,
+} from '../../lib/engagement-map';
 import type { SupportConversation } from '../../lib/schemas';
 import { formatStorefrontDateTime } from '../../lib/tracking-map';
 import { decideSupportPoll } from '../../lib/tracking-poll';
@@ -155,7 +175,10 @@ function SupportBody(props: { orderId?: string }) {
   const messages = dedupeSupportMessages(convo.messages ?? []);
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <ScrollView contentContainerStyle={styles.scroll}>
         <SecondaryButton
           label={historyOpen ? 'Konuşmalarımı kapat' : 'Konuşmalarım'}
@@ -179,10 +202,7 @@ function SupportBody(props: { orderId?: string }) {
                   key={row.id}
                   accessibilityRole="button"
                   onPress={() => void switchTo(row.id)}
-                  style={[
-                    styles.historyRow,
-                    row.id === convo.id ? styles.historyRowActive : null,
-                  ]}
+                  style={[styles.historyRow, row.id === convo.id ? styles.historyRowActive : null]}
                 >
                   <View style={styles.flex}>
                     <Text style={styles.body}>
@@ -243,7 +263,12 @@ const styles = StyleSheet.create({
   bubble: { borderRadius: radius.md, padding: space.md, gap: 4 },
   system: { backgroundColor: colors.surfaceLow },
   mine: { backgroundColor: colors.surfaceHigh },
-  sender: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.mustard, textTransform: 'uppercase' },
+  sender: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    color: colors.mustard,
+    textTransform: 'uppercase',
+  },
   body: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.onSurface, lineHeight: 20 },
   meta: { fontFamily: fonts.jakarta, fontSize: 11, color: colors.ash },
   error: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.error },

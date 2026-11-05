@@ -1,7 +1,10 @@
 /** Client-side OTP resend window. Server remains the authority (OTP_COOLDOWN). */
 export const OTP_RESEND_COOLDOWN_SECONDS = 60;
 
-export function otpResendAvailableAt(sentAtMs: number, cooldownSeconds = OTP_RESEND_COOLDOWN_SECONDS): number {
+export function otpResendAvailableAt(
+  sentAtMs: number,
+  cooldownSeconds = OTP_RESEND_COOLDOWN_SECONDS,
+): number {
   return sentAtMs + cooldownSeconds * 1000;
 }
 

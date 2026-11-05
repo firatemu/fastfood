@@ -21,13 +21,26 @@ apps/api/prisma/generated/
 project-reports/
 .fastfood-controller/
 
+# Agent / IDE tooling configuration. These files are owned by the editor
+# runtime, not by the project source, and are not writable in every
+# environment (read-only mount) — formatting them is out of scope.
+.cursor/
+.claude/
+.impeccable/
+
 # Git-ignored generated output. These are already excluded in .gitignore;
 # Prettier does not read .gitignore, so they must be listed explicitly.
 graft/
 .fastfood-dev/
+/backups/20*/
+/backups/*.dump
+design-references/
 
-# External design source of truth. This is the Stitch-authored design package
-# that ADR-019 made the Admin visual authority; reformatting it would alter the
-# cited source documents.
+# External design source of truth. These are the Stitch-authored design
+# packages that ADR-019 made the Admin visual authority; reformatting them
+# would alter the cited source documents.
 /stitch_fastfood_admin_dashboard_prompts/
+/stitch_burger_e_ticaret_kampanya/
+/stitch_burger_e_ticaret_mobil/
+/stitch_burger_e_ticaret_platformu/
 /apps/*/.stitch/

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { isPaymentTerminalStatus, postPaymentNavigation, shouldPollPayment } from './payment-status';
+import {
+  isPaymentTerminalStatus,
+  postPaymentNavigation,
+  shouldPollPayment,
+} from './payment-status';
 
 describe('isPaymentTerminalStatus', () => {
   it('stops polling after paid, failed, cancelled, or expired', () => {
@@ -20,7 +24,9 @@ describe('shouldPollPayment', () => {
       false,
     );
     expect(shouldPollPayment({ status: 'PAID', appState: 'active', mounted: true })).toBe(false);
-    expect(shouldPollPayment({ status: 'PENDING', appState: 'active', mounted: false })).toBe(false);
+    expect(shouldPollPayment({ status: 'PENDING', appState: 'active', mounted: false })).toBe(
+      false,
+    );
   });
 });
 

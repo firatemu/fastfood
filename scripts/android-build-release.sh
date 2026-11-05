@@ -24,6 +24,7 @@
 # untouched. local.properties is swapped to the Linux SDK and restored on exit,
 # like scripts/android-build.sh.
 set -uo pipefail
+[ -d "$HOME/.volta/bin" ] && export PATH="$HOME/.volta/bin:$PATH"
 
 APP="${1:?usage: android-build-release.sh <customer-mobile|courier-mobile> [apk|aab]}"
 FORMAT="${2:-apk}"

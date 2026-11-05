@@ -37,32 +37,36 @@ export function CartLineCard({
   ).toString();
   const total = lineSubtotalMinor(line.unitPriceMinorSnapshot, line.modifiers, line.quantity);
   const unavailable = line.isAvailable === false;
+  const displayImageUrl =
+    line.imageUrl?.includes('home-classic-burger') || line.productName?.toLowerCase().includes('classic')
+      ? '/storefront/assets/brand/hero-smash-golden.jpg'
+      : line.imageUrl;
 
   if (compact) {
     return (
       <div
-        className="flex flex-col p-space-sm rounded-xl bg-surface-container-low gap-2"
+        className="flex flex-col p-3 rounded-xl bg-white/[0.04] border border-white/10 gap-2"
         data-ff-cart-line={line.id}
       >
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-3 min-w-0">
-            <div className="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden shrink-0">
-              {line.imageUrl ? (
-                <img className="w-full h-full object-cover" alt="" src={line.imageUrl} />
+            <div className="w-12 h-12 rounded-lg bg-neutral-900 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
+              {displayImageUrl ? (
+                <img className="w-full h-full object-cover" alt="" src={displayImageUrl} />
               ) : (
-                <MaterialIcon name="lunch_dining" className="text-on-surface-variant" />
+                <MaterialIcon name="lunch_dining" className="text-amber-400" />
               )}
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="font-label-md text-label-md text-on-surface break-words">
+              <span className="font-label-md text-sm text-white font-semibold break-words">
                 {name}
               </span>
-              <span className="font-body-sm text-xs text-on-surface-variant">
-                Adet: {line.quantity}
+              <span className="font-body-sm text-xs text-neutral-400">
+                Adet: <strong className="text-white font-anton">{line.quantity}</strong>
               </span>
             </div>
           </div>
-          <span className="font-label-md text-label-md text-on-surface shrink-0">
+          <span className="font-anton text-base text-amber-400 shrink-0">
             {formatTryMinor(total, line.currencySnapshot)}
           </span>
         </div>
@@ -72,36 +76,36 @@ export function CartLineCard({
 
   return (
     <div
-      className="group relative bg-surface-container-low hover:bg-surface-container transition-all duration-300 rounded-xl p-space-md flex flex-col sm:flex-row gap-space-md shadow-sm"
+      className="group relative bg-[#12151f]/85 backdrop-blur-xl border border-white/[0.08] hover:border-amber-400/35 transition-all duration-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-5 shadow-xl"
       data-ff-cart-line={line.id}
     >
-      <div className="relative w-full sm:w-32 sm:h-32 h-44 rounded-lg overflow-hidden shrink-0 bg-surface-container-highest">
-        {line.imageUrl ? (
+      <div className="relative w-full sm:w-32 sm:h-32 h-44 rounded-xl overflow-hidden shrink-0 bg-neutral-950/80 border border-white/10 p-2 flex items-center justify-center">
+        {displayImageUrl ? (
           <img
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover rounded-lg transition-transform duration-500 group-hover:scale-105"
             alt=""
-            src={line.imageUrl}
+            src={displayImageUrl}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <MaterialIcon name="lunch_dining" className="text-4xl text-on-surface-variant" />
+            <MaterialIcon name="lunch_dining" className="text-4xl text-amber-400/60" />
           </div>
         )}
         {customized ? (
-          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-primary-container text-on-primary-container font-label-sm text-[10px] uppercase font-bold tracking-wide shadow-md">
+          <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-400 font-label-sm text-[10px] uppercase font-bold tracking-wider backdrop-blur-md shadow-md">
             Özel Seçim
           </span>
         ) : null}
       </div>
       <div className="flex flex-col justify-between flex-1 min-w-0">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <div className="flex items-start justify-between gap-2">
-            <h2 className="font-headline-sm text-headline-sm text-on-surface uppercase tracking-tight truncate">
+            <h2 className="font-anton text-xl md:text-2xl text-white uppercase tracking-wide truncate group-hover:text-amber-400 transition-colors">
               {name}
             </h2>
             {onRemove ? (
               <button
-                className="text-on-surface-variant/60 hover:text-error transition-colors p-1 disabled:opacity-40"
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40 cursor-pointer"
                 title="Ürünü Çıkar"
                 type="button"
                 disabled={busy}
@@ -113,7 +117,7 @@ export function CartLineCard({
             ) : null}
           </div>
           {line.variantName ? (
-            <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-1">
+            <p className="font-body-sm text-sm text-neutral-400 font-medium line-clamp-1">
               {line.variantName}
             </p>
           ) : null}
@@ -122,54 +126,52 @@ export function CartLineCard({
               {line.modifiers.map((mod) => (
                 <span
                   key={mod.modifierId}
-                  className="px-2 py-0.5 rounded bg-surface-container-high text-secondary-container font-label-sm text-[11px] font-medium flex items-center gap-1"
+                  className="px-2.5 py-1 rounded-lg bg-white/[0.05] border border-white/10 text-amber-400 font-label-sm text-xs font-semibold flex items-center gap-1.5"
                 >
-                  <MaterialIcon name="add_circle" className="text-xs" />
-                  {mod.name ?? 'Ekstra'}
-                  {BigInt(mod.priceDeltaMinorSnapshot) > 0n
-                    ? ` (${formatDeltaMinor(mod.priceDeltaMinorSnapshot, line.currencySnapshot)})`
-                    : ''}
+                  <MaterialIcon name="add_circle" className="text-xs text-amber-400" />
+                  <span>{mod.name ?? 'Ekstra'}</span>
+                  {BigInt(mod.priceDeltaMinorSnapshot) > 0n ? (
+                    <span className="text-amber-300 font-anton">
+                      ({formatDeltaMinor(mod.priceDeltaMinorSnapshot, line.currencySnapshot)})
+                    </span>
+                  ) : null}
                 </span>
               ))}
               {line.removals.map((removal) => (
                 <span
                   key={removal.ingredientId}
-                  className="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-[11px] flex items-center gap-1"
+                  className="px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 font-label-sm text-xs flex items-center gap-1.5"
                 >
-                  <MaterialIcon name="remove_circle" className="text-xs text-error" />
-                  {removal.name ?? 'Çıkarma'}
+                  <MaterialIcon name="remove_circle" className="text-xs text-red-400" />
+                  <span>{removal.name ?? 'Çıkarma'}</span>
                 </span>
               ))}
             </div>
           ) : null}
           {unavailable ? (
-            <p className="font-body-sm text-xs text-error">Bu ürün şu an bu şubede yok.</p>
+            <p className="font-body-sm text-xs text-red-400 font-semibold">Bu ürün şu an bu şubede yok.</p>
           ) : null}
         </div>
-        <div className="flex items-center justify-between pt-space-sm mt-space-xs gap-space-sm">
+        <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/[0.06] gap-space-sm">
           <Link
             href={`/products/${line.productId}`}
-            className="font-label-sm text-label-sm text-secondary hover:text-secondary-container transition-colors inline-flex items-center gap-1"
+            className="font-label-sm text-xs text-neutral-400 hover:text-amber-400 transition-colors inline-flex items-center gap-1.5 font-semibold"
           >
-            <MaterialIcon name="tune" className="text-xs" />
-            Özelleştirmeyi Düzenle
+            <MaterialIcon name="tune" className="text-xs text-amber-400" />
+            <span>Özelleştirmeyi Düzenle</span>
           </Link>
-          <div className="flex items-center gap-space-md">
+          <div className="flex items-center gap-4">
             {onQuantity ? (
               <QuantityStepper value={line.quantity} onChange={onQuantity} size="compact" />
             ) : (
-              <span className="font-label-sm text-on-surface-variant">Adet: {line.quantity}</span>
+              <span className="font-label-sm text-neutral-400">Adet: <strong className="text-white font-anton">{line.quantity}</strong></span>
             )}
             <div className="text-right min-w-[70px]">
-              <span
-                className={`font-headline-sm text-headline-sm ${
-                  extrasMinor > 0n ? 'text-secondary-container' : 'text-on-surface'
-                }`}
-              >
+              <span className="font-anton text-2xl text-amber-400 tracking-wide drop-shadow-sm">
                 {formatTryMinor(total, line.currencySnapshot)}
               </span>
               {extrasMinor > 0n ? (
-                <span className="block font-label-sm text-[10px] text-on-surface-variant">
+                <span className="block font-label-sm text-[10px] text-neutral-400">
                   {formatTryMinor(baseTotal, line.currencySnapshot)} +{' '}
                   {formatTryMinor(extrasTotal, line.currencySnapshot)}
                 </span>

@@ -203,11 +203,11 @@ function ShopCartContents() {
       <div className="w-full max-w-7xl mx-auto px-margin-sm lg:px-margin py-space-lg lg:py-space-xl">
         <div className="mb-space-lg">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-md">
-            <div className="flex items-baseline gap-space-sm">
-              <h1 className="font-headline-lg text-headline-lg uppercase text-on-surface tracking-wider">
+            <div className="flex items-center gap-3">
+              <h1 className="font-anton text-3xl md:text-4xl uppercase text-white tracking-wide">
                 SEPETİM
               </h1>
-              <span className="font-label-md text-label-md uppercase text-secondary-container px-2.5 py-1 rounded-full bg-secondary-container/10">
+              <span className="font-anton text-xs uppercase text-amber-400 px-3 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/30 font-bold">
                 {lines.length} Çeşit Lezzet
               </span>
             </div>
@@ -218,36 +218,36 @@ function ShopCartContents() {
               {STEPS.map((step, index) => (
                 <span key={step.n} className="contents">
                   {index > 0 ? (
-                    <span className="text-surface-container-highest shrink-0">/</span>
+                    <span className="text-white/20 shrink-0">/</span>
                   ) : null}
                   {step.href && !step.active ? (
                     <Link
                       href={step.href}
-                      className="flex items-center gap-2 text-on-surface-variant/50 shrink-0"
+                      className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors shrink-0"
                     >
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm">
+                      <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-white/[0.06] border border-white/10 text-neutral-400 font-anton text-sm">
                         {step.n}
                       </span>
-                      <span>{step.label}</span>
+                      <span className="font-label-sm text-xs">{step.label}</span>
                     </Link>
                   ) : (
                     <div
                       className={
                         step.active
-                          ? 'flex items-center gap-2 text-primary-container font-bold shrink-0'
-                          : 'flex items-center gap-2 text-on-surface-variant/50 shrink-0'
+                          ? 'flex items-center gap-2 text-amber-400 font-bold shrink-0'
+                          : 'flex items-center gap-2 text-neutral-500 shrink-0'
                       }
                     >
                       <span
                         className={
                           step.active
-                            ? 'flex items-center justify-center w-6 h-6 rounded-full bg-primary-container text-surface-container-lowest font-label-sm font-black shadow-sm'
-                            : 'flex items-center justify-center w-6 h-6 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm'
+                            ? 'flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 text-neutral-950 font-anton text-sm font-bold shadow-[0_2px_10px_rgba(254,179,0,0.4)]'
+                            : 'flex items-center justify-center w-7 h-7 rounded-lg bg-white/[0.06] border border-white/10 text-neutral-500 font-anton text-sm'
                         }
                       >
                         {step.n}
                       </span>
-                      <span>{step.label}</span>
+                      <span className="font-label-sm text-xs">{step.label}</span>
                     </div>
                   )}
                 </span>
@@ -255,42 +255,42 @@ function ShopCartContents() {
             </nav>
           </div>
           {minOrder > 0n ? (
-            <div className="w-full bg-surface-container-low rounded-xl p-space-md flex flex-col gap-2 relative overflow-hidden shadow-sm">
-              <div className="flex items-center justify-between font-label-sm text-label-sm text-on-surface">
-                <div className="flex items-center gap-2">
+            <div className="w-full bg-[#12151f]/85 border border-white/[0.08] backdrop-blur-xl rounded-2xl p-4 sm:p-5 flex flex-col gap-2.5 shadow-xl relative overflow-hidden">
+              <div className="flex items-center justify-between font-label-sm text-label-sm text-white">
+                <div className="flex items-center gap-2.5">
                   <MaterialIcon
                     name="local_shipping"
-                    className="text-secondary-container text-base animate-pulse"
+                    className="text-amber-400 text-lg animate-pulse"
                   />
-                  <span className="font-body-sm text-body-sm text-on-surface">
+                  <span className="font-body-sm text-sm text-neutral-200">
                     {minRemaining > 0n ? (
                       <>
                         Minimum siparişe{' '}
-                        <strong className="text-secondary-container font-semibold">
+                        <strong className="text-amber-400 font-anton text-base">
                           {formatTryMinor(minRemaining.toString(), currency)}
                         </strong>{' '}
                         kaldı.{' '}
-                        <span className="text-on-surface-variant hidden sm:inline">
+                        <span className="text-neutral-400 hidden sm:inline text-xs">
                           ({formatTryMinor(minOrder.toString(), currency)} ve üzeri)
                         </span>
                       </>
                     ) : (
-                      <>Minimum sipariş tutarına ulaştın.</>
+                      <span className="text-amber-400 font-semibold">Minimum sipariş tutarına ulaştınız.</span>
                     )}
                     {coupon.deliveryWaived ? (
-                      <span className="block sm:inline sm:ml-1 text-on-surface-variant">
+                      <span className="block sm:inline sm:ml-2 text-amber-400/80 text-xs">
                         Teslimat ücreti kuponu checkout’ta uygulanır.
                       </span>
                     ) : null}
                   </span>
                 </div>
-                <span className="font-label-sm text-secondary-container font-bold tracking-wider">
+                <span className="font-anton text-base text-amber-400 tracking-wider">
                   %{minPct}
                 </span>
               </div>
-              <div className="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-white/[0.06] h-2.5 rounded-full overflow-hidden p-0.5 border border-white/[0.05]">
                 <div
-                  className="h-full bg-primary-container rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 rounded-full shadow-[0_0_12px_rgba(254,179,0,0.5)] transition-all duration-500"
                   style={{ width: `${minPct}%` }}
                 />
               </div>
@@ -302,16 +302,16 @@ function ShopCartContents() {
           <div className="lg:col-span-8 flex flex-col gap-space-lg">
             <div className="flex flex-col gap-space-md">
               <div className="flex items-center justify-between pb-space-xs">
-                <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">
+                <span className="font-anton text-lg text-white uppercase tracking-wider">
                   Sipariş Edilen Ürünler
                 </span>
                 <button
-                  className="font-label-sm text-label-sm text-on-surface-variant/70 hover:text-error transition-colors flex items-center gap-1 disabled:opacity-40"
+                  className="font-label-sm text-xs text-neutral-400 hover:text-red-400 transition-colors flex items-center gap-1.5 disabled:opacity-40 cursor-pointer font-medium"
                   type="button"
                   disabled={clearing}
                   onClick={() => void onClear()}
                 >
-                  <MaterialIcon name="delete_sweep" className="text-sm" />
+                  <MaterialIcon name="delete_sweep" className="text-base" />
                   Sepeti Temizle
                 </button>
               </div>
@@ -330,15 +330,15 @@ function ShopCartContents() {
             </div>
 
             {upsells.length > 0 ? (
-              <div className="mt-space-md bg-surface-container-low/60 rounded-2xl p-space-md lg:p-space-lg flex flex-col gap-space-md">
+              <div className="mt-space-md bg-[#12151f]/85 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-5 md:p-6 flex flex-col gap-4 shadow-xl">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <MaterialIcon name="recommend" className="text-secondary-container text-xl" />
-                    <h3 className="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wide">
+                  <div className="flex items-center gap-2.5">
+                    <MaterialIcon name="recommend" className="text-amber-400 text-xl" />
+                    <h3 className="font-anton text-xl text-white uppercase tracking-wide">
                       Burger Yanına Harika Gider
                     </h3>
                   </div>
-                  <span className="font-label-sm text-label-sm text-on-surface-variant hidden sm:inline">
+                  <span className="font-label-sm text-xs text-neutral-400 hidden sm:inline">
                     Tek tıkla sepete ekle
                   </span>
                 </div>
@@ -346,10 +346,10 @@ function ShopCartContents() {
                   {upsells.map((item) => (
                     <div
                       key={item.id}
-                      className="bg-surface-container rounded-xl p-space-sm flex flex-col justify-between hover:bg-surface-container-high transition-all group"
+                      className="bg-neutral-950/70 border border-white/[0.07] hover:border-amber-400/35 rounded-2xl p-3.5 flex flex-col justify-between hover:bg-neutral-900/80 transition-all group shadow-inner"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-surface-container-highest">
+                        <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-neutral-900 border border-white/10 flex items-center justify-center">
                           {item.imageUrl ? (
                             <img
                               src={item.imageUrl}
@@ -359,26 +359,26 @@ function ShopCartContents() {
                           ) : (
                             <MaterialIcon
                               name="lunch_dining"
-                              className="w-full h-full p-3 text-on-surface-variant"
+                              className="text-amber-400/60 text-2xl"
                             />
                           )}
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="font-label-md text-label-md text-on-surface truncate font-bold">
+                          <span className="font-anton text-base text-white truncate font-medium">
                             {item.name}
                           </span>
                           {item.volumeMl || item.weightGrams ? (
-                            <span className="font-label-sm text-[10px] text-on-surface-variant">
+                            <span className="font-label-sm text-[10px] text-neutral-400">
                               {item.volumeMl ? `${item.volumeMl} ml` : `${item.weightGrams} g`}
                             </span>
                           ) : null}
-                          <span className="font-label-md text-label-md text-secondary-container font-semibold mt-0.5">
+                          <span className="font-anton text-base text-amber-400 font-semibold mt-0.5">
                             {formatTryMinor(item.basePriceMinor, item.currency)}
                           </span>
                         </div>
                       </div>
                       <button
-                        className="mt-3 w-full py-1.5 px-space-sm rounded-lg bg-surface-container-highest hover:bg-secondary-container hover:text-on-secondary-container text-on-surface font-label-sm text-label-sm uppercase font-semibold transition-all flex items-center justify-center gap-1 disabled:opacity-40"
+                        className="mt-3 w-full py-2 px-3 rounded-xl bg-amber-500/15 border border-amber-400/30 hover:bg-amber-400 hover:text-neutral-950 text-amber-400 font-anton text-xs tracking-wider uppercase font-bold transition-all flex items-center justify-center gap-1.5 disabled:opacity-40 cursor-pointer"
                         type="button"
                         disabled={busyId === item.id}
                         onClick={() => void onAddUpsell(item.id)}
@@ -392,19 +392,19 @@ function ShopCartContents() {
               </div>
             ) : null}
 
-            <div className="bg-surface-container-low rounded-xl p-space-md flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-on-surface">
-                <MaterialIcon name="notes" className="text-primary text-base" />
+            <div className="bg-[#12151f]/85 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-5 flex flex-col gap-2.5 shadow-xl">
+              <div className="flex items-center gap-2 text-white">
+                <MaterialIcon name="notes" className="text-amber-400 text-base" />
                 <label
                   htmlFor="cart-kitchen-note"
-                  className="font-label-md text-label-md uppercase"
+                  className="font-anton text-sm text-white uppercase tracking-wider"
                 >
                   Mutfak & Kurye Notu Ekle
                 </label>
               </div>
               <input
                 id="cart-kitchen-note"
-                className="w-full px-space-md py-2.5 bg-surface-container rounded-lg text-on-surface placeholder:text-on-surface-variant/50 font-body-sm text-body-sm outline-none focus:bg-surface-container-high focus:ring-1 focus:ring-primary-container transition-colors"
+                className="w-full px-4 py-3 bg-[#0d1017] border border-white/10 rounded-xl text-white placeholder:text-neutral-500 font-body-sm text-sm outline-none focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20 transition-all"
                 placeholder="Örn: Zili çalmayın lütfen, soslar ayrı paketlensin..."
                 value={note}
                 onChange={(event) => {
@@ -412,20 +412,21 @@ function ShopCartContents() {
                   writeCartDeliveryNote(event.target.value);
                 }}
               />
-              <span className="font-label-sm text-[10px] text-on-surface-variant">
+              <span className="font-label-sm text-[11px] text-neutral-400">
                 Checkout adımına taşınır. Fiyatı değiştirmez.
               </span>
             </div>
           </div>
 
           <div className="lg:col-span-4 flex flex-col gap-space-md lg:sticky lg:top-28">
-            <div className="bg-surface-container-low rounded-2xl p-space-lg flex flex-col gap-space-md shadow-xl backdrop-blur-md">
-              <div className="flex items-center justify-between pb-space-xs">
-                <h2 className="font-headline-md text-headline-md text-on-surface uppercase tracking-wider">
+            <div className="bg-[#12151f]/90 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 flex flex-col gap-5 shadow-2xl relative overflow-hidden">
+              <div className="absolute -top-16 -right-16 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                <h2 className="font-anton text-2xl text-white uppercase tracking-wide">
                   SİPARİŞ ÖZETİ
                 </h2>
                 {branch ? (
-                  <span className="font-label-sm text-label-sm text-secondary-container bg-secondary-container/10 px-2 py-0.5 rounded uppercase font-bold">
+                  <span className="font-anton text-xs text-amber-400 bg-amber-500/15 border border-amber-400/30 px-3 py-1 rounded-full uppercase tracking-wider font-bold">
                     {branch.name}
                   </span>
                 ) : null}
@@ -433,26 +434,26 @@ function ShopCartContents() {
 
               {coupon.status === 'valid' && coupon.code ? (
                 <div className="flex flex-col gap-2">
-                  <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                  <span className="font-label-sm text-xs text-neutral-400 uppercase tracking-wider">
                     Promosyon / İndirim Kodu
                   </span>
-                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-surface-container">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.04] border border-white/10">
+                    <div className="flex items-center gap-2.5">
                       <MaterialIcon
                         name="local_activity"
-                        className="text-primary-container text-lg"
+                        className="text-amber-400 text-lg"
                       />
                       <div className="flex flex-col">
-                        <span className="font-label-md text-label-md font-black tracking-wider text-on-surface">
+                        <span className="font-anton text-sm tracking-wider text-white">
                           {coupon.code}
                         </span>
-                        <span className="font-label-sm text-[10px] text-primary-container">
+                        <span className="font-label-sm text-[11px] text-amber-400 font-medium">
                           {coupon.message}
                         </span>
                       </div>
                     </div>
                     <button
-                      className="font-label-sm text-label-sm text-on-surface-variant/60 hover:text-error transition-colors px-2 py-1"
+                      className="font-label-sm text-xs text-neutral-400 hover:text-red-400 transition-colors px-2 py-1 font-semibold cursor-pointer"
                       type="button"
                       onClick={() => coupon.clear()}
                     >
@@ -462,7 +463,7 @@ function ShopCartContents() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
-                  <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                  <span className="font-label-sm text-xs text-neutral-400 uppercase tracking-wider">
                     Promosyon / İndirim Kodu
                   </span>
                   <CouponForm
@@ -476,21 +477,21 @@ function ShopCartContents() {
               )}
 
               {loyaltyPoints && BigInt(loyaltyPoints) > 0n ? (
-                <div className="p-3 rounded-xl bg-surface-container flex flex-col gap-2">
+                <div className="p-3.5 rounded-xl bg-white/[0.04] border border-amber-500/30 flex flex-col gap-2 shadow-inner">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-secondary">
+                    <div className="flex items-center gap-2 text-amber-400">
                       <MaterialIcon name="stars" className="text-base" />
-                      <span className="font-label-sm text-label-sm uppercase font-bold">
+                      <span className="font-anton text-sm uppercase tracking-wide">
                         {LOYALTY_PROGRAM_NAME}
                       </span>
                     </div>
-                    <span className="font-label-sm text-label-sm text-on-surface font-semibold">
+                    <span className="font-anton text-sm text-amber-400 font-bold">
                       {loyaltyPoints} puan
                     </span>
                   </div>
                   <label className="flex items-center gap-2.5 cursor-pointer pt-1">
                     <input
-                      className="w-4 h-4 rounded bg-surface-container-highest text-secondary-container accent-secondary-container cursor-pointer"
+                      className="w-4 h-4 rounded bg-[#0d1017] text-amber-400 accent-amber-400 cursor-pointer"
                       type="checkbox"
                       checked={useLoyalty}
                       onChange={(event) => {
@@ -498,77 +499,77 @@ function ShopCartContents() {
                         writeUseLoyaltyIntent(event.target.checked);
                       }}
                     />
-                    <span className="font-body-sm text-[13px] text-on-surface-variant leading-snug">
+                    <span className="font-body-sm text-[12px] text-neutral-300 leading-snug">
                       Puanı checkout’ta kullanmayı dene. Asıl tutar quote’dur.
                     </span>
                   </label>
                 </div>
               ) : null}
 
-              <div className="flex flex-col gap-2.5 pt-space-xs font-body-sm text-body-sm text-on-surface-variant">
+              <div className="flex flex-col gap-2.5 pt-2 border-t border-white/[0.08] font-body-sm text-body-sm text-neutral-400">
                 <div className="flex justify-between items-center">
                   <span>Ürünler Toplamı ({itemCount} Adet)</span>
-                  <span className="font-label-md text-on-surface font-semibold">
+                  <span className="text-white font-medium">
                     {formatTryMinor(merchandiseMinor, currency)}
                   </span>
                 </div>
                 {BigInt(coupon.discountMinor) > 0n ? (
-                  <div className="flex justify-between items-center text-primary-container">
+                  <div className="flex justify-between items-center text-amber-400 font-bold">
                     <span className="flex items-center gap-1">
                       Kupon İndirimi
                       {coupon.code ? (
-                        <span className="text-[10px] px-1 rounded bg-primary-container/20">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">
                           {coupon.code}
                         </span>
                       ) : null}
                     </span>
-                    <span className="font-label-md font-bold">
+                    <span>
                       -{formatTryMinor(coupon.discountMinor, currency)}
                     </span>
                   </div>
                 ) : null}
                 <div className="flex justify-between items-center">
                   <span>Teslimat Ücreti</span>
-                  <span className="font-label-sm text-secondary-container font-bold uppercase">
+                  <span className="text-amber-400 font-bold uppercase">
                     {coupon.deliveryWaived ? 'ÜCRETSİZ' : 'Ödemede'}
                   </span>
                 </div>
               </div>
 
-              <div className="pt-space-sm flex justify-between items-baseline bg-surface-container-high/40 p-space-md rounded-xl">
+              <div className="pt-2 flex justify-between items-baseline bg-white/[0.04] border border-white/[0.08] p-4 rounded-2xl">
                 <div className="flex flex-col">
-                  <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                  <span className="font-anton text-lg text-white uppercase tracking-wider">
                     Genel Toplam
                   </span>
-                  <span className="font-label-sm text-[10px] text-on-surface-variant/70">
+                  <span className="font-label-sm text-[10px] text-neutral-400">
                     KDV ve Vergiler Dahil · checkout kesinler
                   </span>
                 </div>
-                <span className="font-headline-md text-headline-md text-secondary-container tracking-tight leading-none">
+                <span className="font-anton text-3xl md:text-4xl text-amber-400 tracking-tight leading-none drop-shadow-sm">
                   {formatTryMinor(payable, currency)}
                 </span>
               </div>
 
               <Link
                 href="/checkout"
-                className="w-full py-3 px-space-md rounded-xl bg-secondary-container text-on-secondary-container font-label-lg text-label-lg uppercase tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(254,179,0,0.35)] hover:brightness-110 transition-all group"
+                className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-neutral-950 font-anton text-lg uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_6px_25px_rgba(254,179,0,0.35)] hover:brightness-110 active:scale-95 transition-all group"
                 data-ff-checkout-cta
               >
-                ADRES & ÖDEMEYE GEÇ
+                <span>ADRES & ÖDEMEYE GEÇ</span>
                 <MaterialIcon
                   name="arrow_forward"
-                  className="text-lg group-hover:translate-x-1 transition-transform"
+                  className="text-xl group-hover:translate-x-1 transition-transform"
                 />
               </Link>
 
-              <div className="flex flex-col gap-2 pt-space-xs font-body-sm text-body-sm text-on-surface-variant">
+              <div className="flex flex-col gap-2.5 pt-2 border-t border-white/[0.08] font-body-sm text-xs text-neutral-400">
                 <div className="flex items-center gap-2.5">
                   <MaterialIcon
                     name="local_fire_department"
-                    className="text-secondary-container text-base shrink-0"
+                    className="text-amber-400 text-base shrink-0"
                   />
-                  <span className="text-xs">
-                    <strong className="text-on-surface">Termal Sıcak Kutu Garantisi:</strong> Döküm
+                  <span>
+                    <strong className="text-white">Termal Sıcak Kutu Garantisi:</strong> Döküm
                     ızgara sıcaklığında teslim.
                   </span>
                 </div>
@@ -576,10 +577,10 @@ function ShopCartContents() {
                   <div className="flex items-center gap-2.5">
                     <MaterialIcon
                       name="timer"
-                      className="text-secondary-container text-base shrink-0"
+                      className="text-amber-400 text-base shrink-0"
                     />
-                    <span className="text-xs">
-                      <strong className="text-on-surface">{eta} Ekspres Teslimat:</strong>{' '}
+                    <span>
+                      <strong className="text-white">{eta} Ekspres Teslimat:</strong>{' '}
                       {branch?.name ?? 'Seçili şube'} çevresi.
                     </span>
                   </div>
@@ -587,10 +588,10 @@ function ShopCartContents() {
                 <div className="flex items-center gap-2.5">
                   <MaterialIcon
                     name="shield"
-                    className="text-secondary-container text-base shrink-0"
+                    className="text-amber-400 text-base shrink-0"
                   />
-                  <span className="text-xs">
-                    <strong className="text-on-surface">Güvenli Ödeme:</strong> iyzico 3-D Secure.
+                  <span>
+                    <strong className="text-white">Güvenli Ödeme:</strong> iyzico 3-D Secure.
                     PAN bu sayfada yok.
                   </span>
                 </div>
@@ -598,15 +599,15 @@ function ShopCartContents() {
             </div>
             <Link
               href="/legal#alerjen-rehberi"
-              className="p-space-md rounded-xl bg-surface-container-low/60 flex items-center justify-between text-on-surface-variant hover:text-on-surface transition-colors"
+              className="p-4 rounded-2xl bg-[#12151f]/85 border border-white/[0.08] flex items-center justify-between text-neutral-300 hover:text-white hover:border-amber-400/30 transition-all shadow-md"
             >
               <span className="flex items-center gap-2">
-                <MaterialIcon name="info" className="text-sm" />
-                <span className="font-label-sm text-label-sm uppercase tracking-wider">
+                <MaterialIcon name="info" className="text-amber-400 text-base" />
+                <span className="font-anton text-sm uppercase tracking-wider">
                   Alerjen & Pişirme Bilgilendirmesi
                 </span>
               </span>
-              <MaterialIcon name="chevron_right" className="text-sm" />
+              <MaterialIcon name="chevron_right" className="text-base text-neutral-400" />
             </Link>
           </div>
         </div>

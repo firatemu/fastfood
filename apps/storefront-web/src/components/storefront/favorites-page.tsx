@@ -74,7 +74,9 @@ export function FavoritesPage() {
 
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'error') {
-    return <ShopError title="Favoriler" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />;
+    return (
+      <ShopError title="Favoriler" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />
+    );
   }
 
   const available = favorites.filter((row) => row.product?.isAvailable).length;
@@ -82,40 +84,58 @@ export function FavoritesPage() {
   return (
     <AccountShell
       surface="favorites"
-      eyebrow="Ayrıcalıklar"
-      title="Favoriler"
+      eyebrow="Ayrıcalıklar & Tercihler"
+      title="Favori Lezzetlerim"
       description={
         favorites.length === 0
-          ? 'Beğendiğin ürünleri burada topla.'
-          : `${favorites.length} favori · ${available} tanesi şu an menüde.`
+          ? 'En sevdiğin lezzetleri kalp butonuna dokunarak buraya kaydedebilir, tek tıkla sepete ekleyebilirsin.'
+          : `${favorites.length} kayıtlı favori lezzet · ${available} tanesi şu an şubende siparişe hazır.`
+      }
+      actions={
+        <Link href="/" className="ff-btn ff-btn-primary">
+          <MaterialIcon name="restaurant_menu" />
+          Menüyü İncele
+        </Link>
       }
     >
       {error ? (
-        <div className="ff-notice" data-tone="danger" role="alert">
+        <div className="ff-notice mb-4" data-tone="danger" role="alert">
           <MaterialIcon name="error" />
           <span>{error}</span>
         </div>
       ) : null}
 
-      <section className="ff-section">
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Kayıtlı ürünler</h2>
-          <p className="ff-section-desc">
-            {favorites.length === 0
-              ? 'Listede ürün yok.'
-              : 'Bir ürüne tıklayarak menüdeki sayfasına git.'}
-          </p>
+      <section className="ff-card">
+        <div className="ff-card-header">
+          <div>
+            <h2 className="ff-card-title">
+              <MaterialIcon name="favorite" className="text-primary" />
+              Kayıtlı Favori Ürünlerim
+            </h2>
+            <p className="ff-card-desc">
+              {favorites.length === 0
+                ? 'Henüz favorilerine bir lezzet eklemedin.'
+                : 'Ürünlere dokunarak detay sayfasına gidebilir veya hızlıca sipariş verebilirsin.'}
+            </p>
+          </div>
+          {favorites.length > 0 ? (
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant text-white">
+              {favorites.length} Ürün
+            </span>
+          ) : null}
         </div>
-        <div className="ff-section-body">
+
+        <div>
           {favorites.length === 0 ? (
-            <div className="ff-empty">
+            <div className="ff-empty" data-ff-favorites-empty>
               <MaterialIcon name="favorite_border" />
-              <p className="ff-empty-title">Henüz favori yok</p>
+              <p className="ff-empty-title">Favori listen henüz boş</p>
               <p className="ff-empty-text">
-                Menüde bir ürünü beğendiğinde kalp ikonuyla buraya ekleyebilirsin.
+                Menüdeki nefis burgerler, çıtır atıştırmalıklar ve özel soslar arasında beğendiklerini kalp ikonuna tıklayarak buraya kaydedebilirsin.
               </p>
-              <Link href="/" className="ff-btn ff-btn-outline ff-btn-sm">
-                Menüye git
+              <Link href="/" className="ff-btn ff-btn-primary mt-2">
+                <MaterialIcon name="lunch_dining" />
+                Menüyü Keşfet
               </Link>
             </div>
           ) : (
@@ -136,11 +156,7 @@ export function FavoritesPage() {
   );
 }
 
-function FavoriteTile(props: {
-  favorite: Favorite;
-  busy: boolean;
-  onRemove: () => void;
-}) {
+function FavoriteTile(props: { favorite: Favorite; busy: boolean; onRemove: () => void }) {
   const { favorite } = props;
   const product = favorite.product;
   const href = product?.slug ? `/products/${product.slug}` : `/products/${favorite.productId}`;

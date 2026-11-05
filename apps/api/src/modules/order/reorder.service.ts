@@ -65,7 +65,12 @@ export class ReorderService {
       items.push(await this.restoreLine(cart.id, line));
     }
 
-    const restoredCount = items.filter((item) => item.outcome === 'restored' || item.outcome === 'price_changed' || item.outcome === 'modifier_removed').length;
+    const restoredCount = items.filter(
+      (item) =>
+        item.outcome === 'restored' ||
+        item.outcome === 'price_changed' ||
+        item.outcome === 'modifier_removed',
+    ).length;
     const reviewCount = items.filter(
       (item) => item.outcome === 'price_changed' || item.outcome === 'modifier_removed',
     ).length;
@@ -87,7 +92,10 @@ export class ReorderService {
     };
   }
 
-  private async assertOwnedOrder(orderId: string, principal: { userId?: string; guestSessionId?: string }) {
+  private async assertOwnedOrder(
+    orderId: string,
+    principal: { userId?: string; guestSessionId?: string },
+  ) {
     const order = await this.orders.get(orderId).catch(() => null);
     if (!order) {
       throw new NotFoundException({ code: ErrorCodes.NOT_FOUND, message: 'Order not found.' });

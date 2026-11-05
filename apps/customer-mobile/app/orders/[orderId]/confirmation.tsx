@@ -111,7 +111,9 @@ export default function OrderConfirmationRoute() {
           ))}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Toplam</Text>
-            <Text style={styles.total}>{formatTryMinor(order.finalPayableMinor, order.currency)}</Text>
+            <Text style={styles.total}>
+              {formatTryMinor(order.finalPayableMinor, order.currency)}
+            </Text>
           </View>
           <MustardButton
             label="Siparişi takip et"
@@ -136,12 +138,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.hairline,
   },
-  kicker: { fontFamily: fonts.anton, fontSize: 32, color: colors.onSurface, textTransform: 'uppercase' },
+  kicker: {
+    fontFamily: fonts.anton,
+    fontSize: 32,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
   body: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.ash, lineHeight: 20 },
   strong: { fontFamily: fonts.jakartaBold, fontSize: 16, color: colors.onSurface },
-  meta: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.ash, textTransform: 'uppercase' },
+  meta: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    color: colors.ash,
+    textTransform: 'uppercase',
+  },
   grid: { flexDirection: 'row', gap: 8 },
-  cell: { flex: 1, backgroundColor: colors.surfaceLow, borderRadius: radius.md, padding: space.sm, gap: 4 },
+  cell: {
+    flex: 1,
+    backgroundColor: colors.surfaceLow,
+    borderRadius: radius.md,
+    padding: space.sm,
+    gap: 4,
+  },
   eta: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.mustard },
   totalRow: {
     flexDirection: 'row',
@@ -151,6 +169,11 @@ const styles = StyleSheet.create({
     borderTopColor: colors.hairline,
     paddingTop: space.sm,
   },
-  totalLabel: { fontFamily: fonts.jakartaBold, fontSize: 14, color: colors.onSurface, textTransform: 'uppercase' },
+  totalLabel: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 14,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
   total: { fontFamily: fonts.anton, fontSize: 28, color: colors.mustard },
 });

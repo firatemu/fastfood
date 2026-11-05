@@ -364,9 +364,7 @@ export class AdminBranchController {
   @RequirePermissions('branches.service_areas.write')
   @Post('branches/service-areas/generate-all')
   @HttpCode(201)
-  async generateAllCirclesServiceArea(
-    @Body() body: unknown,
-  ): Promise<unknown> {
+  async generateAllCirclesServiceArea(@Body() body: unknown): Promise<unknown> {
     const schema = z.object({
       radiusKm: z.number().min(1).max(50).optional().default(10),
     });
@@ -452,7 +450,6 @@ export class AdminBranchController {
       throw err;
     }
   }
-
 
   @UseGuards(AuthGuard, AccountStatusGuard, RbacGuard, ResourceScopeGuard)
   @RequirePermissions('branches.write')

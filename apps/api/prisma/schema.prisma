@@ -27,7 +27,7 @@ generator client {
 
 datasource db {
   provider   = "postgresql"
-  extensions = [postgis, uuidOssp(map: "uuid-ossp")]
+  extensions = [postgis, uuidOssp(map: "uuid-ossp"), plpgsql]
 }
 
 // ─── Phase 0 foundation probe (retained for end-to-end pipeline validation) ───
@@ -122,6 +122,14 @@ model User {
   spinPlays                     SpinPlay[]
   supportConversations          SupportConversation[]
   diningTableScans              DiningTableScan[]
+  carts                         Cart[]
+  orders                        Order[]
+  checkoutSessions              CheckoutSession[]
+  loyaltyLedgerEntries          LoyaltyLedgerEntry[]
+  loyaltyReservations           LoyaltyReservation[]
+  auditLogs                     AuditLog[]                   @relation("AuditLogActor")
+  updatedBusinessSettings       BusinessSetting[]           @relation("BusinessSettingUpdatedBy")
+  grantedUserRoles              UserRole[]                  @relation("UserRoleGrantedBy")
 
   @@index([actorType])
   @@index([status])
@@ -323,6 +331,7 @@ model UserRole {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  grantedByUser User? @relation("UserRoleGrantedBy", fields: [grantedByUserId], references: [id], onDelete: SetNull)
 
   @@id([userId, roleId])
   @@index([roleId])
@@ -388,6 +397,7 @@ model Address {
   neighborhoodReference AddressNeighborhood? @relation(fields: [neighborhoodId, districtId], references: [id, districtId], onDelete: Restrict)
 
   @@index([userId])
+  @@index([provinceId, districtId, neighborhoodId])
   @@map("addresses")
 }
 
@@ -455,6 +465,8 @@ model AuditLog {
   userAgent       String?    @map("user_agent") @db.VarChar(512)
   createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
 
+  actorUser User? @relation("AuditLogActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
   @@index([actorUserId])
   @@index([resourceType, resourceId])
   @@index([action])
@@ -516,6 +528,8 @@ model BusinessSetting {
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
   updatedByUserId String?  @map("updated_by_user_id") @db.Uuid
+
+  updatedByUser User? @relation("BusinessSettingUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
 
   @@index([category])
   @@map("business_settings")
@@ -583,6 +597,7 @@ model Product {
   merchandising      ProductMerchandising?
   comboOfferItems    StorefrontComboOfferItem[]
   favorites          CustomerFavorite[]
+  cartLineItems      CartLineItem[]
 
   @@index([categoryId])
   @@index([slug])
@@ -615,6 +630,7 @@ model ProductVariant {
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartLineItems CartLineItem[]
 
   @@index([productId])
   @@map("product_variants")
@@ -645,6 +661,7 @@ model Modifier {
   updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   group ModifierGroup @relation(fields: [modifierGroupId], references: [id], onDelete: Cascade)
+  cartLineModifiers CartLineModifier[]
 
   @@index([modifierGroupId])
   @@map("modifiers")
@@ -672,6 +689,7 @@ model IngredientRemovalOption {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartLineRemovals CartLineRemoval[]
 
   @@index([productId])
   @@map("ingredient_removal_options")
@@ -724,6 +742,8 @@ model Branch {
   userBranchScopes    UserBranchScope[]
   administrator       BranchAdministrator?
   courierAssignments  CourierBranch[]
+  orders              Order[]
+  checkoutSessions    CheckoutSession[]
 
   @@index([code])
   @@map("branches")
@@ -818,7 +838,9 @@ model Cart {
   updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
   expiresAt      DateTime? @map("expires_at") @db.Timestamptz(6)
 
-  lineItems CartLineItem[]
+  lineItems  CartLineItem[]
+  user       User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkoutSessions CheckoutSession[]
 
   @@index([userId])
   @@index([status])
@@ -839,6 +861,8 @@ model CartLineItem {
   updatedAt              DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   cart      Cart               @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product            @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variant   ProductVariant?    @relation(fields: [productVariantId], references: [id], onDelete: SetNull)
   modifiers CartLineModifier[]
   removals  CartLineRemoval[]
 
@@ -855,6 +879,7 @@ model CartLineModifier {
   createdAt               DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   cartLineItem CartLineItem @relation(fields: [cartLineItemId], references: [id], onDelete: Cascade)
+  modifier     Modifier      @relation(fields: [modifierId], references: [id], onDelete: Restrict)
 
   @@unique([cartLineItemId, modifierId])
   @@index([cartLineItemId])
@@ -867,7 +892,8 @@ model CartLineRemoval {
   ingredientId   String   @map("ingredient_id") @db.Uuid
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  cartLineItem CartLineItem @relation(fields: [cartLineItemId], references: [id], onDelete: Cascade)
+  cartLineItem CartLineItem           @relation(fields: [cartLineItemId], references: [id], onDelete: Cascade)
+  ingredient   IngredientRemovalOption @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
 
   @@unique([cartLineItemId, ingredientId])
   @@index([cartLineItemId])
@@ -909,6 +935,15 @@ model CheckoutSession {
   expiresAt             DateTime? @map("expires_at") @db.Timestamptz(6)
 
   paymentAttempts PaymentAttempt[]
+  // The order this session settled into. The link is stored on
+  // `checkout_sessions.order_id`; the reverse direction lives on
+  // `orders.checkout_session_id`.
+  order            Order?             @relation("CheckoutSessionOrder", fields: [orderId], references: [id], onDelete: SetNull)
+  orderSource      Order?             @relation("OrderCheckoutSession")
+  user             User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  cart             Cart?              @relation(fields: [cartId], references: [id], onDelete: SetNull)
+  branch           Branch?            @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  loyaltyReservations LoyaltyReservation[]
 
   @@index([userId])
   @@index([status])
@@ -945,7 +980,7 @@ model PaymentAttempt {
 model Refund {
   id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
   paymentId   String   @map("payment_id") @db.Uuid
-  orderId     String?  @map("order_id") @db.Uuid
+  orderId     String   @map("order_id") @db.Uuid
   amountMinor BigInt   @map("amount_minor") @db.BigInt
   currency    String   @default("TRY") @db.VarChar(3)
   status      String   @default("PENDING") @db.VarChar(32)
@@ -954,6 +989,7 @@ model Refund {
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   payment PaymentAttempt @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  order   Order          @relation(fields: [orderId], references: [id], onDelete: Restrict)
 
   @@index([paymentId])
   @@index([orderId])
@@ -992,6 +1028,10 @@ model LoyaltyLedgerEntry {
   reason          String?  @db.VarChar(255)
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order       Order?               @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  reservation LoyaltyReservation?  @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+
   @@index([userId, createdAt])
   @@index([reservationId])
   @@map("loyalty_ledger_entries")
@@ -1008,6 +1048,10 @@ model LoyaltyReservation {
   updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
   expiresAt         DateTime? @map("expires_at") @db.Timestamptz(6)
 
+  user            User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkoutSession CheckoutSession? @relation(fields: [checkoutSessionId], references: [id], onDelete: SetNull)
+  ledgerEntries   LoyaltyLedgerEntry[]
+
   @@index([userId, status])
   @@index([checkoutSessionId])
   @@map("loyalty_reservations")
@@ -1021,7 +1065,7 @@ model Order {
   userId               String?   @map("user_id") @db.Uuid
   branchId             String?   @map("branch_id") @db.Uuid
   checkoutSessionId    String?   @unique @map("checkout_session_id") @db.Uuid
-  displayNumber        String    @unique @default(dbgenerated("'SP00001'")) @map("display_number") @db.VarChar(16)
+  displayNumber        String    @unique @default(dbgenerated("('SP'::text || lpad((nextval('order_display_number_seq'::regclass))::text, 5, '0'::text))")) @map("display_number") @db.VarChar(16)
   status               String    @default("CREATED") @db.VarChar(32)
   currency             String    @default("TRY") @db.VarChar(3)
   merchandiseNetMinor  BigInt    @default(0) @map("merchandise_net_minor") @db.BigInt
@@ -1044,6 +1088,16 @@ model Order {
   events            OrderEvent[]
   branchAssignments OrderBranchAssignment[]
   pickupTokens      OrderPickupToken[]
+  refunds           Refund[]
+  loyaltyLedgerEntries LoyaltyLedgerEntry[]
+  // The order was created from this checkout session. The link is stored on
+  // `orders.checkout_session_id`; the reverse direction is stored on
+  // `checkout_sessions.order_id` and modelled as its own relation because
+  // both columns carry a real foreign key.
+  checkoutSession   CheckoutSession? @relation("OrderCheckoutSession", fields: [checkoutSessionId], references: [id], onDelete: SetNull)
+  sessionOrder      CheckoutSession? @relation("CheckoutSessionOrder")
+  user              User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  branch            Branch?          @relation(fields: [branchId], references: [id], onDelete: Restrict)
 
   @@index([userId])
   @@index([branchId, status])
@@ -1158,6 +1212,19 @@ model Notification {
   @@index([userId, status])
   @@index([userId, createdAt])
   @@map("notifications")
+}
+
+model CustomerPushToken {
+  id          String   @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  userId      String?  @map("user_id") @db.Uuid
+  token       String   @unique @db.VarChar(255)
+  platform    String   @default("android") @db.VarChar(32)
+  deviceModel String?  @map("device_model") @db.VarChar(128)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("customer_push_tokens")
 }
 
 // ─── Courier / delivery (Phase 8) ───

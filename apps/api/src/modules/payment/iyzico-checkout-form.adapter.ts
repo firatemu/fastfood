@@ -10,6 +10,8 @@ import type {
   PaymentInitializeInput,
   PaymentInitializeResult,
   PaymentPort,
+  PaymentRefundInput,
+  PaymentRefundResult,
   PaymentVerification,
   PaymentVerifyExpectation,
 } from './payment.port.js';
@@ -156,5 +158,35 @@ export class IyzicoCheckoutFormAdapter implements PaymentPort {
       };
     }
     return { status: 'PENDING', payload };
+  }
+
+  /**
+   * Refund dispatch (audit P0-1). iyzico settles the refund on its side; the
+   * application only mirrors the returned status onto the refund record.
+   */
+  async refund(input: PaymentRefundInput): Promise<PaymentRefundResult> {
+    if (input.amountMinor <= 0n) {
+      return { status: 'FAILED', failureCode: 'IYZICO_REFUND_INVALID_AMOUNT' };
+    }
+    if (!input.providerPaymentId) {
+      return { status: 'FAILED', failureCode: 'IYZICO_REFUND_MISSING_PAYMENT_KEY' };
+    }
+    const result = await this.client.refundPayment({
+      conversationId: input.idempotencyKey,
+      paymentKey: input.providerPaymentId,
+      amount: minorToIyzicoPrice(input.amountMinor),
+      currency: input.currency,
+      ip: input.ip?.trim() || FALLBACK_IP,
+    });
+    if (result.status !== 'success') {
+      return {
+        status: 'FAILED',
+        failureCode: result.errorCode ?? 'IYZICO_REFUND_FAILED',
+      };
+    }
+    return {
+      status: 'SUCCEEDED',
+      providerRefundId: result.paymentId ?? result.paymentKey ?? input.providerPaymentId,
+    };
   }
 }

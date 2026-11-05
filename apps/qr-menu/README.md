@@ -20,10 +20,10 @@ checkout, no authentication.
 It reuses the catalog API unchanged. No endpoint, schema or seed change was
 required, because the QR menu needs only data the API already exposes:
 
-| Need                     | Source                                                    |
-| ------------------------ | --------------------------------------------------------- |
-| Categories, names, photos| `GET /storefront/home`                                    |
-| Portions, extras, remove | `GET /storefront/catalog/products/:slug` (per product)    |
+| Need                      | Source                                                 |
+| ------------------------- | ------------------------------------------------------ |
+| Categories, names, photos | `GET /storefront/home`                                 |
+| Portions, extras, remove  | `GET /storefront/catalog/products/:slug` (per product) |
 
 Money uses the canonical `formatTryMinor` / `formatDeltaMinor` from
 `@fastfood/contracts`, so prices read exactly like the Storefront.

@@ -106,7 +106,8 @@ export function createOtpService(store: OtpChallengeStore): OtpService {
     },
 
     async verify(phoneNormalized: string, code: string): Promise<OtpVerifyResult> {
-      const challenge = (await store.get(phoneNormalized)) ?? (await store.consume(phoneNormalized));
+      const challenge =
+        (await store.get(phoneNormalized)) ?? (await store.consume(phoneNormalized));
       if (!challenge) {
         return { ok: false, reason: 'OTP_NOT_FOUND' };
       }
@@ -120,8 +121,7 @@ export function createOtpService(store: OtpChallengeStore): OtpService {
       }
       const expected = Buffer.from(challenge.codeHash, 'hex');
       const actual = Buffer.from(hashOtp(phoneNormalized, code), 'hex');
-      const mismatch =
-        expected.length !== actual.length || !timingSafeEqual(expected, actual);
+      const mismatch = expected.length !== actual.length || !timingSafeEqual(expected, actual);
       if (mismatch) {
         const remaining = challenge.attemptsRemaining - 1;
         if (remaining <= 0) {

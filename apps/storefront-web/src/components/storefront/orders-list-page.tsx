@@ -68,16 +68,19 @@ export function OrdersListPage() {
   }, []);
 
   const reorder = useSubmitLock(
-    useCallback(async (orderId: string) => {
-      if (reorderBusyId) return null;
-      setReorderBusyId(orderId);
-      setReorderNote(null);
-      try {
-        return await reorderOrder(orderId);
-      } finally {
-        setReorderBusyId(null);
-      }
-    }, [reorderBusyId]),
+    useCallback(
+      async (orderId: string) => {
+        if (reorderBusyId) return null;
+        setReorderBusyId(orderId);
+        setReorderNote(null);
+        try {
+          return await reorderOrder(orderId);
+        } finally {
+          setReorderBusyId(null);
+        }
+      },
+      [reorderBusyId],
+    ),
   );
 
   const onReorder = useCallback(
@@ -109,7 +112,9 @@ export function OrdersListPage() {
 
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'error') {
-    return <ShopError title="Siparişler" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />;
+    return (
+      <ShopError title="Siparişler" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />
+    );
   }
 
   const trackingIds = new Set(orders.filter((o) => o.trackerKind === 'progress').map((o) => o.id));
@@ -183,7 +188,9 @@ export function OrdersListPage() {
                             <div className="ff-row-hint">{order.itemSummary}</div>
                           ) : null}
                         </td>
-                        <td style={{ color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap' }}>
+                        <td
+                          style={{ color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap' }}
+                        >
                           {order.createdAt ? formatStorefrontDateTime(order.createdAt) : '—'}
                         </td>
                         <td>{order.branch?.name ?? '—'}</td>
@@ -207,7 +214,10 @@ export function OrdersListPage() {
                             : '—'}
                         </td>
                         <td className="col-actions">
-                          <div className="ff-cluster" style={{ gap: '0.25rem', flexWrap: 'nowrap' }}>
+                          <div
+                            className="ff-cluster"
+                            style={{ gap: '0.25rem', flexWrap: 'nowrap' }}
+                          >
                             <Link
                               href={`/orders/${order.id}`}
                               className="ff-btn ff-btn-outline ff-btn-sm"

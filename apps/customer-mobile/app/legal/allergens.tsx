@@ -21,7 +21,10 @@ export default function AllergenGuideRoute() {
     setStatus('loading');
     void (async () => {
       try {
-        const [rows, docs] = await Promise.all([fetchCatalogAllergens(), fetchPublishedContent().catch(() => [])]);
+        const [rows, docs] = await Promise.all([
+          fetchCatalogAllergens(),
+          fetchPublishedContent().catch(() => []),
+        ]);
         setItems(rows);
         setDisclaimer(allergenDisclaimer(docs));
         setStatus('ready');
@@ -89,7 +92,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.hairline,
   },
-  title: { fontFamily: fonts.jakartaBold, fontSize: 16, color: colors.onSurface, textTransform: 'uppercase' },
-  name: { fontFamily: fonts.jakartaBold, fontSize: 14, color: colors.onSurface, textTransform: 'uppercase' },
+  title: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 16,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
+  name: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 14,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
   body: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.ash, lineHeight: 20 },
 });

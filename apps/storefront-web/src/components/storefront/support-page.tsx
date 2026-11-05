@@ -112,14 +112,11 @@ export function SupportPage() {
   }, []);
 
   const send = useSubmitLock(
-    useCallback(
-      async (conversationId: string, text: string) => {
-        const requestId = `msg-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-        await sendSupportMessage(conversationId, text, requestId);
-        return fetchSupport(conversationId);
-      },
-      [],
-    ),
+    useCallback(async (conversationId: string, text: string) => {
+      const requestId = `msg-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      await sendSupportMessage(conversationId, text, requestId);
+      return fetchSupport(conversationId);
+    }, []),
   );
 
   const submit = useCallback(async () => {
@@ -140,7 +137,9 @@ export function SupportPage() {
 
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'error' || !convo) {
-    return <ShopError title="Destek" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />;
+    return (
+      <ShopError title="Destek" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />
+    );
   }
 
   const messages = convo.messages ?? [];
@@ -149,9 +148,9 @@ export function SupportPage() {
   return (
     <AccountShell
       surface="support"
-      eyebrow="Yardım"
-      title="Canlı destek"
-      description="Siparişinle ilgili bir sorun bildirebilir, durumunu sorabilirsin."
+      eyebrow="Müşteri İletişim Merkezi"
+      title="Canlı Destek & Yardım"
+      description="Siparişinle ilgili soru sorabilir, eksik veya geciken teslimatlar için anında canlı destek ekibimizle görüşebilirsin."
       actions={
         <button
           type="button"
@@ -161,24 +160,29 @@ export function SupportPage() {
           onClick={() => void toggleHistory()}
         >
           <MaterialIcon name="forum" />
-          Konuşmalarım
+          Konuşma Geçmişi
         </button>
       }
     >
       {historyOpen ? (
-        <section className="ff-section" id="support-history">
-          <div className="ff-section-head">
-            <h2 className="ff-section-title">Önceki konuşmalar</h2>
-            <p className="ff-section-desc">
-              {historyLoading ? 'Yükleniyor…' : `${history.length} kayıt`}
-            </p>
+        <section className="ff-card mb-6" id="support-history">
+          <div className="ff-card-header">
+            <div>
+              <h2 className="ff-card-title">
+                <MaterialIcon name="history" />
+                Önceki Konuşmalarım
+              </h2>
+              <p className="ff-card-desc">
+                {historyLoading ? 'Konuşmalar yükleniyor…' : `${history.length} kayıtlı görüşme`}
+              </p>
+            </div>
           </div>
-          <div className="ff-section-body">
+          <div>
             {history.length === 0 && !historyLoading ? (
               <div className="ff-empty">
                 <MaterialIcon name="forum" />
-                <p className="ff-empty-title">Kayıtlı konuşman yok</p>
-                <p className="ff-empty-text">İlk mesajını yazdığında burada listelenir.</p>
+                <p className="ff-empty-title">Kayıtlı görüşmeniz bulunmuyor</p>
+                <p className="ff-empty-text">Yeni bir mesaj yazdığınızda görüşme geçmişiniz burada listelenir.</p>
               </div>
             ) : (
               <div className="ff-rows">
@@ -192,13 +196,16 @@ export function SupportPage() {
                   >
                     <div className="ff-row-key">
                       <div className="ff-row-label">
-                        {row.orderId ? 'Siparişe bağlı konuşma' : 'Genel konuşma'}
+                        {row.orderId ? 'Siparişe Bağlı Destek Talebi' : 'Genel Müşteri Görüşmesi'}
                       </div>
                       <div className="ff-row-hint">{formatWhen(row.createdAt)}</div>
                     </div>
                     <div className="ff-row-actions">
-                      <span className="ff-tag" data-tone={row.status === 'CLOSED' ? undefined : 'ok'}>
-                        {row.status === 'CLOSED' ? 'Kapandı' : 'Açık'}
+                      <span
+                        className="ff-tag"
+                        data-tone={row.status === 'CLOSED' ? undefined : 'ok'}
+                      >
+                        {row.status === 'CLOSED' ? 'Kapatıldı' : 'Aktif'}
                       </span>
                     </div>
                   </button>
@@ -209,86 +216,182 @@ export function SupportPage() {
         </section>
       ) : null}
 
-      <section className="ff-section">
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Konuşma</h2>
-          <p className="ff-section-desc">
-            {convo.orderId
-              ? 'Bu konuşma bir siparişe bağlı.'
-              : `Açıldı: ${formatWhen(convo.createdAt)}`}
-          </p>
-        </div>
-        <div className="ff-section-body">
-          {/* The thread: the page's primary surface, with the composer below. */}
-          <div className="ff-thread ff-scroll" data-ff-support-thread role="log" aria-live="polite">
-            {messages.length === 0 ? (
-              <p className="ff-row-hint" style={{ padding: '1.5rem 0', textAlign: 'center' }}>
-                Henüz mesaj yok. Aşağıdan yazmaya başla.
-              </p>
-            ) : (
-              messages.map((message) => {
-                const mine = message.senderType === 'CUSTOMER';
-                return (
-                  <div
-                    key={message.id}
-                    className="ff-bubble"
-                    data-ff-support-message={message.senderType}
-                    data-own={mine ? 'true' : 'false'}
-                  >
-                    <span className="ff-bubble-meta">
-                      {mine ? 'Sen' : 'Destek'} · {formatWhen(message.createdAt)}
-                    </span>
-                    <p className="ff-bubble-body">{message.body}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Sol 2 Sütun: Sohbet Alanı */}
+        <div className="lg:col-span-2">
+          <div className="ff-card flex flex-col h-[520px]">
+            {/* Destek Başlığı ve Temsilci Durumu */}
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-outline-variant/60">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center font-bold">
+                    <MaterialIcon name="support_agent" />
                   </div>
-                );
-              })
-            )}
-            <div ref={threadEndRef} />
-          </div>
+                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-ok border-2 border-surface-container" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white flex items-center gap-2">
+                    Burger Home Destek
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-ok px-2 py-0.5 rounded-full bg-ok/15">
+                      Çevrimiçi
+                    </span>
+                  </div>
+                  <div className="text-xs text-on-surface-variant">
+                    {convo.orderId ? 'Sipariş destek kanalı' : 'Ortalama yanıt: 1-2 dakika'}
+                  </div>
+                </div>
+              </div>
 
-          {closed ? (
-            <div className="ff-notice" data-tone="warn" style={{ marginTop: '0.875rem' }}>
-              <MaterialIcon name="lock" />
-              <span>Bu konuşma kapatıldı. Yeni bir konuşma açmak için Destek sayfasına dön.</span>
+              <span className="text-xs text-on-surface-variant">
+                {formatWhen(convo.createdAt)}
+              </span>
             </div>
-          ) : (
-            <form
-              className="ff-composer"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void submit();
-              }}
+
+            {/* Mesaj Akışı */}
+            <div
+              className="ff-thread ff-scroll flex-1 rounded-xl bg-surface-container-lowest/80 border border-outline-variant/60 p-4 space-y-3 overflow-y-auto"
+              data-ff-support-thread
+              role="log"
+              aria-live="polite"
             >
-              <label className="ff-field" style={{ flex: 1 }}>
-                <span className="ff-sr-only">Mesajın</span>
+              {messages.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-on-surface-variant">
+                  <MaterialIcon name="chat" className="text-3xl text-secondary mb-2" />
+                  <p className="text-sm font-semibold text-white">Canlı Desteğe Hoş Geldin</p>
+                  <p className="text-xs max-w-sm mt-1">
+                    Siparişin, teslimatın veya menüyle ilgili her türlü konuda sana yardımcı olmak için buradayız.
+                  </p>
+                </div>
+              ) : (
+                messages.map((message) => {
+                  const mine = message.senderType === 'CUSTOMER';
+                  return (
+                    <div
+                      key={message.id}
+                      className={`ff-bubble max-w-[80%] rounded-2xl p-3.5 ${
+                        mine
+                          ? 'ml-auto bg-secondary text-on-secondary-container shadow-md'
+                          : 'mr-auto bg-surface-container-high text-white border border-outline-variant/60'
+                      }`}
+                      data-ff-support-message={message.senderType}
+                      data-own={mine ? 'true' : 'false'}
+                    >
+                      <div className="flex items-center justify-between gap-4 text-[10px] font-bold uppercase tracking-wider opacity-75 mb-1">
+                        <span>{mine ? 'Sen' : 'Destek Temsilcisi'}</span>
+                        <span>{formatWhen(message.createdAt)}</span>
+                      </div>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.body}</p>
+                    </div>
+                  );
+                })
+              )}
+              <div ref={threadEndRef} />
+            </div>
+
+            {/* Hızlı Yardım Butonları */}
+            <div className="flex items-center gap-2 pt-3 overflow-x-auto no-scrollbar">
+              <button
+                type="button"
+                onClick={() => setBody('Siparişim nerede, gecikti mi?')}
+                className="text-xs px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-highest text-white border border-outline-variant/60 whitespace-nowrap transition cursor-pointer"
+              >
+                🛵 Siparişim nerede?
+              </button>
+              <button
+                type="button"
+                onClick={() => setBody('Siparişimde eksik ürün var.')}
+                className="text-xs px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-highest text-white border border-outline-variant/60 whitespace-nowrap transition cursor-pointer"
+              >
+                🍔 Eksik ürün var
+              </button>
+              <button
+                type="button"
+                onClick={() => setBody('Kuryeye teslimat notu iletmek istiyorum.')}
+                className="text-xs px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-highest text-white border border-outline-variant/60 whitespace-nowrap transition cursor-pointer"
+              >
+                📝 Kurye notu
+              </button>
+            </div>
+
+            {/* Mesaj Gönderme Formu */}
+            {closed ? (
+              <div className="ff-notice mt-3" data-tone="warn">
+                <MaterialIcon name="lock" />
+                <span>Bu görüşme kapatıldı. Yeni bir konu için destek menüsünden yeni sohbet açabilirsiniz.</span>
+              </div>
+            ) : (
+              <form
+                className="flex items-center gap-2 mt-3 pt-2 border-t border-outline-variant/40"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void submit();
+                }}
+              >
                 <input
-                  className="ff-input"
+                  className="ff-input flex-1"
+                  placeholder="Mesajınızı buraya yazınız..."
                   value={body}
                   maxLength={2000}
+                  disabled={send.pending}
                   onChange={(event) => setBody(event.target.value)}
-                  placeholder="Mesajın"
                   data-ff-support-input
                 />
-              </label>
-              <button
-                type="submit"
-                className="ff-btn ff-btn-primary"
-                disabled={send.pending || !body.trim()}
-                data-ff-support-send
-              >
-                {send.pending ? 'Gönderiliyor' : 'Gönder'}
-              </button>
-            </form>
-          )}
+                <button
+                  type="submit"
+                  className="ff-btn ff-btn-primary"
+                  disabled={send.pending || !body.trim()}
+                  data-ff-support-send
+                >
+                  <MaterialIcon name="send" />
+                  {send.pending ? 'Gönderiliyor...' : 'Gönder'}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
-      </section>
 
-      {error ? (
-        <div className="ff-notice" data-tone="danger" role="alert">
-          <MaterialIcon name="error" />
-          <span>{error}</span>
+        {/* Sağ Sütun: Destek Bilgileri & Telefon */}
+        <div className="lg:col-span-1 flex flex-col gap-4">
+          <div className="ff-card">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-3">
+              <MaterialIcon name="phone_in_talk" />
+              Müşteri Hizmetleri
+            </h3>
+            <p className="text-xs text-on-surface-variant leading-relaxed mb-4">
+              Acil durumlarda çağrı merkezimizden de bize ulaşabilirsin.
+            </p>
+            <div className="p-3.5 rounded-xl bg-surface-container-lowest/70 border border-outline-variant/60 flex items-center justify-between">
+              <div>
+                <div className="text-[10px] uppercase font-bold text-secondary">Telefon Hattı</div>
+                <div className="text-sm font-bold text-white mt-0.5">0850 308 00 00</div>
+              </div>
+              <a
+                href="tel:08503080000"
+                className="ff-btn ff-btn-outline ff-btn-sm"
+              >
+                Ara
+              </a>
+            </div>
+          </div>
+
+          <div className="ff-card">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
+              <MaterialIcon name="schedule" />
+              Hizmet Saatleri
+            </h3>
+            <div className="text-xs text-on-surface-variant space-y-2 mt-2">
+              <div className="flex justify-between">
+                <span>Hafta İçi:</span>
+                <span className="font-semibold text-white">11:30 - 01:00</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Hafta Sonu:</span>
+                <span className="font-semibold text-white">11:30 - 03:00</span>
+              </div>
+            </div>
+          </div>
         </div>
-      ) : null}
+      </div>
     </AccountShell>
   );
 }

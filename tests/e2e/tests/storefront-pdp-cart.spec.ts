@@ -3,7 +3,7 @@
  */
 import { test, expect } from '@playwright/test';
 
-const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3100);
+const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3110);
 
 test.describe('storefront-web product and cart', () => {
   test.use({ baseURL: `http://localhost:${STOREFRONT_PORT}` });
@@ -14,7 +14,9 @@ test.describe('storefront-web product and cart', () => {
     await expect(card).toBeVisible({ timeout: 15_000 });
     await card.getByRole('link', { name: /özelleştir|boyut|porsiyon/i }).click();
     await expect(page).toHaveURL(/\/products\//);
-    await expect(page.locator('[data-ff-surface="product-detail"]')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-ff-surface="product-detail"]')).toBeVisible({
+      timeout: 15_000,
+    });
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.getByRole('button', { name: /sepete ekle/i })).toBeVisible();
   });
@@ -25,7 +27,9 @@ test.describe('storefront-web product and cart', () => {
     const card = page.locator('[data-ff-product]').first();
     await expect(card).toBeVisible({ timeout: 15_000 });
     await card.getByRole('link', { name: /özelleştir|boyut|porsiyon/i }).click();
-    await expect(page.locator('[data-ff-surface="product-detail"]')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-ff-surface="product-detail"]')).toBeVisible({
+      timeout: 15_000,
+    });
     await page.locator('[data-ff-add-to-cart]').click();
     await expect(page.getByText('Sepete eklendi.')).toBeVisible({ timeout: 10_000 });
     await page.getByRole('link', { name: /sepet/i }).first().click();
@@ -38,7 +42,6 @@ test.describe('storefront-web product and cart', () => {
     await expect(page).toHaveURL(/\/auth/, { timeout: 15_000 });
     await expect(page.locator('[data-ff-surface="auth"]')).toBeVisible();
   });
-
 
   test('header badge revalidates when the cart changes in another tab', async ({ context }) => {
     test.setTimeout(120_000);
@@ -67,7 +70,10 @@ test.describe('storefront-web product and cart', () => {
     const other = await context.newPage();
     await other.goto('/cart');
     await expect(other.locator('[data-ff-cart-line]').first()).toBeVisible({ timeout: 20_000 });
-    await other.getByRole('button', { name: /boşalt|temizle/i }).first().click();
+    await other
+      .getByRole('button', { name: /boşalt|temizle/i })
+      .first()
+      .click();
     await expect(other.getByText('Sepetin boş')).toBeVisible({ timeout: 20_000 });
     await other.close();
 
@@ -82,7 +88,9 @@ test.describe('storefront-web product and cart', () => {
     const card = page.locator('[data-ff-product]').first();
     await expect(card).toBeVisible({ timeout: 15_000 });
     await card.getByRole('link', { name: /özelleştir|boyut|porsiyon/i }).click();
-    await expect(page.locator('[data-ff-surface="product-detail"]')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-ff-surface="product-detail"]')).toBeVisible({
+      timeout: 15_000,
+    });
     const add = page.locator('[data-ff-add-to-cart]');
     if (await add.isEnabled()) {
       await add.click();
@@ -93,7 +101,9 @@ test.describe('storefront-web product and cart', () => {
     for (const width of widths) {
       await page.setViewportSize({ width, height: width >= 768 ? 1080 : 844 });
       await page.goto(pdpUrl);
-      await expect(page.locator('[data-ff-surface="product-detail"]')).toBeVisible({ timeout: 15_000 });
+      await expect(page.locator('[data-ff-surface="product-detail"]')).toBeVisible({
+        timeout: 15_000,
+      });
       await expect(page.locator('[data-ff-add-to-cart]')).toBeVisible();
       await expect(page.locator('[data-ff-shop-state="loading"]')).toHaveCount(0);
       await page.screenshot({

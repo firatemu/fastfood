@@ -1,0 +1,20 @@
+{
+	auto_https off
+	admin off
+}
+
+http://fastfood.localhost {
+	reverse_proxy 127.0.0.1:3110
+}
+
+http://admin.fastfood.localhost {
+	reverse_proxy 127.0.0.1:3101
+}
+
+http://kurye.fastfood.localhost {
+	reverse_proxy 127.0.0.1:3102
+}
+
+http://api.fastfood.localhost {
+	reverse_proxy 127.0.0.1:4000
+}

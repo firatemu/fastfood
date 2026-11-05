@@ -114,7 +114,10 @@ describe('Admin orders list + summary (integration)', () => {
       url: `/api/v1/admin/orders?branchId=${BRANCH}&limit=2`,
     });
     expect(res.statusCode).toBe(200);
-    const body = res.json() as { data: unknown[]; meta: { total: number; nextCursor: string | null } };
+    const body = res.json() as {
+      data: unknown[];
+      meta: { total: number; nextCursor: string | null };
+    };
     expect(body.data.length).toBe(2);
     expect(body.meta.total).toBe(3);
     expect(body.meta.nextCursor).not.toBeNull();
@@ -127,7 +130,12 @@ describe('Admin orders list + summary (integration)', () => {
       url: `/api/v1/admin/orders/summary?branchId=${BRANCH}`,
     });
     expect(res.statusCode).toBe(200);
-    const body = res.json() as { data: { counts: Record<string, number>; kpis: { activeCount: number; grossTodayMinor: string } } };
+    const body = res.json() as {
+      data: {
+        counts: Record<string, number>;
+        kpis: { activeCount: number; grossTodayMinor: string };
+      };
+    };
     expect(body.data.counts.BRANCH_ASSIGNED).toBe(3);
     expect(body.data.kpis.activeCount).toBe(3);
     expect(typeof body.data.kpis.grossTodayMinor).toBe('string');

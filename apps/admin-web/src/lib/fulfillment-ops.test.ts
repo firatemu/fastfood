@@ -258,23 +258,23 @@ describe('checkProfile — create', () => {
 });
 
 describe('checkProfile — edit', () => {
-  it('never validates code or coordinates, because PATCH does not carry them', () => {
+  it('never validates code, because PATCH does not carry it', () => {
     const result = checkProfile(
       draft({ code: '', latitude: '', longitude: '', name: '', address: '' }),
       'edit',
     );
     expect(result.ok).toBe(false);
     expect(result.errors.code).toBeUndefined();
-    expect(result.errors.latitude).toBeUndefined();
-    expect(result.errors.longitude).toBeUndefined();
-    expect(Object.keys(result.errors).sort()).toEqual(['address', 'name']);
+    expect(Object.keys(result.errors).sort()).toEqual(['address', 'latitude', 'longitude', 'name']);
   });
 
-  it('validates a read-only legacy coordinate instead of rejecting it', () => {
-    // Edit renders the stored coordinate read-only; a blank or unparsable one
-    // must not block an edit that does not touch it.
-    expect(checkProfile(draft({ latitude: '', longitude: '' }), 'edit').ok).toBe(true);
-    expect(checkProfile(draft({ latitude: 'n/a', longitude: 'n/a' }), 'edit').ok).toBe(true);
+  it('validates the coordinate pair, because PATCH carries it', () => {
+    // `updateBranchSchema` accepts optional latitude/longitude and the Admin
+    // form sends the pair on save, so the pair must be validated in edit too.
+    expect(checkProfile(draft({ latitude: '', longitude: '' }), 'edit').ok).toBe(false);
+    expect(checkProfile(draft({ latitude: 'n/a', longitude: 'n/a' }), 'edit').ok).toBe(false);
+    expect(checkProfile(draft({ latitude: '91', longitude: '181' }), 'edit').ok).toBe(false);
+    expect(checkProfile(draft({ latitude: '40.5', longitude: '29.1' }), 'edit').ok).toBe(true);
   });
 
   it('still validates everything PATCH does send', () => {

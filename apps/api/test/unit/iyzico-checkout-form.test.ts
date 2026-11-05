@@ -52,6 +52,7 @@ class FakeGatewayPort implements PaymentPort {
   readonly acceptsClientAssertedStatus = false;
   verification: PaymentVerification = { status: 'PENDING' };
   readonly verify = vi.fn(async () => this.verification);
+  readonly refund = vi.fn(async () => ({ status: 'SUCCEEDED' as const, providerRefundId: 'rf-1' }));
 
   async initialize() {
     return {

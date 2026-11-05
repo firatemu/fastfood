@@ -153,9 +153,12 @@ export function AccountUiProvider({ children }: { children: ReactNode }) {
     const id = (toastSeq += 1);
     setToasts((current) => [...current.slice(-2), { id, text, detail, tone }]);
     // Errors linger: they usually need reading, not just noticing.
-    window.setTimeout(() => {
-      setToasts((current) => current.filter((item) => item.id !== id));
-    }, tone === 'danger' ? 7000 : 3600);
+    window.setTimeout(
+      () => {
+        setToasts((current) => current.filter((item) => item.id !== id));
+      },
+      tone === 'danger' ? 7000 : 3600,
+    );
   }, []);
 
   const toast = useMemo<AccountUi['toast']>(
@@ -234,7 +237,8 @@ export function AccountUiProvider({ children }: { children: ReactNode }) {
       const url = new URL(href, window.location.href);
       if (url.origin !== window.location.origin) return;
       // Re-rendering the same route is not leaving.
-      if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+      if (url.pathname === window.location.pathname && url.search === window.location.search)
+        return;
 
       event.preventDefault();
       event.stopPropagation();

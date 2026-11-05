@@ -5,9 +5,7 @@ import { detectImage, isPublicProductMediaKey } from '../../src/modules/storage/
 import { InMemoryObjectStorage } from '../../src/modules/storage/in-memory-object-storage.js';
 import { signS3Request } from '../../src/modules/storage/s3-object-storage.adapter.js';
 
-const PNG = Buffer.from([
-  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x00,
-]);
+const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x00]);
 
 describe('product image upload', () => {
   it('detects PNG magic and public media keys', () => {
@@ -43,7 +41,9 @@ describe('product image upload', () => {
       fileBase64: PNG.toString('base64'),
       altText: 'Burger',
     });
-    expect(created.url).toMatch(/^http:\/\/localhost:4000\/api\/v1\/public\/media\/products\/.+\.png$/);
+    expect(created.url).toMatch(
+      /^http:\/\/localhost:4000\/api\/v1\/public\/media\/products\/.+\.png$/,
+    );
     const listed = await catalog.listProductMedia(product.id);
     expect(listed).toHaveLength(1);
     expect(listed[0]?.altText).toBe('Burger');

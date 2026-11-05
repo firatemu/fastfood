@@ -645,6 +645,8 @@ export default function BranchesPage() {
     ],
     [openEdit],
   );
+  // TanStack returns a stateful table instance that React Compiler intentionally skips memoizing.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: filtered,
     columns,

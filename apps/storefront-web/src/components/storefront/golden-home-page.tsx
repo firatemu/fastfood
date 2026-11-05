@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { addComboItemsToCart, addProductToCart } from '../../lib/storefront/cart';
 
 import { HomeCatalog } from './home-catalog';
+import { HomeClubTeaser } from './home-club-teaser';
 import { HomeCombo } from './home-combo';
 import { HomeHero } from './home-hero';
 import { HomeReviews } from './home-reviews';
@@ -12,7 +13,8 @@ import { HomeEmpty, HomeError, HomeSkeleton } from './home-states';
 import { useStorefrontChrome } from './storefront-chrome';
 
 export function GoldenHomePage() {
-  const { home, status, error, reload, categoryId, setCategoryId, refreshCart } = useStorefrontChrome();
+  const { home, status, error, reload, categoryId, setCategoryId, refreshCart } =
+    useStorefrontChrome();
   const [busyId, setBusyId] = useState<string | null>(null);
 
   async function addProduct(productId: string) {
@@ -62,8 +64,13 @@ export function GoldenHomePage() {
           onAdd={(id: string) => void addProduct(id)}
           busyId={busyId}
         />
+        <HomeClubTeaser />
         {home.combo ? (
-          <HomeCombo combo={home.combo} onAdd={() => void addCombo()} busy={busyId === home.combo.id} />
+          <HomeCombo
+            combo={home.combo}
+            onAdd={() => void addCombo()}
+            busy={busyId === home.combo.id}
+          />
         ) : (
           <section className="w-full max-w-7xl mx-auto px-margin-sm lg:px-margin py-space-xl">
             <div className="rounded-2xl bg-surface-container-low p-space-md text-on-surface-variant">

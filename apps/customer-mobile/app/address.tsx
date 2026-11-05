@@ -79,8 +79,8 @@ export default function AddressServiceabilityRoute(): ReactElement {
       >
         <PageTitle>Teslimat bölgesi</PageTitle>
         <Text style={styles.lede}>
-          Adres kaydı checkout ve hesap adreslerinde yapılır. Bu ekran yalnızca mevcut
-          konumun servis alanına düşüp düşmediğini kontrol eder.
+          Adres kaydı checkout ve hesap adreslerinde yapılır. Bu ekran yalnızca mevcut konumun
+          servis alanına düşüp düşmediğini kontrol eder.
         </Text>
 
         <View style={styles.card}>
@@ -126,15 +126,18 @@ export default function AddressServiceabilityRoute(): ReactElement {
                   size={20}
                   color={result.serviceable ? colors.ok : colors.danger}
                 />
-                <Text style={[styles.verdictText, { color: result.serviceable ? colors.ok : colors.danger }]}>
+                <Text
+                  style={[
+                    styles.verdictText,
+                    { color: result.serviceable ? colors.ok : colors.danger },
+                  ]}
+                >
                   {result.serviceable
                     ? 'Bu konum teslimat alanındadır.'
                     : 'Bu konum şu an servis dışıdır.'}
                 </Text>
               </View>
-              {result.branchId ? (
-                <StatusTag label={result.branchId} tone="info" />
-              ) : null}
+              {result.branchId ? <StatusTag label={result.branchId} tone="info" /> : null}
             </View>
           ) : null}
         </View>
@@ -142,7 +145,10 @@ export default function AddressServiceabilityRoute(): ReactElement {
         <View style={styles.links}>
           <MustardButton label="Checkout" onPress={() => router.push('/checkout')} />
           {session ? (
-            <MustardButton label="Kayıtlı adresler" onPress={() => router.push('/account/addresses')} />
+            <MustardButton
+              label="Kayıtlı adresler"
+              onPress={() => router.push('/account/addresses')}
+            />
           ) : null}
         </View>
       </ScrollView>

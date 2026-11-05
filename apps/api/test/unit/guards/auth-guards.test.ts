@@ -6,7 +6,7 @@
  *   AuthGuard → AccountStatusGuard → RbacGuard → ResourceScopeGuard.
  */
 import { UnauthorizedException, ForbiddenException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { ModuleRef, Reflector } from '@nestjs/core';
 import { describe, expect, it } from 'vitest';
 
 import { CustomerAuthService } from '../../../src/modules/auth/customer/customer-auth.service.js';
@@ -16,6 +16,23 @@ import { RbacGuard } from '../../../src/modules/auth/guards/rbac.guard.js';
 import { ResourceScopeGuard } from '../../../src/modules/auth/guards/resource-scope.guard.js';
 import { ActorType, Permissions } from '@fastfood/domain-types';
 import type { AuthenticatedPrincipal } from '../../../src/modules/auth/guards/authenticated-principal.js';
+
+/**
+ * `AuthGuard` resolves `StaffAuthService` / `CustomerAuthService` through
+ * `ModuleRef` (the canonical DI path documented in the guard). The unit
+ * harness therefore hands it a `ModuleRef` stub instead of the services.
+ */
+function moduleRefWith(customerSessions?: CustomerAuthService): ModuleRef {
+  return {
+    get: <T>(token: unknown): T => {
+      if (token === CustomerAuthService) {
+        if (!customerSessions) throw new Error('CustomerAuthService is not registered');
+        return customerSessions as unknown as T;
+      }
+      throw new Error('service is not registered in this scope');
+    },
+  } as unknown as ModuleRef;
+}
 
 function makeContext(req: Record<string, unknown>): {
   switchToHttp: () => { getRequest: () => Record<string, unknown> };
@@ -65,16 +82,14 @@ describe('Phase 3 canonical guard sequence', () => {
       await expect(guard.canActivate(ctx)).resolves.toBe(true);
     });
     it('does not trust browser-supplied X-User-Id', async () => {
-      const sessions = new CustomerAuthService();
-      const local = new AuthGuard(sessions);
+      const local = new AuthGuard(moduleRefWith());
       const ctx = makeContext({
         headers: { 'x-user-id': '01900000-0000-7000-8000-000000000099' },
       });
       await expect(local.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
     it('does not trust spoofed customer-{uuid}-{ts} bearers', async () => {
-      const sessions = new CustomerAuthService();
-      const local = new AuthGuard(sessions);
+      const local = new AuthGuard(moduleRefWith());
       const ctx = makeContext({
         headers: {
           authorization: 'Bearer customer-01900000-0000-7000-8000-000000000001-1',
@@ -82,17 +97,30 @@ describe('Phase 3 canonical guard sequence', () => {
       });
       await expect(local.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
-    it('accepts a hashed customer refresh session', async () => {
+    it('accepts a customer access token session', async () => {
       const sessions = new CustomerAuthService();
       const phone = '+905551009901';
       await sessions.requestOtp(phone);
       const verified = await sessions.verifyOtp(phone, '000000');
       if (!verified.ok) throw new Error('otp verify failed');
-      const local = new AuthGuard(sessions);
+      const local = new AuthGuard(moduleRefWith(sessions));
+      const ctx = makeContext({
+        headers: { authorization: `Bearer ${verified.accessToken}` },
+      });
+      await expect(local.canActivate(ctx)).resolves.toBe(true);
+    });
+
+    it('rejects the refresh credential used as a bearer', async () => {
+      const sessions = new CustomerAuthService();
+      const phone = '+905551009902';
+      await sessions.requestOtp(phone);
+      const verified = await sessions.verifyOtp(phone, '000000');
+      if (!verified.ok) throw new Error('otp verify failed');
+      const local = new AuthGuard(moduleRefWith(sessions));
       const ctx = makeContext({
         headers: { authorization: `Bearer ${verified.refreshToken}` },
       });
-      await expect(local.canActivate(ctx)).resolves.toBe(true);
+      await expect(local.canActivate(ctx)).rejects.toThrow(UnauthorizedException);
     });
   });
 
@@ -174,8 +202,7 @@ describe('Phase 3 canonical guard sequence', () => {
   });
 
   describe('ResourceScopeGuard', () => {
-    const reflector = new Reflector();
-    const guard = new ResourceScopeGuard(reflector);
+    const guard = new ResourceScopeGuard();
     it('passes through when principal is present (per-resource policies decide)', async () => {
       const ctx = makeContext({
         principal: {
@@ -186,11 +213,11 @@ describe('Phase 3 canonical guard sequence', () => {
           branchIds: new Set<string>(['01900000-0000-7000-8000-aaaaaaaaaaaa']),
         } satisfies AuthenticatedPrincipal,
       });
-      expect(guard.canActivate(ctx)).toBe(true);
+      await expect(guard.canActivate(ctx)).resolves.toBe(true);
     });
     it('rejects when no principal is attached', async () => {
       const ctx = makeContext({});
-      expect(() => guard.canActivate(ctx)).toThrow(ForbiddenException);
+      await expect(guard.canActivate(ctx)).rejects.toThrow(ForbiddenException);
     });
   });
 });

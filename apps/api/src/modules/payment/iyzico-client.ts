@@ -57,6 +57,23 @@ export interface IyzicoCheckoutFormRetrieveResult {
   readonly errorMessage?: string;
 }
 
+export interface IyzicoRefundRequest {
+  readonly conversationId: string;
+  /** The checkout-form token that was stored as `providerPaymentId`. */
+  readonly paymentKey: string;
+  readonly amount: string;
+  readonly currency: string;
+  readonly ip: string;
+}
+
+export interface IyzicoRefundResult {
+  readonly status: string;
+  readonly paymentId?: string;
+  readonly paymentKey?: string;
+  readonly errorCode?: string;
+  readonly errorMessage?: string;
+}
+
 const REQUEST_TIMEOUT_MS = 15_000;
 
 /** `12345n` minor units -> `"123.45"` as iyzico expects. */
@@ -143,6 +160,22 @@ export class IyzicoClient {
       locale: 'tr',
       ...(conversationId ? { conversationId } : {}),
       token,
+    });
+  }
+
+  /**
+   * Refund a checkout-form payment (audit P0-1). iyzico identifies the
+   * original payment by its `paymentKey` (the checkout-form token) and
+   * accepts a partial `amount`.
+   */
+  refundPayment(request: IyzicoRefundRequest): Promise<IyzicoRefundResult> {
+    return this.#post('/payment/iyzipos/refund/auth/ecom', {
+      locale: 'tr',
+      conversationId: request.conversationId,
+      paymentKey: request.paymentKey,
+      amount: request.amount,
+      currency: request.currency,
+      ip: request.ip,
     });
   }
 

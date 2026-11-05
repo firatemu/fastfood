@@ -36,8 +36,8 @@ export default function TableScanRoute() {
       ) : !permission.granted ? (
         <View style={styles.padded}>
           <Text style={styles.body}>
-            Kamera izni yalnızca tarayıcı açıkken istenir. Masa kodunu elle de yazabilirsin. Tarama giriş
-            yapmaz.
+            Kamera izni yalnızca tarayıcı açıkken istenir. Masa kodunu elle de yazabilirsin. Tarama
+            giriş yapmaz.
           </Text>
           {permission.canAskAgain ? (
             <MustardButton label="Kamera izni ver" onPress={() => void requestPermission()} />

@@ -37,8 +37,7 @@ start_bg() {
     fi
   fi
   echo "[$name] starting…"
-  (cd "$ROOT" && "$@") >>"$LOGS/$name.log" 2>&1 &
-  echo $! >"$pidfile"
+  (cd "$ROOT" && setsid nohup "$@" >>"$LOGS/$name.log" 2>&1 < /dev/null & echo $! >"$pidfile")
   echo "[$name] pid $(cat "$pidfile") → $LOGS/$name.log"
 }
 
@@ -64,18 +63,40 @@ if ! port_listen 4000; then
     echo "API failed to become healthy — see $LOGS/api.log" >&2
     exit 1
   }
+  python3 "$ROOT/scripts/upload-menu-images.py" || true
 else
   echo "[api] port 4000 in use — assuming API is up"
+  python3 "$ROOT/scripts/upload-menu-images.py" || true
 fi
 
-if ! port_listen 3100; then
+if ! port_listen 3110; then
   start_bg storefront pnpm --filter @fastfood/storefront-web dev
-  wait_http "http://127.0.0.1:3100/" 60 || {
+  wait_http "http://127.0.0.1:3110/" 60 || {
     echo "Storefront failed — see $LOGS/storefront.log" >&2
     exit 1
   }
 else
-  echo "[storefront] port 3100 in use — skipping"
+  echo "[storefront] port 3110 in use — skipping"
+fi
+
+if ! port_listen 3101; then
+  start_bg admin pnpm --filter @fastfood/admin-web dev
+  wait_http "http://127.0.0.1:3101/" 60 || {
+    echo "Admin failed — see $LOGS/admin.log" >&2
+    exit 1
+  }
+else
+  echo "[admin] port 3101 in use — skipping"
+fi
+
+if ! port_listen 3102; then
+  start_bg courier pnpm --filter @fastfood/courier-web dev
+  wait_http "http://127.0.0.1:3102/" 60 || {
+    echo "Courier failed — see $LOGS/courier.log" >&2
+    exit 1
+  }
+else
+  echo "[courier] port 3102 in use — skipping"
 fi
 
 # Worker: optional; start if not already managed
@@ -91,7 +112,9 @@ cat <<EOF
 
 FASTFOOD local stack is up (persistent until dev:stack:down).
 
-  Storefront:  http://localhost:3100
+  Storefront:  http://fastfood.localhost:3110       (or http://localhost:3110)
+  Admin:       http://admin.fastfood.localhost:3101 (or http://localhost:3101)
+  Courier:     http://kurye.fastfood.localhost:3102 (or http://localhost:3102)
   API:         http://localhost:4000/api/v1
   API health:  http://localhost:4000/health/live
   Postgres:    localhost:5439  (user/db: fastfood)

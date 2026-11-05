@@ -35,9 +35,7 @@ export function HomeReviews({ reviews, averageRatingBps, reviewCount }: HomeRevi
         {rating ? (
           <View style={styles.ratingRow} accessibilityLabel={`Ortalama puan ${rating} / 5`}>
             <Text style={styles.stars}>{starRow(Number(averageRatingBps ?? 0) / 100)}</Text>
-            <Text style={styles.ratingValue}>
-              {rating} / 5.0
-            </Text>
+            <Text style={styles.ratingValue}>{rating} / 5.0</Text>
           </View>
         ) : null}
       </View>

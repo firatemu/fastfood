@@ -73,6 +73,22 @@ export async function markAllNotificationsRead(): Promise<void> {
   });
 }
 
+export async function deleteNotification(id: string): Promise<void> {
+  await getApiClient().request({
+    method: 'DELETE',
+    path: `/me/notifications/${id}`,
+    schema: okResponseSchema,
+  });
+}
+
+export async function clearAllNotifications(): Promise<void> {
+  await getApiClient().request({
+    method: 'DELETE',
+    path: '/me/notifications',
+    schema: okResponseSchema,
+  });
+}
+
 export async function openSupport(orderId?: string): Promise<SupportConversation> {
   const res = await getApiClient().request({
     method: 'POST',

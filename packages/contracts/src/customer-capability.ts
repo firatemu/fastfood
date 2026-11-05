@@ -39,9 +39,7 @@ export const customerCapabilityEntrySchema = z.object({
 
 export type CustomerCapabilityEntry = z.infer<typeof customerCapabilityEntrySchema>;
 
-export const customerCapabilityRegistrySchema = z
-  .array(customerCapabilityEntrySchema)
-  .min(1);
+export const customerCapabilityRegistrySchema = z.array(customerCapabilityEntrySchema).min(1);
 
 export class CustomerCapabilityRegistryError extends Error {
   constructor(message: string) {
@@ -50,10 +48,7 @@ export class CustomerCapabilityRegistryError extends Error {
   }
 }
 
-function assertClientConsistency(
-  entry: CustomerCapabilityEntry,
-  client: 'web' | 'mobile',
-): void {
+function assertClientConsistency(entry: CustomerCapabilityEntry, client: 'web' | 'mobile'): void {
   const impact = client === 'web' ? entry.webImpact : entry.mobileImpact;
   const status = client === 'web' ? entry.webStatus : entry.mobileStatus;
   if (status === 'EXTERNAL_PROVIDER_BLOCKED' && impact === 'NOT_APPLICABLE') {
@@ -63,9 +58,7 @@ function assertClientConsistency(
   }
 }
 
-export function validateCustomerCapabilityRegistry(
-  input: unknown,
-): CustomerCapabilityEntry[] {
+export function validateCustomerCapabilityRegistry(input: unknown): CustomerCapabilityEntry[] {
   const parsed = customerCapabilityRegistrySchema.parse(input);
   const seen = new Set<string>();
   const missing: string[] = [];

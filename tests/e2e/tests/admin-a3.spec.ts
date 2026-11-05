@@ -38,7 +38,9 @@ test.describe('Admin A3 branch/fulfillment contracts', () => {
     expect(avail).toContain('Küresel');
     expect(avail).toContain('Şube müsaitliği');
     expect(avail).not.toContain('bulk');
-    expect(readFileSync(CONTROLLER, 'utf8')).toContain("Get('branches/:branchId/product-availability')");
+    expect(readFileSync(CONTROLLER, 'utf8')).toContain(
+      "Get('branches/:branchId/product-availability')",
+    );
     expect(readFileSync(CONTROLLER, 'utf8')).toContain(
       "Patch('branches/:branchId/product-availability/:productId')",
     );

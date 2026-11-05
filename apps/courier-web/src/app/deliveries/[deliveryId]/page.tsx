@@ -71,7 +71,12 @@ export default function DeliveryDetailPage() {
     }
   }
 
-  if (!delivery && !error) return <div className="empty-panel" role="status">Teslimat yükleniyor…</div>;
+  if (!delivery && !error)
+    return (
+      <div className="empty-panel" role="status">
+        Teslimat yükleniyor…
+      </div>
+    );
   const actionByStatus: Partial<Record<CourierDelivery['status'], readonly [string, string]>> = {
     ASSIGNED: ['pickup', 'Şubeden teslim aldım'],
     PICKED_UP: ['on-the-way', 'Yola çıktım'],
@@ -84,7 +89,9 @@ export default function DeliveryDetailPage() {
 
   return (
     <>
-      <Link className="back-link" href="/deliveries">← Seferlere dön</Link>
+      <Link className="back-link" href="/deliveries">
+        ← Seferlere dön
+      </Link>
       <div className="page-heading detail-heading">
         <div>
           <div className="eyebrow">
@@ -93,7 +100,11 @@ export default function DeliveryDetailPage() {
           <h1>Sefer bilgisi</h1>
           <p>Sadece sana atanmış teslimatın güvenli işlem alanı.</p>
         </div>
-        {delivery && <span className={`status-chip ${delivery.status.toLowerCase()}`}>{labels[delivery.status]}</span>}
+        {delivery && (
+          <span className={`status-chip ${delivery.status.toLowerCase()}`}>
+            {labels[delivery.status]}
+          </span>
+        )}
       </div>
 
       {error && (
@@ -106,17 +117,29 @@ export default function DeliveryDetailPage() {
         <div className="detail-grid">
           <section className="detail-card">
             <div className="card-heading">
-              <div><span className="eyebrow">ALICI</span><h2>{delivery.recipientName || 'Alıcı bilgisi yok'}</h2></div>
+              <div>
+                <span className="eyebrow">ALICI</span>
+                <h2>{delivery.recipientName || 'Alıcı bilgisi yok'}</h2>
+              </div>
               <span className="contact-glyph">◎</span>
             </div>
             <div className="detail-line">
               <span className="detail-icon">⌖</span>
-              <div><small>TESLİMAT ADRESİ</small><b>{delivery.addressLine || 'Adres bilgisi mevcut değil'}</b></div>
+              <div>
+                <small>TESLİMAT ADRESİ</small>
+                <b>{delivery.addressLine || 'Adres bilgisi mevcut değil'}</b>
+              </div>
             </div>
             {delivery.deliveryNote && (
-              <div className="note-box"><span>TESLİMAT NOTU</span><p>{delivery.deliveryNote}</p></div>
+              <div className="note-box">
+                <span>TESLİMAT NOTU</span>
+                <p>{delivery.deliveryNote}</p>
+              </div>
             )}
-            <div className="order-ref"><span>SİPARİŞ REFERANSI</span><b>{delivery.orderId}</b></div>
+            <div className="order-ref">
+              <span>SİPARİŞ REFERANSI</span>
+              <b>{delivery.orderId}</b>
+            </div>
             {currentCourierAssignment && (
               <div className="assignment-ref">
                 <span>SANA ATAMA ZAMANI</span>
@@ -126,8 +149,14 @@ export default function DeliveryDetailPage() {
               </div>
             )}
             <div className="detail-actions">
-              {delivery.recipientPhone && <a className="outline-button" href={`tel:${delivery.recipientPhone}`}>☎ Alıcıyı ara</a>}
-              <button className="outline-button" onClick={() => void openNavigation()}>↗ Haritada aç</button>
+              {delivery.recipientPhone && (
+                <a className="outline-button" href={`tel:${delivery.recipientPhone}`}>
+                  ☎ Alıcıyı ara
+                </a>
+              )}
+              <button className="outline-button" onClick={() => void openNavigation()}>
+                ↗ Haritada aç
+              </button>
             </div>
           </section>
 
@@ -136,11 +165,14 @@ export default function DeliveryDetailPage() {
             <h3>Durum adımları</h3>
             <div className="status-steps">
               {lifecycle.map((status, index) => {
-                const complete = lifecycle.indexOf(delivery.status) >= index && delivery.status !== 'CANCELLED';
+                const complete =
+                  lifecycle.indexOf(delivery.status) >= index && delivery.status !== 'CANCELLED';
                 return (
                   <div className={`status-step ${complete ? 'done' : ''}`} key={status}>
                     <span>{complete ? '✓' : String(index + 1).padStart(2, '0')}</span>
-                    <b>{['Atama alındı', 'Şubeden alındı', 'Yola çıktı', 'Teslim edildi'][index]}</b>
+                    <b>
+                      {['Atama alındı', 'Şubeden alındı', 'Yola çıktı', 'Teslim edildi'][index]}
+                    </b>
                   </div>
                 );
               })}
@@ -154,9 +186,15 @@ export default function DeliveryDetailPage() {
                 {busy ? 'İşleniyor…' : nextAction[1]} <span>→</span>
               </button>
             )}
-            {delivery.status === 'DELIVERED' && <div className="success-banner">✓ Bu teslimat başarıyla tamamlandı.</div>}
-            {delivery.status === 'CANCELLED' && <div className="form-error">Bu teslimat iptal edilmiş.</div>}
-            <p className="security-note">Durum geçişleri sunucu tarafında doğrulanır ve işlem geçmişine kaydedilir.</p>
+            {delivery.status === 'DELIVERED' && (
+              <div className="success-banner">✓ Bu teslimat başarıyla tamamlandı.</div>
+            )}
+            {delivery.status === 'CANCELLED' && (
+              <div className="form-error">Bu teslimat iptal edilmiş.</div>
+            )}
+            <p className="security-note">
+              Durum geçişleri sunucu tarafında doğrulanır ve işlem geçmişine kaydedilir.
+            </p>
           </aside>
         </div>
       )}

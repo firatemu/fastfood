@@ -47,10 +47,18 @@ export function SearchPage() {
 
   if (status === 'loading' && !home) return <ShopSkeleton />;
   if (status === 'error' && !home) {
-    return <ShopError title="Arama" message={error ?? 'Katalog yanıt vermedi.'} onRetry={() => setNonce((n) => n + 1)} />;
+    return (
+      <ShopError
+        title="Arama"
+        message={error ?? 'Katalog yanıt vermedi.'}
+        onRetry={() => setNonce((n) => n + 1)}
+      />
+    );
   }
 
-  const products = (home?.products ?? []).filter((p) => (q ? true : p.isAvailable || !p.isAvailable));
+  const products = (home?.products ?? []).filter((p) =>
+    q ? true : p.isAvailable || !p.isAvailable,
+  );
 
   if (!q) {
     return (
@@ -61,11 +69,22 @@ export function SearchPage() {
             Üst çubuktan burger, sos veya yan ara. Sonuçlar canlı katalogdandır.
           </p>
           {products.length === 0 ? (
-            <ShopEmpty title="Menü boş" message="Şu an listelenecek ürün yok." actionHref="/" actionLabel="Ana sayfa" compact />
+            <ShopEmpty
+              title="Menü boş"
+              message="Şu an listelenecek ürün yok."
+              actionHref="/"
+              actionLabel="Ana sayfa"
+              compact
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg mt-space-lg">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} onAdd={onAdd} busy={busyId === product.id} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAdd={onAdd}
+                  busy={busyId === product.id}
+                />
               ))}
             </div>
           )}
@@ -103,7 +122,12 @@ export function SearchPage() {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg mt-space-lg">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} onAdd={onAdd} busy={busyId === product.id} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAdd={onAdd}
+              busy={busyId === product.id}
+            />
           ))}
         </div>
       </div>

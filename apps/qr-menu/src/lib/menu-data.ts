@@ -140,7 +140,9 @@ function toQrMenuProduct(
     .sort((a, b) => a.displayOrder - b.displayOrder)
     .map(toVariant);
 
-  const primaryMedia = [...(detail?.media ?? [])].sort((a, b) => a.displayOrder - b.displayOrder)[0];
+  const primaryMedia = [...(detail?.media ?? [])].sort(
+    (a, b) => a.displayOrder - b.displayOrder,
+  )[0];
 
   const bounds = resolvePriceBounds(
     home.basePriceMinor,
@@ -172,9 +174,7 @@ export async function getQrMenuData(): Promise<QrMenuData> {
 
   const details = await Promise.allSettled(
     home.products.map((product) =>
-      apiGet<RawProductDetail>(
-        `/storefront/catalog/products/${encodeURIComponent(product.slug)}`,
-      ),
+      apiGet<RawProductDetail>(`/storefront/catalog/products/${encodeURIComponent(product.slug)}`),
     ),
   );
 

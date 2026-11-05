@@ -44,7 +44,11 @@ export default function RootLayout() {
           <Stack.Screen name="history" options={{ title: 'Geçmiş' }} />
         </Stack>
       ) : (
-        <View style={styles.boot} accessibilityRole="progressbar" accessibilityLabel="Kurye alanı hazırlanıyor">
+        <View
+          style={styles.boot}
+          accessibilityRole="progressbar"
+          accessibilityLabel="Kurye alanı hazırlanıyor"
+        >
           <ActivityIndicator color={theme.tokens.actionPrimaryBackground} />
         </View>
       )}

@@ -173,9 +173,12 @@ describe('AdminBranchController generateCircleServiceArea', () => {
     const catalogService = new CatalogService();
     const controller = new AdminBranchController(branchService, catalogService);
 
-    const result = (await controller.generateCircleServiceArea('01900000-0000-7000-8000-999999999999', {
-      radiusKm: 10,
-    })) as {
+    const result = (await controller.generateCircleServiceArea(
+      '01900000-0000-7000-8000-999999999999',
+      {
+        radiusKm: 10,
+      },
+    )) as {
       error?: { code: string };
     };
     expect(result.error?.code).toBe('NOT_FOUND');
@@ -281,4 +284,3 @@ describe('BranchController getServiceability', () => {
     expect(res.data.branches).toEqual([]);
   });
 });
-

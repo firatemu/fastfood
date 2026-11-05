@@ -132,8 +132,14 @@ export function AccountAddressesPage() {
   }, [load]);
 
   useEffect(() => {
-    if (!form.provinceId) return;
+    if (!form.provinceId) {
+      setDistricts([]);
+      setDistrictsLoading(false);
+      return;
+    }
     let active = true;
+    setDistrictsLoading(true);
+    setDistricts([]);
     void listAddressDistricts(Number(form.provinceId)).then(
       (options) => {
         if (active) {
@@ -154,8 +160,14 @@ export function AccountAddressesPage() {
   }, [form.provinceId, geoToken]);
 
   useEffect(() => {
-    if (!form.districtId) return;
+    if (!form.districtId) {
+      setNeighborhoods([]);
+      setNeighborhoodsLoading(false);
+      return;
+    }
     let active = true;
+    setNeighborhoodsLoading(true);
+    setNeighborhoods([]);
     void listAddressNeighborhoods(Number(form.districtId)).then(
       (options) => {
         if (active) {
@@ -191,6 +203,11 @@ export function AccountAddressesPage() {
 
   function openComposer() {
     resetComposer();
+    if (provinces.length === 0) {
+      void listAddressProvinces()
+        .then(setProvinces)
+        .catch((err) => setError(errorMessage(err)));
+    }
     setGeoToken((token) => token + 1);
     setComposerOpen(true);
   }
@@ -209,6 +226,11 @@ export function AccountAddressesPage() {
     setDevicePoint(null);
     setLocationError(null);
     setError(null);
+    if (provinces.length === 0) {
+      void listAddressProvinces()
+        .then(setProvinces)
+        .catch((err) => setError(errorMessage(err)));
+    }
     setGeoToken((token) => token + 1);
     setComposerOpen(true);
   }
@@ -372,7 +394,9 @@ export function AccountAddressesPage() {
 
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'error' && addresses.length === 0) {
-    return <ShopError title="Adresler" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />;
+    return (
+      <ShopError title="Adresler" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />
+    );
   }
 
   const active =
@@ -394,42 +418,63 @@ export function AccountAddressesPage() {
     <>
       <AccountShell
         surface="account-addresses"
-        eyebrow="Hesap · Adresler"
-        title="Adres defteri"
-        description="Kurye nereye bıraksın? Kayıtlı teslimat noktaların burada. Bir adresi seç, haritada gör."
+        eyebrow="Hesap · Adres Defteri"
+        title="Kayıtlı Adresler"
+        description="Siparişlerinin hızlı ve sorunsuz teslim edilmesi için ev, iş veya diğer adreslerini buradan ekleyebilir ve yönetebilirsin."
         actions={
-          <button type="button" onClick={openComposer} className="ff-btn ff-btn-primary" data-ff-new-address>
+          <button
+            type="button"
+            onClick={openComposer}
+            className="ff-btn ff-btn-primary"
+            data-ff-new-address
+          >
             <MaterialIcon name="add_location_alt" />
-            Yeni adres ekle
+            Yeni Adres Ekle
           </button>
         }
       >
         {error ? (
-          <div className="ff-notice" data-tone="danger" role="alert">
+          <div className="ff-notice mb-4" data-tone="danger" role="alert">
             <MaterialIcon name="error" />
             <span>{error}</span>
           </div>
         ) : null}
 
-        <section className="ff-section">
-          <div className="ff-section-head">
-            <h2 className="ff-section-title">Kayıtlı adresler</h2>
-            <p className="ff-section-desc">
-              {addresses.length > 0
-                ? `${addresses.length} adres kayıtlı. Seçtiğin adres haritada işaretlenir.`
-                : 'Henüz adres kaydın yok.'}
-            </p>
+        <section className="ff-card">
+          <div className="ff-card-header">
+            <div>
+              <h2 className="ff-card-title">
+                <MaterialIcon name="location_on" />
+                Teslimat Noktalarım
+              </h2>
+              <p className="ff-card-desc">
+                {addresses.length > 0
+                  ? `${addresses.length} kayıtlı teslimat adresi. Seçilen adres harita üzerinde gösterilir.`
+                  : 'Henüz kayıtlı bir teslimat adresi bulunmuyor.'}
+              </p>
+            </div>
+            {addresses.length > 0 ? (
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant text-white">
+                {addresses.length} Adres
+              </span>
+            ) : null}
           </div>
-          <div className="ff-section-body">
+
+          <div>
             {addresses.length === 0 ? (
               <div className="ff-empty">
                 <MaterialIcon name="add_location_alt" />
-                <p className="ff-empty-title">Henüz adres yok</p>
+                <p className="ff-empty-title">Henüz kayıtlı adresin yok</p>
                 <p className="ff-empty-text">
-                  İlk teslimat noktanı haritadan işaretle, kurye tam kapına gelsin.
+                  İlk teslimat noktanı harita ve adres bilgileriyle ekle, kurye sıcacık burgerini kapına getirsin.
                 </p>
-                <button type="button" onClick={openComposer} className="ff-btn ff-btn-outline ff-btn-sm">
-                  Yeni adres ekle
+                <button
+                  type="button"
+                  onClick={openComposer}
+                  className="ff-btn ff-btn-primary mt-2"
+                >
+                  <MaterialIcon name="add" />
+                  Yeni Adres Ekle
                 </button>
               </div>
             ) : (
@@ -458,7 +503,9 @@ export function AccountAddressesPage() {
                     <AddressRow
                       key={address.id}
                       address={address}
-                      note={serviceNote[address.id] ?? { tone: 'unknown', label: 'Kontrol edilemedi' }}
+                      note={
+                        serviceNote[address.id] ?? { tone: 'unknown', label: 'Kontrol edilemedi' }
+                      }
                       selected={active?.id === address.id}
                       busy={busyId === address.id}
                       onSelect={() => setSelectedId(address.id)}
@@ -476,7 +523,6 @@ export function AccountAddressesPage() {
                       active ? { latitude: active.latitude, longitude: active.longitude } : null
                     }
                   />
-
                 </div>
               </div>
             )}

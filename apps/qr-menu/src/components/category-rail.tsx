@@ -76,7 +76,10 @@ export function CategoryRail({ categories, activeCategoryId, onSelect }: Categor
     const max = rail.scrollWidth - rail.clientWidth;
     const page = Math.max(240, rail.clientWidth * 0.75);
     // Clamp so the last press lands exactly on the end instead of overshooting.
-    const target = direction === 'right' ? Math.min(rail.scrollLeft + page, max) : Math.max(rail.scrollLeft - page, 0);
+    const target =
+      direction === 'right'
+        ? Math.min(rail.scrollLeft + page, max)
+        : Math.max(rail.scrollLeft - page, 0);
     rail.scrollTo({ left: target, behavior: 'smooth' });
   };
 

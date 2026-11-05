@@ -25,7 +25,7 @@ export function reconcileCategoryRail(
   hasActiveFilter: boolean,
 ): Category[] {
   if (!hasActiveFilter) {
-    return incoming.length > 0 ? [...incoming] : (previous ? [...previous] : []);
+    return incoming.length > 0 ? [...incoming] : previous ? [...previous] : [];
   }
   // While filtering, keep the previously captured full rail unless the server
   // somehow sent a strictly larger one.

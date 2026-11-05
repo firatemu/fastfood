@@ -215,11 +215,7 @@ export default function DeliveryDetailScreen() {
           </Card>
 
           <Card title="Teslimat akışı" subtitle="Durum adımları" theme={theme}>
-            <Stepper
-              steps={[...LIFECYCLE_STEP_LABELS]}
-              current={stepIndex}
-              theme={theme}
-            />
+            <Stepper steps={[...LIFECYCLE_STEP_LABELS]} current={stepIndex} theme={theme} />
             {action ? (
               <View style={styles.actionBlock}>
                 <Button
@@ -258,7 +254,12 @@ export default function DeliveryDetailScreen() {
                   Alıcıyı ara
                 </Button>
               ) : null}
-              <Button theme={theme} variant="secondary" loading={busy} onPress={() => void openMaps()}>
+              <Button
+                theme={theme}
+                variant="secondary"
+                loading={busy}
+                onPress={() => void openMaps()}
+              >
                 Haritada aç
               </Button>
             </View>
@@ -280,7 +281,12 @@ export default function DeliveryDetailScreen() {
                 onChangeText={setLng}
                 keyboardType="numeric"
               />
-              <Button theme={theme} variant="save" loading={busy} onPress={() => void postLocation()}>
+              <Button
+                theme={theme}
+                variant="save"
+                loading={busy}
+                onPress={() => void postLocation()}
+              >
                 Konumu gönder
               </Button>
             </View>

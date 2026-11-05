@@ -76,9 +76,9 @@ describe('modifier selection', () => {
 
   it('names incomplete required groups for the customer', () => {
     expect(incompleteRequiredGroupNames(groups, {}, [], null)).toEqual(['Köfte']);
-    expect(incompleteRequiredGroupNames(groups, { g1: ['m1'] }, [{ id: 'v1' }, { id: 'v2' }], null)).toEqual([
-      'Boy / varyant',
-    ]);
+    expect(
+      incompleteRequiredGroupNames(groups, { g1: ['m1'] }, [{ id: 'v1' }, { id: 'v2' }], null),
+    ).toEqual(['Boy / varyant']);
   });
 
   it('uses variant price as the configured base before modifier deltas', () => {

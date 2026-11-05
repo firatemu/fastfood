@@ -139,7 +139,9 @@ export function AccountSecurityPage() {
   );
 
   const confirmDeletion = useCallback(async () => {
-    if (!window.confirm('Hesabın kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?')) {
+    if (
+      !window.confirm('Hesabın kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam edilsin mi?')
+    ) {
       return;
     }
     setDeleteError(null);
@@ -154,7 +156,9 @@ export function AccountSecurityPage() {
 
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'error') {
-    return <ShopError title="Güvenlik" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />;
+    return (
+      <ShopError title="Güvenlik" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />
+    );
   }
 
   const posture = securityPosture(identities);
@@ -163,50 +167,21 @@ export function AccountSecurityPage() {
   return (
     <AccountShell
       surface="account-security"
-      eyebrow="Hesap · Güvenlik"
-      title="Güvenlik"
-      description="Parolan, doğrulama kanıtların ve bu hesaba bağlı olduğun kimlik sağlayıcıları."
+      eyebrow="Hesap Güvenliği"
+      title="Güvenlik & Giriş"
+      description="Hesap şifreni güncelleyebilir, doğrulama durumunu inceleyebilir ve güvenlik tercihlerini yönetebilirsin."
     >
-      <section className="ff-section" data-ff-security-posture={posture.level}>
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Güvenlik durumu</h2>
-          <p className="ff-section-desc">{posture.summary}</p>
-        </div>
-        <div className="ff-section-body">
-          <div className="ff-rows">
-            {posture.checks.map((check) => (
-              <div className="ff-row" key={check.id} style={{ alignItems: 'center' }}>
-                <div className="ff-row-key">
-                  <div className="ff-row-label">{check.label}</div>
-                  <div className="ff-row-hint">{check.satisfied ? check.doneHint : check.hint}</div>
-                </div>
-                <div className="ff-row-actions">
-                  {!check.satisfied && check.id === 'email' ? (
-                    <button
-                      type="button"
-                      className="ff-btn ff-btn-outline ff-btn-sm"
-                      disabled={sendVerification.pending}
-                      onClick={() => void verifyEmail()}
-                    >
-                      <MaterialIcon name="mark_email_read" />
-                      {sendVerification.pending ? 'Gönderiliyor' : 'Doğrulama gönder'}
-                    </button>
-                  ) : null}
-                  {!check.satisfied && check.id === 'phone' ? (
-                    <span className="ff-row-hint">Kayıt ekranından tamamlanır</span>
-                  ) : null}
-                  <span
-                    className="ff-tag"
-                    data-tone={check.satisfied ? 'ok' : 'warn'}
-                  >
-                    {check.satisfied ? 'Tamam' : 'Bekliyor'}
-                  </span>
-                </div>
-              </div>
-            ))}
+      {/* 1. Güvenlik Durumu Özeti */}
+      <section className="ff-card mb-6" data-ff-security-posture={posture.level}>
+        <div className="ff-card-header">
+          <div>
+            <h2 className="ff-card-title">
+              <MaterialIcon name="shield" />
+              Hesap Güvenlik Durumu
+            </h2>
+            <p className="ff-card-desc">{posture.summary}</p>
           </div>
-
-          <div className="ff-cluster" style={{ marginTop: '0.75rem' }}>
+          <div className="flex items-center gap-3">
             <span
               className="ff-segments"
               role="img"
@@ -216,31 +191,79 @@ export function AccountSecurityPage() {
                 <span key={check.id} data-on={check.satisfied ? 'true' : 'false'} />
               ))}
             </span>
-            <span className="ff-row-hint">
-              {posture.headline} · {posture.score}/{posture.total}
+            <span className="text-xs font-bold text-white px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant">
+              {posture.score}/{posture.total} Adım
             </span>
           </div>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {posture.checks.map((check) => (
+            <div
+              key={check.id}
+              className="p-4 rounded-xl bg-surface-container-lowest/70 border border-outline-variant/60 flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-bold text-white">{check.label}</span>
+                  <span className="ff-tag" data-tone={check.satisfied ? 'ok' : 'warn'}>
+                    {check.satisfied ? 'Doğrulandı' : 'Bekliyor'}
+                  </span>
+                </div>
+                <p className="text-xs text-on-surface-variant leading-relaxed">
+                  {check.satisfied ? check.doneHint : check.hint}
+                </p>
+              </div>
+
+              {!check.satisfied && check.id === 'email' ? (
+                <button
+                  type="button"
+                  className="ff-btn ff-btn-outline ff-btn-sm mt-3 w-full"
+                  disabled={sendVerification.pending}
+                  onClick={() => void verifyEmail()}
+                >
+                  <MaterialIcon name="mark_email_read" />
+                  {sendVerification.pending ? 'Gönderiliyor...' : 'Doğrulama E-postası Gönder'}
+                </button>
+              ) : null}
+
+              {!check.satisfied && check.id === 'phone' ? (
+                <div className="text-xs text-on-surface-variant mt-3 italic">
+                  Giriş / Kayıt ekranından doğrulanır
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
       </section>
 
-      <form className="ff-section" onSubmit={submitPassword}>
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">{hasPassword ? 'Şifreni değiştir' : 'Şifre belirle'}</h2>
-          <p className="ff-section-desc">
-            {hasPassword
-              ? 'Mevcut şifreni girerek yenisini belirle.'
-              : 'Bu hesap şu anda parolasız. Parola belirleyerek girişini güçlendir.'}
-          </p>
-        </div>
-        <div className="ff-section-body">
-          <div className="ff-stack">
+      {/* 2. İki Sütunlu Form & Bilgi Alanı */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Sol Sütun: Şifre Güncelleme Formu */}
+        <form className="ff-card" onSubmit={submitPassword}>
+          <div className="ff-card-header">
+            <div>
+              <h2 className="ff-card-title">
+                <MaterialIcon name="lock" />
+                {hasPassword ? 'Şifre Değiştir' : 'Şifre Belirle'}
+              </h2>
+              <p className="ff-card-desc">
+                {hasPassword
+                  ? 'Mevcut şifreni girerek yeni güçlü bir şifre oluştur.'
+                  : 'Hesabına parola belirleyerek girişini güçlendir.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 max-w-lg">
             {hasPassword ? (
               <label className="ff-field">
-                <span className="ff-field-label">Mevcut şifre</span>
+                <span className="ff-field-label">Mevcut Şifre</span>
                 <input
                   type="password"
                   className="ff-input"
                   autoComplete="current-password"
+                  placeholder="••••••••••••"
                   value={currentPassword}
                   onChange={(event) => {
                     setCurrentPassword(event.target.value);
@@ -249,8 +272,9 @@ export function AccountSecurityPage() {
                 />
               </label>
             ) : null}
+
             <label className="ff-field">
-              <span className="ff-field-label">Yeni şifre</span>
+              <span className="ff-field-label">Yeni Şifre</span>
               <input
                 type="password"
                 className="ff-input"
@@ -263,8 +287,6 @@ export function AccountSecurityPage() {
                   const value = event.target.value;
                   setNextPassword(value);
                   setDirty(true);
-                  // Editing either field can make the two agree; drop the
-                  // complaint as soon as they do.
                   if (confirmError && value === confirmPassword) setConfirmError(null);
                 }}
               />
@@ -273,18 +295,21 @@ export function AccountSecurityPage() {
                   {error}
                 </span>
               ) : (
-                <span className="ff-field-hint">En az 10 karakter. Uzun bir cümle daha güvenlidir.</span>
+                <span className="ff-field-hint">
+                  En az 10 karakter uzunluğunda olmalıdır.
+                </span>
               )}
             </label>
+
             <label className="ff-field">
-              <span className="ff-field-label">Yeni şifre (tekrar)</span>
+              <span className="ff-field-label">Yeni Şifre (Tekrar)</span>
               <input
                 type="password"
                 className="ff-input"
                 autoComplete="new-password"
                 minLength={10}
                 required
-                placeholder="Yeni şifreyi ikinci kez gir"
+                placeholder="Yeni şifreyi tekrar giriniz"
                 value={confirmPassword}
                 onChange={(event) => {
                   const value = event.target.value;
@@ -293,9 +318,6 @@ export function AccountSecurityPage() {
                   if (confirmError && value === nextPassword) setConfirmError(null);
                 }}
                 onBlur={() => {
-                  // Added here, once the field is left — never while it is still
-                  // being typed into — but removed above the moment it stops
-                  // being true.
                   setConfirmError(
                     confirmPassword && confirmPassword !== nextPassword
                       ? 'Yeni şifre alanları eşleşmiyor.'
@@ -307,108 +329,127 @@ export function AccountSecurityPage() {
                 <span className="ff-field-error" role="alert">
                   {confirmError}
                 </span>
-              ) : (
-                <span className="ff-field-hint">Doğrulama için yeni şifreyi ikinci kez gir.</span>
-              )}
+              ) : null}
             </label>
-            <div className="ff-cluster ff-cluster-end">
+
+            <div className="pt-2">
               <button
                 type="submit"
                 className="ff-btn ff-btn-primary"
                 disabled={savePassword.pending}
               >
-                {savePassword.pending ? 'Kaydediliyor' : hasPassword ? 'Şifreyi güncelle' : 'Şifreyi belirle'}
+                <MaterialIcon name="check" />
+                {savePassword.pending
+                  ? 'Kaydediliyor...'
+                  : hasPassword
+                    ? 'Şifreyi Güncelle'
+                    : 'Şifreyi Belirle'}
               </button>
             </div>
           </div>
-        </div>
-      </form>
+        </form>
 
-      <section className="ff-section">
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Bağlı hesaplar</h2>
-          <p className="ff-section-desc">Bu hesabın bağlı olduğu kimlik sağlayıcıları.</p>
-        </div>
-        <div className="ff-section-body">
-          {identities.identities.length === 0 ? (
-            <div className="ff-empty">
-              <MaterialIcon name="link_off" />
-              <p className="ff-empty-title">Bağlı sosyal hesap yok</p>
-              <p className="ff-empty-text">
-                Google veya Apple ile giriş yapmadıysan bu liste boş kalır.
-              </p>
-            </div>
-          ) : (
-            <div className="ff-rows">
-              {identities.identities.map((identity) => (
-                <div
-                  className="ff-row"
-                  key={`${identity.provider}-${identity.emailNormalized ?? 'none'}`}
-                >
-                  <div className="ff-row-key">
-                    <div className="ff-row-label">{providerLabel(identity.provider)}</div>
-                  </div>
-                  <div className="ff-row-value">
-                    {identity.emailNormalized ?? 'E-posta bağlı değil'}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section className="ff-section">
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Oturum</h2>
-          <p className="ff-section-desc">Bu cihazdan çıkış ve oturum yönetimi.</p>
-        </div>
-        <div className="ff-section-body">
-          <div className="ff-notice" data-tone="info">
-            <MaterialIcon name="info" />
-            <span>
-              Açık oturumların listesi sunulmuyor. Bu cihazdan çıkmak için Hesap menüsündeki
-              Çıkış yap kullanılır; tüm cihazlardan çıkış henüz desteklenmiyor.
-            </span>
-          </div>
-        </div>
-      </section>
-
-      <section className="ff-section" data-ff-account-deletion>
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Hesabı sil</h2>
-          <p className="ff-section-desc">
-            Ad, telefon, e-posta, şifre, adresler, favoriler ve bildirimler kalıcı olarak silinir.
-            Siparişler yasal kayıt olarak kimliksiz saklanır. Açık siparişin varken hesap silinemez.
-          </p>
-        </div>
-        <div className="ff-section-body">
-          <div className="ff-stack">
-            <label className="ff-cluster" style={{ alignItems: 'center' }}>
-              <input
-                type="checkbox"
-                checked={deleteConfirmed}
-                onChange={(event) => setDeleteConfirmed(event.target.checked)}
-              />
-              <span className="ff-row-hint">Hesabımın ve kişisel verilerimin silineceğini anlıyorum.</span>
-            </label>
-            {deleteError ? (
-              <div className="ff-notice" data-tone="danger" role="alert">
-                <MaterialIcon name="error" />
-                <span>{deleteError}</span>
+        {/* Sağ Sütun: Bağlı Hesaplar & Oturumlar */}
+        <div className="flex flex-col gap-6">
+          <div className="ff-card">
+            <div className="ff-card-header">
+              <div>
+                <h2 className="ff-card-title">
+                  <MaterialIcon name="link" />
+                  Bağlı Hesaplar
+                </h2>
+                <p className="ff-card-desc">Hesaba bağlı kimlik sağlayıcıları.</p>
               </div>
-            ) : null}
-            <div className="ff-cluster ff-cluster-end">
-              <button
-                type="button"
-                className="ff-btn ff-btn-danger"
-                disabled={!deleteConfirmed || removeAccount.pending}
-                onClick={() => void confirmDeletion()}
-              >
-                <MaterialIcon name="delete_forever" />
-                {removeAccount.pending ? 'Siliniyor' : 'Hesabımı kalıcı olarak sil'}
-              </button>
             </div>
+
+            {identities.identities.length === 0 ? (
+              <div className="p-4 rounded-xl bg-surface-container-lowest/60 border border-outline-variant/60 text-xs text-on-surface-variant flex items-center gap-3">
+                <MaterialIcon name="info" />
+                <span>Google veya Apple ile giriş yapmadınız. Telefon/E-posta ile giriş aktiftir.</span>
+              </div>
+            ) : (
+              <div className="ff-rows">
+                {identities.identities.map((identity) => (
+                  <div
+                    className="ff-row"
+                    key={`${identity.provider}-${identity.emailNormalized ?? 'none'}`}
+                  >
+                    <div className="ff-row-key">
+                      <div className="ff-row-label">{providerLabel(identity.provider)}</div>
+                    </div>
+                    <div className="ff-row-value">
+                      {identity.emailNormalized ?? 'E-posta bağlı değil'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="ff-card">
+            <div className="ff-card-header">
+              <div>
+                <h2 className="ff-card-title">
+                  <MaterialIcon name="devices" />
+                  Aktif Cihaz Oturumu
+                </h2>
+                <p className="ff-card-desc">Cihaz güvenliği ve oturum sonlandırma.</p>
+              </div>
+            </div>
+            <div className="p-4 rounded-xl bg-surface-container-lowest/60 border border-outline-variant/60 text-xs text-on-surface-variant flex items-start gap-3">
+              <MaterialIcon name="info" />
+              <span>
+                Şu anda bu tarayıcı üzerinden aktif bir güvenli oturumdasınız. Diğer cihazlardan çıkmak için şifrenizi yenileyebilir veya menüdeki Çıkış Yap butonunu kullanabilirsiniz.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Tehlikeli Bölge / Hesabı Sil */}
+      <section className="ff-card border-danger/30 bg-danger/5" data-ff-account-deletion>
+        <div className="ff-card-header border-danger/20">
+          <div>
+            <h2 className="ff-card-title text-danger">
+              <MaterialIcon name="warning" />
+              Tehlikeli Bölge: Hesabı Sil
+            </h2>
+            <p className="ff-card-desc">
+              Ad, telefon, e-posta, kayıtlı adresler ve kuponlar kalıcı olarak silinir. Bu işlem geri alınamaz.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="w-4 h-4 rounded border-outline accent-danger"
+              checked={deleteConfirmed}
+              onChange={(event) => setDeleteConfirmed(event.target.checked)}
+            />
+            <span className="text-xs text-on-surface-variant font-medium">
+              Hesabımın ve tüm kişisel verilerimin geri döndürülemez biçimde silineceğini anlıyorum.
+            </span>
+          </label>
+
+          {deleteError ? (
+            <div className="ff-notice" data-tone="danger" role="alert">
+              <MaterialIcon name="error" />
+              <span>{deleteError}</span>
+            </div>
+          ) : null}
+
+          <div className="flex justify-end pt-2">
+            <button
+              type="button"
+              className="ff-btn ff-btn-danger"
+              disabled={!deleteConfirmed || removeAccount.pending}
+              onClick={() => void confirmDeletion()}
+            >
+              <MaterialIcon name="delete_forever" />
+              {removeAccount.pending ? 'Siliniyor...' : 'Hesabımı Kalıcı Olarak Sil'}
+            </button>
           </div>
         </div>
       </section>

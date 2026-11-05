@@ -32,6 +32,7 @@ export function PaymentStatusPage() {
   const checkoutId = params.checkoutId;
   const [status, setStatus] = useState<string>('PENDING');
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [providerPaymentId, setProviderPaymentId] = useState<string | null>(null);
   const [amountMinor, setAmountMinor] = useState('0');
   const [currency, setCurrency] = useState('TRY');
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +45,7 @@ export function PaymentStatusPage() {
     setSummary(readPaymentSummary());
     if (typeof window !== 'undefined') {
       setRedirectUrl(window.sessionStorage.getItem('ff_iyzico_redirect'));
+      setProviderPaymentId(window.sessionStorage.getItem('ff_provider_payment_id'));
     }
     void fetchCart()
       .then((cart) => {
@@ -75,6 +77,9 @@ export function PaymentStatusPage() {
         setAmountMinor(data.amountMinor);
         setCurrency(data.currency);
         setOrderId(data.orderId ?? null);
+        if (data.providerPaymentId) {
+          setProviderPaymentId(data.providerPaymentId);
+        }
         setLoad('ready');
         setError(null);
         if (isPaymentTerminalStatus(data.status)) terminal = true;
@@ -117,27 +122,43 @@ export function PaymentStatusPage() {
   const payable = summary?.finalPayableMinor ?? amountMinor;
 
   return (
-    <main className="w-full pt-20 bg-background min-h-screen" data-ff-surface="payment-status">
-      <div className="w-full max-w-7xl mx-auto px-margin-sm lg:px-margin py-space-lg lg:py-space-xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-md">
-          <h1 className="font-headline-lg text-headline-lg uppercase tracking-wider">
-            Güvenli Ödeme
-          </h1>
+    <main className="w-full pt-24 pb-20 bg-[#0a0c14] min-h-screen text-neutral-100 relative" data-ff-surface="payment-status">
+      {/* Background ambient lighting */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(254,179,0,0.12),rgba(255,255,255,0))] pointer-events-none" />
+
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Header & Breadcrumbs */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div>
+            <div className="flex items-center gap-2 text-neutral-400 font-anton text-xs uppercase tracking-widest mb-2">
+              <span className="text-amber-400">Sepet</span>
+              <MaterialIcon name="chevron_right" className="text-xs text-neutral-600" />
+              <span className="text-amber-400">Teslimat & Adres</span>
+              <MaterialIcon name="chevron_right" className="text-xs text-neutral-600" />
+              <span className="text-white">Güvenli Ödeme</span>
+              <MaterialIcon name="chevron_right" className="text-xs text-neutral-600" />
+              <span className="text-neutral-500">Onay</span>
+            </div>
+            <h1 className="font-anton text-3xl sm:text-4xl uppercase text-white tracking-wide drop-shadow-sm">
+              Güvenli Ödeme & 3-D Secure
+            </h1>
+          </div>
+
           <nav
-            className="flex items-center gap-2 sm:gap-4 font-label-md text-label-md uppercase overflow-x-auto"
+            className="flex items-center gap-2 sm:gap-3 font-anton text-xs uppercase tracking-wider overflow-x-auto"
             aria-label="Sipariş adımları"
           >
             {STEPS.map((step, index) => (
               <span key={step.n} className="contents">
                 {index > 0 ? (
-                  <span className="text-surface-container-highest shrink-0">/</span>
+                  <span className="text-neutral-600 shrink-0">/</span>
                 ) : null}
                 {step.href && !step.active ? (
                   <Link
                     href={step.href}
-                    className="flex items-center gap-2 text-on-surface-variant/50 shrink-0"
+                    className="flex items-center gap-1.5 text-neutral-400 hover:text-white transition-colors shrink-0"
                   >
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-lg bg-[#141824] text-neutral-400 text-[10px]">
                       {step.n}
                     </span>
                     <span>{step.label}</span>
@@ -146,15 +167,15 @@ export function PaymentStatusPage() {
                   <div
                     className={
                       step.active
-                        ? 'flex items-center gap-2 text-primary-container font-bold shrink-0'
-                        : 'flex items-center gap-2 text-on-surface-variant/50 shrink-0'
+                        ? 'flex items-center gap-1.5 text-amber-400 shrink-0'
+                        : 'flex items-center gap-1.5 text-neutral-500 shrink-0'
                     }
                   >
                     <span
                       className={
                         step.active
-                          ? 'flex items-center justify-center w-6 h-6 rounded-full bg-primary-container text-surface-container-lowest font-label-sm font-black'
-                          : 'flex items-center justify-center w-6 h-6 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm'
+                          ? 'flex items-center justify-center w-5 h-5 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 text-neutral-950 font-bold text-[10px] shadow-[0_2px_8px_rgba(254,179,0,0.3)]'
+                          : 'flex items-center justify-center w-5 h-5 rounded-lg bg-[#141824] text-neutral-400 text-[10px]'
                       }
                     >
                       {step.n}
@@ -167,45 +188,57 @@ export function PaymentStatusPage() {
           </nav>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg lg:gap-space-xl items-start">
-          <div className="lg:col-span-7 flex flex-col gap-space-md">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          <div className="lg:col-span-7 flex flex-col gap-6">
             {failed ? (
-              <div className="rounded-xl bg-surface-container-low p-space-lg flex flex-col gap-space-md">
-                <div className="flex items-center gap-2 text-error">
-                  <MaterialIcon name="error" />
-                  <h2 className="font-headline-md uppercase">
-                    {status === 'EXPIRED' ? 'Oturum doldu' : 'Ödeme tamamlanamadı'}
-                  </h2>
+              <div className="rounded-2xl bg-[#12151f]/90 border border-rose-500/30 p-6 sm:p-8 flex flex-col gap-4 shadow-xl">
+                <div className="flex items-center gap-3 text-rose-400">
+                  <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-xl">
+                    <MaterialIcon name="error" filled />
+                  </div>
+                  <div>
+                    <h2 className="font-anton text-xl uppercase tracking-wide text-white">
+                      {status === 'EXPIRED' ? 'Oturum Süresi Doldu' : 'Ödeme Tamamlanamadı'}
+                    </h2>
+                    <p className="font-sans text-xs text-neutral-400 mt-0.5">
+                      {status === 'EXPIRED'
+                        ? 'Ödeme oturum süresi doldu. Lütfen sepetten yeniden başlatın.'
+                        : 'Kartınız banka tarafından reddedildi veya işlem iptal edildi.'}
+                    </p>
+                  </div>
                 </div>
-                <p className="font-body-md text-on-surface-variant">
-                  {status === 'EXPIRED'
-                    ? 'Ödeme süresi doldu. Checkout’tan yeniden başla.'
-                    : 'Kart reddedildi veya işlem iptal edildi.'}
-                </p>
-                <Link
-                  href="/checkout"
-                  className="inline-flex items-center justify-center py-3 rounded-lg bg-secondary-container text-on-secondary-container font-label-lg uppercase"
-                >
-                  Checkout’a dön
-                </Link>
+
+                <div className="pt-2">
+                  <Link
+                    href="/checkout"
+                    className="inline-flex items-center justify-center py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-neutral-950 font-anton text-xs uppercase tracking-wider shadow-[0_4px_16px_rgba(254,179,0,0.3)] hover:scale-[1.01] transition-all"
+                  >
+                    Siparişi Tekrar Dene
+                  </Link>
+                </div>
               </div>
             ) : (
               <IyzicoHostedPanel
                 amountMinor={payable}
                 currency={summary?.currency ?? currency}
                 redirectUrl={redirectUrl}
+                providerPaymentId={providerPaymentId}
+                checkoutId={checkoutId}
                 onRefresh={() => setPollKey((n) => n + 1)}
               />
             )}
+
             {orderId ? (
               <Link
                 href={`/orders/${orderId}/confirmation`}
-                className="font-label-sm uppercase text-secondary-container"
+                className="font-anton text-xs uppercase tracking-wider text-amber-400 hover:text-amber-300 flex items-center gap-1.5"
               >
-                Sipariş onayına geç
+                <span>Sipariş Onayına Geç</span>
+                <MaterialIcon name="arrow_forward" className="text-sm" />
               </Link>
             ) : null}
           </div>
+
           <div className="lg:col-span-5">
             <PaymentOrderSummary snapshot={summary} amountMinor={amountMinor} currency={currency} />
           </div>

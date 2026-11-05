@@ -4,47 +4,11 @@ import { ALL_CITIES, type SortMode } from '../../../lib/storefront/branch-finder
 import { MaterialIcon } from '../material-icon';
 
 const SORTS: Array<{ value: SortMode; label: string }> = [
-  { value: 'distance', label: 'En yakın' },
-  { value: 'eta', label: 'En hızlı' },
+  { value: 'eta', label: 'En Hızlı' },
+  { value: 'distance', label: 'En Yakın' },
   { value: 'az', label: 'A–Z' },
 ];
 
-function Chip({
-  active,
-  onClick,
-  children,
-  testId,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-  testId?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      data-ff-finder-chip={testId}
-      className={`h-9 shrink-0 rounded-full border px-3.5 font-label-sm uppercase tracking-[0.1em] transition-colors ${
-        active
-          ? 'border-secondary-container/60 bg-secondary-container/15 text-secondary-container'
-          : 'border-outline-variant/30 text-on-surface-variant hover:border-outline/50 hover:text-on-surface'
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function Count({ value }: { value: number }) {
-  return <span className="ml-1.5 font-mono text-[10px] tabular-nums opacity-70">{value}</span>;
-}
-
-/**
- * Sticky finder: search, sort, the opt-in location button, the city rail and the
- * fulfilment toggles. Filter values are written to the URL by the page component.
- */
 export function BranchFinderBar({
   cities,
   city,
@@ -87,100 +51,176 @@ export function BranchFinderBar({
   hint: string | null;
 }) {
   return (
-    <div className="sticky top-20 z-40 border-y border-outline-variant/25 bg-background/95 backdrop-blur-xl">
-      <div className="mx-auto max-w-7xl px-margin-sm lg:px-margin">
-        <div className="flex flex-col gap-3 py-space-sm lg:flex-row lg:items-center lg:justify-between">
-          <div className="relative lg:w-96">
+    <div className="sticky top-20 z-40 border-y border-white/[0.08] bg-[#0a0c14]/90 backdrop-blur-xl shadow-xl transition-all">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col gap-3">
+        {/* Top search & geolocation & sorting row */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5">
+          {/* Search Input */}
+          <div className="relative flex-1 max-w-lg">
             <MaterialIcon
               name="search"
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-on-surface-variant"
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-lg text-amber-400"
             />
             <input
               type="search"
               value={query}
               onChange={(event) => onQuery(event.target.value)}
-              placeholder="Şube, ilçe veya kod ara"
-              aria-label="Şube ara"
-              data-ff-branch-search
-              className="h-11 w-full rounded-xl border border-outline-variant/30 bg-surface-container pl-10 pr-3 font-body-sm text-on-surface transition-colors placeholder:text-on-surface-variant/60 focus:border-secondary-container/60 focus:outline-none"
+              placeholder="Şube adı, ilçe veya cadde ara..."
+              className="w-full bg-[#12151f] border border-white/[0.1] focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 text-white placeholder:text-neutral-500 font-sans text-sm rounded-xl pl-10 pr-9 py-2.5 outline-none transition-all"
             />
+            {query ? (
+              <button
+                type="button"
+                onClick={() => onQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                aria-label="Aramayı temizle"
+              >
+                <MaterialIcon name="close" className="text-base" />
+              </button>
+            ) : null}
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div
-              role="group"
-              aria-label="Sıralama"
-              className="flex items-center gap-1 rounded-xl border border-outline-variant/25 bg-surface-container p-1"
-            >
-              {SORTS.map((item) => (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => onSort(item.value)}
-                  aria-pressed={sort === item.value}
-                  data-ff-finder-sort={item.value}
-                  className={`h-8 rounded-lg px-3 font-label-sm uppercase tracking-[0.1em] transition-colors ${
-                    sort === item.value
-                      ? 'bg-secondary-container/15 text-secondary-container'
-                      : 'text-on-surface-variant hover:text-on-surface'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
+
+          {/* Location button & Sort controls */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
+            {/* Geolocation Button */}
             <button
               type="button"
               onClick={onLocate}
               disabled={locating}
-              data-ff-branch-locate
-              className={`flex h-11 items-center gap-2 rounded-xl border px-4 font-label-sm uppercase tracking-[0.1em] transition-colors disabled:opacity-50 ${
+              className={`shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-anton text-xs uppercase tracking-wider transition-all duration-200 border ${
                 located
-                  ? 'border-secondary-container/60 bg-secondary-container/15 text-secondary-container'
-                  : 'border-outline-variant/30 text-on-surface hover:border-secondary-container/50 hover:text-secondary-container'
-              }`}
+                  ? 'bg-amber-500/15 border-amber-400 text-amber-300 shadow-[0_0_15px_rgba(254,179,0,0.2)]'
+                  : 'bg-[#12151f] border-white/[0.1] text-neutral-200 hover:border-amber-400/40 hover:text-white'
+              } disabled:opacity-50`}
             >
-              <MaterialIcon name="my_location" className="text-base" />
-              {locating ? 'Konum alınıyor…' : located ? 'Yakınlık sıralı' : 'Yakınımdakini bul'}
+              <MaterialIcon
+                name={locating ? 'sync' : 'near_me'}
+                className={`text-base text-amber-400 ${locating ? 'animate-spin' : ''}`}
+                filled={located}
+              />
+              <span>{locating ? 'Konum aranıyor...' : located ? 'Konum Alındı' : 'Yakınımdakini Bul'}</span>
             </button>
+
+            {/* Sort Dropdown / Segment */}
+            <div className="flex items-center p-1 bg-[#12151f] border border-white/[0.08] rounded-xl shrink-0">
+              {SORTS.map((s) => (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => onSort(s.value)}
+                  className={`px-3 py-1.5 rounded-lg font-anton text-[11px] uppercase tracking-wider transition-all ${
+                    sort === s.value
+                      ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-neutral-950 font-bold shadow-sm'
+                      : 'text-neutral-400 hover:text-white'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="sf-chip-scroll -mx-margin-sm flex items-center gap-2 overflow-x-auto px-margin-sm pb-space-sm">
-          <Chip active={city === ALL_CITIES} onClick={() => onCity(ALL_CITIES)} testId="city-all">
-            Tümü
-            <Count value={total} />
-          </Chip>
-          {cities.map((item) => (
-            <Chip
-              key={item.key}
-              active={city === item.label}
-              onClick={() => onCity(item.label)}
-              testId={`city-${item.key}`}
+        {/* City rail & Quick status filters */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 pt-1 border-t border-white/[0.06]">
+          {/* City Pills Carousel */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            <button
+              type="button"
+              onClick={() => onCity(ALL_CITIES)}
+              data-ff-finder-chip="all-cities"
+              className={`shrink-0 px-3 py-1.5 rounded-full font-anton text-xs uppercase tracking-wider transition-all border ${
+                city === ALL_CITIES
+                  ? 'bg-amber-400 border-amber-400 text-neutral-950 font-bold shadow-sm'
+                  : 'bg-[#141824] border-white/[0.08] text-neutral-300 hover:text-white hover:border-white/[0.2]'
+              }`}
             >
-              {item.label}
-              <Count value={item.count} />
-            </Chip>
-          ))}
-          <span aria-hidden className="mx-1 h-6 w-px shrink-0 bg-outline-variant/40" />
-          <Chip active={openOnly} onClick={() => onOpenOnly(!openOnly)} testId="open">
-            Şu an açık
-          </Chip>
-          <Chip
-            active={deliveryOnly}
-            onClick={() => onDeliveryOnly(!deliveryOnly)}
-            testId="delivery"
-          >
-            Teslimat
-          </Chip>
-          <Chip active={pickupOnly} onClick={() => onPickupOnly(!pickupOnly)} testId="pickup">
-            Gel-al
-          </Chip>
+              Tümü ({total})
+            </button>
+
+            {cities.map((group) => {
+              const active = city === group.key || city === group.label;
+              return (
+                <button
+                  key={group.key}
+                  type="button"
+                  onClick={() => onCity(group.key)}
+                  data-ff-finder-chip={group.key}
+                  className={`shrink-0 px-3 py-1.5 rounded-full font-anton text-xs uppercase tracking-wider transition-all border ${
+                    active
+                      ? 'bg-amber-400 border-amber-400 text-neutral-950 font-bold shadow-sm'
+                      : 'bg-[#141824] border-white/[0.08] text-neutral-300 hover:text-white hover:border-white/[0.2]'
+                  }`}
+                >
+                  {group.label} ({group.count})
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Quick Filter Toggles */}
+          <div className="flex items-center gap-1.5 shrink-0 overflow-x-auto pb-0.5">
+            {/* Open Only */}
+            <button
+              type="button"
+              onClick={() => onOpenOnly(!openOnly)}
+              aria-pressed={openOnly}
+              data-ff-finder-chip="open-only"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-anton text-[11px] uppercase tracking-wider border transition-all ${
+                openOnly
+                  ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300'
+                  : 'bg-[#12151f] border-white/[0.08] text-neutral-400 hover:text-neutral-200'
+              }`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${openOnly ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-500'}`} />
+              Şu An Açık
+            </button>
+
+            {/* Delivery Only */}
+            <button
+              type="button"
+              onClick={() => onDeliveryOnly(!deliveryOnly)}
+              aria-pressed={deliveryOnly}
+              data-ff-finder-chip="delivery-only"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-anton text-[11px] uppercase tracking-wider border transition-all ${
+                deliveryOnly
+                  ? 'bg-amber-500/20 border-amber-400 text-amber-300'
+                  : 'bg-[#12151f] border-white/[0.08] text-neutral-400 hover:text-neutral-200'
+              }`}
+            >
+              <MaterialIcon name="moped" className="text-xs" />
+              Teslimat
+            </button>
+
+            {/* Pickup Only */}
+            <button
+              type="button"
+              onClick={() => onPickupOnly(!pickupOnly)}
+              aria-pressed={pickupOnly}
+              data-ff-finder-chip="pickup-only"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-anton text-[11px] uppercase tracking-wider border transition-all ${
+                pickupOnly
+                  ? 'bg-amber-500/20 border-amber-400 text-amber-300'
+                  : 'bg-[#12151f] border-white/[0.08] text-neutral-400 hover:text-neutral-200'
+              }`}
+            >
+              <MaterialIcon name="storefront" className="text-xs" />
+              Gel-Al
+            </button>
+
+            {/* Total Results Count */}
+            <span className="font-anton text-xs uppercase tracking-wider text-neutral-400 ml-2 hidden sm:inline">
+              {shown} şube
+            </span>
+          </div>
         </div>
 
-        <p className="pb-space-sm font-body-sm text-on-surface-variant" role="status">
-          {shown === total ? `${total} şube` : `${shown} / ${total} şube gösteriliyor`}
-          {hint ? <span className="text-on-surface-variant/70"> · {hint}</span> : null}
-        </p>
+        {hint ? (
+          <p className="text-amber-400/90 text-xs font-sans flex items-center gap-1.5 pt-0.5">
+            <MaterialIcon name="info" className="text-sm" />
+            {hint}
+          </p>
+        ) : null}
       </div>
     </div>
   );

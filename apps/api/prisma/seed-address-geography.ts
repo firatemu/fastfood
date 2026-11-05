@@ -1,6 +1,7 @@
 import 'dotenv/config';
 
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 import { PrismaPg } from '@prisma/adapter-pg';
 
@@ -22,16 +23,15 @@ type GeographySnapshot = {
   }>;
 };
 
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) throw new Error('DATABASE_URL is required for the address geography seed.');
-
 const snapshot = JSON.parse(
   readFileSync(new URL('./seed-data/address-geography.json', import.meta.url), 'utf8'),
 ) as GeographySnapshot;
-const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter });
 
-async function main(): Promise<void> {
+export async function seedAddressGeography(client: PrismaClient): Promise<{
+  provinces: number;
+  districts: number;
+  neighborhoods: number;
+}> {
   const districts = snapshot.provinces.flatMap((province) =>
     province.districts.map(({ id, name, postalCode }) => ({
       id,
@@ -51,7 +51,7 @@ async function main(): Promise<void> {
     ),
   );
 
-  const inserted = await prisma.$transaction(async (tx) => {
+  const inserted = await client.$transaction(async (tx) => {
     const provinces = await tx.addressProvince.createMany({
       data: snapshot.provinces.map(
         ({ id, name, displayOrder, centerLatitude, centerLongitude }) => ({
@@ -79,22 +79,32 @@ async function main(): Promise<void> {
     };
   });
   const [provinceCount, districtCount, neighborhoodCount] = await Promise.all([
-    prisma.addressProvince.count(),
-    prisma.addressDistrict.count({ where: { provinceId: { in: [1, 80, 27, 33, 34] } } }),
-    prisma.addressNeighborhood.count({
+    client.addressProvince.count(),
+    client.addressDistrict.count({ where: { provinceId: { in: [1, 80, 27, 33, 34] } } }),
+    client.addressNeighborhood.count({
       where: { district: { provinceId: { in: [1, 80, 27, 33, 34] } } },
     }),
   ]);
   process.stdout.write(
     `Address geography inserted ${inserted.provinces}/${inserted.districts}/${inserted.neighborhoods}; database has ${provinceCount}/${districtCount}/${neighborhoodCount} provinces/districts/neighborhoods.\n`,
   );
+  return inserted;
 }
 
-main()
-  .catch((error: unknown) => {
-    console.warn(error);
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+const isEntrypoint = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+
+if (isEntrypoint) {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString)
+    throw new Error('DATABASE_URL is required for the address geography seed.');
+  const adapter = new PrismaPg({ connectionString });
+  const prisma = new PrismaClient({ adapter });
+  seedAddressGeography(prisma)
+    .catch((error: unknown) => {
+      console.warn(error);
+      process.exitCode = 1;
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}

@@ -14,10 +14,21 @@ import { PAYMENT_PORT, type PaymentPort } from './payment.port.js';
 import { PaymentService } from './payment.service.js';
 import { SimulatedPaymentAdapter } from './simulated-payment.adapter.js';
 
+/**
+ * Production-readiness audit P0-6: the gateway is read from the validated
+ * configuration, never from `process.env` directly, so the guard in
+ * `packages/config` cannot be bypassed. A simulated gateway in production is
+ * a fatal boot error — the simulated adapter trusts client-asserted payment
+ * status, so a live deployment would mark unpaid orders as paid.
+ */
 function createPaymentPort(): PaymentPort {
-  // Test modules boot without a full environment; only the iyzico gateway needs it.
-  if (process.env['PAYMENT_GATEWAY'] !== 'iyzico') return new SimulatedPaymentAdapter();
   const env = getAppConfig();
+  if (env.PAYMENT_GATEWAY === 'simulated') {
+    return new SimulatedPaymentAdapter({
+      nodeEnv: env.NODE_ENV,
+      explicitlyAllowed: env.ALLOW_SIMULATED_PAYMENTS,
+    });
+  }
   const apiOrigin = (env.API_PUBLIC_URL ?? `http://localhost:${env.API_PORT}`).replace(/\/$/, '');
   return new IyzicoCheckoutFormAdapter(
     new IyzicoClient({
@@ -37,6 +48,6 @@ function createPaymentPort(): PaymentPort {
     { provide: PAYMENT_PORT, useFactory: createPaymentPort },
     PaymentService,
   ],
-  exports: [PaymentService, IdempotencyService],
+  exports: [PaymentService, IdempotencyService, PAYMENT_PORT],
 })
 export class PaymentModule {}

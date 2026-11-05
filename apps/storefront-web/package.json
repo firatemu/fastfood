@@ -6,8 +6,8 @@
   "description": "Customer-facing Next.js 16 BURGER HOME Storefront wired to the FASTFOOD API.",
   "scripts": {
     "build": "next build",
-    "dev": "next dev -p 3100",
-    "start": "next start -p 3100",
+    "dev": "next dev -p 3110",
+    "start": "next start -p 3110",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",

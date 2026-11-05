@@ -160,8 +160,7 @@ export function generateCirclePolygon(
 
     const ptLatRad = Math.asin(sinLat * cosD + cosLat * sinD * cosBearing);
     const ptLngRad =
-      lngRad +
-      Math.atan2(sinBearing * sinD * cosLat, cosD - sinLat * Math.sin(ptLatRad));
+      lngRad + Math.atan2(sinBearing * sinD * cosLat, cosD - sinLat * Math.sin(ptLatRad));
 
     const ptLat = (ptLatRad * 180) / Math.PI;
     let ptLng = (ptLngRad * 180) / Math.PI;
@@ -201,4 +200,3 @@ export function calculateDistanceKm(
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return Number((EARTH_RADIUS_KM * c).toFixed(2));
 }
-

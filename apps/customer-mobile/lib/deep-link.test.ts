@@ -43,7 +43,9 @@ describe('parseAuthCallbackUrl', () => {
   });
 
   it('rejects short untrusted tokens', () => {
-    expect(parseAuthCallbackUrl('fastfoodcustomer://auth/callback?refreshToken=ab').refreshToken).toBeNull();
+    expect(
+      parseAuthCallbackUrl('fastfoodcustomer://auth/callback?refreshToken=ab').refreshToken,
+    ).toBeNull();
   });
 });
 

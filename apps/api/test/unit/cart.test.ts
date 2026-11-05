@@ -66,11 +66,7 @@ describe('Phase 5 CartService', () => {
               row.guestSessionId === where.guestSessionId &&
               (where.status === undefined || row.status === where.status),
           ) ?? null,
-        create: async ({
-          data,
-        }: {
-          data: { guestSessionId: string; status: string };
-        }) => {
+        create: async ({ data }: { data: { guestSessionId: string; status: string } }) => {
           if (rows.some((row) => row.guestSessionId === data.guestSessionId)) {
             const err = new Error('Unique constraint failed') as Error & { code: string };
             err.code = 'P2002';

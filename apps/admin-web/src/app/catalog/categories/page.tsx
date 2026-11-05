@@ -415,6 +415,8 @@ export default function CatalogCategoriesPage() {
     [openEdit],
   );
 
+  // TanStack returns a stateful table instance that React Compiler intentionally skips memoizing.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: filteredRows,
     columns,

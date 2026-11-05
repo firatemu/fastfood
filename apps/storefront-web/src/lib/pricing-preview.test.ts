@@ -10,14 +10,22 @@ import {
 describe('pricing preview', () => {
   it('adds modifier deltas then multiplies quantity', () => {
     expect(
-      lineSubtotalMinor('29500', [{ priceDeltaMinorSnapshot: '3000' }, { priceDeltaMinorSnapshot: '2000' }], 2),
+      lineSubtotalMinor(
+        '29500',
+        [{ priceDeltaMinorSnapshot: '3000' }, { priceDeltaMinorSnapshot: '2000' }],
+        2,
+      ),
     ).toBe('69000');
   });
 
   it('sums cart merchandise from snapshots', () => {
     expect(
       merchandiseSubtotalMinor([
-        { unitPriceMinorSnapshot: '29500', quantity: 1, modifiers: [{ priceDeltaMinorSnapshot: '3000' }] },
+        {
+          unitPriceMinorSnapshot: '29500',
+          quantity: 1,
+          modifiers: [{ priceDeltaMinorSnapshot: '3000' }],
+        },
         { unitPriceMinorSnapshot: '16500', quantity: 2, modifiers: [] },
       ]),
     ).toBe('65500');

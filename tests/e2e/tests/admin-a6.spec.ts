@@ -152,7 +152,9 @@ test.describe('Admin A6 live regression', () => {
     await expect(page.getByRole('button', { name: 'Menüyü aç' })).toBeVisible();
     await expect(page.locator('.ops-topbar__title')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Çıkış' })).toBeVisible();
-    const noOverflow = await page.locator('.ops-topbar').evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
+    const noOverflow = await page
+      .locator('.ops-topbar')
+      .evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
     expect(noOverflow).toBe(true);
   });
 

@@ -22,8 +22,8 @@ export function QuantityStepper({
     <div
       className={
         compact
-          ? 'flex items-center bg-surface-container-highest rounded-lg p-1'
-          : 'flex items-center gap-3 bg-surface-container-lowest px-3 py-1.5 rounded-xl'
+          ? 'flex items-center bg-white/[0.06] border border-white/10 rounded-lg p-1'
+          : 'flex items-center gap-3 bg-[#0d1017] border border-white/10 px-3 py-1.5 rounded-xl shadow-inner'
       }
       role="group"
       aria-labelledby={labelledBy}
@@ -32,8 +32,8 @@ export function QuantityStepper({
         type="button"
         className={
           compact
-            ? 'w-7 h-7 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors disabled:opacity-40'
-            : 'w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface active:scale-95 transition-all disabled:opacity-40'
+            ? 'w-7 h-7 flex items-center justify-center text-neutral-400 hover:text-white hover:bg-white/10 rounded transition-colors disabled:opacity-40'
+            : 'w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.06] hover:bg-amber-400 hover:text-neutral-950 text-neutral-200 active:scale-95 transition-all disabled:opacity-30 disabled:hover:bg-white/[0.06] disabled:hover:text-neutral-200 cursor-pointer'
         }
         aria-label="Azalt"
         disabled={value <= min}
@@ -44,8 +44,8 @@ export function QuantityStepper({
       <span
         className={
           compact
-            ? 'w-8 text-center font-label-md text-label-md text-on-surface'
-            : 'font-label-lg text-label-lg text-on-surface w-6 text-center'
+            ? 'w-8 text-center font-anton text-sm text-white'
+            : 'font-anton text-lg text-white w-7 text-center'
         }
         aria-live="polite"
       >
@@ -55,8 +55,8 @@ export function QuantityStepper({
         type="button"
         className={
           compact
-            ? 'w-7 h-7 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded transition-colors disabled:opacity-40'
-            : 'w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface active:scale-95 transition-all disabled:opacity-40'
+            ? 'w-7 h-7 flex items-center justify-center text-neutral-400 hover:text-white hover:bg-white/10 rounded transition-colors disabled:opacity-40'
+            : 'w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.06] hover:bg-amber-400 hover:text-neutral-950 text-neutral-200 active:scale-95 transition-all disabled:opacity-30 disabled:hover:bg-white/[0.06] disabled:hover:text-neutral-200 cursor-pointer'
         }
         aria-label="Artır"
         disabled={value >= max}

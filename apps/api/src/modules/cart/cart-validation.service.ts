@@ -12,11 +12,12 @@ import type { AddCartLineInput } from './cart.service.js';
  *   - product is active,
  *   - quantity is positive.
  *
- * Phase 5 ships product-level validation. Variant + modifier
- * selection min/max enforcement land under P5-006 once the catalog
- * controller surface exposes them; Phase 5's contract here is
- * intentionally minimal so it can run before the catalog endpoints
- * are wired.
+ * The unit price and currency returned here are the *catalog* values, never
+ * the client's snapshot (audit P0-2). The client-side
+ * `unitPriceMinorSnapshot` / `currencySnapshot` fields remain in the request
+ * contract as a display snapshot, but the server must not price a cart line
+ * from them — a client that posts a price of 1 would otherwise buy a
+ * 349,90 TL product for 0,01 TL.
  */
 export interface CartValidationResult {
   productId: string;
@@ -51,8 +52,9 @@ export class CartValidationService {
       productId: input.productId,
       productVariantId: input.productVariantId,
       quantity: input.quantity,
-      unitPriceMinor: input.unitPriceMinorSnapshot ?? product.basePriceMinor,
-      currency: input.currencySnapshot ?? product.currency,
+      // Authoritative: the catalog price, not the client snapshot.
+      unitPriceMinor: product.basePriceMinor,
+      currency: product.currency,
     };
   }
 }

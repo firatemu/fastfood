@@ -49,7 +49,8 @@ export default function LegalRoute() {
       {status === 'ready' ? (
         <ScrollView contentContainerStyle={styles.scroll}>
           <Text style={styles.lede}>
-            Metinler içerik kayıtlarından gelir. Kayıtlı olmayan sicil bilgisi (VKN, MERSIS) uydurulmaz.
+            Metinler içerik kayıtlarından gelir. Kayıtlı olmayan sicil bilgisi (VKN, MERSIS)
+            uydurulmaz.
           </Text>
           {docs.length === 0 ? (
             <EmptyBlock title="Yayınlanmış metin yok" message="Yasal içerik henüz tanımlanmamış." />
@@ -60,7 +61,9 @@ export default function LegalRoute() {
                   {doc.title}
                 </Text>
                 {doc.effectiveAt ? (
-                  <Text style={styles.meta}>Yürürlük: {new Date(doc.effectiveAt).toLocaleDateString('tr-TR')}</Text>
+                  <Text style={styles.meta}>
+                    Yürürlük: {new Date(doc.effectiveAt).toLocaleDateString('tr-TR')}
+                  </Text>
                 ) : null}
                 <Text style={styles.body}>{doc.body}</Text>
                 {doc.sections.map((section) => (
@@ -80,7 +83,9 @@ export default function LegalRoute() {
             style={styles.guide}
           >
             <Text style={styles.title}>Mesafeli satış sözleşmesi</Text>
-            <Text style={styles.body}>6502 sayılı Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri.</Text>
+            <Text style={styles.body}>
+              6502 sayılı Kanun ve Mesafeli Sözleşmeler Yönetmeliği hükümleri.
+            </Text>
           </Pressable>
           <Pressable
             accessibilityRole="link"
@@ -88,7 +93,9 @@ export default function LegalRoute() {
             style={styles.guide}
           >
             <Text style={styles.title}>Ön bilgilendirme formu</Text>
-            <Text style={styles.body}>Sipariş ve ödeme öncesi zorunlu tüketici bilgilendirmesi.</Text>
+            <Text style={styles.body}>
+              Sipariş ve ödeme öncesi zorunlu tüketici bilgilendirmesi.
+            </Text>
           </Pressable>
           <Pressable
             accessibilityRole="link"
@@ -96,7 +103,9 @@ export default function LegalRoute() {
             style={styles.guide}
           >
             <Text style={styles.title}>İptal ve iade koşulları</Text>
-            <Text style={styles.body}>Sıcak gıdada cayma hakkı istisnası, iptal ve ücret iadesi.</Text>
+            <Text style={styles.body}>
+              Sıcak gıdada cayma hakkı istisnası, iptal ve ücret iadesi.
+            </Text>
           </Pressable>
           <Pressable
             accessibilityRole="link"
@@ -104,7 +113,9 @@ export default function LegalRoute() {
             style={styles.guide}
           >
             <Text style={styles.title}>KVKK aydınlatma metni</Text>
-            <Text style={styles.body}>Kişisel verilerin işlenmesi, amaçları ve 11. madde hakların.</Text>
+            <Text style={styles.body}>
+              Kişisel verilerin işlenmesi, amaçları ve 11. madde hakların.
+            </Text>
           </Pressable>
           <Pressable
             accessibilityRole="link"
@@ -136,7 +147,9 @@ export default function LegalRoute() {
             style={styles.guide}
           >
             <Text style={styles.title}>Teslimat koşulları</Text>
-            <Text style={styles.body}>Kurye teslimatı, süreler, hava şartları ve termal ambalaj.</Text>
+            <Text style={styles.body}>
+              Kurye teslimatı, süreler, hava şartları ve termal ambalaj.
+            </Text>
           </Pressable>
           <Pressable
             accessibilityRole="link"
@@ -190,7 +203,12 @@ const styles = StyleSheet.create({
     borderColor: colors.hairline,
     minHeight: minTouch,
   },
-  title: { fontFamily: fonts.jakartaBold, fontSize: 18, color: colors.onSurface, textTransform: 'uppercase' },
+  title: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 18,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
   heading: { fontFamily: fonts.jakartaBold, fontSize: 15, color: colors.onSurface },
   body: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.ash, lineHeight: 20 },
   meta: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },

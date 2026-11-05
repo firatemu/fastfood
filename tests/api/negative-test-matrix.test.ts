@@ -147,16 +147,16 @@ describe('Phase 3 negative-test matrix (document 39 §10)', () => {
 
   // ---------------- IDOR ----------------
   describe('ResourceScopeGuard rejects principals without principal', () => {
-    it('rejects when no principal is attached', () => {
-      const guard = new ResourceScopeGuard(reflectorWith(undefined));
+    it('rejects when no principal is attached', async () => {
+      const guard = new ResourceScopeGuard();
       const ctx = makeContext({});
-      expect(() => guard.canActivate(ctx)).toThrow(ForbiddenException);
+      await expect(guard.canActivate(ctx)).rejects.toThrow(ForbiddenException);
     });
 
-    it('accepts when principal is attached (per-resource policies decide)', () => {
-      const guard = new ResourceScopeGuard(reflectorWith(undefined));
+    it('accepts when principal is attached (per-resource policies decide)', async () => {
+      const guard = new ResourceScopeGuard();
       const ctx = makeContext({ principal: makePrincipal() });
-      expect(() => guard.canActivate(ctx)).not.toThrow();
+      await expect(guard.canActivate(ctx)).resolves.toBe(true);
     });
   });
 

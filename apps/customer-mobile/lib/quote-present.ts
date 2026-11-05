@@ -87,7 +87,8 @@ export function presentOrderItems(
   for (const item of items) {
     if (!item || typeof item !== 'object') continue;
     const rec = item as Record<string, unknown>;
-    const title = typeof rec.productName === 'string' && rec.productName.trim() ? rec.productName : 'Ürün';
+    const title =
+      typeof rec.productName === 'string' && rec.productName.trim() ? rec.productName : 'Ürün';
     const quantity = typeof rec.quantity === 'number' && rec.quantity > 0 ? rec.quantity : 1;
     rows.push({ title, quantity });
   }

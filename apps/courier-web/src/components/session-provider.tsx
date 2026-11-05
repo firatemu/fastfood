@@ -15,7 +15,10 @@ type Session = {
 };
 
 const Context = createContext<Session | null>(null);
-const logoutResponse = z.object({ data: z.object({ ok: z.boolean() }), meta: z.unknown().optional() });
+const logoutResponse = z.object({
+  data: z.object({ ok: z.boolean() }),
+  meta: z.unknown().optional(),
+});
 const DEVELOPMENT_MFA_BYPASS_CODE = '000000';
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {

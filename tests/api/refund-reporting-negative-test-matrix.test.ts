@@ -26,11 +26,11 @@ function makeContext(req: { authenticatedUserId?: string }) {
 }
 
 describe('Phase 9 refund/reporting negative-test matrix', () => {
-    it('rejects unauthenticated via AuthGuard', async () => {
-      await expect(new AuthGuard().canActivate(makeContext({}))).rejects.toThrow(
-        UnauthorizedException,
-      );
-    });
+  it('rejects unauthenticated via AuthGuard', async () => {
+    await expect(new AuthGuard().canActivate(makeContext({}))).rejects.toThrow(
+      UnauthorizedException,
+    );
+  });
 
   it('rejects over-refund (REFUND_NOT_ALLOWED)', async () => {
     const svc = new RefundService();

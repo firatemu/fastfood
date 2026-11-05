@@ -1,4 +1,12 @@
-import { Button, Card, EmptyState, ErrorState, Spinner, StatusBadge, defaultTheme } from '@fastfood/ui-native';
+import {
+  Button,
+  Card,
+  EmptyState,
+  ErrorState,
+  Spinner,
+  StatusBadge,
+  defaultTheme,
+} from '@fastfood/ui-native';
 import { Link, Redirect, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';

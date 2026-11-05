@@ -1,6 +1,8 @@
-import type { ReactElement, ReactNode } from 'react';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { haptic } from '../lib/haptics';
 import { colors, minTouch, radius, space, type } from '../theme';
 
 /**
@@ -17,12 +19,16 @@ export function MustardButton(props: {
   onPress?: () => void;
   disabled?: boolean;
   loading?: boolean;
+  icon?: ComponentProps<typeof MaterialCommunityIcons>['name'];
 }): ReactElement {
   return (
     <Pressable
       accessibilityRole="button"
       disabled={props.disabled || props.loading || !props.onPress}
-      onPress={props.onPress}
+      onPress={() => {
+        haptic.light();
+        props.onPress?.();
+      }}
       style={({ pressed }) => [
         styles.primary,
         pressed && styles.primaryPressed,
@@ -32,7 +38,47 @@ export function MustardButton(props: {
       {props.loading ? (
         <ActivityIndicator color={colors.onMustard} />
       ) : (
-        <Text style={styles.primaryLabel}>{props.label}</Text>
+        <View style={styles.btnContent}>
+          {props.icon ? (
+            <MaterialCommunityIcons name={props.icon} size={18} color={colors.onMustard} />
+          ) : null}
+          <Text style={styles.primaryLabel}>{props.label}</Text>
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
+export function FlameButton(props: {
+  label: string;
+  onPress?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  icon?: ComponentProps<typeof MaterialCommunityIcons>['name'];
+}): ReactElement {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      disabled={props.disabled || props.loading || !props.onPress}
+      onPress={() => {
+        haptic.medium();
+        props.onPress?.();
+      }}
+      style={({ pressed }) => [
+        styles.flameBtn,
+        pressed && styles.flameBtnPressed,
+        props.disabled && styles.disabled,
+      ]}
+    >
+      {props.loading ? (
+        <ActivityIndicator color={colors.white} />
+      ) : (
+        <View style={styles.btnContent}>
+          {props.icon ? (
+            <MaterialCommunityIcons name={props.icon} size={18} color={colors.white} />
+          ) : null}
+          <Text style={styles.flameBtnLabel}>{props.label}</Text>
+        </View>
       )}
     </Pressable>
   );
@@ -41,14 +87,23 @@ export function MustardButton(props: {
 export function SecondaryButton(props: {
   label: string;
   onPress?: () => void;
+  icon?: ComponentProps<typeof MaterialCommunityIcons>['name'];
 }): ReactElement {
   return (
     <Pressable
       accessibilityRole="button"
-      onPress={props.onPress}
+      onPress={() => {
+        haptic.light();
+        props.onPress?.();
+      }}
       style={({ pressed }) => [styles.secondary, pressed && styles.secondaryPressed]}
     >
-      <Text style={styles.secondaryLabel}>{props.label}</Text>
+      <View style={styles.btnContent}>
+        {props.icon ? (
+          <MaterialCommunityIcons name={props.icon} size={18} color={colors.onSurface} />
+        ) : null}
+        <Text style={styles.secondaryLabel}>{props.label}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -113,12 +168,7 @@ export function StatusTag({
   tone?: StatusTone;
 }): ReactElement {
   return (
-    <View
-      style={[
-        styles.tag,
-        { backgroundColor: TONE_BG[tone], borderColor: TONE_LINE[tone] },
-      ]}
-    >
+    <View style={[styles.tag, { backgroundColor: TONE_BG[tone], borderColor: TONE_LINE[tone] }]}>
       <View style={[styles.tagDot, { backgroundColor: TONE_FG[tone] }]} />
       <Text style={[styles.tagLabel, { color: TONE_FG[tone] }]}>{label.toUpperCase()}</Text>
     </View>
@@ -196,12 +246,49 @@ export function ErrorBlock(props: {
   );
 }
 
-export function EmptyBlock(props: { title: string; message: string }): ReactElement {
+export function EmptyBlock(props: {
+  title: string;
+  message: string;
+  icon?: ComponentProps<typeof MaterialCommunityIcons>['name'];
+  actionLabel?: string;
+  onAction?: () => void;
+}): ReactElement {
   return (
     <View style={styles.block}>
+      {props.icon ? (
+        <View style={styles.emptyIconCircle}>
+          <MaterialCommunityIcons name={props.icon} size={32} color={colors.onSurfaceVariant} />
+        </View>
+      ) : null}
       <Text style={styles.errorTitle}>{props.title}</Text>
       <Text style={styles.blockText}>{props.message}</Text>
+      {props.actionLabel && props.onAction ? (
+        <View style={{ marginTop: space.sm }}>
+          <SecondaryButton label={props.actionLabel} onPress={props.onAction} />
+        </View>
+      ) : null}
     </View>
+  );
+}
+
+export function SkeletonBlock(props: {
+  width?: number | `${number}%`;
+  height?: number;
+  borderRadius?: number;
+  style?: object;
+}): ReactElement {
+  return (
+    <View
+      style={[
+        styles.skeleton,
+        {
+          width: props.width ?? '100%',
+          height: props.height ?? 20,
+          borderRadius: props.borderRadius ?? radius.sm,
+        },
+        props.style,
+      ]}
+    />
   );
 }
 
@@ -215,8 +302,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  primaryPressed: { backgroundColor: colors.mustardPressed },
+  primaryPressed: { backgroundColor: colors.mustardPressed, transform: [{ scale: 0.98 }] },
   primaryLabel: { ...type.button, color: colors.onMustard },
+  flameBtn: {
+    minHeight: minTouch,
+    paddingHorizontal: space.md,
+    paddingVertical: 11,
+    borderRadius: radius.sm,
+    backgroundColor: colors.flame,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  flameBtnPressed: { backgroundColor: colors.ember, transform: [{ scale: 0.98 }] },
+  flameBtnLabel: { ...type.button, color: colors.white },
+  btnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
   secondary: {
     minHeight: minTouch,
     paddingHorizontal: space.md,
@@ -228,7 +332,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  secondaryPressed: { backgroundColor: colors.surfaceHigh },
+  secondaryPressed: { backgroundColor: colors.surfaceHigh, transform: [{ scale: 0.98 }] },
   secondaryLabel: { ...type.button, color: colors.onSurface },
   disabled: { opacity: 0.4 },
 
@@ -291,6 +395,19 @@ const styles = StyleSheet.create({
     borderColor: colors.outlineVariant,
     borderStyle: 'dashed',
     alignItems: 'center',
+  },
+  emptyIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.surfaceHigh,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: space.xs,
+  },
+  skeleton: {
+    backgroundColor: colors.surfaceHigh,
+    overflow: 'hidden',
   },
   errorTitle: { ...type.headlineSm, color: colors.onSurface },
   blockText: { ...type.bodyMd, color: colors.onSurfaceVariant, textAlign: 'center' },

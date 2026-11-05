@@ -3,6 +3,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { haptic } from '../lib/haptics';
 import { colors, fonts, minTouch, radius, space } from '../theme';
 
 export function StickyCta(props: {
@@ -24,7 +25,10 @@ export function StickyCta(props: {
         accessibilityRole="button"
         accessibilityState={{ disabled: Boolean(props.disabled || props.loading) }}
         disabled={props.disabled || props.loading || !props.onPress}
-        onPress={props.onPress}
+        onPress={() => {
+          haptic.medium();
+          props.onPress?.();
+        }}
         style={({ pressed }) => [
           styles.btnWrap,
           (pressed || props.loading) && styles.pressed,
@@ -58,7 +62,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     paddingHorizontal: space.gutter,
     paddingTop: space.sm,
-    backgroundColor: 'rgba(18,19,22,0.94)',
+    backgroundColor: 'rgba(15, 16, 20, 0.98)',
+    borderTopWidth: 1,
+    borderTopColor: colors.hairline,
     gap: 8,
   },
   hint: {
@@ -68,7 +74,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   btnWrap: { borderRadius: radius.lg, overflow: 'hidden' },
-  pressed: { opacity: 0.88 },
+  pressed: { opacity: 0.88, transform: [{ scale: 0.98 }] },
   disabled: { opacity: 0.4 },
   btn: {
     minHeight: minTouch + 8,

@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { haptic } from '../lib/haptics';
 import { isRadioGroup, isRequiredGroup, type ModifierGroup } from '../lib/modifiers';
 import { formatDeltaMinor, formatTryMinor } from '../lib/money';
 import { colors, fonts, minTouch, radius, space } from '../theme';
@@ -41,8 +42,15 @@ export function ModifierGroupCard(props: {
               key={mod.id}
               accessibilityRole={radio ? 'radio' : 'checkbox'}
               accessibilityState={{ selected: on, checked: on }}
-              onPress={() => props.onToggle(mod.id)}
-              style={[styles.row, on && styles.rowOn]}
+              onPress={() => {
+                haptic.light();
+                props.onToggle(mod.id);
+              }}
+              style={({ pressed }) => [
+                styles.row,
+                on && styles.rowOn,
+                pressed && styles.rowPressed,
+              ]}
             >
               <View style={styles.rowLeft}>
                 <View style={[radio ? styles.radio : styles.check, on && styles.controlOn]}>
@@ -75,7 +83,7 @@ export function VariantGroupCard(props: {
           <View style={styles.num}>
             <Text style={styles.numText}>1</Text>
           </View>
-          <Text style={styles.title}>Boy / varyant</Text>
+          <Text style={styles.title}>Boy / Varyant</Text>
         </View>
         <Text style={[styles.badge, styles.badgeReq]}>Zorunlu</Text>
       </View>
@@ -87,8 +95,15 @@ export function VariantGroupCard(props: {
               key={variant.id}
               accessibilityRole="radio"
               accessibilityState={{ selected: on }}
-              onPress={() => props.onSelect(variant.id)}
-              style={[styles.row, on && styles.rowOn]}
+              onPress={() => {
+                haptic.light();
+                props.onSelect(variant.id);
+              }}
+              style={({ pressed }) => [
+                styles.row,
+                on && styles.rowOn,
+                pressed && styles.rowPressed,
+              ]}
             >
               <View style={styles.rowLeft}>
                 <View style={[styles.radio, on && styles.controlOn]}>
@@ -115,8 +130,8 @@ export function RemovalChips(props: {
   if (props.options.length === 0) return <View />;
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>Çıkarılacaklar</Text>
-      <Text style={styles.hint}>Fiyat değişmez</Text>
+      <Text style={styles.title}>Malzeme Çıkar</Text>
+      <Text style={styles.hint}>İstemediğiniz malzemeleri seçerek çıkartabilirsiniz.</Text>
       <View style={styles.chips}>
         {props.options.map((option) => {
           const on = props.selectedIds.includes(option.id);
@@ -125,8 +140,15 @@ export function RemovalChips(props: {
               key={option.id}
               accessibilityRole="button"
               accessibilityState={{ selected: on }}
-              onPress={() => props.onToggle(option.id)}
-              style={[styles.chip, on && styles.chipOn]}
+              onPress={() => {
+                haptic.light();
+                props.onToggle(option.id);
+              }}
+              style={({ pressed }) => [
+                styles.chip,
+                on && styles.chipOn,
+                pressed && styles.chipPressed,
+              ]}
             >
               <Text style={[styles.chipText, on && styles.chipTextOn]}>{option.name}</Text>
             </Pressable>
@@ -140,13 +162,18 @@ export function RemovalChips(props: {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     padding: space.md,
     gap: space.sm,
     borderWidth: 1,
-    borderColor: colors.hairline,
+    borderColor: colors.hairlineBright,
   },
-  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
+  head: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: space.sm,
+  },
   headLeft: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 },
   num: {
     width: 24,
@@ -159,7 +186,7 @@ const styles = StyleSheet.create({
   numText: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.onMustard },
   title: {
     fontFamily: fonts.jakartaBold,
-    fontSize: 18,
+    fontSize: 16,
     color: colors.onSurface,
     textTransform: 'uppercase',
     flexShrink: 1,
@@ -170,13 +197,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     textTransform: 'uppercase',
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 3,
     borderRadius: radius.full,
     overflow: 'hidden',
   },
-  badgeReq: { color: colors.mustard, backgroundColor: colors.mustardBloom },
-  badgeOpt: { color: colors.ash, backgroundColor: colors.surfaceHigh },
-  hint: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.ash },
+  badgeReq: { color: colors.onMustard, backgroundColor: colors.mustard },
+  badgeOpt: { color: colors.onSurfaceVariant, backgroundColor: colors.surfaceHigh },
+  hint: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.onSurfaceVariant },
   list: { gap: 8 },
   row: {
     minHeight: minTouch,
@@ -186,9 +213,17 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: radius.md,
     backgroundColor: colors.surfaceLow,
+    borderWidth: 1,
+    borderColor: 'transparent',
     gap: space.sm,
   },
-  rowOn: { backgroundColor: colors.surfaceHigh },
+  rowOn: {
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.mustardBloom,
+  },
+  rowPressed: {
+    transform: [{ scale: 0.98 }],
+  },
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1, minWidth: 0 },
   radio: {
     width: 20,
@@ -224,13 +259,21 @@ const styles = StyleSheet.create({
   deltaOn: { color: colors.mustard },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
-    minHeight: minTouch,
+    minHeight: 36,
     paddingHorizontal: 12,
     justifyContent: 'center',
     borderRadius: radius.full,
     backgroundColor: colors.surfaceLow,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
   },
-  chipOn: { backgroundColor: colors.errorContainer },
+  chipPressed: {
+    transform: [{ scale: 0.95 }],
+  },
+  chipOn: {
+    backgroundColor: colors.errorContainer,
+    borderColor: colors.danger,
+  },
   chipText: { fontFamily: fonts.jakartaBold, fontSize: 12, color: colors.onSurfaceVariant },
-  chipTextOn: { color: colors.onErrorContainer },
+  chipTextOn: { color: colors.danger },
 });

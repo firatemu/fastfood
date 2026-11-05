@@ -18,6 +18,15 @@ import {
   type ClientRequestContext,
 } from './request-ids.js';
 
+/**
+ * Fetch credentials mode.
+ *
+ * Mirrors the platform `RequestCredentials` union. The package is compiled
+ * without the DOM lib, so the alias is declared here instead of borrowing
+ * the browser type.
+ */
+export type ApiCredentials = 'omit' | 'same-origin' | 'include';
+
 export interface ApiClientConfig {
   baseUrl: string;
   /** Bearer access token source. Called before every request. */
@@ -32,6 +41,14 @@ export interface ApiClientConfig {
   timeoutMs?: number;
   /** Optional fetch implementation (for tests/SSR). */
   fetchImpl?: typeof fetch;
+  /**
+   * Default fetch credentials mode. `'include'` is required when the API
+   * lives on another origin and the session lives in an HttpOnly cookie
+   * (document 32 §5 — the web refresh credential is a cookie).
+   */
+  credentials?: ApiCredentials;
+  /** Called when the API answers 401 so a client can drop a dead session. */
+  onUnauthorized?: (status: number) => void;
 }
 
 export class ApiError extends Error {
@@ -73,6 +90,8 @@ export interface ApiRequestOptions<TBody, TResponseSchema extends z.ZodTypeAny> 
   context?: ClientRequestContext;
   /** Extra headers merged for this request (e.g. X-Session-Id for guest cart). */
   headers?: Record<string, string>;
+  /** Per-request override of the client credentials mode. */
+  credentials?: ApiCredentials;
 }
 
 function buildUrl(
@@ -136,6 +155,7 @@ export class ApiClient {
       response = await this.fetchImpl(url, {
         method: options.method ?? (bodyPayload ? 'POST' : 'GET'),
         headers,
+        credentials: options.credentials ?? this.config.credentials,
         ...(bodyPayload !== undefined ? { body: bodyPayload } : {}),
         signal: controller.signal,
       });
@@ -166,6 +186,9 @@ export class ApiClient {
     }
 
     if (!response.ok) {
+      if (response.status === 401) {
+        this.config.onUnauthorized?.(response.status);
+      }
       const parsed = errorEnvelopeSchema.safeParse(raw);
       const envelope: ErrorEnvelope = parsed.success
         ? parsed.data

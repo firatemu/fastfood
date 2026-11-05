@@ -1,10 +1,5 @@
 import { ErrorCodes } from '@fastfood/contracts';
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  Optional,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Optional } from '@nestjs/common';
 
 import { PrismaService } from '../../common/database/prisma.service.js';
 import { NotificationService } from '../notification/notification.service.js';
@@ -60,8 +55,12 @@ export class ClubService {
 
   constructor(
     @Inject(LoyaltyService) private readonly loyalty: LoyaltyService,
-    @Optional() @Inject(PromotionService) private readonly promotions: PromotionService | null = null,
-    @Optional() @Inject(NotificationService) private readonly notifications: NotificationService | null = null,
+    @Optional()
+    @Inject(PromotionService)
+    private readonly promotions: PromotionService | null = null,
+    @Optional()
+    @Inject(NotificationService)
+    private readonly notifications: NotificationService | null = null,
     @Optional() @Inject(PrismaService) private readonly prisma: PrismaService | null = null,
   ) {}
 
@@ -81,23 +80,16 @@ export class ClubService {
     ]);
     const current = this.resolveTier(lifetime, tiers);
     const next = this.nextTier(lifetime, tiers);
-    const span = next
-      ? next.minLifetimeEarnedPoints - current.minLifetimeEarnedPoints
-      : 0n;
+    const span = next ? next.minLifetimeEarnedPoints - current.minLifetimeEarnedPoints : 0n;
     const progressed = next ? lifetime - current.minLifetimeEarnedPoints : span;
-    const progressBps =
-      !next || span <= 0n
-        ? 10000
-        : Number((progressed * 10000n) / span);
+    const progressBps = !next || span <= 0n ? 10000 : Number((progressed * 10000n) / span);
     return {
       programName: 'BURGER HOME CLUB',
       points: points.toString(),
       lifetimeEarnedPoints: lifetime.toString(),
       currentTier: this.toView(current),
       nextTier: next ? this.toView(next) : null,
-      pointsToNextTier: next
-        ? (next.minLifetimeEarnedPoints - lifetime).toString()
-        : null,
+      pointsToNextTier: next ? (next.minLifetimeEarnedPoints - lifetime).toString() : null,
       progressBps: Math.min(10000, Math.max(0, progressBps)),
       welcome: await this.welcomeStatus(userId),
       activity,
@@ -108,7 +100,9 @@ export class ClubService {
     const sorted = [...tiers].sort((a, b) =>
       a.minLifetimeEarnedPoints === b.minLifetimeEarnedPoints
         ? a.sortOrder - b.sortOrder
-        : a.minLifetimeEarnedPoints < b.minLifetimeEarnedPoints ? -1 : 1,
+        : a.minLifetimeEarnedPoints < b.minLifetimeEarnedPoints
+          ? -1
+          : 1,
     );
     const fallback: ClubTierDefinition = {
       code: 'KOR',
@@ -123,10 +117,7 @@ export class ClubService {
     return current;
   }
 
-  nextTier(
-    lifetimeEarned: bigint,
-    tiers = DEFAULT_CLUB_TIERS,
-  ): ClubTierDefinition | null {
+  nextTier(lifetimeEarned: bigint, tiers = DEFAULT_CLUB_TIERS): ClubTierDefinition | null {
     const sorted = [...tiers].sort((a, b) =>
       a.minLifetimeEarnedPoints < b.minLifetimeEarnedPoints ? -1 : 1,
     );

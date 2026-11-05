@@ -47,7 +47,10 @@ for (const width of [1920, 1024, 390]) {
     const sizes = allowed.length ? allowed : [1920, 1024, 390];
     if (!sizes.includes(width)) continue;
     await page.goto(url, { waitUntil: 'networkidle' });
-    await page.locator('.ops-page, .ff-admin-scaffold, .ops-shell').first().waitFor({ timeout: 15000 });
+    await page
+      .locator('.ops-page, .ff-admin-scaffold, .ops-shell')
+      .first()
+      .waitFor({ timeout: 15000 });
     const file = path.join(outDir, `${name}-${width}.png`);
     await page.screenshot({ path: file, fullPage: true });
     console.log('wrote', file);

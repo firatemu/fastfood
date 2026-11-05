@@ -71,7 +71,16 @@ describe('private cache invalidation', () => {
       welcome: { status: 'USED', promotionCode: null, discountMinor: null, expiresAt: null },
       activity: [],
     });
-    cacheNotifications([{ id: 'n1', title: 't', body: 'b', href: null, read: false, createdAt: '2026-01-01T00:00:00.000Z' }]);
+    cacheNotifications([
+      {
+        id: 'n1',
+        title: 't',
+        body: 'b',
+        href: null,
+        read: false,
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    ]);
 
     clearPrivateCustomerCache();
 

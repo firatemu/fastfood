@@ -284,6 +284,14 @@ export interface StorefrontProductDetailDto extends ProductDto {
 
 const STOREFRONT_DEFAULT_BRANCH_ID = '01900000-0000-7000-8000-faaaaaaaaaaa';
 
+/**
+ * In-memory dev seed id of the configurable builder product. The builder
+ * modifier groups belong to this product, so the dev catalog detail must
+ * expose them — otherwise the server-authoritative pricing step would
+ * reject every modifier the dev clients send.
+ */
+const BUILDER_PRODUCT_ID = '01900000-0000-7000-8000-c1000000000d';
+
 @Injectable()
 export class CatalogService {
   readonly #categories = new Map<string, CategoryDto>();
@@ -351,6 +359,25 @@ export class CatalogService {
     });
     this.#slugs.add('classic-cheeseburger');
 
+    // The classic cheeseburger carries one optional "Ekstra" modifier group.
+    // The server-authoritative pricing step (audit P0-2) prices modifiers
+    // from the catalog, so the dev catalog must expose them — otherwise the
+    // checkout re-pricing step would reject every modifier a client sends.
+    this.#seedModifierGroup({
+      groupId: '01900000-0000-7000-8000-0e0100000011',
+      name: 'Ekstra',
+      selectionMin: 0,
+      selectionMax: 3,
+      options: [
+        {
+          id: '01900000-0000-7000-8000-ffffffffffff',
+          name: 'Bacon',
+          priceDeltaMinor: 2000n,
+        },
+      ],
+      productIds: [cheeseburgerId],
+    });
+
     const builderId = '01900000-0000-7000-8000-c1000000000d';
     this.#products.set(builderId, {
       id: builderId,
@@ -408,6 +435,76 @@ export class CatalogService {
     });
     const dairyId = '01900000-0000-7000-8000-eeeeeeeeeeee';
     this.#allergens.set(dairyId, { id: dairyId, code: 'DAIRY', name: 'Dairy', description: null });
+  }
+
+  /**
+   * Seed a modifier group with its options and product links into the
+   * in-memory dev catalog.
+   */
+  #seedModifierGroup(input: {
+    groupId: string;
+    name: string;
+    selectionMin: number;
+    selectionMax: number;
+    options: Array<{ id: string; name: string; priceDeltaMinor: bigint }>;
+    productIds: string[];
+  }): void {
+    const group: ModifierGroupDto = {
+      id: input.groupId,
+      name: input.name,
+      selectionMin: input.selectionMin,
+      selectionMax: input.selectionMax,
+      isActive: true,
+      modifiers: [],
+      products: [],
+    };
+    this.#modifierGroups.set(input.groupId, group);
+    for (const option of input.options) {
+      this.#modifierOptions.set(option.id, {
+        id: option.id,
+        name: option.name,
+        priceDeltaMinor: option.priceDeltaMinor.toString(),
+        isActive: true,
+      });
+      this.#modifierOptionGroupIds.set(option.id, input.groupId);
+    }
+    group.modifiers = input.options.map((option) => ({
+      id: option.id,
+      name: option.name,
+      priceDeltaMinor: option.priceDeltaMinor.toString(),
+      isActive: true,
+    }));
+    for (const [index, productId] of input.productIds.entries()) {
+      const links = this.#modifierProductLinks.get(input.groupId) ?? new Map<string, number>();
+      links.set(productId, index);
+      this.#modifierProductLinks.set(input.groupId, links);
+    }
+  }
+
+  /**
+   * Modifier groups linked to a product, in the storefront shape.
+   */
+  #modifierGroupsForProduct(productId: string): StorefrontModifierGroupDto[] {
+    const groups: StorefrontModifierGroupDto[] = [];
+    for (const [groupId, links] of this.#modifierProductLinks.entries()) {
+      if (!links.has(productId)) continue;
+      const group = this.#modifierGroups.get(groupId);
+      if (!group || !group.isActive) continue;
+      groups.push({
+        id: group.id,
+        name: group.name,
+        selectionMin: group.selectionMin,
+        selectionMax: group.selectionMax,
+        modifiers: group.modifiers
+          .filter((option) => option.isActive)
+          .map((option) => ({
+            id: option.id,
+            name: option.name,
+            priceDeltaMinor: BigInt(option.priceDeltaMinor),
+          })),
+      });
+    }
+    return groups;
   }
 
   async listCategories(parentId?: string, includeInactive = false): Promise<CategoryDto[]> {
@@ -1456,7 +1553,10 @@ export class CatalogService {
       return {
         ...product,
         media,
-        modifierGroups: [],
+        modifierGroups:
+          product.id === BUILDER_PRODUCT_ID
+            ? this.#builderGroups
+            : this.#modifierGroupsForProduct(product.id),
         allergenIds: allergens.map((allergen) => allergen.id),
         allergens: allergens.map((allergen) => ({
           id: allergen.id,

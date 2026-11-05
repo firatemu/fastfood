@@ -3,7 +3,7 @@
  */
 import { test, expect, request } from '@playwright/test';
 
-const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3100);
+const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3110);
 const ADMIN_PORT = Number(process.env.ADMIN_PORT ?? 3101);
 const API_PORT = Number(process.env.API_PORT ?? 4000);
 

@@ -3,18 +3,12 @@ import { StyleSheet, Text, TextInput, type TextInputProps, View } from 'react-na
 
 import { colors, fonts, minTouch, radius, space } from '../theme';
 
-export function FormField(
-  props: TextInputProps & { label: string; error?: string },
-): ReactElement {
+export function FormField(props: TextInputProps & { label: string; error?: string }): ReactElement {
   const { label, error, style, ...input } = props;
   return (
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput
-        placeholderTextColor={colors.ash}
-        style={[styles.input, style]}
-        {...input}
-      />
+      <TextInput placeholderTextColor={colors.ash} style={[styles.input, style]} {...input} />
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );

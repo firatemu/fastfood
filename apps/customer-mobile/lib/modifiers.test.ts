@@ -42,7 +42,12 @@ describe('defaultModifierSelection', () => {
 
 describe('toggleModifierSelection', () => {
   it('replaces a required radio choice', () => {
-    const next = toggleModifierSelection(groups, { 'g-patty': ['m-double'] }, 'g-patty', 'm-triple');
+    const next = toggleModifierSelection(
+      groups,
+      { 'g-patty': ['m-double'] },
+      'g-patty',
+      'm-triple',
+    );
     expect(next['g-patty']).toEqual(['m-triple']);
   });
 
@@ -61,9 +66,7 @@ describe('requiredSelectionsMet', () => {
 
   it('fails when multiple variants exist without a choice', () => {
     const variants = [{ id: 'v1' }, { id: 'v2' }];
-    expect(
-      requiredSelectionsMet(groups, { 'g-patty': ['m-double'] }, variants, null),
-    ).toBe(false);
+    expect(requiredSelectionsMet(groups, { 'g-patty': ['m-double'] }, variants, null)).toBe(false);
   });
 
   it('passes when required radio is selected', () => {

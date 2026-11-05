@@ -15,6 +15,7 @@ import {
 import { cacheClub } from '../../lib/private-cache';
 import type { ClubSnapshot } from '../../lib/schemas';
 import { formatStorefrontDateTime } from '../../lib/tracking-map';
+import { haptic } from '../../lib/haptics';
 import { colors, fonts, radius, space } from '../../theme';
 
 export default function AccountClubRoute() {
@@ -85,13 +86,22 @@ function ClubBody() {
           <Text style={styles.body}>En üst seviye.</Text>
         )}
         {welcome ? <Text style={styles.welcome}>{welcome}</Text> : null}
-        <MustardButton label="Ateş Çarkı" onPress={() => router.push('/account/spin')} />
+        <MustardButton
+          label="Ateş Çarkı"
+          onPress={() => {
+            haptic.light();
+            router.push('/account/spin');
+          }}
+        />
       </View>
 
       <View style={styles.card}>
         <Text style={styles.section}>Hareketler</Text>
         {club.activity.length === 0 ? (
-          <EmptyBlock title="Henüz hareket yok" message="Sipariş ve çark puanları burada görünür." />
+          <EmptyBlock
+            title="Henüz hareket yok"
+            message="Sipariş ve çark puanları burada görünür."
+          />
         ) : (
           club.activity.map((row) => (
             <View key={row.id} style={styles.row}>
@@ -113,13 +123,18 @@ const styles = StyleSheet.create({
   scroll: { padding: space.gutter, gap: 12, paddingBottom: 40 },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     padding: space.md,
     gap: space.sm,
     borderWidth: 1,
     borderColor: colors.hairline,
   },
-  kicker: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.mustard, textTransform: 'uppercase' },
+  kicker: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    color: colors.mustard,
+    textTransform: 'uppercase',
+  },
   points: { fontFamily: fonts.anton, fontSize: 40, color: colors.onSurface },
   tier: { fontFamily: fonts.jakartaBold, fontSize: 18, color: colors.onSurface },
   meta: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },
@@ -129,8 +144,20 @@ const styles = StyleSheet.create({
   progressRow: { flexDirection: 'row', justifyContent: 'space-between' },
   bar: { height: 8, borderRadius: 4, backgroundColor: colors.surfaceHighest, overflow: 'hidden' },
   barFill: { height: 8, backgroundColor: colors.mustard },
-  section: { fontFamily: fonts.jakartaBold, fontSize: 14, color: colors.onSurface, textTransform: 'uppercase' },
-  row: { flexDirection: 'row', justifyContent: 'space-between', gap: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.hairline },
+  section: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 14,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.hairline,
+  },
   copy: { flex: 1 },
   delta: { fontFamily: fonts.jakartaBold, fontSize: 14, color: colors.mustard },
 });

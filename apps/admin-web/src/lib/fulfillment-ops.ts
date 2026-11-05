@@ -361,7 +361,7 @@ export function checkProfile(draft: BranchDraft, mode: 'create' | 'edit'): Profi
 /** Live readout for the paired latitude/longitude control. */
 export function coordinateReadout(
   draft: BranchDraft,
-  _mode?: 'create' | 'edit',
+  mode?: 'create' | 'edit',
 ): { text: string; ok: boolean } {
   if (!draft.latitude.trim() || !draft.longitude.trim())
     return { text: 'Enlem ve boylam zorunlu.', ok: false };
@@ -372,6 +372,18 @@ export function coordinateReadout(
   if (!isValidLatitude(latitude)) return { text: 'Enlem -90 ile 90 arasında olmalı.', ok: false };
   if (!isValidLongitude(longitude))
     return { text: 'Boylam -180 ile 180 arasında olmalı.', ok: false };
+  if (mode === 'edit') {
+    // Edit reads the stored pair back: the stored precision is what the form
+    // submits, so padding it to five decimals would misrepresent the value.
+    return {
+      text:
+        'WGS84 derece · ' +
+        draft.latitude.trim().replace(',', '.') +
+        ', ' +
+        draft.longitude.trim().replace(',', '.'),
+      ok: true,
+    };
+  }
   return {
     text: 'WGS84 derece · ' + latitude.toFixed(5) + ', ' + longitude.toFixed(5),
     ok: true,

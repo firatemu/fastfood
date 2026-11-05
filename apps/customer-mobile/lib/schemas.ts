@@ -79,9 +79,18 @@ export const otpRequestResponseSchema = envelope(
   }),
 );
 
+/**
+ * Customer session envelope.
+ *
+ * A native client declares itself with `X-Client-Platform: mobile`, so the
+ * API returns the refresh credential in the body. It is stored in the Expo
+ * secure store; the access token stays in memory (document 32 §5).
+ */
 export const otpVerifyResponseSchema = envelope(
   z.object({
     customerId: z.string(),
+    accessToken: z.string(),
+    accessExpiresAt: z.string(),
     refreshToken: z.string(),
     refreshExpiresAt: z.string(),
   }),

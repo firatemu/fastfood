@@ -94,6 +94,7 @@ apps/api/prisma/generated/
 # rules above remain tracked because they are the visual source of truth.
 apps/storefront-web/.stitch/export/
 apps/storefront-web/.stitch-html/
+design-references/
 
 # Local PostgreSQL snapshots (`pg_dump` output). They can contain credential
 # hashes, refresh-token hashes and other row data, so they stay local only.

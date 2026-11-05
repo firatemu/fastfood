@@ -286,7 +286,7 @@
    which shifts baseline alignment everywhere. */
 :root .material-symbols-outlined {
   flex: 0 0 auto;
-  font-family: 'Material Symbols Outlined', sans-serif;
+  font-family: var(--font-material-symbols), 'Material Symbols Outlined', sans-serif;
 }
 
 [data-admin-theme='fastfood-navy'] .material-symbols-outlined {

@@ -36,11 +36,7 @@ export function UpsellStrip({ items, onAdd, onInspect, busyId }: UpsellStripProp
 
       {primary ? (
         <View style={styles.primary}>
-          <Thumbnail
-            url={primary.imageUrl}
-            alt={primary.imageAlt ?? primary.name}
-            size={48}
-          />
+          <Thumbnail url={primary.imageUrl} alt={primary.imageAlt ?? primary.name} size={48} />
           <View style={styles.primaryText}>
             <Text style={styles.name} numberOfLines={1}>
               {primary.name}
@@ -112,7 +108,9 @@ export function UpsellStrip({ items, onAdd, onInspect, busyId }: UpsellStripProp
 function Thumbnail({ url, alt, size }: { url: string | null; alt: string; size: number }) {
   const box = { width: size, height: size, borderRadius: radius.sm };
   if (!url) {
-    return <View style={[styles.placeholder, box]} accessibilityRole="image" accessibilityLabel={alt} />;
+    return (
+      <View style={[styles.placeholder, box]} accessibilityRole="image" accessibilityLabel={alt} />
+    );
   }
   return (
     <Image

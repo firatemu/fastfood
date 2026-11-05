@@ -68,7 +68,10 @@ export class SupportChatService {
     if (!this.prisma) {
       const convo = this.#conversations.get(conversationId);
       if (!convo) {
-        throw new NotFoundException({ code: ErrorCodes.NOT_FOUND, message: 'Conversation not found.' });
+        throw new NotFoundException({
+          code: ErrorCodes.NOT_FOUND,
+          message: 'Conversation not found.',
+        });
       }
       const owned = (this.#byUser.get(userId) ?? []).includes(conversationId);
       if (!owned) {
@@ -84,7 +87,10 @@ export class SupportChatService {
       include: { messages: { orderBy: { createdAt: 'asc' } } },
     });
     if (!row) {
-      throw new NotFoundException({ code: ErrorCodes.NOT_FOUND, message: 'Conversation not found.' });
+      throw new NotFoundException({
+        code: ErrorCodes.NOT_FOUND,
+        message: 'Conversation not found.',
+      });
     }
     if (row.userId !== userId) {
       throw new ForbiddenException({
@@ -111,7 +117,9 @@ export class SupportChatService {
     if (!this.prisma) {
       const existingId = (this.#byUser.get(input.userId) ?? []).find((id) => {
         const c = this.#conversations.get(id);
-        return c && c.status === 'OPEN' && (input.orderId ? c.orderId === input.orderId : !c.orderId);
+        return (
+          c && c.status === 'OPEN' && (input.orderId ? c.orderId === input.orderId : !c.orderId)
+        );
       });
       if (existingId) return this.getOwned(input.userId, existingId);
       const created: SupportConversationDto = {

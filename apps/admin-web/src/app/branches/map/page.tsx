@@ -120,7 +120,12 @@ export default function TurkeyCoverageMapPage() {
     branchName?: string;
     distanceKm?: number;
     overlapCount?: number;
-    branches?: Array<{ branchId: string; branchName: string; priority: number; distanceKm?: number }>;
+    branches?: Array<{
+      branchId: string;
+      branchName: string;
+      priority: number;
+      distanceKm?: number;
+    }>;
     nearestBranch?: { name: string; distKm: number };
   } | null>(null);
   const [testBusy, setTestBusy] = useState(false);
@@ -381,8 +386,8 @@ export default function TurkeyCoverageMapPage() {
           </h1>
           <p className={styles.subtitle}>
             Projemizde kullanılan OpenFreeMap / OpenStreetMap motoru üzerinden tüm şubelerin gerçek
-            10 km servis ağı poligonlarını, sokak ve il sınırlarını ve kesişim bölgelerini canlı harita
-            üzerinde inceleyin.
+            10 km servis ağı poligonlarını, sokak ve il sınırlarını ve kesişim bölgelerini canlı
+            harita üzerinde inceleyin.
           </p>
         </div>
 
@@ -440,12 +445,17 @@ export default function TurkeyCoverageMapPage() {
           <div className={styles.statValue}>
             ~4.712 <span className={styles.statSub}>km²</span>
           </div>
-          <span className={styles.statSub}>Her şube müşteriye azami 10.0 km uzaklığa kadar servis verir</span>
+          <span className={styles.statSub}>
+            Her şube müşteriye azami 10.0 km uzaklığa kadar servis verir
+          </span>
         </div>
 
         <div className={styles.statItem}>
           <span className={styles.statLabel}>Harita Motoru</span>
-          <div className={styles.statValue} style={{ color: 'var(--accent-gold)', fontSize: '18px' }}>
+          <div
+            className={styles.statValue}
+            style={{ color: 'var(--accent-gold)', fontSize: '18px' }}
+          >
             OpenFreeMap
           </div>
           <span className={styles.statSub}>Vektör & Canlı Ölçek Cetveli</span>
@@ -463,18 +473,28 @@ export default function TurkeyCoverageMapPage() {
           </div>
           <p className={styles.noticeText}>
             Sistemdeki tüm şubeler, kendi merkezinden müşterinin konumuna olan mesafesi en fazla{' '}
-            <strong>10.0 km</strong> olan adreslere servis verecek şekilde yapılandırıldı.
-            Harita üzerindeki dairesel alanlar, şubeden <strong>10.0 km uzağa</strong> uzanan tüm sipariş noktalarını (kuzey, güney, doğu, batı) sınırlandırmaktadır.
-            Haritaya tıklayarak müşterinin şubeye olan net km mesafesini ve servis durumunu canlı test edebilirsiniz.
+            <strong>10.0 km</strong> olan adreslere servis verecek şekilde yapılandırıldı. Harita
+            üzerindeki dairesel alanlar, şubeden <strong>10.0 km uzağa</strong> uzanan tüm sipariş
+            noktalarını (kuzey, güney, doğu, batı) sınırlandırmaktadır. Haritaya tıklayarak
+            müşterinin şubeye olan net km mesafesini ve servis durumunu canlı test edebilirsiniz.
           </p>
           <div className={styles.metricComparison}>
             <div className={styles.metricPill}>
               <span className={styles.metricPillBadge}>Kural</span>
-              <span><strong>Müşteri — Şube Uzaklığı ≤ 10.0 km</strong></span>
+              <span>
+                <strong>Müşteri — Şube Uzaklığı ≤ 10.0 km</strong>
+              </span>
             </div>
             <div className={styles.metricPill}>
-              <span className={styles.metricPillBadge} style={{ background: 'rgba(63, 185, 80, 0.2)', color: 'var(--accent-green)' }}>Azami Menzil</span>
-              <span>Tek yön azami <strong>10.0 km</strong> mesafe (Doğu-Batı toplam aksı: 20 km)</span>
+              <span
+                className={styles.metricPillBadge}
+                style={{ background: 'rgba(63, 185, 80, 0.2)', color: 'var(--accent-green)' }}
+              >
+                Azami Menzil
+              </span>
+              <span>
+                Tek yön azami <strong>10.0 km</strong> mesafe (Doğu-Batı toplam aksı: 20 km)
+              </span>
             </div>
           </div>
         </div>
@@ -532,7 +552,10 @@ export default function TurkeyCoverageMapPage() {
               <div className={styles.legendItem}>
                 <div
                   className={styles.legendDot}
-                  style={{ background: 'rgba(255, 183, 77, 0.4)', border: '1px solid var(--accent-gold)' }}
+                  style={{
+                    background: 'rgba(255, 183, 77, 0.4)',
+                    border: '1px solid var(--accent-gold)',
+                  }}
                 />
                 <span>10 km Gerçek Servis Ağı</span>
               </div>
@@ -547,7 +570,8 @@ export default function TurkeyCoverageMapPage() {
             </div>
 
             <span style={{ fontSize: '11px', color: 'var(--text-faint)' }}>
-              İpucu: Gerçek haritada herhangi bir cadde/adrese tıklayarak anlık kapsama testi yapabilirsiniz.
+              İpucu: Gerçek haritada herhangi bir cadde/adrese tıklayarak anlık kapsama testi
+              yapabilirsiniz.
             </span>
           </div>
         </section>
@@ -561,20 +585,24 @@ export default function TurkeyCoverageMapPage() {
                 !testResult?.serviceable
                   ? styles.testResultError
                   : (testResult?.overlapCount ?? 0) > 1
-                  ? styles.testResultWarning
-                  : ''
+                    ? styles.testResultWarning
+                    : ''
               }`}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <strong style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              >
+                <strong
+                  style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
                   <OpsIcon name={testResult?.serviceable ? 'check_circle' : 'cancel'} />
                   {testBusy
                     ? 'Konum Hesaplanıyor…'
                     : testResult?.serviceable
-                    ? (testResult.overlapCount ?? 0) > 1
-                      ? 'Kesişim Bölgesi (Çoklu Şube)'
-                      : 'Teslimat Kapsamında'
-                    : 'Kapsama Dışı'}
+                      ? (testResult.overlapCount ?? 0) > 1
+                        ? 'Kesişim Bölgesi (Çoklu Şube)'
+                        : 'Teslimat Kapsamında'
+                      : 'Kapsama Dışı'}
                 </strong>
                 <button
                   type="button"
@@ -600,8 +628,11 @@ export default function TurkeyCoverageMapPage() {
                 <div style={{ fontSize: '12px' }}>
                   {testResult.nearestBranch && (
                     <p style={{ margin: '4px 0', color: 'var(--text-faint)' }}>
-                      En yakın şube: <strong>{testResult.nearestBranch.name}</strong> — Şubeye Mesafe:{' '}
-                      <strong style={{ color: '#fff' }}>{testResult.distanceKm ?? testResult.nearestBranch.distKm} km</strong>
+                      En yakın şube: <strong>{testResult.nearestBranch.name}</strong> — Şubeye
+                      Mesafe:{' '}
+                      <strong style={{ color: '#fff' }}>
+                        {testResult.distanceKm ?? testResult.nearestBranch.distKm} km
+                      </strong>
                       {testResult.serviceable ? (
                         <span style={{ color: 'var(--accent-green)', marginLeft: '6px' }}>
                           (≤ 10.0 km menzili içinde)
@@ -630,7 +661,8 @@ export default function TurkeyCoverageMapPage() {
                       </div>
                     ) : (
                       <p style={{ margin: '4px 0 0', color: 'var(--accent-green)' }}>
-                        Sipariş otomatik olarak <strong>{testResult.branchName}</strong> şubesine atanır.
+                        Sipariş otomatik olarak <strong>{testResult.branchName}</strong> şubesine
+                        atanır.
                       </p>
                     )
                   ) : (
@@ -650,7 +682,9 @@ export default function TurkeyCoverageMapPage() {
                 <div>
                   <span className={styles.branchCode}>{selectedBranch.code}</span>
                   <h3 className={styles.spotlightTitle}>{selectedBranch.name}</h3>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{selectedBranch.city} Bölgesi</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                    {selectedBranch.city} Bölgesi
+                  </span>
                 </div>
                 <button
                   type="button"
@@ -664,21 +698,37 @@ export default function TurkeyCoverageMapPage() {
 
               <div className={styles.spotlightGrid}>
                 <div>
-                  <span style={{ color: 'var(--text-faint)', fontSize: '10px', textTransform: 'uppercase' }}>
+                  <span
+                    style={{
+                      color: 'var(--text-faint)',
+                      fontSize: '10px',
+                      textTransform: 'uppercase',
+                    }}
+                  >
                     GPS Koordinatı
                   </span>
-                  <p style={{ margin: 0, fontFamily: 'monospace', color: '#fff', fontSize: '11px' }}>
+                  <p
+                    style={{ margin: 0, fontFamily: 'monospace', color: '#fff', fontSize: '11px' }}
+                  >
                     {selectedBranch.latitude.toFixed(4)}, {selectedBranch.longitude.toFixed(4)}
                   </p>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-faint)', fontSize: '10px', textTransform: 'uppercase' }}>
+                  <span
+                    style={{
+                      color: 'var(--text-faint)',
+                      fontSize: '10px',
+                      textTransform: 'uppercase',
+                    }}
+                  >
                     Sipariş Durumu
                   </span>
                   <p
                     style={{
                       margin: 0,
-                      color: selectedBranch.isAcceptingOrders ? 'var(--accent-green)' : 'var(--accent-red)',
+                      color: selectedBranch.isAcceptingOrders
+                        ? 'var(--accent-green)'
+                        : 'var(--accent-red)',
                       fontWeight: 600,
                     }}
                   >
@@ -686,7 +736,13 @@ export default function TurkeyCoverageMapPage() {
                   </p>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-faint)', fontSize: '10px', textTransform: 'uppercase' }}>
+                  <span
+                    style={{
+                      color: 'var(--text-faint)',
+                      fontSize: '10px',
+                      textTransform: 'uppercase',
+                    }}
+                  >
                     Min. Sipariş
                   </span>
                   <p style={{ margin: 0, color: '#fff' }}>
@@ -696,7 +752,13 @@ export default function TurkeyCoverageMapPage() {
                   </p>
                 </div>
                 <div>
-                  <span style={{ color: 'var(--text-faint)', fontSize: '10px', textTransform: 'uppercase' }}>
+                  <span
+                    style={{
+                      color: 'var(--text-faint)',
+                      fontSize: '10px',
+                      textTransform: 'uppercase',
+                    }}
+                  >
                     Teslimat Ücreti
                   </span>
                   <p style={{ margin: 0, color: '#fff' }}>
@@ -705,14 +767,43 @@ export default function TurkeyCoverageMapPage() {
                       : '0'}
                   </p>
                 </div>
-                <div style={{ gridColumn: 'span 2', padding: '8px 10px', background: 'rgba(255, 183, 77, 0.08)', borderRadius: '6px', border: '1px dashed rgba(255, 183, 77, 0.35)' }}>
-                  <div style={{ color: 'var(--accent-gold)', fontSize: '10px', textTransform: 'uppercase', fontWeight: 700 }}>
+                <div
+                  style={{
+                    gridColumn: 'span 2',
+                    padding: '8px 10px',
+                    background: 'rgba(255, 183, 77, 0.08)',
+                    borderRadius: '6px',
+                    border: '1px dashed rgba(255, 183, 77, 0.35)',
+                  }}
+                >
+                  <div
+                    style={{
+                      color: 'var(--accent-gold)',
+                      fontSize: '10px',
+                      textTransform: 'uppercase',
+                      fontWeight: 700,
+                    }}
+                  >
                     🎯 Şube Kapsama Boyutları
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', fontSize: '11px', color: '#c9d1d9' }}>
-                    <span>Müşteriye Azami Mesafe: <strong style={{ color: '#fff' }}>10.0 km</strong></span>
-                    <span>Doğu-Batı Aksı: <strong style={{ color: '#fff' }}>20.0 km</strong></span>
-                    <span>Alan: <strong style={{ color: '#fff' }}>~314.16 km²</strong></span>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginTop: '4px',
+                      fontSize: '11px',
+                      color: '#c9d1d9',
+                    }}
+                  >
+                    <span>
+                      Müşteriye Azami Mesafe: <strong style={{ color: '#fff' }}>10.0 km</strong>
+                    </span>
+                    <span>
+                      Doğu-Batı Aksı: <strong style={{ color: '#fff' }}>20.0 km</strong>
+                    </span>
+                    <span>
+                      Alan: <strong style={{ color: '#fff' }}>~314.16 km²</strong>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -787,7 +878,9 @@ export default function TurkeyCoverageMapPage() {
                         <span>10 km Servis Ağı</span>
                         <span
                           style={{
-                            color: branch.isAcceptingOrders ? 'var(--accent-green)' : 'var(--accent-red)',
+                            color: branch.isAcceptingOrders
+                              ? 'var(--accent-green)'
+                              : 'var(--accent-red)',
                             fontWeight: 600,
                           }}
                         >

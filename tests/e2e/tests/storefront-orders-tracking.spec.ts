@@ -3,7 +3,7 @@
  */
 import { test, expect } from '@playwright/test';
 
-const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3100);
+const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3110);
 const API_PORT = Number(process.env.API_PORT ?? 4000);
 
 test.describe('storefront-web orders tracking favorites', () => {
@@ -24,16 +24,23 @@ test.describe('storefront-web orders tracking favorites', () => {
     await expect(pay).toBeEnabled({ timeout: 20_000 });
     await pay.click();
     await expect(page).toHaveURL(/\/payment\//, { timeout: 20_000 });
-    const providerPaymentId = await page.evaluate(() => sessionStorage.getItem('ff_provider_payment_id'));
+    const providerPaymentId = await page.evaluate(() =>
+      sessionStorage.getItem('ff_provider_payment_id'),
+    );
     expect(providerPaymentId).toBeTruthy();
-    const webhook = await page.request.post(`http://localhost:${API_PORT}/api/v1/integrations/iyzico/webhook`, {
-      data: { providerPaymentId, status: 'PAID' },
-    });
+    const webhook = await page.request.post(
+      `http://localhost:${API_PORT}/api/v1/integrations/iyzico/webhook`,
+      {
+        data: { providerPaymentId, status: 'PAID' },
+      },
+    );
     expect(webhook.ok()).toBeTruthy();
     await expect(page).toHaveURL(/\/orders\/.+\/confirmation/, { timeout: 20_000 });
     await page.getByRole('link', { name: /siparişi takip et/i }).click();
     await expect(page.locator('[data-ff-surface="tracking"]')).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator('[data-ff-stepper], [data-ff-negative-status], [data-ff-pickup]')).toBeVisible();
+    await expect(
+      page.locator('[data-ff-stepper], [data-ff-negative-status], [data-ff-pickup]'),
+    ).toBeVisible();
     for (const width of [1920, 1024, 390] as const) {
       await page.setViewportSize({ width, height: width >= 768 ? 1080 : 844 });
       await page.screenshot({
@@ -43,7 +50,9 @@ test.describe('storefront-web orders tracking favorites', () => {
     }
   });
 
-  test('account favorites empty state and PDP favorite for signed-in customer', async ({ page }) => {
+  test('account favorites empty state and PDP favorite for signed-in customer', async ({
+    page,
+  }) => {
     test.setTimeout(90_000);
     const phone = `555${Date.now().toString().slice(-7)}`;
     await page.goto('/auth');

@@ -53,9 +53,9 @@ describe('Storefront customer authorization boundary', () => {
     if (!app) throw new Error('app not initialized');
     const a = await issueCustomer(auth, '+905551000011');
     const b = await issueCustomer(auth, '+905551000012');
-    const headersA = { authorization: `Bearer ${a.refreshToken}` };
+    const headersA = { authorization: `Bearer ${a.accessToken}` };
     const headersB = {
-      authorization: `Bearer ${b.refreshToken}`,
+      authorization: `Bearer ${b.accessToken}`,
       'content-type': 'application/json',
     };
 
@@ -64,11 +64,16 @@ describe('Storefront customer authorization boundary', () => {
       url: '/api/v1/me/addresses',
       headers: headersB,
       payload: {
+        label: 'Ev',
         recipientName: 'B',
         recipientPhone: '+905551000012',
         latitude: 41.01,
         longitude: 28.97,
         countryCode: 'TR',
+        locationConfirmed: true,
+        provinceId: 34,
+        districtId: 1103,
+        neighborhoodId: 40139,
       },
     });
     const addrBody = addr.json() as { data?: { id: string } };

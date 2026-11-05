@@ -3,13 +3,7 @@ import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScrollToTopFab, useScrollToTop } from '../components/scroll-to-top';
@@ -76,13 +70,17 @@ function dealValue(deal: PublicDeal): { kicker: string; value: string } {
   const min = BigInt(deal.minMerchandiseMinor) > 0n;
   if (deal.kind === 'PERCENT_CART' && pct != null) {
     return {
-      kicker: min ? `Alt Limit: ${formatTryMinor(deal.minMerchandiseMinor, 'TRY')}` : 'Tüm Menülerde',
+      kicker: min
+        ? `Alt Limit: ${formatTryMinor(deal.minMerchandiseMinor, 'TRY')}`
+        : 'Tüm Menülerde',
       value: `%${pct} İNDİRİM`,
     };
   }
   if (deal.kind === 'FIXED_CART_MINOR' && deal.discountMinor) {
     return {
-      kicker: min ? `Alt Limit: ${formatTryMinor(deal.minMerchandiseMinor, 'TRY')}` : 'Sepette anında',
+      kicker: min
+        ? `Alt Limit: ${formatTryMinor(deal.minMerchandiseMinor, 'TRY')}`
+        : 'Sepette anında',
       value: `−${formatTryMinor(deal.discountMinor, 'TRY')} NET`,
     };
   }
@@ -172,7 +170,8 @@ export default function DealsRoute() {
     [deals],
   );
   const comboCount = combo ? 1 : 0;
-  const visibleDeals = filter === 'cart' ? cartDeals : filter === 'takeaway' ? takeawayDeals : deals;
+  const visibleDeals =
+    filter === 'cart' ? cartDeals : filter === 'takeaway' ? takeawayDeals : deals;
   const showCombo = Boolean(combo) && (filter === 'all' || filter === 'combo');
   const showGrid = filter !== 'combo';
   const empty = !showCombo && visibleDeals.length === 0;
@@ -279,7 +278,11 @@ export default function DealsRoute() {
           <View style={styles.empty}>
             <Text style={styles.emptyTitle}>BU KATEGORİDE AKTİF FIRSAT YOK</Text>
             <Text style={styles.emptyBody}>Yeni kampanyalar yolda — menüden göz atabilirsin.</Text>
-            <Pressable accessibilityRole="button" onPress={() => router.push('/')} style={styles.emptyCta}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push('/')}
+              style={styles.emptyCta}
+            >
               <Text style={styles.emptyCtaText}>Menüye Git</Text>
             </Pressable>
           </View>
@@ -340,7 +343,11 @@ function ComboSpotlight(props: {
     <View style={styles.spotlight}>
       <View style={styles.spotlightMedia}>
         {combo.imageUrl ? (
-          <Image source={{ uri: combo.imageUrl }} style={styles.spotlightImage} contentFit="cover" />
+          <Image
+            source={{ uri: combo.imageUrl }}
+            style={styles.spotlightImage}
+            contentFit="cover"
+          />
         ) : (
           <View style={styles.spotlightFallback}>
             <MaterialCommunityIcons name="food" size={48} color={colors.mustard} />
@@ -369,7 +376,12 @@ function ComboSpotlight(props: {
         ) : null}
         <Text style={styles.spotlightTitle}>
           {lead}
-          {rest ? <Text style={styles.spotlightTitleAccent}>{'\n'}{rest}</Text> : null}
+          {rest ? (
+            <Text style={styles.spotlightTitleAccent}>
+              {'\n'}
+              {rest}
+            </Text>
+          ) : null}
         </Text>
         {combo.description ? (
           <Text style={styles.spotlightBodyText}>{combo.description}</Text>
@@ -385,9 +397,13 @@ function ComboSpotlight(props: {
         <View style={styles.priceRow}>
           <View>
             {combo.compareAtMinor ? (
-              <Text style={styles.compare}>{formatTryMinor(combo.compareAtMinor, combo.currency)}</Text>
+              <Text style={styles.compare}>
+                {formatTryMinor(combo.compareAtMinor, combo.currency)}
+              </Text>
             ) : null}
-            <Text style={styles.price}>{formatTryMinor(combo.bundlePriceMinor, combo.currency)}</Text>
+            <Text style={styles.price}>
+              {formatTryMinor(combo.bundlePriceMinor, combo.currency)}
+            </Text>
           </View>
           {combo.savingsPercent != null ? (
             <View style={styles.saveBadge}>
@@ -903,7 +919,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  emptyTitle: { fontFamily: fonts.anton, fontSize: 18, color: colors.onSurface, textAlign: 'center' },
+  emptyTitle: {
+    fontFamily: fonts.anton,
+    fontSize: 18,
+    color: colors.onSurface,
+    textAlign: 'center',
+  },
   emptyBody: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.ash, textAlign: 'center' },
   emptyCta: {
     minHeight: minTouch,

@@ -42,7 +42,10 @@ export default function ProductDetailRoute() {
         setFeedback(null);
       } catch (err) {
         if (!alive) return;
-        if (err instanceof ApiError && (err.status === 404 || err.envelope.error.code === 'NOT_FOUND')) {
+        if (
+          err instanceof ApiError &&
+          (err.status === 404 || err.envelope.error.code === 'NOT_FOUND')
+        ) {
           setStatus('notfound');
           return;
         }

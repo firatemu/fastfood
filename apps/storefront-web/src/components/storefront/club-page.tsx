@@ -74,92 +74,151 @@ export function ClubPage() {
   return (
     <AccountShell
       surface="club"
-      eyebrow="Ayrıcalıklar"
+      eyebrow="Ayrıcalıklar & Sadakat"
       title={LOYALTY_PROGRAM_NAME}
-      description="Siparişlerden, Ateş Çarkı'ndan ve kampanyalardan biriken puanların."
+      description="Siparişlerinden, Ateş Çarkı'ndan ve kampanyalardan biriken puanların ve kazandığın özel ayrıcalıklar."
       actions={
         <Link href="/account/spin" className="ff-btn ff-btn-primary">
           <MaterialIcon name="casino" />
-          Ateş Çarkı
+          Ateş Çarkı'nı Çevir
         </Link>
       }
     >
-      <section className="ff-section">
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Bakiye</h2>
-          <p className="ff-section-desc">
-            Seviye, harcanabilir puandan ayrı olarak ömür boyu kazanca bakılır.
-          </p>
-        </div>
-        <div className="ff-section-body">
-          <div className="ff-rows">
-            <div className="ff-row" style={{ minHeight: '5.5rem' }}>
-              <div className="ff-row-key">
-                <div className="ff-row-label">Ateş puanı</div>
-                <div className="ff-figure" style={{ fontSize: '2.75rem', marginTop: '0.25rem' }} data-ff-club-points>
-                  {club.points}
-                </div>
+      {/* VIP Üyelik Kartı */}
+      <div className="ff-card mb-6 bg-gradient-to-br from-surface-container-high via-surface-container-low to-secondary/10 border border-secondary/25 shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-outline-variant/60">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-black shadow-lg shadow-secondary/20">
+              <MaterialIcon name="local_fire_department" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-secondary px-2.5 py-0.5 rounded-full bg-secondary/15 border border-secondary/30" data-ff-club-tier>
+                  {club.currentTier.displayName} Üye
+                </span>
+                <span className="text-xs text-on-surface-variant font-medium">Ömür Boyu: {club.lifetimeEarnedPoints} puan</span>
               </div>
-              <div className="ff-row-key" style={{ flex: '1 1 15rem', maxWidth: '24rem' }}>
-                <div className="ff-kv">
-                  <span className="ff-kv-key">Seviye</span>
-                  <span className="ff-kv-value" data-ff-club-tier>
-                    {club.currentTier.displayName}
-                  </span>
-                </div>
-                <div className="ff-kv" style={{ marginTop: '0.25rem' }}>
-                  <span className="ff-kv-key">Ömür boyu kazanç</span>
-                  <span className="ff-kv-value">{club.lifetimeEarnedPoints} puan</span>
-                </div>
-              </div>
-              <div className="ff-row-key" style={{ flex: '1 1 15rem', maxWidth: '24rem' }}>
-                {progress.showRail ? (
-                  <>
-                    <div
-                      className="ff-meter"
-                      role="progressbar"
-                      aria-valuenow={progress.percent}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-label={`${club.nextTier?.displayName ?? ''} seviyesine ilerleme`}
-                    >
-                      <div className="ff-meter-fill" style={{ width: `${progress.percent}%` }} data-ff-club-progress />
-                    </div>
-                    <p className="ff-row-hint" style={{ marginTop: '0.5rem' }}>
-                      {club.nextTier?.displayName} seviyesine {progress.pointsRemaining} puan kaldı
-                    </p>
-                  </>
-                ) : (
-                  <p className="ff-row-hint">En üst seviyesin.</p>
-                )}
-              </div>
+              <h1 className="text-3xl font-extrabold text-white mt-1.5 flex items-baseline gap-2">
+                <span data-ff-club-points>{club.points}</span>
+                <span className="text-base font-medium text-secondary">Ateş Puanı</span>
+              </h1>
             </div>
           </div>
 
-          {club.welcome.status === 'AVAILABLE' ? (
-            <div className="ff-notice" data-tone="info" data-ff-welcome style={{ marginTop: '0.75rem' }}>
-              <MaterialIcon name="card_giftcard" />
-              <span>
-                Hoş geldin indirimi checkout&apos;ta uygulanır
-                {club.welcome.promotionCode ? ` · ${club.welcome.promotionCode}` : ''}.
-              </span>
-            </div>
-          ) : null}
+          <div className="flex items-center gap-3">
+            <Link href="/account/spin" className="ff-btn ff-btn-primary">
+              <MaterialIcon name="stars" />
+              Çarkıfelek
+            </Link>
+            <Link href="/" className="ff-btn ff-btn-outline">
+              Puan Kazan
+            </Link>
+          </div>
         </div>
-      </section>
 
-      <section className="ff-section">
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Hareketler</h2>
-          <p className="ff-section-desc">Puanının giriş ve çıkışları.</p>
+        {/* İlerleme Çubuğu */}
+        <div className="pt-5">
+          {progress.showRail ? (
+            <div>
+              <div className="flex justify-between items-center text-xs font-semibold mb-2">
+                <span className="text-white">Sonraki Kademe İlerlemesi</span>
+                <span className="text-secondary">
+                  {club.nextTier?.displayName} seviyesine {progress.pointsRemaining} puan kaldı
+                </span>
+              </div>
+              <div
+                className="ff-meter h-2.5 rounded-full bg-surface-container-highest"
+                role="progressbar"
+                aria-valuenow={progress.percent}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`${club.nextTier?.displayName ?? ''} seviyesine ilerleme`}
+              >
+                <div
+                  className="ff-meter-fill h-full rounded-full bg-gradient-to-r from-secondary to-primary transition-all duration-500"
+                  style={{ width: `${progress.percent}%` }}
+                  data-ff-club-progress
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs text-secondary font-medium">
+              Tebrikler! En yüksek üyelik kademesine ulaştınız.
+            </div>
+          )}
         </div>
-        <div className="ff-section-body">
+
+        {club.welcome.status === 'AVAILABLE' ? (
+          <div
+            className="mt-5 p-3.5 rounded-xl bg-secondary/10 border border-secondary/25 flex items-center gap-3 text-sm text-white"
+            data-ff-welcome
+          >
+            <span className="text-secondary text-xl">
+              <MaterialIcon name="card_giftcard" />
+            </span>
+            <div className="flex-1">
+              <span className="font-semibold text-secondary">Hoş Geldin Ödülü Aktif: </span>
+              Checkout adımında indirim otomatik uygulanır
+              {club.welcome.promotionCode ? ` (${club.welcome.promotionCode})` : ''}.
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      {/* Kademe Avantajları Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="ff-card p-4">
+          <div className="w-10 h-10 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center mb-3">
+            <MaterialIcon name="percent" />
+          </div>
+          <h3 className="text-sm font-bold text-white">Siparişlerde % Puan</h3>
+          <p className="text-xs text-on-surface-variant mt-1">Her siparişte harcadığın tutarın bir kısmı hesabına puan olarak döner.</p>
+        </div>
+
+        <div className="ff-card p-4">
+          <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center mb-3">
+            <MaterialIcon name="casino" />
+          </div>
+          <h3 className="text-sm font-bold text-white">Günlük Ateş Çarkı</h3>
+          <p className="text-xs text-on-surface-variant mt-1">Her gün ücretsiz çark hakkıyla sürpriz burgerler ve indirimler kazan.</p>
+        </div>
+
+        <div className="ff-card p-4">
+          <div className="w-10 h-10 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center mb-3">
+            <MaterialIcon name="cake" />
+          </div>
+          <h3 className="text-sm font-bold text-white">Doğum Günü İkramı</h3>
+          <p className="text-xs text-on-surface-variant mt-1">Özel gününde Burger Home ailesinden gurme lezzet ikramı.</p>
+        </div>
+
+        <div className="ff-card p-4">
+          <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center mb-3">
+            <MaterialIcon name="delivery_dining" />
+          </div>
+          <h3 className="text-sm font-bold text-white">Öncelikli Teslimat</h3>
+          <p className="text-xs text-on-surface-variant mt-1">Siparişlerin mutfakta ve kuryede öncelikli olarak hazırlanır.</p>
+        </div>
+      </div>
+
+      {/* Puan Hareketleri Geçmişi */}
+      <section className="ff-card">
+        <div className="ff-card-header">
+          <div>
+            <h2 className="ff-card-title">
+              <MaterialIcon name="history" />
+              Puan Hareketleri
+            </h2>
+            <p className="ff-card-desc">Kazanılan ve harcanan puanların dökümü.</p>
+          </div>
+        </div>
+
+        <div>
           {club.activity.length === 0 ? (
             <div className="ff-empty">
               <MaterialIcon name="history" />
-              <p className="ff-empty-title">Henüz hareket yok</p>
+              <p className="ff-empty-title">Henüz puan hareketi yok</p>
               <p className="ff-empty-text">
-                İlk siparişinin puanı buraya yansır. Puanlar sipariş tamamlandığında işlenir.
+                İlk siparişini verdiğinde veya Ateş Çarkı çevirdiğinde kazandığın puanlar buraya yansır.
               </p>
             </div>
           ) : (
@@ -168,10 +227,8 @@ export function ClubPage() {
                 <table className="ff-table">
                   <thead>
                     <tr>
-                      <th scope="col">Hareket</th>
-                      <th scope="col" className="num">
-                        Puan
-                      </th>
+                      <th scope="col">Hareket Türü</th>
+                      <th scope="col" className="num">Puan Değişimi</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -180,10 +237,14 @@ export function ClubPage() {
                       const positive = delta > 0;
                       return (
                         <tr key={row.id}>
-                          <td>{activityLabel(row.reason, row.entryType)}</td>
-                          <td className="num">
+                          <td className="font-medium text-white">{activityLabel(row.reason, row.entryType)}</td>
+                          <td className="num font-bold">
                             <span
-                              style={{ color: positive ? 'var(--color-ok)' : 'var(--color-on-surface-variant)' }}
+                              style={{
+                                color: positive
+                                  ? 'var(--color-ok)'
+                                  : 'var(--color-on-surface-variant)',
+                              }}
                             >
                               {positive ? '+' : ''}
                               {row.pointsDelta}

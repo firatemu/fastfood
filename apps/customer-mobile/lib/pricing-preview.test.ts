@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  merchandiseSubtotalMinor,
-  payableMinor,
-  previewCouponDiscount,
-} from './pricing-preview';
+import { merchandiseSubtotalMinor, payableMinor, previewCouponDiscount } from './pricing-preview';
 
 describe('merchandiseSubtotalMinor', () => {
   it('sums unit + modifier deltas × quantity', () => {

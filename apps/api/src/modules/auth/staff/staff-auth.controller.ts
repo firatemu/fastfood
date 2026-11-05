@@ -16,82 +16,68 @@ import {
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
+import {
+  clearCookie,
+  isAllowedBrowserRequest,
+  readCookie,
+  sessionCookie,
+} from '../browser-session.js';
 import { AccountStatusGuard } from '../guards/account-status.guard.js';
 import { AuthGuard } from '../guards/auth.guard.js';
 import type { AuthenticatedPrincipal } from '../guards/authenticated-principal.js';
 
 import { StaffAuthService } from './staff-auth.service.js';
 
-const STAFF_REFRESH_COOKIE = 'ff_courier_refresh';
-const STAFF_MFA_COOKIE = 'ff_courier_mfa';
 const STAFF_COOKIE_PATH = '/api/v1/auth/staff';
 const STAFF_MFA_COOKIE_PATH = `${STAFF_COOKIE_PATH}/mfa/verify`;
 const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
-function isAllowedBrowserRequest(request: FastifyRequest): boolean {
+/**
+ * Staff browser sessions are split into two cookie families.
+ *
+ * The API host serves both staff consoles, so a single cookie name would let
+ * one console refresh the other's session (production-readiness audit P0-3).
+ * The family is chosen from the request origin, and each family owns its own
+ * refresh and MFA cookie names.
+ */
+const STAFF_COOKIE_FAMILIES = {
+  courier: { refresh: 'ff_courier_refresh', mfa: 'ff_courier_mfa' },
+  admin: { refresh: 'ff_staff_refresh', mfa: 'ff_staff_mfa' },
+} as const;
+
+type StaffCookieFamily = (typeof STAFF_COOKIE_FAMILIES)[keyof typeof STAFF_COOKIE_FAMILIES];
+
+function originOf(raw: string): string | null {
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Resolve the browser-session cookie family of the request.
+ *
+ * `null` means "not a staff browser console": native clients (courier-mobile)
+ * keep their refresh credential in the platform secure store and send it in
+ * the request body.
+ */
+function staffCookieFamily(request: FastifyRequest): StaffCookieFamily | null {
+  if (!isAllowedBrowserRequest(request)) return null;
   const rawOrigin = request.headers.origin;
-  if (!rawOrigin) return false;
-  let origin: string;
-  try {
-    origin = new URL(rawOrigin).origin;
-  } catch {
+  if (!rawOrigin) return null;
+  const origin = originOf(rawOrigin);
+  if (!origin) {
     throw new ForbiddenException({
       code: ErrorCodes.AUTH_SCOPE_DENIED,
-      message: 'Browser session origin is invalid.',
+      message: 'Staff session origin is invalid.',
     });
   }
-  const allowed = (process.env['API_CORS_ORIGINS'] ?? '')
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-  if (!allowed.some((entry) => entry !== '*' && entry === origin)) {
-    throw new ForbiddenException({
-      code: ErrorCodes.AUTH_SCOPE_DENIED,
-      message: 'Browser session origin is not allowed.',
-    });
-  }
-  return true;
-}
-
-function isCourierWebRequest(request: FastifyRequest): boolean {
-  if (!isAllowedBrowserRequest(request)) return false;
-  const origin = request.headers.origin;
-  if (!origin) return false;
-  const courierWebOrigin = process.env['COURIER_WEB_ORIGIN'] ?? 'http://localhost:3102';
-  try {
-    return new URL(origin).origin === new URL(courierWebOrigin).origin;
-  } catch {
-    throw new ForbiddenException({
-      code: ErrorCodes.AUTH_SCOPE_DENIED,
-      message: 'Courier Web session origin is invalid.',
-    });
-  }
-}
-
-function readCookie(request: FastifyRequest, name: string): string | undefined {
-  const cookieHeader = request.headers.cookie;
-  if (!cookieHeader) return undefined;
-  const value = cookieHeader
-    .split(';')
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${name}=`))
-    ?.slice(name.length + 1);
-  if (!value) return undefined;
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return undefined;
-  }
-}
-
-function sessionCookie(name: string, value: string, path: string, maxAge: number): string {
-  const secure = process.env['NODE_ENV'] === 'production' ? '; Secure' : '';
-  return `${name}=${encodeURIComponent(value)}; Path=${path}; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
-}
-
-function clearCookie(name: string, path: string): string {
-  const secure = process.env['NODE_ENV'] === 'production' ? '; Secure' : '';
-  return `${name}=; Path=${path}; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
+  const courierOrigin = originOf(process.env['COURIER_WEB_ORIGIN'] ?? 'http://localhost:3102');
+  const adminOrigin = originOf(process.env['ADMIN_WEB_ORIGIN'] ?? 'http://localhost:3101');
+  if (courierOrigin && origin === courierOrigin) return STAFF_COOKIE_FAMILIES.courier;
+  if (adminOrigin && origin === adminOrigin) return STAFF_COOKIE_FAMILIES.admin;
+  return null;
 }
 
 /**
@@ -182,7 +168,7 @@ export class StaffAuthController {
     @Req() request: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<unknown> {
-    const browserSession = isCourierWebRequest(request);
+    const browserSession = staffCookieFamily(request);
     const parsed = safeValidate(
       z.object({
         identifier: identifierSchema,
@@ -216,7 +202,7 @@ export class StaffAuthController {
     if (browserSession) {
       reply.header(
         'Set-Cookie',
-        sessionCookie(STAFF_MFA_COOKIE, result.refreshToken, STAFF_MFA_COOKIE_PATH, 10 * 60),
+        sessionCookie(browserSession.mfa, result.refreshToken, STAFF_MFA_COOKIE_PATH, 10 * 60),
       );
       return {
         data: {
@@ -245,7 +231,7 @@ export class StaffAuthController {
     @Req() request: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<unknown> {
-    const browserSession = isCourierWebRequest(request);
+    const browserSession = staffCookieFamily(request);
     const parsed = safeValidate(
       z.object({
         refreshToken: refreshTokenSchema.optional(),
@@ -265,7 +251,7 @@ export class StaffAuthController {
       };
     }
     const refreshToken = browserSession
-      ? readCookie(request, STAFF_MFA_COOKIE)
+      ? readCookie(request, browserSession.mfa)
       : parsed.data.refreshToken;
     if (!refreshToken) {
       reply.status(401);
@@ -292,12 +278,12 @@ export class StaffAuthController {
     if (browserSession) {
       reply.header('Set-Cookie', [
         sessionCookie(
-          STAFF_REFRESH_COOKIE,
+          browserSession.refresh,
           refreshToken,
           STAFF_COOKIE_PATH,
           SESSION_MAX_AGE_SECONDS,
         ),
-        clearCookie(STAFF_MFA_COOKIE, STAFF_MFA_COOKIE_PATH),
+        clearCookie(browserSession.mfa, STAFF_MFA_COOKIE_PATH),
       ]);
     }
     return {
@@ -316,17 +302,14 @@ export class StaffAuthController {
     @Req() request: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<unknown> {
-    const browserSession = isCourierWebRequest(request);
+    const browserSession = staffCookieFamily(request);
     if (!browserSession) {
       throw new ForbiddenException({
         code: ErrorCodes.AUTH_SCOPE_DENIED,
         message: 'Staff refresh requires the MFA-established browser session cookie.',
       });
     }
-    const parsed = safeValidate(
-      z.object({}),
-      body,
-    );
+    const parsed = safeValidate(z.object({}), body);
     if (!parsed.ok) {
       reply.status(400);
       return {
@@ -338,7 +321,7 @@ export class StaffAuthController {
         },
       };
     }
-    const refreshToken = readCookie(request, STAFF_REFRESH_COOKIE);
+    const refreshToken = readCookie(request, browserSession.refresh);
     if (!refreshToken) {
       reply.status(401);
       return {
@@ -364,7 +347,7 @@ export class StaffAuthController {
     reply.header(
       'Set-Cookie',
       sessionCookie(
-        STAFF_REFRESH_COOKIE,
+        browserSession.refresh,
         result.refreshToken,
         STAFF_COOKIE_PATH,
         SESSION_MAX_AGE_SECONDS,
@@ -387,11 +370,8 @@ export class StaffAuthController {
     @Req() request: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<unknown> {
-    const browserSession = isCourierWebRequest(request);
-    const parsed = safeValidate(
-      z.object({ refreshToken: refreshTokenSchema.optional() }),
-      body,
-    );
+    const browserSession = staffCookieFamily(request);
+    const parsed = safeValidate(z.object({ refreshToken: refreshTokenSchema.optional() }), body);
     if (!parsed.ok) {
       reply.status(400);
       return {
@@ -404,13 +384,13 @@ export class StaffAuthController {
       };
     }
     const refreshToken = browserSession
-      ? readCookie(request, STAFF_REFRESH_COOKIE)
+      ? readCookie(request, browserSession.refresh)
       : parsed.data.refreshToken;
     if (refreshToken) await this.service.logout(refreshToken);
     if (browserSession) {
       reply.header('Set-Cookie', [
-        clearCookie(STAFF_REFRESH_COOKIE, STAFF_COOKIE_PATH),
-        clearCookie(STAFF_MFA_COOKIE, STAFF_MFA_COOKIE_PATH),
+        clearCookie(browserSession.refresh, STAFF_COOKIE_PATH),
+        clearCookie(browserSession.mfa, STAFF_MFA_COOKIE_PATH),
       ]);
     }
     return { data: { ok: true }, meta: { requestId: REQUEST_ID } };

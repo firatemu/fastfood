@@ -1,8 +1,4 @@
-export {
-  formatDeltaMinor,
-  formatTryMinor,
-  multiplyMinor,
-} from '@fastfood/contracts';
+export { formatDeltaMinor, formatTryMinor, multiplyMinor } from '@fastfood/contracts';
 
 export function formatDeliveryWindow(min: number, max: number): string | null {
   if (min <= 0 && max <= 0) return null;

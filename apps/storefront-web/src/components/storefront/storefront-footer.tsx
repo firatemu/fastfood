@@ -3,11 +3,7 @@
 import Link from 'next/link';
 import { type FormEvent, useState } from 'react';
 
-import {
-  BRAND_BLURB,
-  BRAND_NAME,
-  FOOTER_PROMISES,
-} from '../../lib/storefront/brand-copy';
+import { BRAND_BLURB, BRAND_NAME, FOOTER_PROMISES } from '../../lib/storefront/brand-copy';
 import { subscribeNewsletter, type StorefrontHome } from '../../lib/storefront/home';
 import { groupOperatingHours } from '../../lib/storefront/hours';
 
@@ -47,7 +43,9 @@ export function StorefrontFooter({
             <div className="flex items-center gap-space-sm mb-space-xs">
               <BrandLogo />
             </div>
-            <p className="font-body-sm text-body-sm text-on-surface-variant max-w-xs">{BRAND_BLURB}</p>
+            <p className="font-body-sm text-body-sm text-on-surface-variant max-w-xs">
+              {BRAND_BLURB}
+            </p>
             <div className="flex items-center gap-space-sm mt-space-xs">
               {home?.branch?.phone ? (
                 <a
@@ -89,9 +87,14 @@ export function StorefrontFooter({
             ) : (
               <ul className="flex flex-col gap-2 font-body-sm text-body-sm text-on-surface-variant">
                 {hours.map((row) => (
-                  <li key={row.label} className="flex justify-between items-center py-1 gap-space-md">
+                  <li
+                    key={row.label}
+                    className="flex justify-between items-center py-1 gap-space-md"
+                  >
                     <span className="text-on-surface-variant">{row.label}:</span>
-                    <span className={`font-label-sm ${row.weekend ? 'text-secondary' : 'text-on-surface'}`}>
+                    <span
+                      className={`font-label-sm ${row.weekend ? 'text-secondary' : 'text-on-surface'}`}
+                    >
                       {row.opensAt} - {row.closesAt}
                     </span>
                   </li>
@@ -100,7 +103,9 @@ export function StorefrontFooter({
             )}
             <div className="flex items-center gap-2 mt-space-xs text-primary-container">
               <MaterialIcon name="local_fire_department" className="text-sm" />
-              <span className="font-label-sm text-label-sm uppercase font-bold">Ateş Hiç Sönmüyor</span>
+              <span className="font-label-sm text-label-sm uppercase font-bold">
+                Ateş Hiç Sönmüyor
+              </span>
             </div>
           </div>
 
@@ -112,12 +117,18 @@ export function StorefrontFooter({
             <ul className="flex flex-col gap-3 font-body-sm text-body-sm text-on-surface-variant">
               {FOOTER_PROMISES.map((item) => (
                 <li key={item.text} className="flex items-start gap-2">
-                  <MaterialIcon name={item.icon} className="text-primary text-base shrink-0 mt-0.5" />
+                  <MaterialIcon
+                    name={item.icon}
+                    className="text-primary text-base shrink-0 mt-0.5"
+                  />
                   <span>{item.text}</span>
                 </li>
               ))}
               <li className="flex items-start gap-2">
-                <MaterialIcon name="restaurant" className="text-primary text-base shrink-0 mt-0.5" />
+                <MaterialIcon
+                  name="restaurant"
+                  className="text-primary text-base shrink-0 mt-0.5"
+                />
                 <Link
                   href="/legal#alerjen-sozlugu"
                   data-path="alerjen-rehberi"
@@ -156,7 +167,10 @@ export function StorefrontFooter({
                   Katıl
                 </button>
               </div>
-              <span className="font-label-sm text-[10px] text-on-surface-variant/70" aria-live="polite">
+              <span
+                className="font-label-sm text-[10px] text-on-surface-variant/70"
+                aria-live="polite"
+              >
                 {status === 'ok'
                   ? 'Ember Kulübü’ne katıldınız.'
                   : status === 'dup'
@@ -351,25 +365,49 @@ export function StorefrontFooter({
             © {year} {BRAND_NAME}. Tüm hakları saklıdır.
           </p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-label-sm text-[11px] uppercase">
-            <Link href="/mesafeli-satis-sozlesmesi" data-path="mesafeli-satis" className="hover:text-on-surface transition-colors">
+            <Link
+              href="/mesafeli-satis-sozlesmesi"
+              data-path="mesafeli-satis"
+              className="hover:text-on-surface transition-colors"
+            >
               Mesafeli Satış
             </Link>
-            <Link href="/on-bilgilendirme-formu" data-path="on-bilgilendirme" className="hover:text-on-surface transition-colors">
+            <Link
+              href="/on-bilgilendirme-formu"
+              data-path="on-bilgilendirme"
+              className="hover:text-on-surface transition-colors"
+            >
               Ön Bilgilendirme
             </Link>
-            <Link href="/iptal-ve-iade" data-path="iptal-iade" className="hover:text-on-surface transition-colors">
+            <Link
+              href="/iptal-ve-iade"
+              data-path="iptal-iade"
+              className="hover:text-on-surface transition-colors"
+            >
               İptal & İade
             </Link>
             <Link href="/kvkk" data-path="kvkk" className="hover:text-on-surface transition-colors">
               KVKK
             </Link>
-            <Link href="/gizlilik" data-path="gizlilik" className="hover:text-on-surface transition-colors">
+            <Link
+              href="/gizlilik"
+              data-path="gizlilik"
+              className="hover:text-on-surface transition-colors"
+            >
               Gizlilik
             </Link>
-            <Link href="/cerez-politikasi" data-path="cerez-politikasi" className="hover:text-on-surface transition-colors">
+            <Link
+              href="/cerez-politikasi"
+              data-path="cerez-politikasi"
+              className="hover:text-on-surface transition-colors"
+            >
               Çerezler
             </Link>
-            <Link href="/kunye" data-path="kunye" className="hover:text-on-surface transition-colors">
+            <Link
+              href="/kunye"
+              data-path="kunye"
+              className="hover:text-on-surface transition-colors"
+            >
               Künye
             </Link>
           </div>

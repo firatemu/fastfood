@@ -4,6 +4,7 @@ import type { ReactElement } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { useFavorites } from '../lib/use-favorites';
+import { haptic } from '../lib/haptics';
 import { useCustomerSession } from '../lib/use-session';
 import { colors, hitSlop, radius } from '../theme';
 
@@ -36,13 +37,12 @@ export function FavoriteHeart({
     <View style={styles.wrap}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={
-          favorite ? `${name} favorilerden çıkar` : `${name} favorilere ekle`
-        }
+        accessibilityLabel={favorite ? `${name} favorilerden çıkar` : `${name} favorilere ekle`}
         accessibilityState={{ selected: favorite, busy: pending }}
         disabled={pending}
         hitSlop={hitSlop}
         onPress={() => {
+          haptic.medium();
           if (!session) {
             router.push({ pathname: '/auth', params: { next: `/products/${productId}` } });
             return;
@@ -53,8 +53,8 @@ export function FavoriteHeart({
       >
         <MaterialCommunityIcons
           name={favorite ? 'heart' : 'heart-outline'}
-          size={17}
-          color={favorite ? colors.flame : colors.onSurface}
+          size={18}
+          color={favorite ? colors.flame : colors.white}
         />
       </Pressable>
     </View>
@@ -62,17 +62,19 @@ export function FavoriteHeart({
 }
 
 const styles = StyleSheet.create({
-  wrap: { position: 'absolute', top: 8, right: 8 },
-  // The chip is deliberately small so it does not dominate the product image;
-  // `hitSlop` (8 each side) still gives it a 50dp touch target, above the 44dp
-  // platform minimum.
+  wrap: { position: 'absolute', top: 8, right: 8, zIndex: 5 },
   pressable: {
     width: 34,
     height: 34,
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(7,8,10,0.72)',
+    backgroundColor: 'rgba(15, 16, 20, 0.78)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
   },
-  pressed: { backgroundColor: 'rgba(7,8,10,0.9)' },
+  pressed: {
+    backgroundColor: 'rgba(15, 16, 20, 0.95)',
+    transform: [{ scale: 0.92 }],
+  },
 });

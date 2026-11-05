@@ -58,6 +58,13 @@ export const serverEnvSchema = z
      * and is rejected under `NODE_ENV=production`.
      */
     PAYMENT_GATEWAY: z.enum(['iyzico', 'simulated']).default('simulated'),
+    /**
+     * Production-readiness audit P0-6: the simulated gateway trusts
+     * client-asserted payment status, so it must never answer real traffic.
+     * `development` and `test` may use it without this flag; any other
+     * environment has to opt in explicitly — and `production` may not.
+     */
+    ALLOW_SIMULATED_PAYMENTS: booleanFromString.default(false),
 
     OTP_PROVIDER: z.enum(['fake', 'live']).default('fake'),
     OTP_FAKE_FIXED_CODE: z
@@ -118,11 +125,25 @@ export const serverEnvSchema = z
     OTEL_ENABLED: booleanFromString.default(false),
   })
   .superRefine((env, ctx) => {
-    if (env.NODE_ENV === 'production' && env.PAYMENT_GATEWAY === 'simulated') {
+    if (env.PAYMENT_GATEWAY !== 'simulated') return;
+    if (env.NODE_ENV === 'production') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['PAYMENT_GATEWAY'],
         message: 'simulated payments are not allowed when NODE_ENV=production',
+      });
+      return;
+    }
+    if (
+      env.NODE_ENV !== 'development' &&
+      env.NODE_ENV !== 'test' &&
+      env.ALLOW_SIMULATED_PAYMENTS !== true
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['PAYMENT_GATEWAY'],
+        message:
+          'simulated payments are only allowed in development/test, or with ALLOW_SIMULATED_PAYMENTS=true',
       });
     }
   });

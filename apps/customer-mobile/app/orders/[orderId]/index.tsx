@@ -181,7 +181,11 @@ export default function OrderTrackingRoute() {
     : !order.location
       ? 'no-location'
       : order.location.freshness;
-  const liveLabel = negative ? order.statusLabel : order.trackingActive ? 'Canlı Takip' : order.statusLabel;
+  const liveLabel = negative
+    ? order.statusLabel
+    : order.trackingActive
+      ? 'Canlı Takip'
+      : order.statusLabel;
 
   return (
     <View style={styles.screen}>
@@ -190,14 +194,21 @@ export default function OrderTrackingRoute() {
         <View style={styles.card}>
           <View style={styles.topRow}>
             <View style={styles.liveChip}>
-              <View style={[styles.dot, order.trackingActive && !negative ? styles.dotLive : styles.dotOff]} />
+              <View
+                style={[
+                  styles.dot,
+                  order.trackingActive && !negative ? styles.dotLive : styles.dotOff,
+                ]}
+              />
               <Text style={styles.liveLabel}>{liveLabel}</Text>
             </View>
             {order.eta.remainingMinutes != null ? (
               <View accessibilityLabel={pickup ? 'Tahmini hazır' : 'Tahmini varış'}>
                 <Text style={styles.etaMeta}>{pickup ? 'Tahmini hazır' : 'Tahmini varış'}</Text>
                 <Text style={styles.etaValue}>
-                  {order.eta.remainingMinutes === 0 ? 'Tamamlandı' : `${order.eta.remainingMinutes} dk`}
+                  {order.eta.remainingMinutes === 0
+                    ? 'Tamamlandı'
+                    : `${order.eta.remainingMinutes} dk`}
                 </Text>
               </View>
             ) : null}
@@ -220,15 +231,27 @@ export default function OrderTrackingRoute() {
                 const active = stage.state === 'active';
                 const done = stage.state === 'done';
                 return (
-                  <View key={stage.key} style={styles.step} accessibilityLabel={`${stage.label} ${stage.state}`}>
-                    <View style={[styles.stepIcon, active && styles.stepActive, done && styles.stepDone]}>
+                  <View
+                    key={stage.key}
+                    style={styles.step}
+                    accessibilityLabel={`${stage.label} ${stage.state}`}
+                  >
+                    <View
+                      style={[
+                        styles.stepIcon,
+                        active && styles.stepActive,
+                        done && styles.stepDone,
+                      ]}
+                    >
                       <MaterialCommunityIcons
                         name={stageIcon(stage.key)}
-                        size={16}
+                        size={17}
                         color={active || done ? colors.onMustard : colors.ash}
                       />
                     </View>
-                    <Text style={[styles.stepLabel, active && styles.stepLabelOn]}>{stage.label}</Text>
+                    <Text style={[styles.stepLabel, (active || done) && styles.stepLabelOn]}>
+                      {stage.label}
+                    </Text>
                   </View>
                 );
               })}
@@ -239,9 +262,13 @@ export default function OrderTrackingRoute() {
             <View style={styles.subcard}>
               <Text style={styles.kicker}>Gel al</Text>
               <Text style={styles.strong}>{order.branch?.name ?? 'Şube'}</Text>
-              {order.branch?.addressLine ? <Text style={styles.body}>{order.branch.addressLine}</Text> : null}
+              {order.branch?.addressLine ? (
+                <Text style={styles.body}>{order.branch.addressLine}</Text>
+              ) : null}
               {order.scheduledFor ? (
-                <Text style={styles.body}>Planlanan: {formatStorefrontDateTime(order.scheduledFor)}</Text>
+                <Text style={styles.body}>
+                  Planlanan: {formatStorefrontDateTime(order.scheduledFor)}
+                </Text>
               ) : null}
             </View>
           ) : (
@@ -266,7 +293,9 @@ export default function OrderTrackingRoute() {
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Destek mesajı"
-                    onPress={() => router.push({ pathname: '/account/support', params: { orderId: order.id } })}
+                    onPress={() =>
+                      router.push({ pathname: '/account/support', params: { orderId: order.id } })
+                    }
                     style={styles.ghost}
                   >
                     <Text style={styles.ghostLabel}>Mesaj</Text>
@@ -296,7 +325,9 @@ export default function OrderTrackingRoute() {
               <Text style={styles.meta}>{formatTryMinor(item.lineGrossMinor, order.currency)}</Text>
             </View>
           ))}
-          <Text style={styles.total}>Toplam {formatTryMinor(order.finalPayableMinor, order.currency)}</Text>
+          <Text style={styles.total}>
+            Toplam {formatTryMinor(order.finalPayableMinor, order.currency)}
+          </Text>
           <MustardButton
             label={reorderBusy ? 'Kontrol ediliyor…' : 'Tekrar sipariş'}
             loading={reorderBusy}
@@ -306,7 +337,9 @@ export default function OrderTrackingRoute() {
           {pickup ? (
             <SecondaryButton
               label="Destek"
-              onPress={() => router.push({ pathname: '/account/support', params: { orderId: order.id } })}
+              onPress={() =>
+                router.push({ pathname: '/account/support', params: { orderId: order.id } })
+              }
             />
           ) : null}
           {reorder && reorder.status !== 'success' ? (
@@ -334,11 +367,11 @@ const styles = StyleSheet.create({
   scroll: { padding: space.gutter, gap: 12, paddingBottom: 40 },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     padding: space.md,
     gap: space.md,
     borderWidth: 1,
-    borderColor: colors.hairline,
+    borderColor: colors.hairlineBright,
   },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
   liveChip: {
@@ -347,37 +380,93 @@ const styles = StyleSheet.create({
     gap: 6,
     backgroundColor: colors.surfaceHigh,
     paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: radius.md,
+    paddingVertical: 5,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
   },
   dot: { width: 8, height: 8, borderRadius: 4 },
   dotLive: { backgroundColor: colors.mustard },
   dotOff: { backgroundColor: colors.outline },
-  liveLabel: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.mustard, textTransform: 'uppercase' },
-  etaMeta: { fontFamily: fonts.jakartaBold, fontSize: 10, color: colors.ash, textTransform: 'uppercase' },
+  liveLabel: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    color: colors.mustard,
+    textTransform: 'uppercase',
+  },
+  etaMeta: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 10,
+    color: colors.ash,
+    textTransform: 'uppercase',
+  },
   etaValue: { fontFamily: fonts.jakartaBold, fontSize: 14, color: colors.mustard },
-  number: { fontFamily: fonts.anton, fontSize: 28, color: colors.onSurface, textTransform: 'uppercase' },
+  number: {
+    fontFamily: fonts.anton,
+    fontSize: 28,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
   meta: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.ash },
   body: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.ash, lineHeight: 20 },
   strong: { fontFamily: fonts.jakartaBold, fontSize: 16, color: colors.onSurface },
-  negativeBox: { backgroundColor: colors.errorContainer, borderRadius: radius.md, padding: space.md, gap: 6 },
-  negativeTitle: { fontFamily: fonts.jakartaBold, fontSize: 16, color: colors.onErrorContainer, textTransform: 'uppercase' },
-  stepper: { flexDirection: 'row', gap: 8 },
+  negativeBox: {
+    backgroundColor: colors.errorContainer,
+    borderRadius: radius.md,
+    padding: space.md,
+    gap: 6,
+  },
+  negativeTitle: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 16,
+    color: colors.onErrorContainer,
+    textTransform: 'uppercase',
+  },
+  stepper: { flexDirection: 'row', gap: 6, justifyContent: 'space-between' },
   step: { flex: 1, alignItems: 'center', gap: 6 },
   stepIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.surfaceHighest,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.surfaceHigh,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepActive: { backgroundColor: colors.mustard },
-  stepDone: { backgroundColor: colors.mustardPressed },
-  stepLabel: { fontFamily: fonts.jakartaBold, fontSize: 10, color: colors.ash, textAlign: 'center', textTransform: 'uppercase' },
+  stepActive: {
+    backgroundColor: colors.mustard,
+    borderColor: colors.mustardGlow,
+    shadowColor: colors.mustard,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  stepDone: {
+    backgroundColor: colors.mustardPressed,
+    borderColor: colors.mustard,
+  },
+  stepLabel: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 10,
+    color: colors.ash,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
   stepLabelOn: { color: colors.mustard },
-  subcard: { backgroundColor: colors.surfaceLow, borderRadius: radius.md, padding: space.md, gap: 6 },
-  kicker: { fontFamily: fonts.jakartaBold, fontSize: 11, color: colors.ash, textTransform: 'uppercase' },
+  subcard: {
+    backgroundColor: colors.surfaceHigh,
+    borderRadius: radius.lg,
+    padding: space.md,
+    borderWidth: 1,
+    borderColor: colors.hairline,
+    gap: 6,
+  },
+  kicker: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    color: colors.ash,
+    textTransform: 'uppercase',
+  },
   ctaRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
   ghost: {
     flex: 1,
@@ -396,9 +485,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     opacity: 0.5,
   },
-  ghostLabel: { fontFamily: fonts.jakartaBold, fontSize: 12, color: colors.white, textTransform: 'uppercase' },
-  ghostMuted: { fontFamily: fonts.jakartaBold, fontSize: 12, color: colors.ash, textTransform: 'uppercase' },
-  section: { fontFamily: fonts.jakartaBold, fontSize: 14, color: colors.onSurface, textTransform: 'uppercase' },
+  ghostLabel: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 12,
+    color: colors.white,
+    textTransform: 'uppercase',
+  },
+  ghostMuted: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 12,
+    color: colors.ash,
+    textTransform: 'uppercase',
+  },
+  section: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 14,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
   line: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
   total: { fontFamily: fonts.anton, fontSize: 24, color: colors.mustard },
 });

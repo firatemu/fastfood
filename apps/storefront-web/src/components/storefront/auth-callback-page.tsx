@@ -15,14 +15,8 @@ export function AuthCallbackPage() {
   const [error, setError] = useState<string | null>(null);
 
   useDeferredLoad(() => {
-    const customerId = params.get('customerId');
-    const refreshToken = params.get('refreshToken');
     const next = params.get('next') || '/account';
-    if (!customerId || !refreshToken) {
-      setError('Oturum kurulamadı.');
-      return;
-    }
-    void completeOAuthCallback(customerId, refreshToken)
+    void completeOAuthCallback()
       .then(() => {
         window.history.replaceState(null, '', '/auth/callback');
         router.replace(next.startsWith('/') ? next : '/account');

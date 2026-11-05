@@ -1,20 +1,33 @@
 import type { Metadata, Viewport } from 'next';
-import { Anton, Plus_Jakarta_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 import type { ReactNode } from 'react';
 
 import './globals.css';
 
-const anton = Anton({
+/**
+ * Self-hosted fonts (audit P2-7 / A9).
+ *
+ * Previously loaded through `next/font/google`, which downloads the binaries
+ * from `fonts.googleapis.com` at build time and therefore made the build
+ * non-hermetic. The binaries live in `@fastfood/design-tokens/fonts` and are
+ * subset to Latin + Latin-Extended-A (Turkish ğ/ş/İ/ı included).
+ */
+const anton = localFont({
+  src: '../../../../packages/design-tokens/fonts/anton-400.woff2',
   weight: '400',
-  subsets: ['latin'],
-  variable: '--font-anton',
+  style: 'normal',
   display: 'swap',
+  variable: '--font-anton',
+  fallback: ['Anton', 'ui-sans-serif', 'sans-serif'],
 });
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-jakarta',
+const jakarta = localFont({
+  src: '../../../../packages/design-tokens/fonts/plus-jakarta-sans-var.woff2',
+  weight: '200 800',
+  style: 'normal',
   display: 'swap',
+  variable: '--font-jakarta',
+  fallback: ['Plus Jakarta Sans', 'ui-sans-serif', 'sans-serif'],
 });
 
 export const metadata: Metadata = {

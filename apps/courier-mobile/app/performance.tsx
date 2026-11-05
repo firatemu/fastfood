@@ -16,9 +16,11 @@ import { getCourierSession } from '../lib/session';
 export default function PerformanceScreen() {
   const theme = defaultTheme('operations');
   const styles = createStyles(theme);
-  const [stats, setStats] = useState<{ deliveredCount: number; activeCount: number; assignedCount: number } | null>(
-    null,
-  );
+  const [stats, setStats] = useState<{
+    deliveredCount: number;
+    activeCount: number;
+    assignedCount: number;
+  } | null>(null);
   const [loading, setLoading] = useState(() => Boolean(getCourierSession()));
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);

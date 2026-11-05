@@ -19,6 +19,7 @@ import { MustardButton } from '../components/ui';
 import { loginWithPassword, registerByPhoneAndPassword } from '../lib/auth';
 import { authErrorMessage } from '../lib/auth-error';
 import { safeReturnDestination } from '../lib/auth-nav';
+import { haptic } from '../lib/haptics';
 import { colors, fonts, minTouch, radius, space } from '../theme';
 
 type Tab = 'login' | 'register';
@@ -121,13 +122,19 @@ export default function AuthRoute() {
 
         <View style={styles.tabs}>
           <Pressable
-            onPress={() => setTab('login')}
+            onPress={() => {
+              haptic.light();
+              setTab('login');
+            }}
             style={[styles.tab, tab === 'login' && styles.tabOn]}
           >
             <Text style={[styles.tabLabel, tab === 'login' && styles.tabLabelOn]}>Giriş</Text>
           </Pressable>
           <Pressable
-            onPress={() => setTab('register')}
+            onPress={() => {
+              haptic.light();
+              setTab('register');
+            }}
             style={[styles.tab, tab === 'register' && styles.tabOn]}
           >
             <Text style={[styles.tabLabel, tab === 'register' && styles.tabLabelOn]}>Kayıt</Text>

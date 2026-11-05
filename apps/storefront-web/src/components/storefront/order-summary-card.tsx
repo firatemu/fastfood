@@ -57,15 +57,16 @@ export function OrderSummaryCard({
   const hasDiscount = BigInt(discountMinor) > 0n;
 
   return (
-    <div className="w-full rounded-2xl bg-surface-container p-space-md lg:p-space-lg shadow-2xl backdrop-blur-xl flex flex-col gap-space-md">
-      <div className="flex items-center justify-between pb-space-xs border-b border-surface-bright/30">
-        <div className="flex items-center gap-space-xs">
-          <MaterialIcon name="shopping_bag" className="text-primary" />
-          <span className="font-headline-sm text-headline-sm text-on-surface uppercase tracking-wide">
+    <div className="w-full rounded-3xl bg-[#12151f]/90 backdrop-blur-xl border border-white/[0.08] p-5 md:p-6 shadow-2xl flex flex-col gap-4 relative overflow-hidden">
+      <div className="absolute -top-16 -right-16 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+        <div className="flex items-center gap-2.5">
+          <MaterialIcon name="shopping_bag" className="text-amber-400 text-xl" />
+          <span className="font-anton text-xl text-white uppercase tracking-wide">
             Sipariş Özeti
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-primary">
+        <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/30 font-anton text-xs text-amber-400">
           {lineCountLabel}
         </span>
       </div>
@@ -83,55 +84,62 @@ export function OrderSummaryCard({
         message={couponMessage}
         onApply={onApplyCoupon}
       />
-      <div className="flex flex-col gap-2 pt-space-xs border-t border-surface-bright/20 font-body-sm text-body-sm">
-        <div className="flex justify-between text-on-surface-variant">
+      <div className="flex flex-col gap-2 pt-2 border-t border-white/[0.08] font-body-sm text-body-sm">
+        <div className="flex justify-between text-neutral-400">
           <span>Ara Toplam</span>
-          <span className="text-on-surface font-label-md">{formatTryMinor(merchandiseMinor, currency)}</span>
+          <span className="text-white font-medium">
+            {formatTryMinor(merchandiseMinor, currency)}
+          </span>
         </div>
-        <div className="flex justify-between text-on-surface-variant gap-2">
+        <div className="flex justify-between text-neutral-400 gap-2">
           <span>
             Teslimat ücreti
             {deliveryWaived ? (
-              <span className="ml-1 text-[10px] bg-secondary-container/20 text-secondary-container px-1 rounded">
+              <span className="ml-1 text-[10px] bg-amber-500/20 text-amber-400 px-1 rounded font-bold">
                 Kupon
               </span>
             ) : null}
           </span>
-          <span className="text-secondary font-label-md shrink-0">
+          <span className="text-amber-400 font-bold shrink-0">
             {deliveryWaived ? 'ÜCRETSİZ' : 'Ödemede'}
           </span>
         </div>
         {hasDiscount ? (
-          <div className="flex justify-between text-secondary-container">
+          <div className="flex justify-between text-amber-400 font-bold">
             <span>Kupon İndirimi</span>
-            <span className="font-label-md">-{formatTryMinor(discountMinor, currency)}</span>
+            <span>-{formatTryMinor(discountMinor, currency)}</span>
           </div>
         ) : null}
-        <div className="flex justify-between items-baseline gap-2 pt-space-xs border-t border-surface-bright/40">
-          <span className="font-headline-sm text-headline-sm text-on-surface uppercase">Genel Toplam</span>
-          <span className="font-headline-md text-headline-md text-primary font-bold shrink-0">
+        <div className="flex justify-between items-baseline gap-2 pt-2 border-t border-white/[0.08]">
+          <span className="font-anton text-xl text-white uppercase tracking-wide">
+            Genel Toplam
+          </span>
+          <span className="font-anton text-3xl text-amber-400 drop-shadow-sm shrink-0">
             {formatTryMinor(payable, currency)}
           </span>
         </div>
       </div>
       <Link
         href={ctaHref}
-        className="group w-full relative flex items-center justify-between px-space-md py-3.5 rounded-xl bg-gradient-to-r from-primary-container to-tertiary-container hover:brightness-110 text-on-primary-container font-label-lg text-label-lg uppercase tracking-wider shadow-[0_4px_24px_rgba(255,87,34,0.4)] active:scale-[0.98] transition-all overflow-hidden"
+        className="group w-full relative flex items-center justify-between px-5 py-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 hover:brightness-110 text-neutral-950 font-anton text-lg uppercase tracking-wider shadow-[0_6px_25px_rgba(254,179,0,0.35)] active:scale-[0.98] transition-all overflow-hidden"
         data-ff-checkout-cta
       >
         <div className="flex items-center gap-2">
           <MaterialIcon name="shopping_cart_checkout" className="text-xl" />
           <span>{ctaLabel}</span>
         </div>
-        <div className="flex items-center gap-1">
-          <span className="font-headline-sm text-headline-sm font-bold">
+        <div className="flex items-center gap-1.5">
+          <span className="font-anton text-xl font-bold">
             {formatTryMinor(payable, currency)}
           </span>
-          <MaterialIcon name="arrow_forward" className="text-xl transition-transform group-hover:translate-x-1.5" />
+          <MaterialIcon
+            name="arrow_forward"
+            className="text-xl transition-transform group-hover:translate-x-1.5"
+          />
         </div>
       </Link>
-      <div className="flex items-center justify-center gap-space-xs text-[11px] text-on-surface-variant/80">
-        <MaterialIcon name="verified_user" className="text-xs text-primary" />
+      <div className="flex items-center justify-center gap-2 text-xs text-neutral-400 font-medium pt-1">
+        <MaterialIcon name="verified_user" className="text-sm text-amber-400" />
         <span>Güvenli 3D Ödeme • Hijyenik Mühürlü Teslimat</span>
       </div>
       {upsell && upsell.length > 0 ? (

@@ -32,7 +32,9 @@ export function NavRow(props: {
         {props.subtitle ? <Text style={styles.sub}>{props.subtitle}</Text> : null}
       </View>
       {props.badge ? <Text style={styles.badge}>{props.badge}</Text> : null}
-      {props.onPress ? <MaterialCommunityIcons name="chevron-right" size={20} color={colors.outline} /> : null}
+      {props.onPress ? (
+        <MaterialCommunityIcons name="chevron-right" size={20} color={colors.outline} />
+      ) : null}
     </Pressable>
   );
 }

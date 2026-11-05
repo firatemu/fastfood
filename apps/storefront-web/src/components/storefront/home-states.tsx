@@ -22,7 +22,9 @@ export function HomeError({ message, onRetry }: { message: string; onRetry: () =
       data-ff-home-state="error"
     >
       <div className="max-w-lg rounded-xl bg-surface-container p-space-lg text-center">
-        <h1 className="font-headline-md text-headline-md text-on-surface uppercase">Menü yüklenemedi</h1>
+        <h1 className="font-headline-md text-headline-md text-on-surface uppercase">
+          Menü yüklenemedi
+        </h1>
         <p className="font-body-md text-body-md text-on-surface-variant mt-space-sm">{message}</p>
         <div className="flex flex-wrap justify-center gap-space-sm mt-space-md">
           <button
@@ -32,7 +34,10 @@ export function HomeError({ message, onRetry }: { message: string; onRetry: () =
           >
             Tekrar dene
           </button>
-          <Link href="/" className="px-space-lg py-3 rounded-lg bg-surface-container-high font-label-lg uppercase">
+          <Link
+            href="/"
+            className="px-space-lg py-3 rounded-lg bg-surface-container-high font-label-lg uppercase"
+          >
             Ana sayfa
           </Link>
         </div>
@@ -48,7 +53,9 @@ export function HomeEmpty() {
       data-ff-home-state="empty"
     >
       <div className="max-w-lg rounded-xl bg-surface-container p-space-lg text-center">
-        <h1 className="font-headline-md text-headline-md text-on-surface uppercase">Menü hazırlanıyor</h1>
+        <h1 className="font-headline-md text-headline-md text-on-surface uppercase">
+          Menü hazırlanıyor
+        </h1>
         <p className="font-body-md text-on-surface-variant mt-space-sm">
           Aktif vitrin ürünü yok. Şube kataloğu açıldığında burada görünecek.
         </p>

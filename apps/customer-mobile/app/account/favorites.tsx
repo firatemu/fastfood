@@ -119,9 +119,7 @@ function FavoritesBody() {
                 {!blocked && product ? (
                   <Pressable
                     accessibilityRole="button"
-                    onPress={() =>
-                      router.push(`/products/${product.slug || item.productId}`)
-                    }
+                    onPress={() => router.push(`/products/${product.slug || item.productId}`)}
                     style={styles.link}
                   >
                     <Text style={styles.linkLabel}>Ürüne git</Text>
@@ -161,6 +159,11 @@ const styles = StyleSheet.create({
   unavailable: { fontFamily: fonts.jakartaBold, fontSize: 12, color: colors.error },
   row: { gap: 8, marginTop: 4 },
   link: { minHeight: minTouch / 2, justifyContent: 'center' },
-  linkLabel: { fontFamily: fonts.jakartaBold, fontSize: 12, color: colors.mustard, textTransform: 'uppercase' },
+  linkLabel: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 12,
+    color: colors.mustard,
+    textTransform: 'uppercase',
+  },
   error: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.error },
 });

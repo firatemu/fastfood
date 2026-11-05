@@ -21,8 +21,8 @@ import type { AuthenticatedPrincipal } from './authenticated-principal.js';
  *
  * Staff identity is accepted only from an RS256 access token whose session,
  * user status, role permissions, and branch scopes are resolved from storage.
- * Customer identity is resolved only from an opaque refresh/session token via
- * CustomerAuthService.resolveSession.
+ * Customer identity is resolved only from an RS256 customer access token whose
+ * session is still live.
  * Browser-supplied X-User-Id and spoofable customer uuid bearers are not trusted.
  */
 @Injectable()
@@ -106,7 +106,7 @@ export class AuthGuard implements CanActivate {
       }
 
       if (this.#customerSessions) {
-        const session = await this.#customerSessions.resolveSession(bearer);
+        const session = await this.#customerSessions.resolveAccessToken(bearer);
         if (session) {
           request.authenticatedUserId = session.customerId;
           request.principal = {

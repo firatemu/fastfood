@@ -17,8 +17,19 @@ export function addressMapHtml(
   interactive = true,
 ): string | null {
   const configuredOrigin = process.env.NEXT_PUBLIC_STOREFRONT_MAP_FRAME_ORIGIN;
-  const mapOrigin =
-    configuredOrigin || (process.env.NODE_ENV === 'development' ? 'http://map.localhost:3100' : '');
+  let mapOrigin = configuredOrigin;
+  if (!mapOrigin) {
+    if (typeof window !== 'undefined') {
+      const portPart = window.location.port ? `:${window.location.port}` : '';
+      if (window.location.hostname.endsWith('localhost')) {
+        mapOrigin = `${window.location.protocol}//map.localhost${portPart}`;
+      } else {
+        mapOrigin = window.location.origin;
+      }
+    } else {
+      mapOrigin = process.env.NODE_ENV !== 'production' ? 'http://map.localhost:3110' : '';
+    }
+  }
   if (!mapOrigin) return null;
 
   let url: URL;

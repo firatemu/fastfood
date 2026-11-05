@@ -12,16 +12,51 @@ export const BRAND_BLURB =
 export const GRILL_LIVE_LABEL = 'Alevli Döküm 280°C Aktif';
 
 export const PDP_QUALITY_STRIP = [
-  { icon: 'timer', title: '3 Dakika Smash Tekniği', body: 'Sıcak ve sulu iç doku', iconClass: 'text-secondary-container' },
-  { icon: 'eco', title: '%100 Yerli Besi', body: 'Trakya meraları dana eti', iconClass: 'text-primary' },
-  { icon: 'inventory_2', title: 'Hava Kanallı Termal Paket', body: 'Çıtırlık kaybı önleyici', iconClass: 'text-tertiary' },
+  {
+    icon: 'timer',
+    title: '3 Dakika Smash Tekniği',
+    body: 'Sıcak ve sulu iç doku',
+    iconClass: 'text-secondary-container',
+  },
+  {
+    icon: 'eco',
+    title: '%100 Yerli Besi',
+    body: 'Trakya meraları dana eti',
+    iconClass: 'text-primary',
+  },
+  {
+    icon: 'inventory_2',
+    title: 'Hava Kanallı Termal Paket',
+    body: 'Çıtırlık kaybı önleyici',
+    iconClass: 'text-tertiary',
+  },
 ] as const;
 
 export const PROMISE_STRIP = [
-  { icon: 'skillet', title: 'Cast Iron Smashed', body: 'Özel ağırlıkla 15 saniye pres', iconClass: 'text-primary-container' },
-  { icon: 'verified', title: '%100 Yerli Dana', body: 'Sıfır katkı, taze çekim döş', iconClass: 'text-secondary' },
-  { icon: 'bakery_dining', title: 'Brioche Ekmek', body: 'Her sabah saat 08:00 fırından', iconClass: 'text-primary' },
-  { icon: 'bolt', title: 'Termal Ambalaj', body: 'İlk anki sıcaklığında kapında', iconClass: 'text-tertiary-container' },
+  {
+    icon: 'skillet',
+    title: 'Cast Iron Smashed',
+    body: 'Özel ağırlıkla 15 saniye pres',
+    iconClass: 'text-primary-container',
+  },
+  {
+    icon: 'verified',
+    title: '%100 Yerli Dana',
+    body: 'Sıfır katkı, taze çekim döş',
+    iconClass: 'text-secondary',
+  },
+  {
+    icon: 'bakery_dining',
+    title: 'Brioche Ekmek',
+    body: 'Her sabah saat 08:00 fırından',
+    iconClass: 'text-primary',
+  },
+  {
+    icon: 'bolt',
+    title: 'Termal Ambalaj',
+    body: 'İlk anki sıcaklığında kapında',
+    iconClass: 'text-tertiary-container',
+  },
 ] as const;
 
 export const HERO_FLOAT_FIRE = {

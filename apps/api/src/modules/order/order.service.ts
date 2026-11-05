@@ -447,18 +447,21 @@ export class OrderService {
   }
 
   /**
-   * Returns the next short human-readable order number in the SP##### form
-   * by looking at the highest existing number. Used by both the Prisma
-   * path (live database) and the in-memory fallback.
+   * Returns the next short human-readable order number in the SP##### form.
+   *
+   * On the Prisma path the number is allocated by the database sequence
+   * (`order_display_number_seq`) inside the INSERT itself (audit P1-1):
+   * a read-modify-write "max + 1" would let two concurrent checkouts pick
+   * the same number, and one of them would fail with a unique-constraint
+   * error *after* the customer had already paid. The in-memory fallback
+   * keeps the historical behaviour because it has no database to delegate to.
    */
   async #nextDisplayNumber(): Promise<string> {
     if (!this.prisma) return this.#nextDisplayNumberMemory();
-    const latest = await this.prisma.order.findFirst({
-      where: { displayNumber: { startsWith: 'SP' } },
-      orderBy: { displayNumber: 'desc' },
-      select: { displayNumber: true },
-    });
-    return bumpDisplayNumber(latest?.displayNumber ?? null);
+    const [row] = await this.prisma.$queryRaw<Array<{ display_number: string }>>`
+      SELECT ('SP' || lpad(nextval('order_display_number_seq')::text, 5, '0')) AS display_number
+    `;
+    return row?.display_number ?? this.#nextDisplayNumberMemory();
   }
 
   #nextDisplayNumberMemory(): string {
@@ -1258,7 +1261,7 @@ export class OrderService {
       toStatus,
       actorUserId,
     });
-    await this.notifyCustomerStatus(order.userId, order.id, toStatus);
+    await this.notifyCustomerStatus(order, toStatus);
   }
 
   async #setStatusDb(
@@ -1300,7 +1303,7 @@ export class OrderService {
         tx,
       );
     });
-    await this.notifyCustomerStatus(current.userId, orderId, toStatus);
+    await this.notifyCustomerStatus(current, toStatus);
     return this.get(orderId);
   }
 
@@ -1337,23 +1340,21 @@ export class OrderService {
   }
 
   private async notifyCustomerStatus(
-    userId: string | null,
-    orderId: string,
+    order: { id: string; displayNumber?: string | null; userId: string | null },
     status: OrderStatus,
   ): Promise<void> {
-    if (!userId || !this.notifications) return;
-    const templateKey = customerOrderTemplate(status);
-    if (!templateKey) return;
-    await this.notifications.enqueueAndSend({
-      userId,
-      channel: 'IN_APP',
-      templateKey,
-      payloadJson: {
-        title: 'Sipariş güncellemesi',
-        body: customerOrderBody(status),
-        href: `/orders/${orderId}`,
-        orderId,
-      },
+    if (!this.notifications) return;
+    const content = getOrderNotificationContent(status, order.displayNumber);
+    if (!content) return;
+
+    await this.notifications.sendOrderStatusPush({
+      orderId: order.id,
+      displayNumber: order.displayNumber,
+      userId: order.userId,
+      title: content.title,
+      body: content.body,
+      templateKey: content.templateKey,
+      href: `/orders/${order.id}`,
     });
   }
 
@@ -1372,27 +1373,58 @@ export class OrderService {
   }
 }
 
-function customerOrderTemplate(status: OrderStatus): string | null {
-  if (status === 'PAID' || status === 'BRANCH_ASSIGNED') {
-    return 'order.confirmed';
+export function getOrderNotificationContent(
+  status: OrderStatus,
+  displayNumber?: string | null,
+): { title: string; body: string; templateKey: string } | null {
+  const prefix = displayNumber ? `[${displayNumber}] ` : '';
+  switch (status) {
+    case 'PAID':
+    case 'BRANCH_ASSIGNED':
+      return {
+        title: `${prefix}Siparişiniz Alındı! 🍔`,
+        body: 'Siparişiniz şubeye iletildi, mutfak ekibimiz hazırlığa başlayacak.',
+        templateKey: 'order.confirmed',
+      };
+    case 'PREPARING':
+      return {
+        title: `${prefix}Siparişiniz Hazırlanıyor! 🍳`,
+        body: 'Burgerleriniz ızgarada taptaze pişiriliyor.',
+        templateKey: 'order.preparing',
+      };
+    case 'READY_FOR_COURIER':
+      return {
+        title: `${prefix}Siparişiniz Hazır! 📦`,
+        body: 'Paketiniz hazırlandı, teslim almak üzere kurye bekleniyor.',
+        templateKey: 'order.ready',
+      };
+    case 'COURIER_ASSIGNED':
+      return {
+        title: `${prefix}Kuryeniz Atandı! 🛵`,
+        body: 'Kurye siparişinizi teslim almak için şubeye yöneldi.',
+        templateKey: 'order.courier_assigned',
+      };
+    case 'PICKED_UP':
+    case 'ON_THE_WAY':
+      return {
+        title: `${prefix}Siparişiniz Yola Çıktı! 🚀`,
+        body: 'Kuryemiz siparişinizi sıcak sıcak ulaştırmak üzere yolda.',
+        templateKey: 'order.on_the_way',
+      };
+    case 'DELIVERED':
+      return {
+        title: `${prefix}Afiyet Olsun! ⭐`,
+        body: 'Siparişiniz teslim edildi. Deneyiminizi değerlendirmek ister misiniz?',
+        templateKey: 'order.delivered',
+      };
+    case 'CANCELLED':
+    case 'REJECTED':
+      return {
+        title: `${prefix}Siparişiniz İptal Edildi ⚠️`,
+        body: 'Siparişiniz iptal edildi. Detaylar için siparişinizi inceleyebilirsiniz.',
+        templateKey: 'order.cancelled',
+      };
+    default:
+      return null;
   }
-  if (status === 'PREPARING') return 'order.preparing';
-  if (status === 'READY_FOR_COURIER') return 'order.ready';
-  if (status === 'COURIER_ASSIGNED' || status === 'PICKED_UP' || status === 'ON_THE_WAY') {
-    return 'order.courier_assigned';
-  }
-  if (status === 'DELIVERED') return 'order.delivered';
-  if (status === 'CANCELLED' || status === 'REJECTED') return 'order.cancelled';
-  return null;
-}
-
-function customerOrderBody(status: OrderStatus): string {
-  if (status === 'PREPARING') return 'Siparişin ızgarada.';
-  if (status === 'READY_FOR_COURIER') return 'Siparişin teslime hazır.';
-  if (status === 'COURIER_ASSIGNED' || status === 'ON_THE_WAY' || status === 'PICKED_UP') {
-    return 'Kurye siparişinle ilgileniyor.';
-  }
-  if (status === 'DELIVERED') return 'Siparişin teslim edildi.';
-  if (status === 'CANCELLED' || status === 'REJECTED') return 'Siparişin iptal edildi.';
-  return 'Siparişin onaylandı.';
 }

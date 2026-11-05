@@ -300,8 +300,8 @@ export function AuthPage() {
                 {LOYALTY_PROGRAM_NAME}
               </h2>
               <p className="font-body-sm text-on-surface-variant mt-2">
-                {BRAND_NAME} hesabınızla sipariş geçmişinize ve bakiyenize ulaşın. Misafir
-                sipariş her zaman açık kalır.
+                {BRAND_NAME} hesabınızla sipariş geçmişinize ve bakiyenize ulaşın. Misafir sipariş
+                her zaman açık kalır.
               </p>
               <ul className="mt-5 flex flex-col gap-3">
                 {CLUB_PERKS.map((perk) => (

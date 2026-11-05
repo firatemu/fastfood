@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppHeader } from '../../components/app-header';
@@ -14,6 +15,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
 import { addComboItemsToCart, addProductToCart } from '../../lib/cart';
 import { reconcileCategoryRail } from '../../lib/category-rail';
+import { haptic } from '../../lib/haptics';
 import { fetchStorefrontHome } from '../../lib/home';
 import { formatDeliveryWindow } from '../../lib/money';
 import type { StorefrontHome } from '../../lib/schemas';
@@ -36,9 +38,25 @@ export default function HomeRoute() {
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   // The filtered `/storefront/home` response only carries the selected
   // category, so the rail is kept from the unfiltered responses instead.
   const [rail, setRail] = useState<StorefrontHome['categories'] | null>(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      const data = await fetchStorefrontHome({
+        categoryId: categoryId ?? undefined,
+      });
+      setHome(data);
+      setRail((current) => reconcileCategoryRail(current, data.categories, categoryId !== null));
+      setStatus('ready');
+      setError(null);
+    } catch (err) {
+      setError(formatApiError(err));
+      setStatus('error');
+    }
+  }, [categoryId]);
 
   useEffect(() => {
     let alive = true;
@@ -62,6 +80,13 @@ export default function HomeRoute() {
       alive = false;
     };
   }, [categoryId, nonce]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    haptic.light();
+    await loadData();
+    setRefreshing(false);
+  }, [loadData]);
 
   const addProduct = useCallback(
     async (productId: string) => {
@@ -101,23 +126,22 @@ export default function HomeRoute() {
   const locationLabel = home?.branch
     ? home.branch.addressLine || home.branch.name
     : 'Teslimat adresi seçilmedi';
-  const eta =
-    home?.branch
-      ? formatDeliveryWindow(
-          home.branch.estimatedDeliveryMinutesMin,
-          home.branch.estimatedDeliveryMinutesMax,
-        )
-      : null;
+  const eta = home?.branch
+    ? formatDeliveryWindow(
+        home.branch.estimatedDeliveryMinutesMin,
+        home.branch.estimatedDeliveryMinutesMax,
+      )
+    : null;
 
   return (
     <View style={styles.screen}>
       <AppHeader locationLabel={locationLabel} kitchenLiveCount={home?.kitchenLiveCount} />
       {status === 'loading' && !home ? (
-        <View style={[styles.padded, { paddingTop: insets.top + 88 }]}>
+        <View style={styles.padded}>
           <LoadingBlock label="Menü yükleniyor…" />
         </View>
       ) : status === 'error' && !home ? (
-        <View style={[styles.padded, { paddingTop: insets.top + 88 }]}>
+        <View style={styles.padded}>
           <ErrorBlock
             title="Menü alınamadı"
             message={error ?? 'Katalog yanıt vermedi.'}
@@ -128,14 +152,22 @@ export default function HomeRoute() {
           />
         </View>
       ) : !home ? (
-        <View style={[styles.padded, { paddingTop: insets.top + 88 }]}>
+        <View style={styles.padded}>
           <EmptyBlock title="Menü boş" message="Şu an listelenecek ürün yok." />
         </View>
       ) : (
         <ScrollView
           ref={scrollRef}
           onScroll={top.onScroll}
-          style={{ paddingTop: insets.top + 88 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => void onRefresh()}
+              tintColor={colors.mustard}
+              colors={[colors.mustard]}
+            />
+          }
+          style={styles.scrollView}
           contentContainerStyle={styles.scroll}
           stickyHeaderIndices={[CATEGORY_HEADER_INDEX]}
         >
@@ -185,6 +217,17 @@ export default function HomeRoute() {
                 </View>
               ) : null}
             </View>
+
+            <Link href="/search" asChild>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Menüde ara"
+                style={styles.searchBar}
+              >
+                <MaterialCommunityIcons name="magnify" size={18} color={colors.ash} />
+                <Text style={styles.searchPlaceholder}>Burger, sos veya lezzet ara...</Text>
+              </Pressable>
+            </Link>
           </View>
 
           <View>
@@ -196,10 +239,14 @@ export default function HomeRoute() {
                       ? home.heroSlides.map((slide) => slide.id).join(',')
                       : (home.hero?.id ?? 'empty-vitrine')
                   }
-                  products={home.heroSlides?.length ? home.heroSlides : home.hero ? [home.hero] : []}
+                  products={
+                    home.heroSlides?.length ? home.heroSlides : home.hero ? [home.hero] : []
+                  }
                   busyId={busyId}
                   onAdd={(productId) => void addProduct(productId)}
-                  transitionDurationSeconds={home.heroSliderSettings?.transitionDurationSeconds ?? 5}
+                  transitionDurationSeconds={
+                    home.heroSliderSettings?.transitionDurationSeconds ?? 5
+                  }
                   loop={home.heroSliderSettings?.loop ?? true}
                 />
               </View>
@@ -216,7 +263,9 @@ export default function HomeRoute() {
             <View style={styles.sectionHead}>
               <View>
                 <Text style={styles.sectionTitle}>Orijinal Smash Menü</Text>
-                <Text style={styles.sectionSub}>Çıtır dantel kenarlar, tereyağlı brioche ekmeği</Text>
+                <Text style={styles.sectionSub}>
+                  Çıtır dantel kenarlar, tereyağlı brioche ekmeği
+                </Text>
               </View>
               <Text style={styles.popular}>Popüler</Text>
             </View>
@@ -263,11 +312,7 @@ export default function HomeRoute() {
           />
         </ScrollView>
       )}
-      <ScrollToTopFab
-        visible={top.visible}
-        scrollRef={scrollRef}
-        bottom={insets.bottom + 88}
-      />
+      <ScrollToTopFab visible={top.visible} scrollRef={scrollRef} bottom={insets.bottom + 88} />
     </View>
   );
 }
@@ -288,6 +333,7 @@ function CraftCell(props: {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.canvas },
+  scrollView: { flex: 1 },
   padded: { padding: space.gutter },
   scroll: { paddingBottom: space.xl, gap: space.md },
   gutter: { paddingHorizontal: space.gutter },
@@ -295,15 +341,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.sm,
-    backgroundColor: colors.surfaceLow,
-    borderRadius: radius.lg,
-    padding: space.sm,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: space.md,
+    borderWidth: 1,
+    borderColor: colors.hairlineBright,
   },
   bannerIcon: {
-    width: 32,
-    height: 32,
+    width: 36,
+    height: 36,
     borderRadius: radius.md,
-    backgroundColor: colors.surfaceHighest,
+    backgroundColor: colors.surfaceHigh,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -317,9 +365,9 @@ const styles = StyleSheet.create({
     color: colors.mustard,
   },
   pip: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
     backgroundColor: colors.flameDeep,
   },
   bannerMeta: {
@@ -334,6 +382,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: radius.md,
     alignItems: 'flex-end',
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
   },
   minLabel: {
     fontFamily: fonts.jakartaBold,
@@ -353,7 +403,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: fonts.jakartaBold,
-    fontSize: 20,
+    fontSize: 18,
     color: colors.onSurface,
     textTransform: 'uppercase',
   },
@@ -371,6 +421,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.mustardBloom,
     overflow: 'hidden',
   },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
@@ -380,6 +432,24 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     padding: space.md,
   },
+  searchBar: {
+    marginTop: space.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.hairlineBright,
+    borderRadius: radius.full,
+    height: 46,
+    paddingHorizontal: space.md,
+  },
+  searchPlaceholder: {
+    flex: 1,
+    fontFamily: fonts.jakarta,
+    fontSize: 13,
+    color: colors.ash,
+  },
   craft: { flexDirection: 'row', gap: space.sm },
   craftCell: {
     flex: 1,
@@ -388,6 +458,8 @@ const styles = StyleSheet.create({
     padding: space.sm,
     alignItems: 'center',
     gap: 4,
+    borderWidth: 1,
+    borderColor: colors.hairline,
   },
   craftTitle: {
     fontFamily: fonts.jakartaBold,

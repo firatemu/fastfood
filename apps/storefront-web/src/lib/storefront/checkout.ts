@@ -159,3 +159,18 @@ export async function startCheckoutPayment(): Promise<{
   });
   return { checkoutSessionId: quote.checkoutSessionId, redirectUrl: init.redirectUrl ?? null };
 }
+
+export async function completeSandboxPayment(
+  providerPaymentId: string,
+  status: 'PAID' | 'FAILED' = 'PAID',
+): Promise<boolean> {
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000/api/v1';
+  const url = `${base.replace(/\/$/, '')}/integrations/iyzico/webhook`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ providerPaymentId, status }),
+  });
+  return res.ok;
+}
+

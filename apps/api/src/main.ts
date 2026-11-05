@@ -53,12 +53,19 @@ async function bootstrap(): Promise<void> {
   // ValidationPipe to avoid duplicating schema definitions (document 03 §5).
   app.useGlobalFilters(new AppExceptionFilter());
 
-  // CORS for development storefront/admin origins. Document 44 §8.
+  // CORS for development storefront/admin/courier origins. Document 44 §8.
   const origins = cfg.API_CORS_ORIGINS.split(',')
     .map((s) => s.trim())
     .filter(Boolean);
   app.enableCors({
-    origin: origins.length > 0 ? origins : true,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (origins.includes(origin)) return callback(null, true);
+      if (/^https?:\/\/(.+\.)?fastfood\.localhost(:\d+)?$/.test(origin)) return callback(null, true);
+      if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return callback(null, true);
+      if (/^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) return callback(null, true);
+      return callback(null, false);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [

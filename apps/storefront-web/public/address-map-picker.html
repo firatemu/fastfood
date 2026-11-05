@@ -76,7 +76,7 @@
       if (initialPoint) setMarker(initialPoint);
 
       window.addEventListener('message', (event) => {
-        if (event.origin !== parentOrigin) return;
+        if (parentOrigin !== '*' && event.origin !== parentOrigin) return;
         if (event.source !== window.parent) return;
         let message;
         try {

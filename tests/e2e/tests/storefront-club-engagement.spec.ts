@@ -3,7 +3,7 @@
  */
 import { test, expect } from '@playwright/test';
 
-const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3100);
+const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3110);
 const API_PORT = Number(process.env.API_PORT ?? 4000);
 
 async function register(page: import('@playwright/test').Page) {
@@ -39,25 +39,33 @@ test.describe('storefront-web club engagement', () => {
       await spin.click();
       await expect(page.locator('[data-ff-spin-result]')).toBeVisible({ timeout: 15_000 });
     } else {
-      await expect(page.locator('[data-ff-spin-result], [data-ff-spin-state="blocked"]')).toBeVisible();
+      await expect(
+        page.locator('[data-ff-spin-result], [data-ff-spin-state="blocked"]'),
+      ).toBeVisible();
     }
   });
 
   test('C table QR context', async ({ page }) => {
     test.setTimeout(45_000);
     await page.goto('/table/bhx7k2m9q4wp');
-    await expect(page.locator('[data-ff-dining-banner], [data-ff-surface="golden-home"]')).toBeVisible({
+    await expect(
+      page.locator('[data-ff-dining-banner], [data-ff-surface="golden-home"]'),
+    ).toBeVisible({
       timeout: 20_000,
     });
     await page.goto('/table/not-a-real-table');
-    await expect(page.locator('[data-ff-surface="table-invalid"]')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-ff-surface="table-invalid"]')).toBeVisible({
+      timeout: 15_000,
+    });
   });
 
   test('D notifications mark read', async ({ page }) => {
     test.setTimeout(60_000);
     await register(page);
     await page.goto('/account/notifications');
-    await expect(page.locator('[data-ff-surface="notifications"]')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-ff-surface="notifications"]')).toBeVisible({
+      timeout: 15_000,
+    });
     const unread = page.locator('[data-ff-notification="unread"]').first();
     if (await unread.isVisible()) {
       await unread.click();
@@ -72,14 +80,18 @@ test.describe('storefront-web club engagement', () => {
     await expect(page.locator('[data-ff-surface="support"]')).toBeVisible({ timeout: 15_000 });
     await page.locator('[data-ff-support-input]').fill('Merhaba, sipariş sorum var.');
     await page.locator('[data-ff-support-send]').click();
-    await expect(page.locator('[data-ff-support-message="CUSTOMER"]')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('[data-ff-support-message="CUSTOMER"]')).toBeVisible({
+      timeout: 10_000,
+    });
     await page.goto('/');
     const card = page.locator('[data-ff-product]').first();
     await expect(card).toBeVisible({ timeout: 15_000 });
     await card.getByRole('link', { name: /özelleştir|boyut|porsiyon/i }).click();
     await page.locator('[data-ff-add-to-cart]').click();
     await page.goto('/checkout');
-    await expect(page.locator('[data-ff-support-entry="checkout"]')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-ff-support-entry="checkout"]')).toBeVisible({
+      timeout: 15_000,
+    });
     await page.locator('[data-ff-support-entry="checkout"]').click();
     await expect(page.locator('[data-ff-surface="support"]')).toBeVisible({ timeout: 15_000 });
   });
@@ -98,10 +110,15 @@ test.describe('storefront-web club engagement', () => {
     await expect(pay).toBeEnabled({ timeout: 20_000 });
     await pay.click();
     await expect(page).toHaveURL(/\/payment\//, { timeout: 20_000 });
-    const providerPaymentId = await page.evaluate(() => sessionStorage.getItem('ff_provider_payment_id'));
-    const webhook = await page.request.post(`http://localhost:${API_PORT}/api/v1/integrations/iyzico/webhook`, {
-      data: { providerPaymentId, status: 'PAID' },
-    });
+    const providerPaymentId = await page.evaluate(() =>
+      sessionStorage.getItem('ff_provider_payment_id'),
+    );
+    const webhook = await page.request.post(
+      `http://localhost:${API_PORT}/api/v1/integrations/iyzico/webhook`,
+      {
+        data: { providerPaymentId, status: 'PAID' },
+      },
+    );
     expect(webhook.ok()).toBeTruthy();
     await expect(page).toHaveURL(/\/orders\/.+\/confirmation/, { timeout: 20_000 });
     await page.getByRole('link', { name: /siparişi takip et/i }).click();

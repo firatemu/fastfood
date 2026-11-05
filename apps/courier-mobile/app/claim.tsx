@@ -94,9 +94,7 @@ export default function ClaimScreen() {
         </Pressable>
       </Link>
       <Text style={styles.title}>QR ile teslimat al</Text>
-      <Text style={styles.subtitle}>
-        Şubedeki yetkili QR kodunu okut veya kodu elle gir.
-      </Text>
+      <Text style={styles.subtitle}>Şubedeki yetkili QR kodunu okut veya kodu elle gir.</Text>
 
       {scanning && permission?.granted ? (
         <View style={styles.cameraWrap}>

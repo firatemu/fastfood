@@ -1,23 +1,14 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import {
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { StackHeader } from '../components/stack-header';
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '../components/ui';
 import { formatApiError } from '../lib/api';
-import {
-  fetchContentBySlug,
-  fetchCustomerBranches,
-} from '../lib/content';
+import { fetchContentBySlug, fetchCustomerBranches } from '../lib/content';
 import { groupOperatingHours } from '../lib/hours';
 import { formatDeliveryWindow } from '../lib/money';
+import { haptic } from '../lib/haptics';
 import type { CustomerBranch, StorefrontContent } from '../lib/schemas';
 import { colors, fonts, minTouch, radius, space } from '../theme';
 
@@ -142,9 +133,7 @@ export default function BranchesRoute(): React.ReactElement {
 
           {/* Meta panel */}
           <View style={styles.metaPanel}>
-            <Text style={styles.metaBig}>
-              {String(branches.length).padStart(2, '0')}
-            </Text>
+            <Text style={styles.metaBig}>{String(branches.length).padStart(2, '0')}</Text>
             <View style={styles.metaRows}>
               <MetaRow label="Şube" value={branches.length} />
               <MetaRow label="Şehir" value={cityCount} />
@@ -169,7 +158,10 @@ export default function BranchesRoute(): React.ReactElement {
                   key={opt.key}
                   accessibilityRole="tab"
                   accessibilityState={{ selected: active }}
-                  onPress={() => setActiveCity(opt.key)}
+                  onPress={() => {
+                    haptic.light();
+                    setActiveCity(opt.key);
+                  }}
                   style={styles.tab}
                 >
                   <Text style={[styles.tabText, active ? styles.tabTextActive : null]}>
@@ -204,9 +196,7 @@ export default function BranchesRoute(): React.ReactElement {
                   <View style={styles.cardAside}>
                     <View style={styles.cardAsideAccent} />
                     <Text style={styles.city}>{city || 'ŞUBE'}</Text>
-                    {branch.code ? (
-                      <Text style={styles.code}>{branch.code}</Text>
-                    ) : null}
+                    {branch.code ? <Text style={styles.code}>{branch.code}</Text> : null}
                     {branch.isAcceptingOrders ? (
                       <View style={styles.statusOpen}>
                         <View style={styles.statusDot} />
@@ -245,10 +235,7 @@ export default function BranchesRoute(): React.ReactElement {
                     {hours.length > 0 ? (
                       <View style={styles.hoursBox}>
                         {hours.map((row, i) => (
-                          <View
-                            key={`${row.label}-${i}`}
-                            style={styles.hoursRow}
-                          >
+                          <View key={`${row.label}-${i}`} style={styles.hoursRow}>
                             <Text style={styles.hoursDay}>{row.label}</Text>
                             <Text style={styles.hoursTime}>
                               {row.opensAt} – {row.closesAt}
@@ -297,7 +284,8 @@ export default function BranchesRoute(): React.ReactElement {
             <Text style={styles.ctaEyebrow}>İletişim</Text>
             <Text style={styles.ctaTitle}>Yeni şubeler için iletişime geçin</Text>
             <Text style={styles.ctaBody}>
-              Türkiye genelinde franchise görüşmeleri ve yeni lokasyon önerileri için ekibimizle iletişime geçin.
+              Türkiye genelinde franchise görüşmeleri ve yeni lokasyon önerileri için ekibimizle
+              iletişime geçin.
             </Text>
             <Pressable
               accessibilityRole="link"
@@ -313,13 +301,7 @@ export default function BranchesRoute(): React.ReactElement {
   );
 }
 
-function MetaRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: number | string;
-}): React.ReactElement {
+function MetaRow({ label, value }: { label: string; value: number | string }): React.ReactElement {
   return (
     <View style={styles.metaRowItem}>
       <Text style={styles.metaRowLabel}>{label}</Text>

@@ -57,7 +57,7 @@ export async function resolveCustomerUserId(
   if (!sessions) return undefined;
   const bearer = readBearerToken(req);
   if (!bearer) return undefined;
-  const session = await sessions.resolveSession(bearer);
+  const session = await sessions.resolveAccessToken(bearer);
   if (!session) return undefined;
   req.authenticatedUserId = session.customerId;
   req.principal = customerPrincipal(session.customerId, session.sessionId);

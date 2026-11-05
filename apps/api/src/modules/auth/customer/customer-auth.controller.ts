@@ -18,6 +18,13 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 import { getAppConfig } from '../../../bootstrap/app-config.js';
+import {
+  clearCookie,
+  isNativeClientRequest,
+  readCookie,
+  sessionCookie,
+  usesBrowserSessionCookie,
+} from '../browser-session.js';
 import { AuthGuard } from '../guards/auth.guard.js';
 import type { AuthenticatedPrincipal } from '../guards/authenticated-principal.js';
 
@@ -33,6 +40,15 @@ const refreshTokenSchema = z.string().min(1).max(256);
 const emailSchema = z.string().trim().email().max(255);
 const passwordSchema = z.string().min(10).max(128);
 const REQUEST_ID = '01900000-0000-7000-8000-000000000099';
+
+/**
+ * Refresh-credential transport (document 32 §5 + production-readiness audit
+ * P0-3). The cookie is scoped to the customer session endpoint family, so it
+ * is never attached to business API calls.
+ */
+const CUSTOMER_REFRESH_COOKIE = 'ff_customer_refresh';
+const CUSTOMER_COOKIE_PATH = '/api/v1/auth/customer';
+const REFRESH_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
 function envelope(data: unknown): unknown {
   return { data, meta: { requestId: REQUEST_ID } };
@@ -83,7 +99,11 @@ export class CustomerAuthController {
 
   @Post('otp/verify')
   @HttpCode(200)
-  async otpVerify(@Body() body: unknown): Promise<unknown> {
+  async otpVerify(
+    @Body() body: unknown,
+    @Req() request: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<unknown> {
     const parsed = safeValidate(
       z.object({
         phoneNormalized: phoneNormalizedSchema,
@@ -93,6 +113,7 @@ export class CustomerAuthController {
       body,
     );
     if (!parsed.ok) {
+      reply.status(400);
       return error(ErrorCodes.VALIDATION_ERROR, 'One or more fields are invalid.', {
         fields: parsed.issues,
       });
@@ -103,21 +124,19 @@ export class CustomerAuthController {
       parsed.data.displayName,
     );
     if (!result.ok) {
+      reply.status(401);
       return error(ErrorCodes.AUTH_INVALID_CREDENTIALS, otpMessage(result.reason), {
         reason: result.reason,
       });
     }
-    return envelope({
-      customerId: result.customerId,
-      refreshToken: result.refreshToken,
-      refreshExpiresAt: result.refreshExpiresAt.toISOString(),
-    });
+    return this.#sessionResponse(request, reply, result);
   }
 
   @Post('register-phone')
   @HttpCode(200)
   async registerPhone(
     @Body() body: unknown,
+    @Req() request: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<unknown> {
     const parsed = safeValidate(
@@ -151,17 +170,14 @@ export class CustomerAuthController {
               : otpMessage('OTP_SUSPENDED');
       return error(ErrorCodes.VALIDATION_ERROR, message, { reason: result.reason });
     }
-    return envelope({
-      customerId: result.customerId,
-      refreshToken: result.refreshToken,
-      refreshExpiresAt: result.refreshExpiresAt.toISOString(),
-    });
+    return this.#sessionResponse(request, reply, result);
   }
 
   @Post('password/register')
   @HttpCode(200)
   async register(
     @Body() body: unknown,
+    @Req() request: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<unknown> {
     const parsed = safeValidate(
@@ -192,17 +208,14 @@ export class CustomerAuthController {
             : 'Şifre kayıt koşullarını karşılamıyor.';
       return error(ErrorCodes.VALIDATION_ERROR, message, { reason: result.reason });
     }
-    return envelope({
-      customerId: result.customerId,
-      refreshToken: result.refreshToken,
-      refreshExpiresAt: result.refreshExpiresAt.toISOString(),
-    });
+    return this.#sessionResponse(request, reply, result);
   }
 
   @Post('password/login')
   @HttpCode(200)
   async passwordLogin(
     @Body() body: unknown,
+    @Req() request: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<unknown> {
     const parsed = safeValidate(
@@ -227,11 +240,7 @@ export class CustomerAuthController {
       reply.status(result.reason === 'RATE_LIMITED' ? 429 : 401);
       return error(code, 'Login failed.', { reason: result.reason });
     }
-    return envelope({
-      customerId: result.customerId,
-      refreshToken: result.refreshToken,
-      refreshExpiresAt: result.refreshExpiresAt.toISOString(),
-    });
+    return this.#sessionResponse(request, reply, result);
   }
 
   @Post('password/forgot')
@@ -377,6 +386,7 @@ export class CustomerAuthController {
       provider,
       query.returnTo ?? '/account',
       req.authenticatedUserId,
+      isNativeClientRequest(req) ? 'native' : 'browser',
     );
     if (!result.ok) {
       return error(ErrorCodes.VALIDATION_ERROR, 'OAuth is not configured.', {
@@ -415,25 +425,64 @@ export class CustomerAuthController {
       );
       return;
     }
-    const params = new URLSearchParams({
+    if (result.clientPlatform === 'browser') {
+      // The browser session receives the refresh credential as an HttpOnly
+      // cookie on this redirect; it never travels in the URL. The storefront
+      // callback page exchanges it for an access token.
+      reply.header(
+        'Set-Cookie',
+        sessionCookie(
+          CUSTOMER_REFRESH_COOKIE,
+          result.refreshToken,
+          CUSTOMER_COOKIE_PATH,
+          REFRESH_COOKIE_MAX_AGE_SECONDS,
+        ),
+      );
+      const params = new URLSearchParams({ next: result.returnTo });
+      await reply.redirect(`${origin}/auth/callback?${params.toString()}`);
+      return;
+    }
+    // A native client keeps the refresh credential in the platform secure
+    // store, so it is handed over in the redirect payload.
+    const nativeParams = new URLSearchParams({
+      next: result.returnTo,
       customerId: result.customerId,
       refreshToken: result.refreshToken,
-      next: result.returnTo,
     });
-    await reply.redirect(`${origin}/auth/callback?${params.toString()}`);
+    await reply.redirect(`${origin}/auth/callback?${nativeParams.toString()}`);
   }
 
   @Post('refresh')
   @HttpCode(200)
-  async refresh(@Body() body: unknown): Promise<unknown> {
-    const parsed = safeValidate(z.object({ refreshToken: refreshTokenSchema }), body);
+  async refresh(
+    @Body() body: unknown,
+    @Req() request: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<unknown> {
+    const browserSession = usesBrowserSessionCookie(request);
+    const parsed = safeValidate(
+      z.object({ refreshToken: refreshTokenSchema.optional() }),
+      body ?? {},
+    );
     if (!parsed.ok) {
+      reply.status(400);
       return error(ErrorCodes.VALIDATION_ERROR, 'One or more fields are invalid.', {
         fields: parsed.issues,
       });
     }
-    const result = await this.service.refresh(parsed.data.refreshToken);
+    const refreshToken = browserSession
+      ? readCookie(request, CUSTOMER_REFRESH_COOKIE)
+      : parsed.data.refreshToken;
+    if (!refreshToken) {
+      reply.status(401);
+      return error(ErrorCodes.AUTH_SESSION_EXPIRED, 'Session expired. Sign in again.');
+    }
+    const result = await this.service.refresh(refreshToken);
     if (!result.ok) {
+      reply.status(result.reason === 'TOKEN_MALFORMED' ? 400 : 401);
+      if (browserSession) {
+        reply.header('Set-Cookie', clearCookie(CUSTOMER_REFRESH_COOKIE, CUSTOMER_COOKIE_PATH));
+      }
       return error(
         result.reason === 'TOKEN_MALFORMED'
           ? ErrorCodes.VALIDATION_ERROR
@@ -442,23 +491,34 @@ export class CustomerAuthController {
         { reason: result.reason },
       );
     }
-    return envelope({
-      customerId: result.customerId,
-      refreshToken: result.refreshToken,
-      refreshExpiresAt: result.refreshExpiresAt.toISOString(),
-    });
+    return this.#sessionResponse(request, reply, result);
   }
 
   @Post('logout')
   @HttpCode(200)
-  async logout(@Body() body: unknown): Promise<unknown> {
-    const parsed = safeValidate(z.object({ refreshToken: refreshTokenSchema }), body);
+  async logout(
+    @Body() body: unknown,
+    @Req() request: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<unknown> {
+    const browserSession = usesBrowserSessionCookie(request);
+    const parsed = safeValidate(
+      z.object({ refreshToken: refreshTokenSchema.optional() }),
+      body ?? {},
+    );
     if (!parsed.ok) {
+      reply.status(400);
       return error(ErrorCodes.VALIDATION_ERROR, 'One or more fields are invalid.', {
         fields: parsed.issues,
       });
     }
-    await this.service.logout(parsed.data.refreshToken);
+    const refreshToken = browserSession
+      ? readCookie(request, CUSTOMER_REFRESH_COOKIE)
+      : parsed.data.refreshToken;
+    if (refreshToken) await this.service.logout(refreshToken);
+    if (browserSession) {
+      reply.header('Set-Cookie', clearCookie(CUSTOMER_REFRESH_COOKIE, CUSTOMER_COOKIE_PATH));
+    }
     return envelope({ ok: true });
   }
 
@@ -478,5 +538,52 @@ export class CustomerAuthController {
   #provider(raw: string): OAuthProviderCode | null {
     if (raw === 'google' || raw === 'apple') return raw;
     return null;
+  }
+
+  /**
+   * Deliver a freshly issued session.
+   *
+   * A browser client receives the short-lived access token in the body and
+   * the long-lived refresh credential in an HttpOnly cookie scoped to the
+   * customer session endpoint family, so no session credential is ever
+   * readable from JavaScript. A native client declares itself with
+   * `X-Client-Platform: mobile` and receives the refresh credential in the
+   * body, because it stores it in the platform secure store (document 32 §5).
+   */
+  #sessionResponse(
+    request: FastifyRequest,
+    reply: FastifyReply,
+    result: {
+      customerId: string;
+      accessToken: string;
+      accessExpiresAt: Date;
+      refreshToken: string;
+      refreshExpiresAt: Date;
+    },
+  ): unknown {
+    if (usesBrowserSessionCookie(request)) {
+      reply.header(
+        'Set-Cookie',
+        sessionCookie(
+          CUSTOMER_REFRESH_COOKIE,
+          result.refreshToken,
+          CUSTOMER_COOKIE_PATH,
+          REFRESH_COOKIE_MAX_AGE_SECONDS,
+        ),
+      );
+      return envelope({
+        customerId: result.customerId,
+        accessToken: result.accessToken,
+        accessExpiresAt: result.accessExpiresAt.toISOString(),
+        refreshExpiresAt: result.refreshExpiresAt.toISOString(),
+      });
+    }
+    return envelope({
+      customerId: result.customerId,
+      accessToken: result.accessToken,
+      accessExpiresAt: result.accessExpiresAt.toISOString(),
+      refreshToken: result.refreshToken,
+      refreshExpiresAt: result.refreshExpiresAt.toISOString(),
+    });
   }
 }

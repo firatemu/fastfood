@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT_STOREFRONT = Number(process.env.STOREFRONT_PORT ?? 3100);
+const PORT_STOREFRONT = Number(process.env.STOREFRONT_PORT ?? 3110);
 const PORT_ADMIN = Number(process.env.ADMIN_PORT ?? 3101);
 const PORT_API = Number(process.env.API_PORT ?? 4000);
 

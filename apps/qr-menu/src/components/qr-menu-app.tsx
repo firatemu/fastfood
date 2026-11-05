@@ -52,7 +52,8 @@ export function QrMenuApp({ menu }: { menu: QrMenuData }) {
   );
 
   const activeProduct = useMemo(
-    () => (activeSlug ? (menu.products.find((product) => product.slug === activeSlug) ?? null) : null),
+    () =>
+      activeSlug ? (menu.products.find((product) => product.slug === activeSlug) ?? null) : null,
     [menu.products, activeSlug],
   );
 

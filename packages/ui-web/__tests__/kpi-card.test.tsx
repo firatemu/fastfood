@@ -12,9 +12,7 @@ describe('KpiCard', () => {
   });
 
   it('renders trend text', () => {
-    render(
-      <KpiCard label="Ciro" value="₺1" trend={{ direction: 'up', label: '+3%' }} />,
-    );
+    render(<KpiCard label="Ciro" value="₺1" trend={{ direction: 'up', label: '+3%' }} />);
     expect(screen.getByText('+3%')).toBeTruthy();
   });
 });

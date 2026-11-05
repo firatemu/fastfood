@@ -92,8 +92,8 @@ describe('Phase 5 cart negative-test matrix (document 39 §10)', () => {
 
   describe('HTTP cart endpoints — unauthenticated / wrong-scope / correct', () => {
     let app: NestFastifyApplication | undefined;
-    let owner: { customerId: string; refreshToken: string };
-    let other: { customerId: string; refreshToken: string };
+    let owner: { customerId: string; accessToken: string };
+    let other: { customerId: string; accessToken: string };
 
     beforeAll(async () => {
       const moduleRef = await Test.createTestingModule({
@@ -144,7 +144,7 @@ describe('Phase 5 cart negative-test matrix (document 39 §10)', () => {
     it('correct-scope customer can add and read their own cart', async () => {
       if (!app) throw new Error('app not initialized');
       const headers = {
-        authorization: `Bearer ${owner.refreshToken}`,
+        authorization: `Bearer ${owner.accessToken}`,
         'content-type': 'application/json',
       };
       const added = await app.inject({
@@ -163,7 +163,7 @@ describe('Phase 5 cart negative-test matrix (document 39 §10)', () => {
       const got = await app.inject({
         method: 'GET',
         url: '/api/v1/storefront/cart',
-        headers: { authorization: `Bearer ${owner.refreshToken}` },
+        headers: { authorization: `Bearer ${owner.accessToken}` },
       });
       expect(got.statusCode).toBe(200);
       const gotBody = got.json() as { data: { lineItems: unknown[] } };
@@ -174,7 +174,7 @@ describe('Phase 5 cart negative-test matrix (document 39 §10)', () => {
       if (!app) throw new Error('app not initialized');
       // Owner seeds a line.
       const ownerHeaders = {
-        authorization: `Bearer ${owner.refreshToken}`,
+        authorization: `Bearer ${owner.accessToken}`,
         'content-type': 'application/json',
       };
       const seeded = await app.inject({
@@ -196,7 +196,7 @@ describe('Phase 5 cart negative-test matrix (document 39 §10)', () => {
         method: 'PATCH',
         url: `/api/v1/storefront/cart/lines/${lineId}`,
         headers: {
-          authorization: `Bearer ${other.refreshToken}`,
+          authorization: `Bearer ${other.accessToken}`,
           'content-type': 'application/json',
         },
         payload: { quantity: 99 },
@@ -213,7 +213,7 @@ describe('Phase 5 cart negative-test matrix (document 39 §10)', () => {
       const ownerCart = await app.inject({
         method: 'GET',
         url: '/api/v1/storefront/cart',
-        headers: { authorization: `Bearer ${owner.refreshToken}` },
+        headers: { authorization: `Bearer ${owner.accessToken}` },
       });
       const ownerBody = ownerCart.json() as {
         data: { lineItems: { id: string; quantity: number }[] };

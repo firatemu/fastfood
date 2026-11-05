@@ -2,7 +2,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { ReactElement } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, fonts, minTouch } from '../theme';
+import { haptic } from '../lib/haptics';
+import { colors, fonts } from '../theme';
 
 export function QtyStepper(props: {
   value: number;
@@ -16,8 +17,15 @@ export function QtyStepper(props: {
         accessibilityRole="button"
         accessibilityLabel="Azalt"
         disabled={props.value <= min}
-        onPress={() => props.onChange(Math.max(min, props.value - 1))}
-        style={({ pressed }) => [styles.btn, pressed && styles.pressed, props.value <= min && styles.disabled]}
+        onPress={() => {
+          haptic.light();
+          props.onChange(Math.max(min, props.value - 1));
+        }}
+        style={({ pressed }) => [
+          styles.btn,
+          pressed && styles.pressed,
+          props.value <= min && styles.disabled,
+        ]}
       >
         <MaterialCommunityIcons name="minus" size={18} color={colors.onSurface} />
       </Pressable>
@@ -27,10 +35,13 @@ export function QtyStepper(props: {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Artır"
-        onPress={() => props.onChange(props.value + 1)}
+        onPress={() => {
+          haptic.light();
+          props.onChange(props.value + 1);
+        }}
         style={({ pressed }) => [styles.btn, pressed && styles.pressed]}
       >
-        <MaterialCommunityIcons name="plus" size={18} color={colors.onSurface} />
+        <MaterialCommunityIcons name="plus" size={18} color={colors.mustard} />
       </Pressable>
     </View>
   );
@@ -40,24 +51,26 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfaceHigh,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
     borderRadius: 999,
-    padding: 2,
+    padding: 3,
   },
   btn: {
-    width: minTouch,
-    height: minTouch,
-    borderRadius: minTouch / 2,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pressed: { backgroundColor: colors.surfaceHighest },
-  disabled: { opacity: 0.4 },
+  pressed: { backgroundColor: colors.surfaceHigh, transform: [{ scale: 0.92 }] },
+  disabled: { opacity: 0.3 },
   value: {
-    minWidth: 28,
+    minWidth: 32,
     textAlign: 'center',
     fontFamily: fonts.jakartaBold,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.onSurface,
     fontVariant: ['tabular-nums'],
   },

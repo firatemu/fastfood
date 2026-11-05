@@ -35,7 +35,7 @@ test.describe('Admin A2 catalog contracts', () => {
     expect(editor).toContain('PATCH');
     expect(editor).not.toContain('kcal');
     expect(editor).not.toContain('allergenIds');
-    expect(readFileSync(OPS, 'utf8')).toContain("GLOBAL_MASTER_DATA");
+    expect(readFileSync(OPS, 'utf8')).toContain('GLOBAL_MASTER_DATA');
     expect(readFileSync(OPS, 'utf8')).toContain('modifierBoundsValid');
   });
 });

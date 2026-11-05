@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
 import { isCustomerAuthenticated } from '../../lib/api';
 import { addFavorite, fetchFavorites, removeFavorite } from '../../lib/storefront/favorites';

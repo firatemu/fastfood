@@ -1,7 +1,7 @@
 /**
  * Phase 4 catalog + branch unit tests.
  */
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
 
 import { ActorType, Permissions } from '@fastfood/domain-types';
@@ -110,7 +110,9 @@ describe('Phase 4 Catalog', () => {
 
   it('throws NotFoundException for unknown storefront product detail', async () => {
     const svc = new CatalogService();
-    await expect(svc.getStorefrontProductDetail('not-a-real-slug')).rejects.toThrow(NotFoundException);
+    await expect(svc.getStorefrontProductDetail('not-a-real-slug')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('lists branch product availability distinct from global isActive', async () => {
@@ -197,8 +199,9 @@ describe('Phase 4 BranchScopePolicy', () => {
   });
 
   it('STAFF principal with no branch scope is rejected via enforce', async () => {
+    // Document 39 §4: a missing scope never means global access.
     const principal = makeStaffPrincipal([]);
-    expect(() => policy.enforce(principal, { branchId: 'any' })).not.toThrow();
+    expect(() => policy.enforce(principal, { branchId: 'any' })).toThrow(ForbiddenException);
   });
 
   it('CUSTOMER principal has no branch scope and is allowed', async () => {

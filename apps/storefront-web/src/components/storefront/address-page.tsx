@@ -51,7 +51,13 @@ export function AddressServiceabilityPage() {
 
   if (status === 'loading' && !result) return <ShopSkeleton />;
   if (status === 'error' && !result) {
-    return <ShopError title="Teslimat bölgesi" message={error ?? 'Kontrol edilemedi.'} onRetry={() => void check()} />;
+    return (
+      <ShopError
+        title="Teslimat bölgesi"
+        message={error ?? 'Kontrol edilemedi.'}
+        onRetry={() => void check()}
+      />
+    );
   }
 
   return (
@@ -59,8 +65,8 @@ export function AddressServiceabilityPage() {
       <div className="max-w-xl mx-auto px-margin-sm lg:px-margin py-space-lg flex flex-col gap-space-md">
         <h1 className="font-headline-lg uppercase">Teslimat bölgesi</h1>
         <p className="font-body-md text-on-surface-variant">
-          Adres kaydı checkout ve hesap adreslerinde yapılır. Bu sayfa yalnızca mevcut konumun servis
-          alanına düşüp düşmediğini kontrol eder.
+          Adres kaydı checkout ve hesap adreslerinde yapılır. Bu sayfa yalnızca mevcut konumun
+          servis alanına düşüp düşmediğini kontrol eder.
         </p>
         <label className="font-label-sm uppercase">
           Etiket
@@ -101,15 +107,23 @@ export function AddressServiceabilityPage() {
         </button>
         {result ? (
           <p className="font-body-md" data-ff-serviceable={result.serviceable ? 'yes' : 'no'}>
-            {result.serviceable ? 'Bu konum teslimat alanındadır.' : 'Bu konum şu an servis dışıdır.'}
+            {result.serviceable
+              ? 'Bu konum teslimat alanındadır.'
+              : 'Bu konum şu an servis dışıdır.'}
           </p>
         ) : null}
         <div className="flex flex-wrap gap-space-sm">
-          <Link href="/checkout" className="px-space-md py-2 rounded-lg bg-primary-container text-on-primary-container font-label-md uppercase">
+          <Link
+            href="/checkout"
+            className="px-space-md py-2 rounded-lg bg-primary-container text-on-primary-container font-label-md uppercase"
+          >
             Checkout
           </Link>
           {authed ? (
-            <Link href="/account/addresses" className="px-space-md py-2 rounded-lg bg-surface-container-high font-label-md uppercase">
+            <Link
+              href="/account/addresses"
+              className="px-space-md py-2 rounded-lg bg-surface-container-high font-label-md uppercase"
+            >
               Kayıtlı adresler
             </Link>
           ) : null}

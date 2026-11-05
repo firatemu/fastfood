@@ -60,7 +60,8 @@ function parseSecret(raw: string): SecretPayload | null {
     if (!parsed || typeof parsed !== 'object') return null;
     const record = parsed as Record<string, unknown>;
     if (typeof record['customerId'] !== 'string' || record['customerId'].length < 1) return null;
-    if (typeof record['refreshToken'] !== 'string' || record['refreshToken'].length < 8) return null;
+    if (typeof record['refreshToken'] !== 'string' || record['refreshToken'].length < 8)
+      return null;
     if (typeof record['refreshExpiresAt'] !== 'string') return null;
     return {
       customerId: record['customerId'],

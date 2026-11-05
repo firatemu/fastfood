@@ -132,7 +132,12 @@ export function AddressComposer(props: {
                 {props.mode === 'edit' ? 'Adresi düzenle' : 'Adres ekle'}
               </h2>
             </div>
-            <button type="button" onClick={props.onClose} aria-label="Kapat" className="ff-icon-btn">
+            <button
+              type="button"
+              onClick={props.onClose}
+              aria-label="Kapat"
+              className="ff-icon-btn"
+            >
               <MaterialIcon name="close" />
             </button>
           </header>
@@ -441,8 +446,8 @@ export function AddressComposer(props: {
                 style={{ textAlign: 'left' }}
               >
                 {props.error ??
-                (props.blockedReason ??
-                  'Adres ismi, il, ilçe, mahalle ve harita noktası gerekli.')}
+                  props.blockedReason ??
+                  'Adres ismi, il, ilçe, mahalle ve harita noktası gerekli.'}
               </p>
               <button
                 type="submit"

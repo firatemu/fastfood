@@ -41,10 +41,7 @@ export function LegalDocumentLayout({
   children?: ReactNode;
 }) {
   return (
-    <main
-      className="w-full pt-20 bg-background min-h-screen"
-      data-ff-surface={surfaceId}
-    >
+    <main className="w-full pt-20 bg-background min-h-screen" data-ff-surface={surfaceId}>
       <div className="max-w-5xl mx-auto px-margin-sm lg:px-margin py-space-lg flex flex-col gap-space-xl">
         {/* Breadcrumb & Header */}
         <div className="border-b border-surface-container-high pb-space-lg">
@@ -60,9 +57,7 @@ export function LegalDocumentLayout({
             <span className="text-primary-container">{subtitle}</span>
           </div>
 
-          <h1 className="font-headline-lg uppercase text-on-surface mt-2 tracking-wide">
-            {title}
-          </h1>
+          <h1 className="font-headline-lg uppercase text-on-surface mt-2 tracking-wide">{title}</h1>
 
           {lastUpdated ? (
             <div className="flex items-center gap-2 mt-2 text-on-surface-variant font-body-sm">

@@ -1,4 +1,5 @@
 import { ErrorCodes } from '@fastfood/contracts';
+import type { ActorType } from '@fastfood/domain-types';
 import { safeValidate } from '@fastfood/validation';
 import {
   Body,
@@ -26,6 +27,7 @@ import { RefundService } from './refund.service.js';
 
 const REQUEST_ID = '01900000-0000-7000-8000-000000000095';
 type StaffBranchPrincipal = {
+  id?: string;
   actorType?: string;
   isSuperAdmin?: boolean;
   branchIds?: ReadonlySet<string>;
@@ -69,6 +71,10 @@ export class RefundController {
         paymentId,
         amountMinor: BigInt(parsed.data.amountMinor),
         reason: parsed.data.reason,
+        actor: {
+          actorUserId: request.principal?.id ?? null,
+          actorType: (request.principal?.actorType as ActorType | undefined) ?? null,
+        },
       });
       return {
         data: {

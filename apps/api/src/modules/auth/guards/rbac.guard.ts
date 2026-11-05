@@ -88,7 +88,10 @@ function isAdminPageRoute(path: string = ''): boolean {
   return /(?:^|\/)admin(?:\/|$)/.test((path ?? '').split('?')[0] ?? '');
 }
 
-function resolveAdminPagePermissions(path: string = '', method: string = 'GET'): PermissionCode[] | null {
+function resolveAdminPagePermissions(
+  path: string = '',
+  method: string = 'GET',
+): PermissionCode[] | null {
   const normalized = (path ?? '').split('?')[0] ?? '';
   const adminPath = normalized.slice(normalized.indexOf('/admin'));
   if (!adminPath.startsWith('/admin/')) return null;

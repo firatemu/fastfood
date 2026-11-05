@@ -42,7 +42,8 @@ the final technical summary and final human test plan under
 - `apps/courier-mobile` — courier iOS/Android app
 - `packages/` — shared contracts, configuration, UI, and infrastructure code
 - `fastfood-project-docs/` — authoritative product and engineering contracts
-- `docs/` — ADRs and current task-specific design/QA documentation
+- `docs/` — consolidated ADRs, project history, and QA test guide
+- `design-references/` — visual design mockups and Stitch prompt references
 - `project-reports/final/` — final completion summary and human test plan only
 
 ## Local development

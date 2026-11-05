@@ -8,10 +8,13 @@ import { useCallback, useState } from 'react';
 import { clearCustomerSession, isCustomerAuthenticated } from '../../lib/api';
 import { errorMessage } from '../../lib/load-state';
 import { formatTryMinor } from '../../lib/money';
-import { fetchMyOrders, patchCustomerProfile, type CustomerOrder } from '../../lib/storefront/account';
+import {
+  fetchMyOrders,
+  patchCustomerProfile,
+  type CustomerOrder,
+} from '../../lib/storefront/account';
 import { useSubmitLock } from '../../lib/storefront/account-hooks';
 import { fetchLinkedIdentities } from '../../lib/storefront/auth';
-import { LOYALTY_PROGRAM_NAME } from '../../lib/storefront/brand-copy';
 import { clubProgress } from '../../lib/storefront/club-progress';
 import { fetchClub, type ClubSnapshot } from '../../lib/storefront/engagement';
 import { useDeferredLoad } from '../../lib/use-deferred-load';
@@ -81,7 +84,10 @@ export function AccountPage() {
       setLoadError(null);
       setPageState('ready');
     } catch (err) {
-      if (err instanceof ApiError && (err.status === 401 || err.envelope.error.code === 'AUTH_UNAUTHENTICATED')) {
+      if (
+        err instanceof ApiError &&
+        (err.status === 401 || err.envelope.error.code === 'AUTH_UNAUTHENTICATED')
+      ) {
         redirectToAuth();
         return;
       }
@@ -96,15 +102,18 @@ export function AccountPage() {
   }, [load]);
 
   const save = useSubmitLock(
-    useCallback(async (nextName: string, nextEmail: string) => {
-      const updated = await patchCustomerProfile({
-        displayName: nextName.trim() || undefined,
-        email: nextEmail.trim() || undefined,
-      });
-      setDraft({ name: updated.displayName ?? '', email: updated.email ?? '' });
-      setDirty(false);
-      refreshProfile();
-    }, [setDirty, refreshProfile]),
+    useCallback(
+      async (nextName: string, nextEmail: string) => {
+        const updated = await patchCustomerProfile({
+          displayName: nextName.trim() || undefined,
+          email: nextEmail.trim() || undefined,
+        });
+        setDraft({ name: updated.displayName ?? '', email: updated.email ?? '' });
+        setDirty(false);
+        refreshProfile();
+      },
+      [setDirty, refreshProfile],
+    ),
   );
 
   const onSubmit = useCallback(
@@ -155,188 +164,277 @@ export function AccountPage() {
 
   return (
     <AccountShell
-        surface="account"
-        eyebrow="Hesap"
-        title="Hesabın"
-        description={`${displayName}, iletişim bilgilerini, sipariş geçmişini ve üyelik durumunu buradan yönet.`}
-        actions={
-          <Link href="/orders" className="ff-btn ff-btn-outline">
-            <MaterialIcon name="receipt_long" />
-            Siparişler
+      surface="account"
+      eyebrow="Hesap Merkezi"
+      title="Hesap Özeti"
+      description={`${displayName}, hoş geldin! Kişisel bilgilerini, siparişlerini ve ayrıcalıklarını buradan tek noktadan yönetebilirsin.`}
+      actions={
+        <div className="flex items-center gap-2">
+          <Link href="/account/addresses" className="ff-btn ff-btn-outline">
+            <MaterialIcon name="location_on" />
+            Adresler
           </Link>
-        }
-      >
-
-        <StatusLedger
-          email={ready.email ?? null}
-          emailVerified={verified.email ?? ready.emailVerified === true}
-          phone={ready.phone ?? null}
-          phoneVerified={verified.phone ?? ready.phoneVerified === true}
-          tierName={club?.currentTier.displayName ?? null}
-          points={points}
-          createdAt={ready.createdAt ?? null}
-        />
-
-        <form className="ff-section" onSubmit={onSubmit} data-ff-profile-form>
-          <div className="ff-section-head">
-            <h2 className="ff-section-title">Profil</h2>
-            <p className="ff-section-desc">Ad ve e-posta siparişlerinde senin adınla görünür.</p>
+          <Link href="/orders" className="ff-btn ff-btn-primary">
+            <MaterialIcon name="receipt_long" />
+            Siparişlerim
+          </Link>
+        </div>
+      }
+    >
+      {/* 1. Üst Metrik Kartları */}
+      <div className="ff-stat-grid">
+        <Link href="/account/club" className="ff-stat-card">
+          <div className="ff-stat-icon">
+            <MaterialIcon name="local_fire_department" />
           </div>
-          <div className="ff-section-body">
-            <div className="ff-stack">
-              <label className="ff-field">
-                <span className="ff-field-label">Ad</span>
-                <input
-                  className="ff-input"
-                  value={name}
-                  autoComplete="name"
-                  onChange={(event) => {
-                    const next = event.target.value;
-                    setDraft({ name: next, email });
-                    setDirty(true);
-                  }}
-                />
-              </label>
-              <label className="ff-field">
-                <span className="ff-field-label">E-posta</span>
-                <input
-                  className="ff-input"
-                  type="email"
-                  value={email}
-                  autoComplete="email"
-                  onChange={(event) => {
-                    const next = event.target.value;
-                    setDraft({ name, email: next });
-                    setDirty(true);
-                  }}
-                />
-                <span className="ff-field-hint">
-                  Sipariş onayları ve kampanya haberleri bu adrese gider.
-                </span>
-              </label>
+          <div className="ff-stat-content">
+            <div className="ff-stat-label">Ateş Puanı</div>
+            <div className="ff-stat-val">{points ?? '0'} <span className="text-xs font-normal text-on-surface-variant">puan</span></div>
+            <div className="ff-stat-sub">{club?.currentTier.displayName ?? 'Kor'} Kademesi</div>
+          </div>
+        </Link>
 
-              <div className="ff-rows">
-                <div className="ff-row">
-                  <div className="ff-row-key">
-                    <div className="ff-row-label">Telefon</div>
-                    <div className="ff-row-hint">Telefon güvenlik ekranından değiştirilir.</div>
+        <Link href="/orders" className="ff-stat-card">
+          <div className="ff-stat-icon">
+            <MaterialIcon name="receipt_long" />
+          </div>
+          <div className="ff-stat-content">
+            <div className="ff-stat-label">Toplam Sipariş</div>
+            <div className="ff-stat-val">{orders.length} <span className="text-xs font-normal text-on-surface-variant">sipariş</span></div>
+            <div className="ff-stat-sub">Geçmişi incele</div>
+          </div>
+        </Link>
+
+        <Link href="/account/addresses" className="ff-stat-card">
+          <div className="ff-stat-icon">
+            <MaterialIcon name="location_on" />
+          </div>
+          <div className="ff-stat-content">
+            <div className="ff-stat-label">Teslimat Adresleri</div>
+            <div className="ff-stat-val">Adres Defteri</div>
+            <div className="ff-stat-sub">Kayıtlı konumlar</div>
+          </div>
+        </Link>
+
+        <Link href="/account/security" className="ff-stat-card">
+          <div className="ff-stat-icon">
+            <MaterialIcon name="shield" />
+          </div>
+          <div className="ff-stat-content">
+            <div className="ff-stat-label">Güvenlik Durumu</div>
+            <div className="ff-stat-val">
+              {verified.email && verified.phone ? 'Tam Koruma' : 'Doğrulama'}
+            </div>
+            <div className="ff-stat-sub">
+              {verified.email && verified.phone ? 'Hesap doğrulandı' : 'Güvenlik ayarları'}
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      {/* 2. Ana 2 Sütunlu Panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Sol / Geniş Sütun: Profil Formu */}
+        <div className="lg:col-span-2">
+          <form className="ff-card h-full" onSubmit={onSubmit} data-ff-profile-form>
+            <div className="ff-card-header">
+              <div>
+                <h2 className="ff-card-title">
+                  <MaterialIcon name="person" />
+                  Kişisel Bilgiler & İletişim
+                </h2>
+                <p className="ff-card-desc">Ad ve e-posta adresin siparişlerinde ve faturalarında kullanılır.</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label className="ff-field">
+                  <span className="ff-field-label">Ad Soyad</span>
+                  <input
+                    className="ff-input"
+                    value={name}
+                    autoComplete="name"
+                    placeholder="Adınız Soyadınız"
+                    onChange={(event) => {
+                      const next = event.target.value;
+                      setDraft({ name: next, email });
+                      setDirty(true);
+                    }}
+                  />
+                </label>
+
+                <label className="ff-field">
+                  <span className="ff-field-label">E-posta Adresi</span>
+                  <input
+                    className="ff-input"
+                    type="email"
+                    value={email}
+                    autoComplete="email"
+                    placeholder="ornek@alanadi.com"
+                    onChange={(event) => {
+                      const next = event.target.value;
+                      setDraft({ name, email: next });
+                      setDirty(true);
+                    }}
+                  />
+                </label>
+              </div>
+
+              <div className="p-4 rounded-xl bg-surface-container-lowest/70 border border-outline-variant/60 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+                    <MaterialIcon name="phone" />
                   </div>
-                  <div className="ff-row-value">{ready.phone ?? 'Eklenmemiş'}</div>
-                  <div className="ff-row-actions">
-                    <VerifyTag verified={verified.phone ?? ready.phoneVerified === true} present={Boolean(ready.phone)} />
+                  <div>
+                    <div className="text-xs text-on-surface-variant font-medium">Kayıtlı Telefon Numarası</div>
+                    <div className="text-sm font-semibold text-white mt-0.5">{ready.phone ?? 'Eklenmemiş'}</div>
                   </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <VerifyTag
+                    verified={verified.phone ?? ready.phoneVerified === true}
+                    present={Boolean(ready.phone)}
+                  />
+                  <Link href="/account/security" className="ff-btn ff-btn-outline ff-btn-sm">
+                    Değiştir
+                  </Link>
                 </div>
               </div>
 
-              <div className="ff-cluster ff-cluster-end">
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-xs text-on-surface-variant">
+                  {dirty ? '• Kaydedilmemiş değişiklikler var' : 'Profil bilgileri güncel'}
+                </span>
                 <button
                   type="submit"
                   className="ff-btn ff-btn-primary"
                   disabled={save.pending || !dirty}
                   data-ff-profile-save
                 >
-                  {save.pending ? 'Kaydediliyor' : 'Değişiklikleri kaydet'}
+                  <MaterialIcon name="save" />
+                  {save.pending ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
                 </button>
               </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
 
-        <RecentOrders orders={orders} />
+        {/* Sağ Sütun: Burger Home Club Ayrıcalıkları */}
+        <div className="lg:col-span-1">
+          <div className="ff-card h-full flex flex-col justify-between">
+            <div>
+              <div className="ff-card-header">
+                <div>
+                  <h2 className="ff-card-title">
+                    <MaterialIcon name="local_fire_department" />
+                    Burger Home Club
+                  </h2>
+                  <p className="ff-card-desc">Özel ayrıcalıklar ve ödüller.</p>
+                </div>
+                <Link href="/account/club" className="ff-btn ff-btn-ghost ff-btn-sm" title="Kulüp Sayfası">
+                  <MaterialIcon name="chevron_right" />
+                </Link>
+              </div>
 
-        <ClubSection
-          programName={club?.programName ?? LOYALTY_PROGRAM_NAME}
-          tierName={club?.currentTier.displayName ?? '—'}
-          nextTierName={club?.nextTier?.displayName ?? null}
-          points={points}
-          pointsRemaining={progress?.pointsRemaining ?? null}
-          percent={progress?.percent ?? 0}
-          showRail={progress?.showRail ?? false}
-        />
-    </AccountShell>
-  );
-}
+              <div className="p-4 rounded-xl bg-gradient-to-br from-secondary/15 via-surface-container-low to-primary/10 border border-secondary/20 mb-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-secondary">
+                    {club?.currentTier.displayName ?? 'Kor'} Kademe
+                  </span>
+                  <span className="text-xl font-extrabold text-white">
+                    {points ?? '0'} <span className="text-xs font-normal text-on-surface-variant">Puan</span>
+                  </span>
+                </div>
 
-/* -------------------------------------------------------------------------- */
-/* Status — a ledger, not a metric grid                                         */
-/* -------------------------------------------------------------------------- */
+                <div className="mt-3">
+                  {progress?.showRail ? (
+                    <>
+                      <div
+                        className="ff-meter"
+                        role="progressbar"
+                        aria-valuenow={progress.percent}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                      >
+                        <div className="ff-meter-fill" style={{ width: `${progress.percent}%` }} />
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-on-surface-variant mt-2">
+                        <span>İlerleme: %{progress.percent}</span>
+                        <span>{club?.nextTier?.displayName ?? 'Ateş'} kademesine {progress.pointsRemaining ?? 0} puan</span>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-xs text-on-surface-variant mt-2">En üst seviye ayrıcalıklara sahipsiniz.</p>
+                  )}
+                </div>
+              </div>
 
-function StatusLedger(props: {
-  email: string | null;
-  emailVerified: boolean;
-  phone: string | null;
-  phoneVerified: boolean;
-  tierName: string | null;
-  points: string | null;
-  createdAt: string | null;
-}) {
-  return (
-    <section className="ff-section" aria-label="Hesap durumu">
-      <div className="ff-section-head">
-        <h2 className="ff-section-title">Durum</h2>
-        <p className="ff-section-desc">
-          {props.createdAt ? `${formatDate(props.createdAt)} tarihinden beri üyesin.` : 'Hesap bilgilerin.'}
-        </p>
-      </div>
-      <div className="ff-section-body">
-        <div className="ff-rows">
-          <div className="ff-row">
-            <div className="ff-row-key">
-              <div className="ff-row-label">E-posta</div>
-              <div className="ff-row-hint">Sipariş onayları için kullanılır.</div>
-            </div>
-            <div className="ff-row-value">{props.email ?? 'Eklenmemiş'}</div>
-            <div className="ff-row-actions">
-              <VerifyTag verified={props.emailVerified} present={Boolean(props.email)} />
-              <Link href="/account/security" className="ff-btn ff-btn-ghost ff-btn-sm">
-                Güvenlik
-              </Link>
-            </div>
-          </div>
+              {/* Hızlı Erişim Butonları */}
+              <div className="flex flex-col gap-2">
+                <Link
+                  href="/account/spin"
+                  className="flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest/60 hover:bg-surface-container-high transition border border-outline-variant/60 text-sm font-medium text-white group"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span className="text-secondary">
+                      <MaterialIcon name="stars" />
+                    </span>
+                    Ateş Çarkıfelek
+                  </span>
+                  <span className="text-xs text-secondary font-semibold group-hover:translate-x-0.5 transition-transform">
+                    Çevir →
+                  </span>
+                </Link>
 
-          <div className="ff-row">
-            <div className="ff-row-key">
-              <div className="ff-row-label">Telefon</div>
-              <div className="ff-row-hint">Teslimat adresi doğrulaması için gerekli.</div>
+                <Link
+                  href="/account/favorites"
+                  className="flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest/60 hover:bg-surface-container-high transition border border-outline-variant/60 text-sm font-medium text-white group"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span className="text-primary">
+                      <MaterialIcon name="favorite" />
+                    </span>
+                    Favori Ürünlerim
+                  </span>
+                  <MaterialIcon name="chevron_right" />
+                </Link>
+              </div>
             </div>
-            <div className="ff-row-value">{props.phone ?? 'Eklenmemiş'}</div>
-            <div className="ff-row-actions">
-              <VerifyTag verified={props.phoneVerified} present={Boolean(props.phone)} />
-              <Link href="/account/security" className="ff-btn ff-btn-ghost ff-btn-sm">
-                Güvenlik
-              </Link>
-            </div>
-          </div>
 
-          <div className="ff-row">
-            <div className="ff-row-key">
-              <div className="ff-row-label">Üyelik</div>
-              <div className="ff-row-hint">Kademe ve mevcut puan.</div>
-            </div>
-            <div className="ff-row-value">
-              {props.tierName ?? '—'}
-              {props.points !== null ? (
-                <span className="ff-row-hint" style={{ textAlign: 'right' }}>
-                  {props.points} puan
-                </span>
-              ) : null}
-            </div>
-            <div className="ff-row-actions">
-              <Link href="/account/club" className="ff-btn ff-btn-ghost ff-btn-sm">
-                Kulüp
-              </Link>
+            <div className="pt-4 border-t border-outline-variant/40 mt-4 text-xs text-on-surface-variant text-center">
+              Sipariş verdikçe puan kazanıp yeni hediyelerin kilidini açarsın.
             </div>
           </div>
         </div>
       </div>
-    </section>
+
+      {/* 3. Son Siparişler Tablosu */}
+      <RecentOrders orders={orders} />
+    </AccountShell>
   );
 }
 
+
+
 function VerifyTag({ verified, present }: { verified: boolean; present: boolean }) {
-  if (!present) return <span className="ff-tag" data-tone="warn">Eksik</span>;
-  if (!verified) return <span className="ff-tag" data-tone="warn">Doğrulanmadı</span>;
-  return <span className="ff-tag" data-tone="ok">Doğrulandı</span>;
+  if (!present)
+    return (
+      <span className="ff-tag" data-tone="warn">
+        Eksik
+      </span>
+    );
+  if (!verified)
+    return (
+      <span className="ff-tag" data-tone="warn">
+        Doğrulanmadı
+      </span>
+    );
+  return (
+    <span className="ff-tag" data-tone="ok">
+      Doğrulandı
+    </span>
+  );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -350,9 +448,7 @@ function RecentOrders({ orders }: { orders: CustomerOrder[] }) {
       <div className="ff-section-head">
         <h2 className="ff-section-title">Son siparişler</h2>
         <p className="ff-section-desc">
-          {orders.length > 0
-            ? `${orders.length} sipariş kayıtlı.`
-            : 'Henüz siparişin yok.'}
+          {orders.length > 0 ? `${orders.length} sipariş kayıtlı.` : 'Henüz siparişin yok.'}
         </p>
       </div>
       <div className="ff-section-body">
@@ -451,63 +547,7 @@ function OrderTag({ status, label }: { status: string; label?: string }) {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Membership — the one hero figure on this screen                             */
-/* -------------------------------------------------------------------------- */
 
-function ClubSection(props: {
-  programName: string;
-  tierName: string;
-  nextTierName: string | null;
-  points: string | null;
-  pointsRemaining: number | null;
-  percent: number;
-  showRail: boolean;
-}) {
-  return (
-    <section className="ff-section">
-      <div className="ff-section-head">
-        <h2 className="ff-section-title">Üyelik</h2>
-        <p className="ff-section-desc">{props.programName}</p>
-      </div>
-      <div className="ff-section-body">
-        <div className="ff-rows">
-          <div className="ff-row" style={{ minHeight: '5rem', alignItems: 'center' }}>
-            <div className="ff-row-key">
-              <div className="ff-figure" style={{ fontSize: '2.5rem' }}>
-                {props.points ?? '—'}
-              </div>
-              <div className="ff-row-hint" style={{ marginTop: '0.5rem' }}>
-                {props.tierName} kademesi
-              </div>
-            </div>
-            <div className="ff-row-key ff-row-meter">
-              {props.showRail ? (
-                <>
-                  <div className="ff-meter" role="progressbar" aria-valuenow={props.percent} aria-valuemin={0} aria-valuemax={100}>
-                    <div className="ff-meter-fill" style={{ width: `${props.percent}%` }} />
-                  </div>
-                  <div className="ff-cluster" style={{ marginTop: '0.5rem' }}>
-                    <span className="ff-row-hint">
-                      {props.nextTierName} kademesine {props.pointsRemaining ?? 0} puan kaldı
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <p className="ff-row-hint">En yüksek kademedesin.</p>
-              )}
-            </div>
-            <div className="ff-row-actions">
-              <Link href="/account/club" className="ff-btn ff-btn-outline ff-btn-sm">
-                Ayrıntılar
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* -------------------------------------------------------------------------- */
 

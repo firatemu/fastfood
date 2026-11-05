@@ -17,32 +17,51 @@ import { MaterialIcon } from './material-icon';
  * per item — a 2px bar on the active row — so "where am I" is answered without
  * a filled block competing with the page's own primary action.
  */
-const GROUPS = [
+type NavBadge = {
+  text: string;
+  tone?: 'ember' | 'live' | 'accent' | 'neutral';
+};
+
+type NavItem = {
+  href: string;
+  label: string;
+  icon: string;
+  badge?: NavBadge;
+};
+
+type NavGroup = {
+  label: string;
+  items: readonly NavItem[];
+};
+
+const GROUPS: readonly NavGroup[] = [
   {
-    label: 'Hesap',
+    label: 'Hesap Yönetimi',
     items: [
       { href: '/account', label: 'Profil', icon: 'person' },
       { href: '/account/addresses', label: 'Adresler', icon: 'location_on' },
       { href: '/account/settings', label: 'Tercihler', icon: 'tune' },
-      { href: '/account/security', label: 'Güvenlik', icon: 'shield' },
+      { href: '/account/security', label: 'Güvenlik', icon: 'shield', badge: { text: '2FA', tone: 'neutral' } },
     ],
   },
   {
-    label: 'Sipariş',
-    items: [{ href: '/orders', label: 'Siparişler', icon: 'receipt_long' }],
+    label: 'Siparişler',
+    items: [
+      { href: '/orders', label: 'Siparişler', icon: 'receipt_long', badge: { text: 'CANLI', tone: 'live' } },
+    ],
   },
   {
     label: 'Ayrıcalıklar',
     items: [
-      { href: '/account/club', label: 'Burger Home Club', icon: 'local_fire_department' },
-      { href: '/account/spin', label: 'Ateş Çarkıfelek', icon: 'stars' },
+      { href: '/account/club', label: 'Burger Home Club', icon: 'local_fire_department', badge: { text: 'VIP', tone: 'ember' } },
+      { href: '/account/spin', label: 'Ateş Çarkıfelek', icon: 'stars', badge: { text: 'ÇEVİR', tone: 'ember' } },
       { href: '/account/favorites', label: 'Favoriler', icon: 'favorite' },
     ],
   },
   {
-    label: 'Yardım',
+    label: 'Destek & İletişim',
     items: [
-      { href: '/account/notifications', label: 'Bildirimler', icon: 'notifications' },
+      { href: '/account/notifications', label: 'Bildirimler', icon: 'notifications', badge: { text: 'YENİ', tone: 'accent' } },
       { href: '/account/support', label: 'Destek', icon: 'support_agent' },
     ],
   },
@@ -80,20 +99,32 @@ export function AccountNav() {
     <nav aria-label="Hesap menüsü" data-ff-account-nav>
       {identity ? (
         <div className="ff-identity">
-          <span className="ff-identity-mark" aria-hidden>
-            {initialsOf(identity.name)}
-          </span>
-          <span className="ff-identity-text">
-            <span className="ff-identity-name">{identity.name}</span>
+          <div className="ff-identity-avatar-ring">
+            <span className="ff-identity-mark" aria-hidden>
+              {initialsOf(identity.name)}
+            </span>
+            <span className="ff-identity-live-dot" title="Aktif Oturum" />
+          </div>
+          <div className="ff-identity-text">
+            <div className="ff-identity-name-row">
+              <span className="ff-identity-name">{identity.name}</span>
+            </div>
             <span className="ff-identity-meta">{identity.meta}</span>
-          </span>
+            <div className="ff-identity-badge">
+              <span className="ff-identity-badge-spark">🔥</span>
+              <span>BURGER CLUB</span>
+            </div>
+          </div>
         </div>
       ) : null}
 
       {GROUPS.map((group, index) => (
-        <div key={group.label}>
+        <div key={group.label} className="ff-rail-group">
           {index > 0 ? <div className="ff-rail-divider" aria-hidden /> : null}
-          <div className="ff-rail-label">{group.label}</div>
+          <div className="ff-rail-label">
+            <span className="ff-rail-label-dot" aria-hidden />
+            <span>{group.label}</span>
+          </div>
           {group.items.map((item) => {
             const active = isActive(pathname, item.href);
             return (
@@ -103,8 +134,19 @@ export function AccountNav() {
                 aria-current={active ? 'page' : undefined}
                 className="ff-rail-item"
               >
-                <MaterialIcon name={item.icon} />
-                <span>{item.label}</span>
+                <div className="ff-rail-icon-box">
+                  <MaterialIcon name={item.icon} />
+                </div>
+                <span className="ff-rail-item-label">{item.label}</span>
+                {item.badge ? (
+                  <span className={`ff-rail-badge ff-rail-badge--${item.badge.tone ?? 'neutral'}`}>
+                    {item.badge.tone === 'live' ? <span className="ff-rail-pulse-dot" /> : null}
+                    {item.badge.text}
+                  </span>
+                ) : null}
+                <span className="ff-rail-chevron" aria-hidden>
+                  <MaterialIcon name="chevron_right" />
+                </span>
               </Link>
             );
           })}
@@ -112,17 +154,24 @@ export function AccountNav() {
       ))}
 
       <div className="ff-rail-divider" aria-hidden />
-      <button
-        type="button"
-        className="ff-rail-item"
-        data-tone="danger"
-        data-ff-logout
-        disabled={leaving}
-        onClick={() => void handleLogout()}
-      >
-        <MaterialIcon name="logout" />
-        <span>{leaving ? 'Çıkılıyor' : 'Çıkış yap'}</span>
-      </button>
+      <div className="ff-rail-footer">
+        <button
+          type="button"
+          className="ff-rail-item"
+          data-tone="danger"
+          data-ff-logout
+          disabled={leaving}
+          onClick={() => void handleLogout()}
+        >
+          <div className="ff-rail-icon-box">
+            <MaterialIcon name={leaving ? 'hourglass_empty' : 'logout'} />
+          </div>
+          <span className="ff-rail-item-label">{leaving ? 'Çıkılıyor...' : 'Çıkış Yap'}</span>
+          <span className="ff-rail-chevron" aria-hidden>
+            <MaterialIcon name="arrow_forward" />
+          </span>
+        </button>
+      </div>
     </nav>
   );
 }

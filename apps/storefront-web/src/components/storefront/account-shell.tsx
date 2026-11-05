@@ -66,24 +66,24 @@ export function AccountShell({
   return (
     <div className="ff-acct pt-20" data-ff-surface={surface}>
       <div className="ff-frame">
-          <aside className="ff-rail ff-scroll" data-ff-account-rail>
-            <AccountNav />
-          </aside>
+        <aside className="ff-rail ff-scroll" data-ff-account-rail>
+          <AccountNav />
+        </aside>
 
-          <div className="ff-content">
-            <div className="ff-toolbar">
-              <div className="ff-toolbar-id">
-                <div className="ff-toolbar-eyebrow">{eyebrow ?? 'Hesap'}</div>
-                <h1 className="ff-toolbar-title">{title}</h1>
-              </div>
-              {actions ? <div className="ff-toolbar-actions">{actions}</div> : null}
+        <div className="ff-content">
+          <div className="ff-toolbar">
+            <div className="ff-toolbar-id">
+              <div className="ff-toolbar-eyebrow">{eyebrow ?? 'Hesap'}</div>
+              <h1 className="ff-toolbar-title">{title}</h1>
             </div>
-
-            <main id="account-content" tabIndex={-1} className="ff-body">
-              {description ? <p className="ff-lead">{description}</p> : null}
-              {children}
-            </main>
+            {actions ? <div className="ff-toolbar-actions">{actions}</div> : null}
           </div>
+
+          <main id="account-content" tabIndex={-1} className="ff-body">
+            {description ? <p className="ff-lead">{description}</p> : null}
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );

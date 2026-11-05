@@ -44,6 +44,25 @@ export interface PaymentVerification {
   readonly payload?: Record<string, string | number | null>;
 }
 
+export interface PaymentRefundInput {
+  /** Provider-side payment token (iyzico `paymentKey`). */
+  readonly providerPaymentId: string;
+  readonly amountMinor: bigint;
+  readonly currency: string;
+  /** Stable key so a retried dispatch cannot refund twice. */
+  readonly idempotencyKey: string;
+  /** Buyer IP — some gateways require it on the refund request. */
+  readonly ip?: string | null;
+}
+
+export type PaymentRefundStatus = 'SUCCEEDED' | 'FAILED' | 'PENDING';
+
+export interface PaymentRefundResult {
+  readonly status: PaymentRefundStatus;
+  readonly providerRefundId?: string;
+  readonly failureCode?: string;
+}
+
 export interface PaymentPort {
   /** `true` only for the local/test adapter that trusts client-asserted status. */
   readonly acceptsClientAssertedStatus: boolean;
@@ -52,6 +71,12 @@ export interface PaymentPort {
     providerPaymentId: string,
     expected: PaymentVerifyExpectation,
   ): Promise<PaymentVerification>;
+  /**
+   * Refund dispatch (audit P0-1). The application layer never marks a refund
+   * as settled on its own — the money movement is owned by the gateway and
+   * the returned status is the only accepted source of truth.
+   */
+  refund(input: PaymentRefundInput): Promise<PaymentRefundResult>;
 }
 
 export const PAYMENT_PORT = Symbol('PAYMENT_PORT');

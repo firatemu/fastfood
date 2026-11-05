@@ -21,7 +21,7 @@ stop_pidfile() {
   rm -f "$f"
 }
 
-for svc in storefront worker api; do
+for svc in storefront admin courier worker api; do
   stop_pidfile "$svc"
 done
 

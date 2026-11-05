@@ -1,78 +1,67 @@
-# FASTFOOD Task Documentation Map
+# FASTFOOD Documentation Directory
 
-Use this file to select the smallest documentation set needed for a task. The
-numbered contracts in `../fastfood-project-docs/` remain authoritative.
+Welcome to the centralized documentation hub for the **FASTFOOD / BURGER HOME** commerce and fulfillment platform.
 
-## Always read
+This directory contains the operational, architectural, and quality assurance documentation for the monorepo.
 
-- `../AGENTS.md`
-- `../PROJECT_STATUS.md`
-- `../fastfood-project-docs/00-FASTFOOD_PRODUCT_AND_SYSTEM_SPEC.md`
-- `../fastfood-project-docs/32-IMPLEMENTATION_LOCK_IN.md`
-- `../fastfood-project-docs/43-AI_AGENT_DEVELOPMENT_PROTOCOL.md`
-- `../fastfood-project-docs/49-DEVELOPMENT_EXECUTION_AND_HUMAN_VALIDATION_POLICY.md`
+---
 
-Then read only the section relevant to the task.
+## 1. Quick Navigation
 
-## Architecture decisions
+| Document                                                                 | Purpose                                                                                                                          |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| **[CONSOLIDATED_PROJECT_HISTORY.md](./CONSOLIDATED_PROJECT_HISTORY.md)** | Full development roadmap history (Phases 0–10), UI transformations (Admin, Storefront, Mobile), and technical deliverables.      |
+| **[ARCHITECTURE_DECISIONS.md](./ARCHITECTURE_DECISIONS.md)**             | Authoritative consolidated Architecture Decision Records (ADR-001 through ADR-023).                                              |
+| **[QA_TEST_GUIDE.md](./QA_TEST_GUIDE.md)**                               | End-to-end human testing guide, local stack bring-up, seed credentials, test cards, and scenario checklists.                     |
+| **[customer-platform/](./customer-platform/)**                           | Cross-platform policy and canonical **[Customer Capability Matrix](./customer-platform/CUSTOMER_CAPABILITY_MATRIX.md)**.         |
+| **[release/](./release/)**                                               | Production release readiness and **[Google Play Console Guide](./release/PLAY_CONSOLE_CUSTOMER.md)** for Android closed testing. |
+| **[openapi/](./openapi/)**                                               | Generated OpenAPI 3.0 specification (`openapi.json`) for the backend API.                                                        |
 
-`adrs/` contains accepted decisions. ADRs are historical by nature and must not
-be deleted; a later decision supersedes an older one explicitly.
+---
 
-## Customer cross-platform work
+## 2. Core Technical Baseline
 
-- `customer-platform/CUSTOMER_CHANGE_POLICY.md`
-- `customer-platform/CUSTOMER_CAPABILITY_MATRIX.md`
-- `customer-platform/CROSS_PLATFORM_SYNC_FOUNDATION.md`
+Before undertaking non-trivial changes, engineers and AI assistants must review the baseline system specifications in `../fastfood-project-docs/`:
 
-Any customer-facing capability change must classify both Storefront Web and
-Customer Mobile.
+- `../AGENTS.md` — AI pair-programming and engineering contract.
+- `../PROJECT_STATUS.md` — Current execution state and human gate authorizations.
+- `../fastfood-project-docs/00-FASTFOOD_PRODUCT_AND_SYSTEM_SPEC.md` — Comprehensive product specification.
+- `../fastfood-project-docs/32-IMPLEMENTATION_LOCK_IN.md` — Core architectural lock-in contracts.
+- `../fastfood-project-docs/49-DEVELOPMENT_EXECUTION_AND_HUMAN_VALIDATION_POLICY.md` — Execution policies.
 
-## Admin human QA or visual work
+---
 
-- `admin-rebuild/03_ADMIN_DESIGN_FOUNDATION.md`
-- `admin-rebuild/04_ADMIN_CAPABILITY_MATRIX.md`
-- `admin-rebuild/12_ADMIN_HUMAN_QA_CHECKLIST.md`
-- `admin-rebuild/13_ADMIN_HUMAN_QA_TEST_DATA.md`
-- `admin-rebuild/14_ADMIN_RELEASE_READINESS.md`
+## 3. Platform Architecture Overview
 
-## Storefront human QA or visual work
+```
+                               ┌─────────────────────────┐
+                               │       Client Apps       │
+                               │  Storefront (Web :3100) │
+                               │  Admin & Ops (Web :3101)│
+                               │  Courier Portal  (:3102)│
+                               │  QR In-Dining    (:3104)│
+                               │  Customer Mobile (Expo) │
+                               └────────────┬────────────┘
+                                            │ REST / SSE
+                                            ▼
+                               ┌─────────────────────────┐
+                               │   NestJS Fastify API    │
+                               │      (Port 4000)        │
+                               └──────┬────────────┬─────┘
+                                      │            │
+                         PostgreSQL 16│            │Redis 8
+                          (Prisma 7)  │            │(Sessions & Cache)
+                                      ▼            ▼
+                               ┌─────────────┐┌─────────────┐
+                               │  Postgres   ││    Redis    │
+                               │  Database   ││  In-Memory  │
+                               └─────────────┘└─────────────┘
+```
 
-- `storefront-rebuild/03_STOREFRONT_DESIGN_FOUNDATION.md`
-- `storefront-rebuild/04_CAPABILITY_GAP_MATRIX.md`
-- `storefront-rebuild/15_HUMAN_QA_CHECKLIST.md`
-- `storefront-rebuild/16_HUMAN_QA_TEST_DATA.md`
-- `storefront-rebuild/17_STOREFRONT_RELEASE_READINESS.md`
+---
 
-## Customer Mobile human QA or visual work
+## 4. Maintenance & Governance
 
-- `mobile-rebuild/03_MOBILE_DESIGN_FOUNDATION.md`
-- `mobile-rebuild/04_MOBILE_CAPABILITY_MAPPING.md`
-- `mobile-rebuild/12_HUMAN_QA_CHECKLIST.md`
-- `mobile-rebuild/13_HUMAN_QA_TEST_DATA.md`
-- `mobile-rebuild/14_MOBILE_RELEASE_READINESS.md`
-
-## Courier Web
-
-- `../fastfood-project-docs/15-COURIER_DELIVERY_TRACKING_QR.md`
-- `../fastfood-project-docs/29-API_ENDPOINT_CATALOG.md`
-- `../fastfood-project-docs/39-AUTHORIZATION_IMPLEMENTATION_CONTRACT.md`
-- `../fastfood-project-docs/40-API_RESPONSE_ERROR_CONTRACT.md`
-- `../fastfood-project-docs/38-DESIGN_FOUNDATION_TOKENS.md`
-- `../fastfood-project-docs/44-SECURITY_IMPLEMENTATION_BASELINE.md`
-- `../apps/courier-web/README.md`
-
-## API contract
-
-- `openapi/openapi.json` is generated from the current API and should be
-  refreshed when endpoints or schemas change.
-
-## Final project evidence
-
-Only use these for project-wide completion or acceptance work:
-
-- `../project-reports/final/FULL_PROJECT_AUTONOMOUS_COMPLETION_REPORT.md`
-- `../project-reports/final/FULL_PROJECT_HUMAN_TEST_PLAN.md`
-
-Intermediate prompts, phase reports, screenshots, audits, plans, and generated
-AI repository cards were removed from the active tree after consolidation.
+- **Customer UI Parity:** Any customer capability change must evaluate both Storefront Web and Customer Mobile using `pnpm customer-ui:sync:plan` and be validated with `pnpm check:customer-platform`.
+- **Architectural Changes:** Any substantial stack or protocol change must be recorded in `ARCHITECTURE_DECISIONS.md`.
+- **API Spec Refresh:** After modifying NestJS endpoints or Zod schemas, refresh the OpenAPI contract via `pnpm --filter @fastfood/api openapi:export`.

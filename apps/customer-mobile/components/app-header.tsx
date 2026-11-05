@@ -6,16 +6,18 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { authRouteParams } from '../lib/auth-nav';
+import { haptic } from '../lib/haptics';
 import { useCustomerSession } from '../lib/use-session';
-import { colors, fonts, hitSlop, minTouch, space } from '../theme';
+import { colors, fonts, hitSlop, minTouch, radius, space } from '../theme';
 
 import { useCartCount } from './use-cart-count';
 import { useUnreadCount } from './use-unread-count';
 
 export function AppHeader(props: {
-  locationLabel: string;
+  locationLabel?: string;
   kitchenLiveCount?: number;
   onLocationPress?: () => void;
+  showLocation?: boolean;
 }): ReactElement {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -23,30 +25,52 @@ export function AppHeader(props: {
   const unreadCount = useUnreadCount();
   const session = useCustomerSession();
   const inner = (
-    <View style={[styles.row, { paddingTop: insets.top + 8 }]}>
+    <View style={[styles.row, { paddingTop: insets.top + 6 }]}>
       <View style={styles.brandCol}>
         <View style={styles.brandRow}>
-          <MaterialCommunityIcons name="hamburger" size={18} color={colors.mustard} />
+          <View style={styles.brandIconWrap}>
+            <MaterialCommunityIcons name="hamburger" size={17} color={colors.mustard} />
+          </View>
           <Text style={styles.brand}>BURGER HOME</Text>
         </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Şubeler"
-          hitSlop={hitSlop}
-          onPress={props.onLocationPress ?? (() => router.push('/branches'))}
-          style={styles.location}
-        >
-          <MaterialCommunityIcons name="map-marker" size={14} color={colors.flameDeep} />
-          <Text style={styles.locationText} numberOfLines={1}>
-            {props.locationLabel}
-          </Text>
-          <MaterialCommunityIcons name="chevron-down" size={16} color={colors.outline} />
-        </Pressable>
+        {props.showLocation && props.locationLabel ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Şubeler"
+            hitSlop={hitSlop}
+            onPress={() => {
+              haptic.light();
+              if (props.onLocationPress) props.onLocationPress();
+              else router.push('/branches');
+            }}
+            style={({ pressed }) => [styles.location, pressed && styles.locationPressed]}
+          >
+            <MaterialCommunityIcons name="map-marker" size={13} color={colors.flame} />
+            <Text style={styles.locationText} numberOfLines={1}>
+              {props.locationLabel}
+            </Text>
+            <MaterialCommunityIcons name="chevron-down" size={14} color={colors.onSurfaceVariant} />
+          </Pressable>
+        ) : null}
         {props.kitchenLiveCount && props.kitchenLiveCount > 0 ? (
-          <Text style={styles.live}>Izgara · {props.kitchenLiveCount} sipariş</Text>
+          <View style={styles.liveRow}>
+            <View style={styles.liveDot} />
+            <Text style={styles.live}>Izgara · {props.kitchenLiveCount} sipariş</Text>
+          </View>
         ) : null}
       </View>
       <View style={styles.actions}>
+        <Link href="/search" asChild>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Menüde ara"
+            onPress={() => haptic.light()}
+            style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
+            hitSlop={hitSlop}
+          >
+            <MaterialCommunityIcons name="magnify" size={20} color={colors.onSurface} />
+          </Pressable>
+        </Link>
         <Link
           href={session ? '/cart' : { pathname: '/auth', params: authRouteParams('/cart') }}
           asChild
@@ -54,7 +78,8 @@ export function AppHeader(props: {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={cartCount > 0 ? `Sepet, ${cartCount} ürün` : 'Sepet'}
-            style={styles.iconBtn}
+            onPress={() => haptic.light()}
+            style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
             hitSlop={hitSlop}
           >
             <MaterialCommunityIcons name="cart-outline" size={20} color={colors.onSurface} />
@@ -69,7 +94,8 @@ export function AppHeader(props: {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Bildirimler"
-            style={styles.iconBtn}
+            onPress={() => haptic.light()}
+            style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
             hitSlop={hitSlop}
           >
             <MaterialCommunityIcons name="bell-outline" size={20} color={colors.onSurface} />
@@ -94,15 +120,17 @@ export function AppHeader(props: {
 
 const styles = StyleSheet.create({
   wrap: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
+    width: '100%',
     zIndex: 20,
     paddingHorizontal: space.gutter,
     paddingBottom: space.sm,
+    backgroundColor: 'rgba(15, 16, 20, 0.98)',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.hairline,
   },
-  androidWrap: { backgroundColor: 'rgba(18,19,22,0.92)' },
+  androidWrap: {
+    backgroundColor: 'rgba(15, 16, 20, 0.98)',
+  },
   row: {
     minHeight: 56,
     flexDirection: 'row',
@@ -112,26 +140,55 @@ const styles = StyleSheet.create({
   },
   brandCol: { flex: 1, minWidth: 0 },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  brandIconWrap: {
+    width: 26,
+    height: 26,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceHigh,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   brand: {
     fontFamily: fonts.anton,
     fontSize: 22,
     letterSpacing: 0.6,
     color: colors.mustard,
   },
-  location: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  location: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 4,
+    marginTop: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2.5,
+    borderRadius: radius.full,
+    backgroundColor: colors.surfaceLow,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+  },
+  locationPressed: {
+    backgroundColor: colors.surfaceHigh,
+  },
   locationText: {
     flexShrink: 1,
     fontFamily: fonts.jakartaBold,
     fontSize: 11,
-    letterSpacing: 0.4,
+    letterSpacing: 0.2,
     color: colors.onSurface,
+  },
+  liveRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.flameDeep,
   },
   live: {
     fontFamily: fonts.jakartaBold,
     fontSize: 10,
     letterSpacing: 0.6,
     color: colors.flame,
-    marginTop: 2,
     textTransform: 'uppercase',
   },
   actions: { flexDirection: 'row', gap: space.sm },
@@ -140,8 +197,14 @@ const styles = StyleSheet.create({
     height: minTouch,
     borderRadius: minTouch / 2,
     backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.hairline,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  iconBtnPressed: {
+    backgroundColor: colors.surfaceHigh,
+    transform: [{ scale: 0.94 }],
   },
   badge: {
     position: 'absolute',

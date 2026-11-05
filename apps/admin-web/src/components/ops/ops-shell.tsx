@@ -23,7 +23,7 @@ import {
   isRouteIdentifiedBranchPath,
   routeBranchId,
 } from '../../lib/admin-routes';
-import { clearStaffSession, getStaffAccessToken } from '../../lib/api';
+import { clearStaffSession, getStaffAccessToken, subscribeStaffSession } from '../../lib/api';
 
 import { useBranchContext } from './branch-context';
 import { NAV_ICON, OpsIcon } from './ops-icon';
@@ -92,9 +92,7 @@ function normalizeNavQuery(raw: string): string {
 }
 
 function subscribeSession(onChange: () => void): () => void {
-  if (typeof window === 'undefined') return () => undefined;
-  window.addEventListener('storage', onChange);
-  return () => window.removeEventListener('storage', onChange);
+  return subscribeStaffSession(onChange);
 }
 
 const OPEN_TABS_KEY = 'fastfood-admin-open-tabs';

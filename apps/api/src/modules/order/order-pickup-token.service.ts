@@ -38,7 +38,9 @@ export class OrderPickupTokenService {
   readonly #byOrder = new Map<string, string>();
   #seq = 0;
 
-  constructor(@Optional() @Inject(PrismaService) private readonly prisma: PrismaService | null = null) {}
+  constructor(
+    @Optional() @Inject(PrismaService) private readonly prisma: PrismaService | null = null,
+  ) {}
 
   /**
    * Issues a new pickup token for an order. The plaintext token is
@@ -162,9 +164,7 @@ export class OrderPickupTokenService {
 
   #consumeMemory(prefix: string, courierId: string, now: Date): OrderPickupTokenRecord {
     const normalised = prefix.trim().toUpperCase();
-    const record = [...this.#tokens.values()].find(
-      (token) => token.tokenPrefix === normalised,
-    );
+    const record = [...this.#tokens.values()].find((token) => token.tokenPrefix === normalised);
     if (!record) {
       throw new NotFoundException({
         code: ErrorCodes.NOT_FOUND,

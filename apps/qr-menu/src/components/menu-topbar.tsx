@@ -60,7 +60,9 @@ export function MenuTopbar({
                   }`}
                 />
                 {branch.isAcceptingOrders ? 'Sipariş alınıyor' : 'Sipariş alınmıyor'}
-                {branch.addressLine ? <span className="hidden sm:inline"> · {branch.addressLine}</span> : null}
+                {branch.addressLine ? (
+                  <span className="hidden sm:inline"> · {branch.addressLine}</span>
+                ) : null}
               </p>
             </div>
           </div>
@@ -105,7 +107,8 @@ export function MenuTopbar({
 
         {isSearching ? (
           <p role="status" data-qr-result-count className="qr-numeric mt-2 text-xs text-ink-soft">
-            <span className="font-bold text-ink">{resultCount}</span> / {totalCount} ürün listeleniyor
+            <span className="font-bold text-ink">{resultCount}</span> / {totalCount} ürün
+            listeleniyor
           </p>
         ) : null}
       </div>

@@ -8,7 +8,7 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
-const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3100);
+const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3110);
 
 async function register(page: Page): Promise<void> {
   const phone = `0555${Date.now().toString().slice(-7)}`;
@@ -42,12 +42,16 @@ test.describe('storefront-web notification badge', () => {
     // Marking read happens on another screen: the header must follow without
     // needing a navigation or a reload.
     await page.goto('/account/notifications');
-    await expect(page.locator('[data-ff-surface="notifications"]')).toBeVisible({ timeout: 25_000 });
+    await expect(page.locator('[data-ff-surface="notifications"]')).toBeVisible({
+      timeout: 25_000,
+    });
     await expect(page.locator('[data-ff-notification="unread"]').first()).toBeVisible({
       timeout: 20_000,
     });
     await page.locator('[data-ff-notifications-read-all]').click();
-    await expect(page.locator('[data-ff-notification="unread"]')).toHaveCount(0, { timeout: 20_000 });
+    await expect(page.locator('[data-ff-notification="unread"]')).toHaveCount(0, {
+      timeout: 20_000,
+    });
     await expect(page.locator('[data-ff-unread]')).toHaveCount(0, { timeout: 20_000 });
   });
 });

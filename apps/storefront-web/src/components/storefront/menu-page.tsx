@@ -136,9 +136,7 @@ export function MenuPage() {
                 Teslimat şubesi
               </span>
               <span className="mt-0.5 block truncate font-label-md text-label-md text-on-surface">
-                {branch
-                  ? formatBranchLocation(branch.name, branch.addressLine)
-                  : 'Şube seç'}
+                {branch ? formatBranchLocation(branch.name, branch.addressLine) : 'Şube seç'}
               </span>
               <span className="mt-0.5 block font-body-sm text-body-sm text-on-surface-variant">
                 {deliveryWindow ? `${deliveryWindow} tahmini teslimat` : 'Menüyü şubene göre gör'}
@@ -150,7 +148,10 @@ export function MenuPage() {
 
         <div className="mt-space-lg grid items-start gap-space-lg lg:grid-cols-[15rem_minmax(0,1fr)] xl:gap-space-xl">
           <aside className="min-w-0 lg:sticky lg:top-24">
-            <nav aria-label="Menü kategorileri" className="rounded-2xl border border-outline-variant/35 bg-surface-container-low p-space-sm lg:p-space-md">
+            <nav
+              aria-label="Menü kategorileri"
+              className="rounded-2xl border border-outline-variant/35 bg-surface-container-low p-space-sm lg:p-space-md"
+            >
               <div className="mb-space-sm flex items-center justify-between px-2 pt-1">
                 <h2 className="font-label-lg text-label-lg uppercase tracking-wider text-on-surface">
                   Kategoriler
@@ -198,7 +199,11 @@ export function MenuPage() {
             </nav>
           </aside>
 
-          <section id="menu-catalog" aria-labelledby="menu-results-heading" className="min-w-0 scroll-mt-24">
+          <section
+            id="menu-catalog"
+            aria-labelledby="menu-results-heading"
+            className="min-w-0 scroll-mt-24"
+          >
             <div className="mb-space-md flex flex-col gap-space-md border-b border-outline-variant/35 pb-space-md sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="font-label-sm text-label-sm uppercase tracking-[0.16em] text-primary">
@@ -210,7 +215,10 @@ export function MenuPage() {
                 >
                   {activeCategory?.name ?? 'Tüm Lezzetler'}
                 </h2>
-                <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant" aria-live="polite">
+                <p
+                  className="mt-1 font-body-sm text-body-sm text-on-surface-variant"
+                  aria-live="polite"
+                >
                   {searchTerm.trim()
                     ? `${visibleProducts.length} sonuç bulundu`
                     : `${visibleProducts.length} ürün listeleniyor`}

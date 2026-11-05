@@ -49,11 +49,17 @@ export function OrderTrackingPage() {
       setStatus('ready');
       setError(null);
     } catch (err) {
-      if (err instanceof ApiError && (err.status === 401 || err.envelope.error.code === 'AUTH_UNAUTHENTICATED')) {
+      if (
+        err instanceof ApiError &&
+        (err.status === 401 || err.envelope.error.code === 'AUTH_UNAUTHENTICATED')
+      ) {
         setStatus('unauthorized');
         return;
       }
-      if (err instanceof ApiError && (err.status === 404 || err.envelope.error.code === 'NOT_FOUND')) {
+      if (
+        err instanceof ApiError &&
+        (err.status === 404 || err.envelope.error.code === 'NOT_FOUND')
+      ) {
         setStatus('unauthorized');
         return;
       }
@@ -65,7 +71,9 @@ export function OrderTrackingPage() {
   useDeferredLoad(() => {
     void load();
     if (isCustomerAuthenticated()) {
-      void fetchFavorites().then(setFavorites).catch(() => undefined);
+      void fetchFavorites()
+        .then(setFavorites)
+        .catch(() => undefined);
     }
   }, [load]);
 
@@ -122,9 +130,15 @@ export function OrderTrackingPage() {
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'unauthorized') {
     return (
-      <main className="w-full pt-20 min-h-screen bg-background px-margin-sm py-space-lg" data-ff-surface="tracking">
+      <main
+        className="w-full pt-20 min-h-screen bg-background px-margin-sm py-space-lg"
+        data-ff-surface="tracking"
+      >
         <p className="font-body-md text-on-surface-variant">Sipariş bulunamadı veya erişim yok.</p>
-        <Link href="/orders" className="font-label-lg uppercase text-secondary-container mt-4 inline-block">
+        <Link
+          href="/orders"
+          className="font-label-lg uppercase text-secondary-container mt-4 inline-block"
+        >
           Siparişlerime dön
         </Link>
       </main>
@@ -138,7 +152,10 @@ export function OrderTrackingPage() {
     );
   }
 
-  const negative = order.trackerKind === 'cancelled' || order.trackerKind === 'rejected' || order.trackerKind === 'failed';
+  const negative =
+    order.trackerKind === 'cancelled' ||
+    order.trackerKind === 'rejected' ||
+    order.trackerKind === 'failed';
   const pickup = order.fulfillmentMode === 'PICKUP';
   const map = pickup
     ? { state: 'no-location' as const, url: null }
@@ -153,7 +170,11 @@ export function OrderTrackingPage() {
       : order.location.freshness;
 
   return (
-    <main className="w-full pt-20 bg-background min-h-screen" data-ff-surface="tracking" data-ff-tracker-kind={order.trackerKind}>
+    <main
+      className="w-full pt-20 bg-background min-h-screen"
+      data-ff-surface="tracking"
+      data-ff-tracker-kind={order.trackerKind}
+    >
       <div className="max-w-7xl mx-auto w-full px-margin-sm lg:px-margin py-space-lg flex flex-col gap-space-xl">
         <section className="w-full bg-surface-container rounded-xl p-space-md lg:p-space-lg relative overflow-hidden">
           <div className="absolute -right-20 -top-20 w-80 h-80 bg-primary-container/10 rounded-full blur-3xl pointer-events-none" />
@@ -161,20 +182,31 @@ export function OrderTrackingPage() {
             <div className="flex flex-wrap items-center justify-between gap-space-sm">
               <div className="flex flex-wrap items-center gap-space-sm min-w-0">
                 <div className="px-space-sm py-1 rounded-lg bg-surface-container-high flex items-center gap-1.5">
-                  <span className={`w-2 h-2 rounded-full ${order.trackingActive ? 'bg-primary-container animate-ping' : 'bg-outline'}`} />
+                  <span
+                    className={`w-2 h-2 rounded-full ${order.trackingActive ? 'bg-primary-container animate-ping' : 'bg-outline'}`}
+                  />
                   <span className="font-label-sm uppercase text-primary">
-                    {negative ? order.statusLabel : order.trackingActive ? 'Canlı Takip' : order.statusLabel}
+                    {negative
+                      ? order.statusLabel
+                      : order.trackingActive
+                        ? 'Canlı Takip'
+                        : order.statusLabel}
                   </span>
                 </div>
                 <div className="flex items-baseline gap-2 min-w-0">
                   <span className="font-headline-sm">{order.displayNumber}</span>
                   {order.branch ? (
-                    <span className="font-body-sm text-on-surface-variant truncate">| {order.branch.name}</span>
+                    <span className="font-body-sm text-on-surface-variant truncate">
+                      | {order.branch.name}
+                    </span>
                   ) : null}
                 </div>
               </div>
               {order.eta.remainingMinutes != null ? (
-                <div className="flex items-center gap-2 bg-surface-container-lowest px-space-md py-1.5 rounded-lg" data-ff-eta>
+                <div
+                  className="flex items-center gap-2 bg-surface-container-lowest px-space-md py-1.5 rounded-lg"
+                  data-ff-eta
+                >
                   <MaterialIcon name="timer" className="text-primary-container text-base" />
                   <div className="flex flex-col">
                     <span className="font-label-sm text-[10px] uppercase text-on-surface-variant">
@@ -202,7 +234,10 @@ export function OrderTrackingPage() {
                 </p>
               </div>
             ) : (
-              <div className="w-full bg-surface-container-low p-space-md rounded-xl" data-ff-stepper>
+              <div
+                className="w-full bg-surface-container-low p-space-md rounded-xl"
+                data-ff-stepper
+              >
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-space-md">
                   {order.stages.map((stage) => {
                     const active = stage.state === 'active';
@@ -231,7 +266,9 @@ export function OrderTrackingPage() {
                             />
                           ) : null}
                         </div>
-                        <p className={`font-label-md uppercase mt-2 ${active ? 'text-primary' : 'text-on-surface'}`}>
+                        <p
+                          className={`font-label-md uppercase mt-2 ${active ? 'text-primary' : 'text-on-surface'}`}
+                        >
                           {stage.index + 1}. {stage.label}
                         </p>
                       </div>
@@ -245,15 +282,24 @@ export function OrderTrackingPage() {
               <div className="rounded-xl bg-surface-container-low p-space-md" data-ff-pickup>
                 <p className="font-label-sm uppercase text-on-surface-variant">Gel al</p>
                 <p className="font-headline-sm mt-1">{order.branch?.name ?? 'Şube'}</p>
-                <p className="font-body-sm text-on-surface-variant break-words">{order.branch?.addressLine}</p>
+                <p className="font-body-sm text-on-surface-variant break-words">
+                  {order.branch?.addressLine}
+                </p>
                 {order.scheduledFor ? (
-                  <p className="font-body-sm mt-2">Planlanan: {formatStorefrontDateTime(order.scheduledFor)}</p>
+                  <p className="font-body-sm mt-2">
+                    Planlanan: {formatStorefrontDateTime(order.scheduledFor)}
+                  </p>
                 ) : null}
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
-                <div className="lg:col-span-4 bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-md" data-ff-courier>
-                  <span className="font-label-sm uppercase text-on-surface-variant">Görevli kurye</span>
+                <div
+                  className="lg:col-span-4 bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-md"
+                  data-ff-courier
+                >
+                  <span className="font-label-sm uppercase text-on-surface-variant">
+                    Görevli kurye
+                  </span>
                   {order.courier ? (
                     <>
                       <p className="font-headline-sm">{order.courier.displayName}</p>
@@ -286,7 +332,11 @@ export function OrderTrackingPage() {
                     </button>
                   </div>
                 </div>
-                <div className="lg:col-span-8 bg-surface-container-low rounded-xl overflow-hidden min-h-[220px] relative" data-ff-map data-ff-map-state={map.state}>
+                <div
+                  className="lg:col-span-8 bg-surface-container-low rounded-xl overflow-hidden min-h-[220px] relative"
+                  data-ff-map
+                  data-ff-map-state={map.state}
+                >
                   {map.url ? (
                     <iframe
                       title="Sipariş haritası"
@@ -359,7 +409,10 @@ export function OrderTrackingPage() {
                 ))}
               </ul>
               {reorder.restoredCount > 0 ? (
-                <Link href="/cart" className="inline-block mt-2 font-label-sm uppercase text-secondary-container">
+                <Link
+                  href="/cart"
+                  className="inline-block mt-2 font-label-sm uppercase text-secondary-container"
+                >
                   Sepete git
                 </Link>
               ) : null}
@@ -371,7 +424,10 @@ export function OrderTrackingPage() {
           <section>
             <div className="flex items-baseline justify-between mb-3">
               <h2 className="font-headline-sm uppercase">Favoriler</h2>
-              <Link href="/account/favorites" className="font-label-sm uppercase text-secondary-container">
+              <Link
+                href="/account/favorites"
+                className="font-label-sm uppercase text-secondary-container"
+              >
                 Tümü
               </Link>
             </div>

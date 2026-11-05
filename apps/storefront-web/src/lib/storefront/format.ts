@@ -38,7 +38,10 @@ export function formatSoldCount(count: number): string {
 
 export function formatRatingBps(bps: number | null): string | null {
   if (bps === null || bps <= 0) return null;
-  return (bps / 100).toLocaleString('tr-TR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  return (bps / 100).toLocaleString('tr-TR', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
 }
 
 export function formatRelativeTr(iso: string, now = Date.now()): string {

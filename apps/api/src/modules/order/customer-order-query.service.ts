@@ -72,14 +72,12 @@ export class CustomerOrderQueryService {
     return Promise.all(orders.map((order) => this.toHistory(order)));
   }
 
-  async getTracking(
-    orderId: string,
-    principal: { userId?: string; guestSessionId?: string },
-  ) {
+  async getTracking(orderId: string, principal: { userId?: string; guestSessionId?: string }) {
     const order = await this.assertOwned(orderId, principal);
-    const branch = order.branchId && this.branches
-      ? await this.branches.getBranch(order.branchId).catch(() => null)
-      : null;
+    const branch =
+      order.branchId && this.branches
+        ? await this.branches.getBranch(order.branchId).catch(() => null)
+        : null;
     const kind = customerTrackerKind(order.status, order.fulfillmentMode);
     const stepperIndex = mapOrderStatusToStitchStepperIndex(order.status, order.fulfillmentMode);
     const eta = deriveCustomerEta({
@@ -182,7 +180,10 @@ export class CustomerOrderQueryService {
     return location;
   }
 
-  private async assertOwned(orderId: string, principal: { userId?: string; guestSessionId?: string }) {
+  private async assertOwned(
+    orderId: string,
+    principal: { userId?: string; guestSessionId?: string },
+  ) {
     if (!principal.userId && !principal.guestSessionId) {
       throw new NotFoundException({
         code: ErrorCodes.AUTH_UNAUTHENTICATED,
@@ -214,15 +215,16 @@ export class CustomerOrderQueryService {
   }
 
   private async toHistory(order: OrderDto): Promise<CustomerOrderHistoryItem> {
-    const branch = order.branchId && this.branches
-      ? await this.branches.getBranch(order.branchId).catch(() => null)
-      : null;
+    const branch =
+      order.branchId && this.branches
+        ? await this.branches.getBranch(order.branchId).catch(() => null)
+        : null;
     const names = order.items.map((item) => item.productNameSnapshot);
     const itemSummary =
       names.length === 0
         ? ''
         : names.length === 1
-          ? names[0] ?? ''
+          ? (names[0] ?? '')
           : `${names[0]} +${names.length - 1}`;
     return {
       id: order.id,

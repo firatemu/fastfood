@@ -22,13 +22,15 @@ export { looksLikeEmail, looksLikePhone, normalizePhoneInput };
 
 async function establishSession(payload: {
   customerId: string;
+  accessToken: string;
+  accessExpiresAt: string;
   refreshToken: string;
   refreshExpiresAt: string;
 }): Promise<string> {
   const guestSessionId = getGuestSessionId();
   await persistCustomerSession({
     customerId: payload.customerId,
-    accessToken: payload.refreshToken,
+    accessToken: payload.accessToken,
     refreshToken: payload.refreshToken,
     refreshExpiresAt: payload.refreshExpiresAt,
   });
@@ -106,10 +108,12 @@ export async function registerByPhoneAndPassword(input: {
 }
 
 export async function loginWithPassword(identifier: string, password: string): Promise<string> {
+  const cleanId = identifier.trim();
+  const normalizedIdentifier = looksLikePhone(cleanId) ? normalizePhoneInput(cleanId) : cleanId;
   const res = await getApiClient().request({
     method: 'POST',
     path: '/auth/customer/password/login',
-    body: { identifier, password },
+    body: { identifier: normalizedIdentifier, password },
     schema: authSessionResponseSchema,
   });
   return establishSession(res.data);

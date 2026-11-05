@@ -39,6 +39,13 @@ export interface AuditLogWriter {
   }): Promise<readonly AuditLogEntry[]>;
 }
 
+/**
+ * DI token for the canonical audit writer. `InfrastructureModule` binds it
+ * to the Prisma-backed writer so every module can audit without knowing the
+ * storage backend.
+ */
+export const AUDIT_LOG_WRITER = Symbol('AUDIT_LOG_WRITER');
+
 @Injectable()
 export class InMemoryAuditLogWriter implements AuditLogWriter {
   readonly #entries: AuditLogEntry[] = [];

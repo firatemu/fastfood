@@ -5,13 +5,16 @@ import { getCustomerSession, getGuestSessionId } from './session';
 
 /**
  * Canonical API client for customer-mobile (document 17 + 40).
- * Guest cart uses `x-session-id`; authenticated flows send the opaque
- * refresh token as Bearer. Browser-supplied user ids are not trusted.
+ * Guest cart uses `x-session-id`; authenticated flows send the short-lived
+ * access token as Bearer and declare the client platform so the API keeps the
+ * refresh credential in the response body for the Expo secure store.
+ * Browser-supplied user ids are not trusted.
  */
 export function getApiClient(): ApiClient {
   return new ApiClient({
     baseUrl: getApiBaseUrl(),
-    getAccessToken: () => getCustomerSession()?.refreshToken ?? getCustomerSession()?.accessToken,
+    getAccessToken: () => getCustomerSession()?.accessToken,
+    defaultHeaders: { 'X-Client-Platform': 'mobile' },
     fetchImpl: async (input, init) => {
       const headers = new Headers(init?.headers);
       const session = getCustomerSession();

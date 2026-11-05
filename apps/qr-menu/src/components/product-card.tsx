@@ -53,7 +53,9 @@ export function ProductCard({ product, onOpen }: ProductCardProps) {
         <h3 className="qr-display text-base leading-tight text-ink">{product.name}</h3>
 
         {product.description ? (
-          <p className="line-clamp-2 text-[13px] leading-relaxed text-ink-soft">{product.description}</p>
+          <p className="line-clamp-2 text-[13px] leading-relaxed text-ink-soft">
+            {product.description}
+          </p>
         ) : (
           <p className="text-[13px] leading-relaxed text-ink-faint">Açıklama eklenmedi.</p>
         )}

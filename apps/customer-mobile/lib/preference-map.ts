@@ -20,7 +20,8 @@ export function preferencePatchFromToggles(
 ): Partial<PreferenceToggles> | null {
   const patch: Partial<PreferenceToggles> = {};
   if (next.marketingOptIn !== original.marketingOptIn) patch.marketingOptIn = next.marketingOptIn;
-  if (next.newsletterOptIn !== original.newsletterOptIn) patch.newsletterOptIn = next.newsletterOptIn;
+  if (next.newsletterOptIn !== original.newsletterOptIn)
+    patch.newsletterOptIn = next.newsletterOptIn;
   if (next.orderUpdatesOptIn !== original.orderUpdatesOptIn) {
     patch.orderUpdatesOptIn = next.orderUpdatesOptIn;
   }

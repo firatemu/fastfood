@@ -436,10 +436,19 @@ export const promotionValidateResponseSchema = envelope(promotionValidateSchema)
 export const addressesResponseSchema = envelope(z.array(customerAddressSchema));
 export const loyaltyResponseSchema = envelope(loyaltyBalanceSchema);
 export const otpRequestResponseSchema = envelope(z.object({ expiresAt: z.string() }));
+/**
+ * Customer session envelope.
+ *
+ * The refresh credential never appears here for a browser client — it is an
+ * HttpOnly cookie. A native client receives it in the body, so the field
+ * stays optional (document 32 §5, audit P0-3).
+ */
 export const authSessionResponseSchema = envelope(
   z.object({
     customerId: z.string(),
-    refreshToken: z.string(),
+    accessToken: z.string(),
+    accessExpiresAt: z.string(),
+    refreshToken: z.string().optional(),
     refreshExpiresAt: z.string(),
   }),
 );

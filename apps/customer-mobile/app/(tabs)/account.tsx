@@ -1,3 +1,4 @@
+import { ApiError } from '@fastfood/api-client';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState, type ComponentProps } from 'react';
@@ -17,6 +18,7 @@ import { profileFormToPatch, profileToForm, type ProfileForm } from '../../lib/p
 import type { CustomerOrder, CustomerProfile } from '../../lib/schemas';
 import { restoreSession } from '../../lib/session';
 import { useAuthBootstrap, useCustomerSession } from '../../lib/use-session';
+import { haptic } from '../../lib/haptics';
 import { colors, fonts, minTouch, radius, space } from '../../theme';
 
 type AccountIcon = ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -73,6 +75,15 @@ export default function AccountRoute() {
           setOrders([]);
         }
       } catch (err) {
+        if (
+          err instanceof ApiError &&
+          (err.status === 401 || err.envelope?.error?.code === 'AUTH_UNAUTHENTICATED')
+        ) {
+          void logoutCustomer();
+          setProfile(null);
+          setStatus('idle');
+          return;
+        }
         setError(formatApiError(err));
         setStatus('error');
       }
@@ -242,221 +253,225 @@ export default function AccountRoute() {
           { paddingTop: insets.top + 14, paddingBottom: insets.bottom + 36 },
         ]}
       >
-      <View style={styles.pageHeading}>
-        <Text style={styles.headline}>Hesabın</Text>
-        <Text style={styles.body}>
-          Profilini, siparişlerini ve üyelik avantajlarını yönet.
-        </Text>
-      </View>
+        <View style={styles.pageHeading}>
+          <Text style={styles.eyebrow}>BURGER HOME</Text>
+          <Text style={styles.headline}>HESABIM</Text>
+          <Text style={styles.body}>Profilini, siparişlerini ve üyelik avantajlarını yönet.</Text>
+        </View>
 
-      {/* Primary region: the thing people edit most often. */}
-      {editing ? (
-        <View style={styles.profilePanel}>
-          <Text style={styles.section}>Kişisel bilgiler</Text>
-          <FormField
-            label="Görünen ad"
-            value={form.displayName}
-            onChangeText={(displayName) => setForm((current) => ({ ...current, displayName }))}
-          />
-          <FormField
-            label="E-posta"
-            value={form.email}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            onChangeText={(email) => setForm((current) => ({ ...current, email }))}
-          />
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-          <MustardButton
-            label="Değişiklikleri kaydet"
-            loading={saving}
-            onPress={() => void onSaveProfile()}
-          />
-          <SecondaryButton label="Vazgeç" onPress={() => setEditing(false)} />
-        </View>
-      ) : (
-        <View style={styles.profilePanel}>
-          <View style={styles.identityRow}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarInitial}>{name.charAt(0).toLocaleUpperCase('tr-TR')}</Text>
-            </View>
-            <View style={styles.memberCopy}>
-              <Text style={styles.name} numberOfLines={1}>
-                {name}
-              </Text>
-              <Text style={styles.meta} numberOfLines={1}>
-                {profile.email ?? profile.phone ?? 'İletişim bilgisi ekle'}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.readOnlyRow}>
-            <Text style={styles.meta}>Telefon</Text>
-            <View style={styles.readOnlyLine}>
-              <Text style={styles.body} numberOfLines={1}>
-                {profile.phone ?? 'Telefon eklenmemiş'}
-              </Text>
-              <View style={styles.dotRow}>
-                <View
-                  style={[
-                    styles.dot,
-                    phoneVerified ? styles.dotOn : styles.dotOff,
-                  ]}
-                />
-                <Text style={phoneVerified ? styles.metaOn : styles.metaWarn}>
-                  {profile.phone ? (phoneVerified ? 'Doğrulandı' : 'Doğrulanmadı') : 'Eklenmedi'}
-                </Text>
-              </View>
-            </View>
-          </View>
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-          <MustardButton label="Bilgileri düzenle" onPress={() => setEditing(true)} />
-        </View>
-      )}
-
-      <View style={styles.ordersPanel}>
-        <View style={styles.panelHead}>
-          <Text style={styles.section}>Son siparişler</Text>
-          <Pressable
-            accessibilityRole="button"
-            hitSlop={8}
-            onPress={() => router.push('/(tabs)/orders')}
-          >
-            <Text style={styles.link}>Tümünü gör</Text>
-          </Pressable>
-        </View>
-        {recent.length === 0 ? (
-          <View style={styles.emptyOrders}>
-            <MaterialCommunityIcons name="receipt-text-outline" size={22} color={colors.mustard} />
-            <Text style={styles.body}>Henüz sipariş yok.</Text>
-            <Pressable accessibilityRole="button" hitSlop={8} onPress={() => router.push('/(tabs)')}>
-              <Text style={styles.link}>Menüye git</Text>
-            </Pressable>
+        {/* Primary region: the thing people edit most often. */}
+        {editing ? (
+          <View style={styles.profilePanel}>
+            <Text style={styles.section}>Kişisel bilgiler</Text>
+            <FormField
+              label="Görünen ad"
+              value={form.displayName}
+              onChangeText={(displayName) => setForm((current) => ({ ...current, displayName }))}
+            />
+            <FormField
+              label="E-posta"
+              value={form.email}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              onChangeText={(email) => setForm((current) => ({ ...current, email }))}
+            />
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+            <MustardButton
+              label="Değişiklikleri kaydet"
+              loading={saving}
+              onPress={() => void onSaveProfile()}
+            />
+            <SecondaryButton label="Vazgeç" onPress={() => setEditing(false)} />
           </View>
         ) : (
-          recent.map((order) => (
-            <Pressable
-              key={order.id}
-              accessibilityRole="button"
-              style={styles.orderRow}
-              onPress={() => router.push(`/orders/${order.id}`)}
-            >
-              <View style={styles.copy}>
-                <Text style={styles.label} numberOfLines={1}>
-                  #{order.displayNumber ?? order.id.slice(0, 8)}
-                </Text>
-                <Text style={styles.meta} numberOfLines={1}>
-                  {order.statusLabel ?? order.status}
+          <View style={styles.profilePanel}>
+            <View style={styles.identityRow}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarInitial}>
+                  {name.charAt(0).toLocaleUpperCase('tr-TR')}
                 </Text>
               </View>
-              <Text style={styles.amount}>
-                {order.finalPayableMinor
-                  ? formatTryMinor(order.finalPayableMinor, order.currency ?? 'TRY')
-                  : '—'}
-              </Text>
-            </Pressable>
-          ))
+              <View style={styles.memberCopy}>
+                <Text style={styles.name} numberOfLines={1}>
+                  {name}
+                </Text>
+                <Text style={styles.meta} numberOfLines={1}>
+                  {profile.email ?? profile.phone ?? 'İletişim bilgisi ekle'}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.readOnlyRow}>
+              <Text style={styles.meta}>Telefon</Text>
+              <View style={styles.readOnlyLine}>
+                <Text style={styles.body} numberOfLines={1}>
+                  {profile.phone ?? 'Telefon eklenmemiş'}
+                </Text>
+                <View style={styles.dotRow}>
+                  <View style={[styles.dot, phoneVerified ? styles.dotOn : styles.dotOff]} />
+                  <Text style={phoneVerified ? styles.metaOn : styles.metaWarn}>
+                    {profile.phone ? (phoneVerified ? 'Doğrulandı' : 'Doğrulanmadı') : 'Eklenmedi'}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+            <MustardButton label="Bilgileri düzenle" onPress={() => setEditing(true)} />
+          </View>
         )}
-      </View>
 
-      {/* Membership band — mirrors the Web wide band. */}
-      <Pressable
-        accessibilityRole="button"
-        style={styles.clubBand}
-        onPress={() => router.push('/account/club')}
-      >
-        <View style={styles.clubMark}>
-          <MaterialCommunityIcons name="fire" size={20} color={colors.onMustard} />
+        <View style={styles.ordersPanel}>
+          <View style={styles.panelHead}>
+            <Text style={styles.section}>Son siparişler</Text>
+            <Pressable
+              accessibilityRole="button"
+              hitSlop={8}
+              onPress={() => router.push('/(tabs)/orders')}
+            >
+              <Text style={styles.link}>Tümünü gör</Text>
+            </Pressable>
+          </View>
+          {recent.length === 0 ? (
+            <View style={styles.emptyOrders}>
+              <MaterialCommunityIcons
+                name="receipt-text-outline"
+                size={22}
+                color={colors.mustard}
+              />
+              <Text style={styles.body}>Henüz sipariş yok.</Text>
+              <Pressable
+                accessibilityRole="button"
+                hitSlop={8}
+                onPress={() => router.push('/(tabs)')}
+              >
+                <Text style={styles.link}>Menüye git</Text>
+              </Pressable>
+            </View>
+          ) : (
+            recent.map((order) => (
+              <Pressable
+                key={order.id}
+                accessibilityRole="button"
+                style={styles.orderRow}
+                onPress={() => router.push(`/orders/${order.id}`)}
+              >
+                <View style={styles.copy}>
+                  <Text style={styles.label} numberOfLines={1}>
+                    #{order.displayNumber ?? order.id.slice(0, 8)}
+                  </Text>
+                  <Text style={styles.meta} numberOfLines={1}>
+                    {order.statusLabel ?? order.status}
+                  </Text>
+                </View>
+                <Text style={styles.amount}>
+                  {order.finalPayableMinor
+                    ? formatTryMinor(order.finalPayableMinor, order.currency ?? 'TRY')
+                    : '—'}
+                </Text>
+              </Pressable>
+            ))
+          )}
         </View>
-        <View style={styles.copy}>
-          <Text style={styles.meta}>BURGER HOME CLUB</Text>
-          <Text style={styles.clubTitle}>Ayrıcalıklarını gör</Text>
-        </View>
-        <View style={styles.clubPoints}>
-          <Text style={styles.clubPointsValue}>{points ?? '—'}</Text>
-          <Text style={styles.meta}>puan</Text>
-        </View>
-      </Pressable>
 
-      <View style={styles.menuGroup}>
-        <View style={styles.panelHead}>
-          <Text style={styles.section}>Hesap</Text>
-          <Text style={styles.groupHint}>Kişisel bilgilerin ve güvenliğin</Text>
-        </View>
-        <View style={styles.destinationList}>
-          <AccountDestination
-            icon="account-cog-outline"
-            title="Kişisel bilgiler"
-            subtitle={[profile.phone, profile.email].filter(Boolean).join(' · ') || 'Eksik bilgi'}
-            onPress={() => setEditing(true)}
-          />
-          <AccountDestination
-            icon="map-marker-outline"
-            title="Adresler"
-            subtitle="Teslimat adreslerin ve bina kodu"
-            onPress={() => router.push('/account/addresses')}
-          />
-          <AccountDestination
-            icon="cog-outline"
-            title="Bildirim ve iletişim tercihleri"
-            onPress={() => router.push('/account/settings')}
-          />
-          <AccountDestination
-            icon="shield-lock-outline"
-            title="Güvenlik ve şifre"
-            onPress={() => router.push('/account/security')}
-          />
-        </View>
-      </View>
+        {/* Membership band — mirrors the Web wide band. */}
+        <Pressable
+          accessibilityRole="button"
+          style={styles.clubBand}
+          onPress={() => router.push('/account/club')}
+        >
+          <View style={styles.clubMark}>
+            <MaterialCommunityIcons name="fire" size={20} color={colors.onMustard} />
+          </View>
+          <View style={styles.copy}>
+            <Text style={styles.meta}>BURGER HOME CLUB</Text>
+            <Text style={styles.clubTitle}>Ayrıcalıklarını gör</Text>
+          </View>
+          <View style={styles.clubPoints}>
+            <Text style={styles.clubPointsValue}>{points ?? '—'}</Text>
+            <Text style={styles.meta}>puan</Text>
+          </View>
+        </Pressable>
 
-      <View style={styles.menuGroup}>
-        <View style={styles.panelHead}>
-          <Text style={styles.section}>Ayrıcalıklar ve destek</Text>
-          <Text style={styles.groupHint}>Üyelik, keşif ve yardım</Text>
+        <View style={styles.menuGroup}>
+          <View style={styles.panelHead}>
+            <Text style={styles.section}>Hesap</Text>
+            <Text style={styles.groupHint}>Kişisel bilgilerin ve güvenliğin</Text>
+          </View>
+          <View style={styles.destinationList}>
+            <AccountDestination
+              icon="account-cog-outline"
+              title="Kişisel bilgiler"
+              subtitle={[profile.phone, profile.email].filter(Boolean).join(' · ') || 'Eksik bilgi'}
+              onPress={() => setEditing(true)}
+            />
+            <AccountDestination
+              icon="map-marker-outline"
+              title="Adresler"
+              subtitle="Teslimat adreslerin ve bina kodu"
+              onPress={() => router.push('/account/addresses')}
+            />
+            <AccountDestination
+              icon="cog-outline"
+              title="Bildirim ve iletişim tercihleri"
+              onPress={() => router.push('/account/settings')}
+            />
+            <AccountDestination
+              icon="shield-lock-outline"
+              title="Güvenlik ve şifre"
+              onPress={() => router.push('/account/security')}
+            />
+          </View>
         </View>
-        <View style={styles.destinationList}>
-          <AccountDestination
-            icon="star-circle-outline"
-            title="BURGER HOME CLUB"
-            subtitle="Puanlarını ve üyelik avantajlarını gör"
-            onPress={() => router.push('/account/club')}
-          />
-          <AccountDestination
-            icon="creation"
-            title="Ateş Çarkı"
-            onPress={() => router.push('/account/spin')}
-          />
-          <AccountDestination
-            icon="heart-outline"
-            title="Favoriler"
-            onPress={() => router.push('/account/favorites')}
-          />
-          <AccountDestination
-            icon="bell-outline"
-            title="Bildirimler"
-            onPress={() => router.push('/account/notifications')}
-          />
-          <AccountDestination
-            icon="lifebuoy"
-            title="Destek"
-            onPress={() => router.push('/account/support')}
-          />
-          <AccountDestination
-            icon="qrcode"
-            title="Masa kodu"
-            subtitle="Gel-al ve teslimat seçimini etkilemez"
-            onPress={() => router.push('/table')}
-          />
-        </View>
-      </View>
 
-      <Pressable
-        accessibilityRole="button"
-        disabled={loggingOut}
-        onPress={() => void onLogout()}
-        style={styles.logout}
-      >
-        <MaterialCommunityIcons name="logout-variant" size={19} color={colors.error} />
-        <Text style={styles.logoutLabel}>{loggingOut ? 'Çıkış yapılıyor…' : 'Çıkış yap'}</Text>
-      </Pressable>
+        <View style={styles.menuGroup}>
+          <View style={styles.panelHead}>
+            <Text style={styles.section}>Ayrıcalıklar ve destek</Text>
+            <Text style={styles.groupHint}>Üyelik, keşif ve yardım</Text>
+          </View>
+          <View style={styles.destinationList}>
+            <AccountDestination
+              icon="star-circle-outline"
+              title="BURGER HOME CLUB"
+              subtitle="Puanlarını ve üyelik avantajlarını gör"
+              onPress={() => router.push('/account/club')}
+            />
+            <AccountDestination
+              icon="creation"
+              title="Ateş Çarkı"
+              onPress={() => router.push('/account/spin')}
+            />
+            <AccountDestination
+              icon="heart-outline"
+              title="Favoriler"
+              onPress={() => router.push('/account/favorites')}
+            />
+            <AccountDestination
+              icon="bell-outline"
+              title="Bildirimler"
+              onPress={() => router.push('/account/notifications')}
+            />
+            <AccountDestination
+              icon="lifebuoy"
+              title="Destek"
+              onPress={() => router.push('/account/support')}
+            />
+            <AccountDestination
+              icon="qrcode"
+              title="Masa kodu"
+              subtitle="Gel-al ve teslimat seçimini etkilemez"
+              onPress={() => router.push('/table')}
+            />
+          </View>
+        </View>
+
+        <Pressable
+          accessibilityRole="button"
+          disabled={loggingOut}
+          onPress={() => void onLogout()}
+          style={styles.logout}
+        >
+          <MaterialCommunityIcons name="logout-variant" size={19} color={colors.error} />
+          <Text style={styles.logoutLabel}>{loggingOut ? 'Çıkış yapılıyor…' : 'Çıkış yap'}</Text>
+        </Pressable>
       </ScrollView>
       <ScrollToTopFab visible={top.visible} scrollRef={scrollRef} bottom={insets.bottom + 88} />
     </View>
@@ -472,7 +487,10 @@ function AccountDestination(props: {
   return (
     <Pressable
       accessibilityRole="button"
-      onPress={props.onPress}
+      onPress={() => {
+        haptic.light();
+        props.onPress();
+      }}
       style={({ pressed }) => [styles.destination, pressed && styles.destinationPressed]}
     >
       <View style={styles.destinationIcon}>
@@ -492,50 +510,69 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.canvas, justifyContent: 'center' },
   scroll: { paddingHorizontal: space.gutter, gap: space.lg },
   pageHeading: { gap: 5 },
+  eyebrow: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    letterSpacing: 1.5,
+    color: colors.mustard,
+    textTransform: 'uppercase',
+  },
   brand: { fontFamily: fonts.anton, fontSize: 27, color: colors.mustard, letterSpacing: 0.4 },
-  headline: { fontFamily: fonts.jakartaBold, fontSize: 20, lineHeight: 28, color: colors.onSurface },
+  headline: {
+    fontFamily: fonts.anton,
+    fontSize: 32,
+    letterSpacing: 0.5,
+    color: colors.onSurface,
+  },
   body: { fontFamily: fonts.jakarta, fontSize: 14, color: colors.ash, lineHeight: 20 },
 
   profilePanel: {
     gap: space.md,
-    borderRadius: radius.md,
+    borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: colors.hairline,
     backgroundColor: colors.surface,
     padding: space.md,
   },
-  identityRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  identityRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   avatar: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: colors.mustard,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.mustardGlowSoft,
   },
-  avatarInitial: { fontFamily: fonts.anton, fontSize: 22, color: colors.onMustard },
+  avatarInitial: { fontFamily: fonts.anton, fontSize: 24, color: colors.onMustard },
   memberCopy: { flex: 1, minWidth: 0, gap: 3 },
-  name: { fontFamily: fonts.jakartaBold, fontSize: 16, color: colors.onSurface },
+  name: { fontFamily: fonts.jakartaBold, fontSize: 17, color: colors.onSurface },
   meta: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },
   metaOn: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },
   metaWarn: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.warn },
   readOnlyRow: {
-    gap: 4,
-    borderRadius: radius.md,
+    gap: 6,
+    borderRadius: radius.lg,
     backgroundColor: colors.surfaceLow,
     padding: space.md,
   },
-  readOnlyLine: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  readOnlyLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
   dotRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   dot: { width: 6, height: 6, borderRadius: 3 },
-  dotOn: { backgroundColor: colors.info },
+  dotOn: { backgroundColor: colors.mustard },
   dotOff: { borderWidth: 1, borderColor: colors.outline },
 
   ordersPanel: {
     gap: space.sm,
-    borderRadius: radius.md,
+    borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: colors.hairline,
     backgroundColor: colors.surface,
     padding: space.md,
   },
@@ -549,7 +586,7 @@ const styles = StyleSheet.create({
     minHeight: minTouch,
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: colors.outlineVariant,
+    borderTopColor: colors.hairline,
   },
   copy: { flex: 1, minWidth: 0, gap: 3 },
   label: { fontFamily: fonts.jakartaSemibold, fontSize: 14, color: colors.onSurface },
@@ -560,28 +597,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
-    borderRadius: radius.md,
+    borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: colors.hairline,
     backgroundColor: colors.surface,
     padding: space.md,
   },
   clubMark: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: colors.mustard,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: colors.flame,
     alignItems: 'center',
     justifyContent: 'center',
   },
   clubTitle: { fontFamily: fonts.jakartaBold, fontSize: 15, color: colors.onSurface },
   clubPoints: { alignItems: 'flex-end' },
-  clubPointsValue: { fontFamily: fonts.jakartaBold, fontSize: 17, color: colors.mustard },
+  clubPointsValue: { fontFamily: fonts.anton, fontSize: 24, color: colors.mustard },
 
   guestPanel: {
-    borderRadius: radius.md,
+    borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: colors.hairline,
     backgroundColor: colors.surface,
     padding: space.lg,
     gap: space.md,
@@ -598,13 +635,19 @@ const styles = StyleSheet.create({
   guestTitle: { fontFamily: fonts.jakartaBold, fontSize: 16, color: colors.onSurface },
 
   menuGroup: { gap: 10 },
-  section: { fontFamily: fonts.jakartaBold, fontSize: 16, color: colors.onSurface },
+  section: {
+    fontFamily: fonts.anton,
+    fontSize: 18,
+    letterSpacing: 0.5,
+    color: colors.onSurface,
+    textTransform: 'uppercase',
+  },
   groupHint: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.ash },
   destinationList: {
     overflow: 'hidden',
-    borderRadius: radius.md,
+    borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: colors.hairline,
     backgroundColor: colors.surface,
   },
   destination: {
@@ -613,17 +656,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: colors.outlineVariant,
+    borderBottomColor: colors.hairline,
     paddingHorizontal: space.md,
     paddingVertical: 10,
   },
   destinationPressed: { backgroundColor: colors.surfaceHigh },
   destinationIcon: {
-    width: 38,
-    height: 38,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: radius.md,
     backgroundColor: colors.surfaceHigh,
   },
   destinationCopy: { flex: 1, minWidth: 0, gap: 3 },
@@ -641,10 +684,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 9,
-    borderRadius: radius.md,
+    borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    backgroundColor: colors.surfaceLow,
+    borderColor: 'rgba(255,87,34,0.3)',
+    backgroundColor: 'rgba(255,87,34,0.06)',
   },
-  logoutLabel: { fontFamily: fonts.jakartaBold, fontSize: 13, color: colors.error },
+  logoutLabel: { fontFamily: fonts.jakartaBold, fontSize: 13, color: colors.flame },
 });

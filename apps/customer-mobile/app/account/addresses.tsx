@@ -406,7 +406,7 @@ function AddressesBody() {
                 : `${list.length} kayıtlı teslimat noktası. Bir adrese dokun, haritada gör.`}
             </Text>
           </View>
-          <MustardButton label="Yeni adres ekle" onPress={openNew} />
+          {list.length > 0 ? <MustardButton label="Yeni adres ekle" onPress={openNew} /> : null}
         </View>
 
         <View style={styles.mapCard}>

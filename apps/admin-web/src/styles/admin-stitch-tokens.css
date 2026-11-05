@@ -114,7 +114,7 @@ html[data-color-mode='light'] [data-admin-theme='kitchen-fleet'] a {
 }
 
 [data-admin-theme='kitchen-fleet'] .material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
+  font-family: var(--font-material-symbols), 'Material Symbols Outlined';
   font-weight: 400;
   font-style: normal;
   font-size: 20px;

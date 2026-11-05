@@ -3,7 +3,7 @@
  */
 import { test, expect } from '@playwright/test';
 
-const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3100);
+const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3110);
 
 test.describe('storefront-web auth and account', () => {
   test.use({ baseURL: `http://localhost:${STOREFRONT_PORT}` });
@@ -68,9 +68,11 @@ test.describe('storefront-web auth and account', () => {
     await page.getByRole('button', { name: /kodu doğrula/i }).click();
     await expect(page.locator('[data-ff-surface="account"]')).toBeVisible({ timeout: 20_000 });
     await page.goto('/cart');
-    await expect(page.locator('[data-ff-surface="cart"], [data-ff-cart-line]').first()).toBeVisible({
-      timeout: 15_000,
-    });
+    await expect(page.locator('[data-ff-surface="cart"], [data-ff-cart-line]').first()).toBeVisible(
+      {
+        timeout: 15_000,
+      },
+    );
   });
 
   test('account profile, address, settings, logout', async ({ page }) => {
@@ -87,7 +89,9 @@ test.describe('storefront-web auth and account', () => {
     await page.locator('[data-ff-profile-save]').click();
     await expect(page.getByText('Profil kaydedildi.')).toBeVisible();
     await page.goto('/account/addresses');
-    await expect(page.locator('[data-ff-surface="account-addresses"]')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('[data-ff-surface="account-addresses"]')).toBeVisible({
+      timeout: 15_000,
+    });
     await page.locator('[data-ff-address-form] input').nth(1).fill('Azem Test');
     await page.locator('[data-ff-address-form] input').nth(2).fill('+905551112233');
     await page.locator('[data-ff-address-form] input').nth(3).fill('Moda Caddesi 1');

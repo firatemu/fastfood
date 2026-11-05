@@ -6,7 +6,7 @@
 #   scripts/dev-frontend-watch.sh api
 #
 # Env overrides:
-#   PORT  — port to free (default: storefront=3100, api=4000)
+#   PORT  — port to free (default: storefront=3110, api=4000)
 #   PKG   — workspace filter (default: derived)
 #   LOG   — log file (default: /tmp/<name>.log)
 set -euo pipefail
@@ -14,14 +14,15 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 NAME="${1:-}"
 if [[ -z "$NAME" ]]; then
-  echo "usage: $0 <storefront|api|admin|qr>" >&2
+  echo "usage: $0 <storefront|api|admin|courier|qr>" >&2
   exit 2
 fi
 
 case "$NAME" in
-  storefront) PORT="${PORT:-3100}"; PKG="${PKG:-@fastfood/storefront-web}"; LOG="${LOG:-/tmp/storefront-web-watch.log}";;
+  storefront) PORT="${PORT:-3110}"; PKG="${PKG:-@fastfood/storefront-web}"; LOG="${LOG:-/tmp/storefront-web-watch.log}";;
   api)        PORT="${PORT:-4000}"; PKG="${PKG:-@fastfood/api}";          LOG="${LOG:-/tmp/api-watch.log}";;
   admin)      PORT="${PORT:-3101}"; PKG="${PKG:-@fastfood/admin-web}";     LOG="${LOG:-/tmp/admin-web-watch.log}";;
+  courier)    PORT="${PORT:-3102}"; PKG="${PKG:-@fastfood/courier-web}";   LOG="${LOG:-/tmp/courier-web-watch.log}";;
   qr)         PORT="${PORT:-3104}"; PKG="${PKG:-@fastfood/qr-menu}";       LOG="${LOG:-/tmp/qr-menu-watch.log}";;
   *) echo "unknown surface: $NAME" >&2; exit 2;;
 esac

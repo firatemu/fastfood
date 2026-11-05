@@ -1,7 +1,9 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import type { ReactElement } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { haptic } from '../lib/haptics';
 import { formatTryMinor } from '../lib/money';
 import type { StorefrontHome } from '../lib/schemas';
 import { colors, fonts, minTouch, radius, space } from '../theme';
@@ -23,6 +25,7 @@ export function ComboCard(props: {
       <View style={styles.pills}>
         {props.combo.savingsPercent !== null ? (
           <View style={styles.savings}>
+            <MaterialCommunityIcons name="tag-outline" size={13} color={colors.white} />
             <Text style={styles.savingsText}>%{props.combo.savingsPercent} İndirim</Text>
           </View>
         ) : null}
@@ -61,12 +64,13 @@ export function ComboCard(props: {
       <Pressable
         accessibilityRole="button"
         disabled={props.busy}
-        onPress={props.onAdd}
-        style={({ pressed }) => [
-          styles.cta,
-          (pressed || props.busy) && styles.ctaPressed,
-        ]}
+        onPress={() => {
+          haptic.medium();
+          props.onAdd?.();
+        }}
+        style={({ pressed }) => [styles.cta, (pressed || props.busy) && styles.ctaPressed]}
       >
+        <MaterialCommunityIcons name="lightning-bolt" size={16} color={colors.onMustard} />
         <Text style={styles.ctaLabel}>
           {props.busy ? 'Ekleniyor…' : 'Tek Tıkla Komboyu Sepete Ekle'}
         </Text>
@@ -77,12 +81,12 @@ export function ComboCard(props: {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surfaceHigh,
-    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
     padding: space.md,
     gap: space.sm,
     borderWidth: 1,
-    borderColor: colors.hairline,
+    borderColor: colors.hairlineBright,
     overflow: 'hidden',
   },
   expired: {
@@ -92,74 +96,79 @@ const styles = StyleSheet.create({
   },
   pills: { flexDirection: 'row', alignItems: 'center', gap: space.sm, flexWrap: 'wrap' },
   savings: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     backgroundColor: colors.flameDeep,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: radius.sm,
+    borderRadius: radius.full,
   },
   savingsText: {
     color: colors.white,
     fontFamily: fonts.jakartaBold,
     fontSize: 11,
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
+    letterSpacing: 0.2,
   },
   kicker: {
     fontFamily: fonts.jakartaBold,
     fontSize: 11,
-    letterSpacing: 1,
+    letterSpacing: 0.8,
     textTransform: 'uppercase',
     color: colors.mustard,
   },
-  row: { flexDirection: 'row', gap: space.md },
-  copy: { flex: 1, minWidth: 0, gap: 6 },
+  row: { flexDirection: 'row', gap: space.md, alignItems: 'center' },
+  copy: { flex: 1, gap: 4 },
   name: {
-    fontFamily: fonts.anton,
-    fontSize: 20,
-    lineHeight: 24,
+    fontFamily: fonts.jakartaBold,
+    fontSize: 16,
     color: colors.onSurface,
-    textTransform: 'uppercase',
   },
   desc: {
     fontFamily: fonts.jakarta,
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 17,
     color: colors.onSurfaceVariant,
   },
-  priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 8 },
+  priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 },
   price: {
     fontFamily: fonts.anton,
-    fontSize: 28,
+    fontSize: 22,
     color: colors.mustard,
     fontVariant: ['tabular-nums'],
   },
   compare: {
     fontFamily: fonts.jakarta,
-    fontSize: 15,
-    color: colors.outline,
+    fontSize: 13,
+    color: colors.onSurfaceVariant,
     textDecorationLine: 'line-through',
     fontVariant: ['tabular-nums'],
   },
   image: {
-    width: 112,
-    height: 112,
+    width: 90,
+    height: 90,
     borderRadius: radius.lg,
     backgroundColor: colors.surfaceLow,
   },
-  imageFallback: { backgroundColor: colors.surface },
+  imageFallback: { backgroundColor: colors.surfaceHigh },
   cta: {
     minHeight: minTouch,
-    marginTop: space.sm,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     backgroundColor: colors.mustard,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: space.md,
   },
-  ctaPressed: { backgroundColor: colors.mustardPressed },
+  ctaPressed: {
+    backgroundColor: colors.mustardPressed,
+    transform: [{ scale: 0.98 }],
+  },
   ctaLabel: {
     fontFamily: fonts.jakartaBold,
     fontSize: 12,
-    letterSpacing: 0.8,
+    letterSpacing: 0.5,
     textTransform: 'uppercase',
     color: colors.onMustard,
   },

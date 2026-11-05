@@ -11,13 +11,13 @@ import { PrismaService } from '../../common/database/prisma.service.js';
 import { BranchService } from '../branch/branch.service.js';
 import { calculateDistanceKm, RoutingService } from '../branch/routing/routing.service.js';
 import { CartService, type CartDto } from '../cart/cart.service.js';
-import { CatalogService } from '../catalog/catalog.service.js';
 import { ClubService } from '../loyalty/club.service.js';
 import { OrderService } from '../order/order.service.js';
 import { PICKUP_DISCOUNT_BPS, type PricingQuoteResult } from '../pricing/pricing.engine.js';
 import { PricingService } from '../pricing/pricing.service.js';
 import { PromotionService, type PromotionDto } from '../promotion/promotion.service.js';
 
+import { CheckoutRepricingService, type RepricedCartLine } from './checkout-repricing.service.js';
 import { isEligibleScheduledInstant, listEligibleSlots } from './checkout-slots.js';
 
 export type FulfillmentMode = 'DELIVERY' | 'PICKUP';
@@ -159,9 +159,11 @@ export class CheckoutService {
     @Inject(RoutingService) private readonly routing: RoutingService,
     @Inject(PromotionService) private readonly promotions: PromotionService,
     @Optional() @Inject(OrderService) private readonly orders: OrderService | null = null,
-    @Optional() @Inject(CatalogService) private readonly catalog: CatalogService | null = null,
     @Optional() @Inject(ClubService) private readonly club: ClubService | null = null,
     @Optional() @Inject(PrismaService) private readonly prisma: PrismaService | null = null,
+    @Optional()
+    @Inject(CheckoutRepricingService)
+    private readonly repricing: CheckoutRepricingService | null = null,
   ) {}
 
   paymentMethods(): typeof STOREFRONT_PAYMENT_METHODS {
@@ -210,8 +212,10 @@ export class CheckoutService {
           message: 'Latitude and longitude are required for delivery checkout.',
         };
       }
+      const latitude = input.latitude;
+      const longitude = input.longitude;
       const areas = await this.branches.listServiceAreas();
-      const assignments = this.routing.assignAll(input.latitude, input.longitude, areas);
+      const assignments = this.routing.assignAll(latitude, longitude, areas);
       if (assignments.length === 0) {
         return {
           ok: false,
@@ -223,7 +227,8 @@ export class CheckoutService {
       // Deduplicate by branchId, keeping lowest priority for each branch
       const branchMap = new Map<string, (typeof assignments)[number]>();
       for (const a of assignments) {
-        if (!branchMap.has(a.branchId) || a.priority < branchMap.get(a.branchId)!.priority) {
+        const existing = branchMap.get(a.branchId);
+        if (!existing || a.priority < existing.priority) {
           branchMap.set(a.branchId, a);
         }
       }
@@ -233,12 +238,7 @@ export class CheckoutService {
         uniqueAssignments.map(async (a) => {
           try {
             const b = await this.branches.getBranch(a.branchId);
-            const distanceKm = calculateDistanceKm(
-              input.latitude!,
-              input.longitude!,
-              b.latitude,
-              b.longitude,
-            );
+            const distanceKm = calculateDistanceKm(latitude, longitude, b.latitude, b.longitude);
             return {
               branchId: a.branchId,
               branchName: b.name,
@@ -274,13 +274,22 @@ export class CheckoutService {
         };
       }
 
-      serviceableBranches = activeEligible.map(({ isAcceptingOrders, ...rest }) => rest);
+      serviceableBranches = activeEligible.map(
+        ({ isAcceptingOrders: _isAcceptingOrders, ...rest }) => rest,
+      );
 
       const requestedBranchId = input.deliveryBranchId;
       const matchingRequested = requestedBranchId
         ? activeEligible.find((sb) => sb.branchId === requestedBranchId)
         : null;
-      const chosen = matchingRequested ?? activeEligible[0]!;
+      const chosen = matchingRequested ?? activeEligible[0];
+      if (!chosen) {
+        return {
+          ok: false,
+          code: ErrorCodes.ADDRESS_NOT_SERVICEABLE,
+          message: 'No branch serves this location within the maximum 10.0 km radius.',
+        };
+      }
       branchId = chosen.branchId;
       serviceAreaId = chosen.serviceAreaId;
     } else {
@@ -320,14 +329,21 @@ export class CheckoutService {
 
     await this.carts.setBranchId(cart.id, branch.id);
 
+    // Server-authoritative re-pricing (audit P0-2, step 3). The cart line
+    // snapshots are re-read from the catalog right now, so a price change
+    // between "add to cart" and "checkout" (or a tampered snapshot) can never
+    // reach the pricing engine, the quote or the persisted order items.
+    const repriced = await this.#repriceCartLines(cart);
+    if (!repriced.ok) return repriced.error;
+
     let cartDiscountMinor = 0n;
     let deliveryFeeMinor = fulfillmentMode === 'PICKUP' ? 0n : branch.deliveryFeeMinor;
     let appliedPromotionId: string | null = null;
 
-    const merchandiseProbe = cart.lineItems.reduce((acc, li) => {
-      const mods = li.modifiers.reduce((a, m) => a + m.priceDeltaMinorSnapshot, 0n);
-      return acc + (li.unitPriceMinorSnapshot + mods) * BigInt(li.quantity);
-    }, 0n);
+    const merchandiseProbe = repriced.lines.reduce(
+      (acc, line) => acc + (line.unitPriceMinor + line.modifierTotalMinor) * BigInt(line.quantity),
+      0n,
+    );
 
     if (input.couponCode) {
       const promo = await this.promotions.validateCode(input.couponCode);
@@ -373,13 +389,10 @@ export class CheckoutService {
 
     const pickupDiscountBps = fulfillmentMode === 'PICKUP' ? PICKUP_DISCOUNT_BPS : 0;
     const engine: PricingQuoteResult = this.pricing.quote({
-      lines: cart.lineItems.map((li) => ({
-        baseUnitPriceMinor: li.unitPriceMinorSnapshot,
-        modifierUnitTotalMinor: li.modifiers.reduce(
-          (acc, m) => acc + m.priceDeltaMinorSnapshot,
-          0n,
-        ),
-        quantity: li.quantity,
+      lines: repriced.lines.map((line) => ({
+        baseUnitPriceMinor: line.unitPriceMinor,
+        modifierUnitTotalMinor: line.modifierTotalMinor,
+        quantity: line.quantity,
       })),
       cartDiscountMinor,
       deliveryFeeMinor,
@@ -388,7 +401,7 @@ export class CheckoutService {
       loyaltyAvailablePoints: input.loyaltyAvailablePoints ?? 0n,
       pickupDiscountBps,
       tipMinor,
-      currency: cart.lineItems[0]?.currencySnapshot ?? 'TRY',
+      currency: repriced.currency,
     });
 
     const validationErrors: string[] = [];
@@ -397,7 +410,7 @@ export class CheckoutService {
     }
 
     const checkoutSessionId = input.checkoutSessionId ?? randomUUID();
-    const items = await this.#snapshotItems(cart);
+    const items = this.#snapshotItems(repriced.lines);
     const quote: CheckoutQuoteDto = {
       checkoutSessionId,
       currency: engine.currency,
@@ -519,7 +532,7 @@ export class CheckoutService {
       modifiers?: { modifierId: string; nameSnapshot?: string; priceDeltaMinorSnapshot: string }[];
       removals?: { ingredientId: string; nameSnapshot?: string }[];
     }>;
-    const items =
+    let items =
       snapshotItems.length > 0
         ? snapshotItems.map((item) => ({
             productId: item.productId,
@@ -538,26 +551,30 @@ export class CheckoutService {
               nameSnapshot: r.nameSnapshot ?? '',
             })),
           }))
-        : (cart?.lineItems ?? []).map((li) => ({
-            productId: li.productId,
-            productVariantId: li.productVariantId,
-            productNameSnapshot: 'Ürün',
-            quantity: li.quantity,
-            unitPriceMinorSnapshot: li.unitPriceMinorSnapshot,
-            lineGrossMinorSnapshot:
-              (li.unitPriceMinorSnapshot +
-                li.modifiers.reduce((a, m) => a + m.priceDeltaMinorSnapshot, 0n)) *
-              BigInt(li.quantity),
-            modifiers: li.modifiers.map((m) => ({
-              modifierId: m.modifierId,
-              nameSnapshot: '',
-              priceDeltaMinorSnapshot: m.priceDeltaMinorSnapshot,
-            })),
-            removals: li.removals.map((r) => ({
-              ingredientId: r.ingredientId,
-              nameSnapshot: '',
-            })),
-          }));
+        : [];
+    if (items.length === 0 && cart) {
+      // No persisted quote snapshot (older session): re-price the cart from
+      // the catalog instead of trusting the stored line snapshots.
+      const repriced = await this.#repriceCartLines(cart);
+      if (!repriced.ok) return null;
+      items = this.#snapshotItems(repriced.lines).map((item) => ({
+        productId: item.productId,
+        productVariantId: item.productVariantId,
+        productNameSnapshot: item.productNameSnapshot,
+        quantity: item.quantity,
+        unitPriceMinorSnapshot: BigInt(item.unitPriceMinorSnapshot),
+        lineGrossMinorSnapshot: BigInt(item.lineGrossMinorSnapshot),
+        modifiers: item.modifiers.map((m) => ({
+          modifierId: m.modifierId,
+          nameSnapshot: m.nameSnapshot,
+          priceDeltaMinorSnapshot: BigInt(m.priceDeltaMinorSnapshot),
+        })),
+        removals: item.removals.map((r) => ({
+          ingredientId: r.ingredientId,
+          nameSnapshot: r.nameSnapshot,
+        })),
+      }));
+    }
     if (items.length === 0) return null;
 
     const order = await this.orders.create({
@@ -598,43 +615,89 @@ export class CheckoutService {
     return order.id;
   }
 
-  async #snapshotItems(cart: CartDto) {
-    const items = [];
-    for (const li of cart.lineItems) {
-      const detail = this.catalog
-        ? await this.catalog.getStorefrontProductDetail(li.productId).catch(() => null)
-        : null;
-      const modifierNames = new Map(
-        (detail?.modifierGroups ?? []).flatMap((group) =>
-          group.modifiers.map((modifier) => [modifier.id, modifier.name] as const),
-        ),
-      );
-      const removalNames = new Map(
-        (detail?.removalOptions ?? []).map((removal) => [removal.id, removal.name] as const),
-      );
-      const modifierTotal = li.modifiers.reduce((a, m) => a + m.priceDeltaMinorSnapshot, 0n);
-      items.push({
-        productId: li.productId,
-        productVariantId: li.productVariantId,
-        productNameSnapshot: detail?.name ?? 'Ürün',
-        quantity: li.quantity,
-        unitPriceMinorSnapshot: li.unitPriceMinorSnapshot.toString(),
-        lineGrossMinorSnapshot: (
-          (li.unitPriceMinorSnapshot + modifierTotal) *
-          BigInt(li.quantity)
-        ).toString(),
-        modifiers: li.modifiers.map((m) => ({
-          modifierId: m.modifierId,
-          nameSnapshot: modifierNames.get(m.modifierId) ?? '',
-          priceDeltaMinorSnapshot: m.priceDeltaMinorSnapshot.toString(),
-        })),
-        removals: li.removals.map((r) => ({
-          ingredientId: r.ingredientId,
-          nameSnapshot: removalNames.get(r.ingredientId) ?? '',
-        })),
+  /**
+   * Re-read the catalog for every cart line and return the authoritative
+   * prices used by the quote, the session snapshot and the order items.
+   *
+   * When the re-pricing service is not wired (unit tests that construct the
+   * service directly), the cart snapshots are used as-is.
+   */
+  async #repriceCartLines(
+    cart: CartDto,
+  ): Promise<
+    { ok: true; lines: RepricedCartLine[]; currency: string } | { ok: false; error: QuoteErr }
+  > {
+    if (!this.repricing) {
+      const lines: RepricedCartLine[] = cart.lineItems.map((li) => {
+        const modifierTotalMinor = li.modifiers.reduce(
+          (acc, m) => acc + m.priceDeltaMinorSnapshot,
+          0n,
+        );
+        return {
+          lineId: li.id,
+          productId: li.productId,
+          productName: 'Ürün',
+          productVariantId: li.productVariantId,
+          productVariantName: null,
+          quantity: li.quantity,
+          unitPriceMinor: li.unitPriceMinorSnapshot,
+          currency: li.currencySnapshot,
+          modifiers: li.modifiers.map((m) => ({
+            modifierId: m.modifierId,
+            name: '',
+            priceDeltaMinor: m.priceDeltaMinorSnapshot,
+          })),
+          removals: li.removals.map((r) => ({ ingredientId: r.ingredientId, name: '' })),
+          modifierTotalMinor,
+          priceChanged: false,
+        };
       });
+      return {
+        ok: true,
+        lines,
+        currency: cart.lineItems[0]?.currencySnapshot ?? 'TRY',
+      };
     }
-    return items;
+    try {
+      const repriced = await this.repricing.repriceCart(cart);
+      return { ok: true, lines: repriced.lines, currency: repriced.currency };
+    } catch (err) {
+      const e = err as { name?: string; response?: { code?: string; message?: string } };
+      if (e.name === 'BadRequestException') {
+        return {
+          ok: false,
+          error: {
+            ok: false,
+            code: e.response?.code ?? ErrorCodes.VALIDATION_ERROR,
+            message: e.response?.message ?? 'Cart configuration is no longer available.',
+          },
+        };
+      }
+      throw err;
+    }
+  }
+
+  #snapshotItems(lines: RepricedCartLine[]) {
+    return lines.map((line) => ({
+      productId: line.productId,
+      productVariantId: line.productVariantId,
+      productNameSnapshot: line.productName,
+      quantity: line.quantity,
+      unitPriceMinorSnapshot: line.unitPriceMinor.toString(),
+      lineGrossMinorSnapshot: (
+        (line.unitPriceMinor + line.modifierTotalMinor) *
+        BigInt(line.quantity)
+      ).toString(),
+      modifiers: line.modifiers.map((m) => ({
+        modifierId: m.modifierId,
+        nameSnapshot: m.name,
+        priceDeltaMinorSnapshot: m.priceDeltaMinor.toString(),
+      })),
+      removals: line.removals.map((r) => ({
+        ingredientId: r.ingredientId,
+        nameSnapshot: r.name,
+      })),
+    }));
   }
 
   async #persistSession(snapshot: CheckoutSessionSnapshot): Promise<void> {

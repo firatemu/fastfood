@@ -1,8 +1,4 @@
-export {
-  formatDeltaMinor,
-  formatTryMinor,
-  multiplyMinor,
-} from '@fastfood/contracts';
+export { formatDeltaMinor, formatTryMinor, multiplyMinor } from '@fastfood/contracts';
 
 /** Format money stored as minor units (kuruş) for the customer Storefront. */
 export function formatPriceMinor(amountMinor: string | bigint, currency: string): string {

@@ -303,7 +303,8 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     name: 'Server logout/refresh',
     backend: 'logout/refresh',
     ...implementedBoth,
-    notes: 'Session adapters stay per client.',
+    notes:
+      'Session adapters stay per client: Web exchanges the HttpOnly ff_customer_refresh cookie for a 15-minute RS256 access token held in memory; Mobile keeps the refresh credential in the Expo secure store and declares X-Client-Platform: mobile. The refresh credential is never readable from JavaScript on either client.',
   },
   {
     id: 'loyalty-reserve',
@@ -497,7 +498,8 @@ export const CUSTOMER_CAPABILITY_REGISTRY: readonly CustomerCapabilityEntry[] = 
     name: 'Password + remember-me',
     backend: 'refresh session',
     ...implementedBoth,
-    notes: 'Auth-account.',
+    notes:
+      'Auth-account. The remembered session is a server-side session: the refresh credential lives in an HttpOnly cookie (Web) or the secure store (Mobile); the access token is short-lived and memory-only on both clients.',
   },
   {
     id: 'email-verification-badge',

@@ -90,7 +90,12 @@ export function ProductConfigure(props: {
 
   return (
     <View style={styles.screen}>
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: stickyCtaReserve + 24 + (props.bottomLift ?? 0) }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingBottom: stickyCtaReserve + 24 + (props.bottomLift ?? 0) },
+        ]}
+      >
         <View style={styles.hero}>
           {hero ? (
             <Image
@@ -142,7 +147,10 @@ export function ProductConfigure(props: {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={props.favorited ? 'Favorilerden çıkar' : 'Favorilere ekle'}
-                  accessibilityState={{ selected: Boolean(props.favorited), busy: Boolean(props.favoriteBusy) }}
+                  accessibilityState={{
+                    selected: Boolean(props.favorited),
+                    busy: Boolean(props.favoriteBusy),
+                  }}
                   disabled={props.favoriteBusy}
                   onPress={props.onToggleFavorite}
                   hitSlop={hitSlop}
@@ -348,7 +356,12 @@ const styles = StyleSheet.create({
   },
   priceCol: { alignItems: 'flex-end' },
   heart: { minWidth: 44, minHeight: 44, alignItems: 'flex-end', justifyContent: 'center' },
-  price: { fontFamily: fonts.anton, fontSize: 28, color: colors.mustard, fontVariant: ['tabular-nums'] },
+  price: {
+    fontFamily: fonts.anton,
+    fontSize: 28,
+    color: colors.mustard,
+    fontVariant: ['tabular-nums'],
+  },
   kdv: { fontFamily: fonts.jakarta, fontSize: 11, color: colors.ash },
   desc: { fontFamily: fonts.jakarta, fontSize: 15, lineHeight: 24, color: colors.onSurfaceVariant },
   nutrition: { flexDirection: 'row', gap: 8 },

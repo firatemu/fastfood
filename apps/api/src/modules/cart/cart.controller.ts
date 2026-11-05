@@ -22,12 +22,20 @@ import { resolveStorefrontPrincipal } from '../auth/customer/request-identity.js
 import type { AuthenticatedPrincipal } from '../auth/guards/authenticated-principal.js';
 import { CatalogService } from '../catalog/catalog.service.js';
 
+import { CartPricingAuthorityService } from './cart-pricing-authority.service.js';
 import { CartPricingService } from './cart-pricing.service.js';
-import { CartValidationService } from './cart-validation.service.js';
 import { CartService, type AddCartLineInput, type UpdateCartLineInput } from './cart.service.js';
 import { CartOwnershipPolicy } from './policies/cart-ownership.policy.js';
 
 const REQUEST_ID = '01900000-0000-7000-8000-000000000099';
+
+/**
+ * The price snapshot fields stay in the request contract (document 09 §5 keeps
+ * them as a *display* snapshot) but the server never prices a line from them.
+ * A negative modifier delta is rejected outright: a modifier can only ever
+ * add to the base price.
+ */
+const priceDeltaMinorSchema = z.string().regex(/^\d+$/);
 
 const addLineSchema = z.object({
   productId: z.string().uuid(),
@@ -40,7 +48,7 @@ const addLineSchema = z.object({
     .array(
       z.object({
         modifierId: z.string().uuid(),
-        priceDeltaMinorSnapshot: z.string().regex(/^-?\d+$/),
+        priceDeltaMinorSnapshot: priceDeltaMinorSchema,
       }),
     )
     .optional(),
@@ -54,7 +62,7 @@ const updateLineSchema = z.object({
     .array(
       z.object({
         modifierId: z.string().uuid(),
-        priceDeltaMinorSnapshot: z.string().regex(/^-?\d+$/),
+        priceDeltaMinorSnapshot: priceDeltaMinorSchema,
       }),
     )
     .optional(),
@@ -96,7 +104,8 @@ export class CartController {
   constructor(
     @Inject(CartService) private readonly cartService: CartService,
     @Inject(CartPricingService) private readonly pricingService: CartPricingService,
-    @Inject(CartValidationService) private readonly validationService: CartValidationService,
+    @Inject(CartPricingAuthorityService)
+    private readonly pricingAuthority: CartPricingAuthorityService,
     @Inject(CatalogService) private readonly catalogService: CatalogService,
     @Inject(CartOwnershipPolicy) private readonly ownership: CartOwnershipPolicy,
     @Inject(CustomerAuthService) private readonly customerAuth: CustomerAuthService,
@@ -149,21 +158,27 @@ export class CartController {
       })),
       removals: parsed.data.removals,
     };
-    let validated;
+    // Server-authoritative pricing (audit P0-2): the unit price, currency and
+    // every modifier price delta are recomputed from the catalog. The client
+    // supplied snapshots are display hints only and are never persisted.
+    let priced;
     try {
-      validated = await this.validationService.validate(input, this.catalogService);
+      priced = await this.pricingAuthority.priceAddLine(input);
     } catch (err) {
       return this.translateValidationError(err);
     }
     const after = await this.cartService.addLine(resolved.cart.id, {
-      productId: validated.productId,
-      productVariantId: validated.productVariantId,
-      quantity: validated.quantity,
-      unitPriceMinorSnapshot: validated.unitPriceMinor,
-      currencySnapshot: validated.currency,
+      productId: priced.productId,
+      productVariantId: priced.productVariantId,
+      quantity: priced.quantity,
+      unitPriceMinorSnapshot: priced.unitPriceMinor,
+      currencySnapshot: priced.currency,
       deliveryNote: input.deliveryNote,
-      modifiers: input.modifiers,
-      removals: input.removals,
+      modifiers: priced.modifiers.map((m) => ({
+        modifierId: m.modifierId,
+        priceDeltaMinorSnapshot: m.priceDeltaMinor,
+      })),
+      removals: priced.removals,
     });
     return {
       data: await this.serialize(after),
@@ -208,8 +223,36 @@ export class CartController {
       })),
       removals: parsed.data.removals,
     };
+    // Server-authoritative pricing (audit P0-2): modifier price deltas are
+    // recomputed from the catalog for the line's own product.
+    const line = resolved.cart.lineItems.find((l) => l.id === lineId);
+    if (!line) {
+      return {
+        error: {
+          code: ErrorCodes.NOT_FOUND,
+          message: 'Cart line not found.',
+          requestId: REQUEST_ID,
+        },
+      };
+    }
+    let priced;
     try {
-      const after = await this.cartService.updateLine(resolved.cart.id, lineId, patch);
+      priced = await this.pricingAuthority.priceUpdateLine(line.productId, patch);
+    } catch (err) {
+      return this.translateValidationError(err);
+    }
+    try {
+      const after = await this.cartService.updateLine(resolved.cart.id, lineId, {
+        quantity: priced.quantity,
+        deliveryNote: priced.deliveryNote,
+        // `undefined` keeps the line's current modifiers / removals; an empty
+        // array clears them. The server never prices from the client values.
+        modifiers: priced.modifiers?.map((m) => ({
+          modifierId: m.modifierId,
+          priceDeltaMinorSnapshot: m.priceDeltaMinor,
+        })),
+        removals: priced.removals,
+      });
       return {
         data: await this.serialize(after),
         meta: { requestId: REQUEST_ID },
@@ -344,7 +387,10 @@ export class CartController {
 
   private async serialize(cart: Awaited<ReturnType<CartService['getCart']>>): Promise<unknown> {
     const uniqueIds = [...new Set(cart.lineItems.map((li) => li.productId))];
-    const details = new Map<string, Awaited<ReturnType<CatalogService['getStorefrontProductDetail']>>>();
+    const details = new Map<
+      string,
+      Awaited<ReturnType<CatalogService['getStorefrontProductDetail']>>
+    >();
     await Promise.all(
       uniqueIds.map(async (productId) => {
         try {

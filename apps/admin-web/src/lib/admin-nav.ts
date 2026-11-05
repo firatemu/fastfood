@@ -43,6 +43,7 @@ const NAV_PERMISSION_KEYS: Record<string, AdminPageKey> = {
   'customer-list': 'customer-list',
   loyalty: 'loyalty',
   promotions: 'promotions',
+  notifications: 'promotions',
   payments: 'payments',
   refunds: 'refunds',
   reports: 'reports',
@@ -127,6 +128,7 @@ export const ADMIN_NAV_SECTIONS: AdminNavSectionDef[] = [
     label: 'Pazarlama & Finans',
     items: [
       { id: 'promotions', label: 'Promosyonlar', href: '/promotions', match: 'prefix' },
+      { id: 'notifications', label: 'Bildirimler', href: '/notifications', match: 'prefix' },
       { id: 'payments', label: 'Ödemeler', href: '/payments', match: 'prefix' },
       { id: 'refunds', label: 'İadeler', href: '/refunds', match: 'exact' },
     ],

@@ -6,7 +6,13 @@ import { RequireCustomer } from '../../components/require-customer';
 import { StackHeader } from '../../components/stack-header';
 import { EmptyBlock, ErrorBlock, LoadingBlock, SecondaryButton } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
-import { fetchNotifications, markAllNotificationsRead, markNotificationRead } from '../../lib/engagement';
+import {
+  clearAllNotifications,
+  deleteNotification,
+  fetchNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+} from '../../lib/engagement';
 import { notifyNotificationsChanged } from '../../lib/notification-events';
 import { notificationDestination } from '../../lib/notification-nav';
 import { cacheNotifications } from '../../lib/private-cache';
@@ -99,6 +105,35 @@ function InboxBody() {
     }
   }
 
+  async function onDeleteOne(id: string) {
+    try {
+      await deleteNotification(id);
+      const target = items.find((row) => row.id === id);
+      setItems((current) => current.filter((row) => row.id !== id));
+      if (target && !target.read) {
+        setUnreadCount((count) => Math.max(0, count - 1));
+      }
+      notifyNotificationsChanged();
+    } catch (err) {
+      setError(formatApiError(err));
+    }
+  }
+
+  async function onClearAll() {
+    if (busy || items.length === 0) return;
+    setBusy(true);
+    try {
+      await clearAllNotifications();
+      setItems([]);
+      setUnreadCount(0);
+      notifyNotificationsChanged();
+    } catch (err) {
+      setError(formatApiError(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (status === 'loading') return <LoadingBlock label="Bildirimler yükleniyor…" />;
   if (status === 'error') {
     return <ErrorBlock title="Bildirimler yüklenemedi" message={error ?? ''} onRetry={load} />;
@@ -106,12 +141,24 @@ function InboxBody() {
 
   return (
     <ScrollView contentContainerStyle={styles.scroll}>
-      {unreadCount > 0 ? (
-        <SecondaryButton
-          label={busy ? 'İşleniyor…' : `Tümünü okundu işaretle (${unreadCount})`}
-          onPress={() => void onReadAll()}
-        />
-      ) : null}
+      <View style={styles.topActions}>
+        {unreadCount > 0 ? (
+          <View style={styles.topActionFlex}>
+            <SecondaryButton
+              label={busy ? 'İşleniyor…' : `Tümünü Oku (${unreadCount})`}
+              onPress={() => void onReadAll()}
+            />
+          </View>
+        ) : null}
+        {items.length > 0 ? (
+          <View style={unreadCount > 0 ? styles.topActionFlex : undefined}>
+            <SecondaryButton
+              label={busy ? 'İşleniyor…' : 'Tümünü Sil'}
+              onPress={() => void onClearAll()}
+            />
+          </View>
+        ) : null}
+      </View>
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {items.length === 0 ? (
         <EmptyBlock title="Bildirim yok" message="Sipariş ve CLUB duyuruları burada görünür." />
@@ -127,27 +174,38 @@ function InboxBody() {
             <Text style={styles.body}>{item.body}</Text>
             <View style={styles.rowFoot}>
               <Text style={styles.meta}>{formatStorefrontDateTime(item.createdAt)}</Text>
-              {item.href ? (
+              <View style={styles.itemActions}>
+                {item.href ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`${item.title} bildirimini aç`}
+                    hitSlop={8}
+                    onPress={() => void onOpen(item)}
+                    style={styles.openLink}
+                  >
+                    <Text style={styles.openLabel}>Aç</Text>
+                  </Pressable>
+                ) : !item.read ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`${item.title} bildirimini okundu işaretle`}
+                    hitSlop={8}
+                    onPress={() => void markRead(item)}
+                    style={styles.openLink}
+                  >
+                    <Text style={styles.openLabel}>Okundu işaretle</Text>
+                  </Pressable>
+                ) : null}
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`${item.title} bildirimini aç`}
+                  accessibilityLabel={`${item.title} bildirimini sil`}
                   hitSlop={8}
-                  onPress={() => void onOpen(item)}
-                  style={styles.openLink}
+                  onPress={() => void onDeleteOne(item.id)}
+                  style={styles.deleteLink}
                 >
-                  <Text style={styles.openLabel}>Aç</Text>
+                  <Text style={styles.deleteLabel}>Sil</Text>
                 </Pressable>
-              ) : !item.read ? (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`${item.title} bildirimini okundu işaretle`}
-                  hitSlop={8}
-                  onPress={() => void markRead(item)}
-                  style={styles.openLink}
-                >
-                  <Text style={styles.openLabel}>Okundu işaretle</Text>
-                </Pressable>
-              ) : null}
+              </View>
             </View>
           </View>
         ))
@@ -161,16 +219,16 @@ const styles = StyleSheet.create({
   scroll: { padding: space.gutter, gap: 12, paddingBottom: 40 },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
+    borderRadius: radius.xl,
     padding: space.md,
-    gap: 6,
+    gap: 8,
     minHeight: minTouch,
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: colors.hairline,
   },
-  rowHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  rowHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   dot: { width: 8, height: 8, borderRadius: 4, marginTop: 6 },
-  dotUnread: { backgroundColor: colors.info },
+  dotUnread: { backgroundColor: colors.flame },
   dotRead: { backgroundColor: colors.outlineVariant },
   title: { flex: 1, fontFamily: fonts.jakartaBold, fontSize: 15, color: colors.onSurface },
   titleRead: { color: colors.onSurfaceVariant, fontFamily: fonts.jakartaSemibold },
@@ -189,6 +247,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textTransform: 'uppercase',
     color: colors.mustard,
+  },
+  topActions: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  topActionFlex: { flex: 1, minWidth: 140 },
+  itemActions: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  deleteLink: { minHeight: 32, justifyContent: 'center', paddingHorizontal: 6 },
+  deleteLabel: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 12,
+    textTransform: 'uppercase',
+    color: colors.error,
   },
   error: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.error },
 });

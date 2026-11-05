@@ -107,16 +107,21 @@ export function ShopEmpty({
       data-ff-shop-state="empty"
       data-ff-surface={surface}
     >
-      <div className="max-w-lg rounded-xl bg-surface-container p-space-lg text-center">
+      <div className="relative max-w-lg w-full rounded-3xl bg-[#12151f]/90 border border-white/[0.08] backdrop-blur-xl p-8 sm:p-10 text-center shadow-2xl overflow-hidden flex flex-col items-center gap-4">
+        <div className="absolute -top-20 -left-20 w-48 h-48 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-orange-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-1 shadow-[0_0_20px_rgba(254,179,0,0.2)]">
+          <span className="material-symbols-outlined text-3xl notranslate" translate="no">shopping_basket</span>
+        </div>
         {compact ? (
-          <h2 className="font-headline-md text-headline-md text-on-surface uppercase">{title}</h2>
+          <h2 className="font-anton text-2xl sm:text-3xl text-white uppercase tracking-wide">{title}</h2>
         ) : (
-          <h1 className="font-headline-md text-headline-md text-on-surface uppercase">{title}</h1>
+          <h1 className="font-anton text-3xl sm:text-4xl text-white uppercase tracking-wide">{title}</h1>
         )}
-        <p className="font-body-md text-on-surface-variant mt-space-sm">{message}</p>
+        <p className="font-body-md text-sm sm:text-base text-neutral-300 max-w-sm leading-relaxed">{message}</p>
         <Link
           href={actionHref}
-          className="inline-flex mt-space-md px-space-lg py-3 rounded-lg bg-secondary-container text-on-secondary-container font-label-lg uppercase"
+          className="inline-flex mt-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 text-neutral-950 font-anton text-base tracking-wider uppercase shadow-[0_4px_20px_rgba(254,179,0,0.35)] hover:brightness-110 active:scale-95 transition-all"
         >
           {actionLabel}
         </Link>

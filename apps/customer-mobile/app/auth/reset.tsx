@@ -47,11 +47,18 @@ export default function AuthResetRoute() {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={styles.root}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <StackHeader title="Şifre sıfırla" />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ padding: space.margin, paddingBottom: insets.bottom + 24, gap: 12 }}
+        contentContainerStyle={{
+          padding: space.margin,
+          paddingBottom: insets.bottom + 24,
+          gap: 12,
+        }}
       >
         {done ? (
           <>
@@ -71,7 +78,11 @@ export default function AuthResetRoute() {
               textContentType="newPassword"
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
-            <MustardButton label="Şifreyi güncelle" loading={busy} onPress={() => void onSubmit()} />
+            <MustardButton
+              label="Şifreyi güncelle"
+              loading={busy}
+              onPress={() => void onSubmit()}
+            />
           </>
         )}
       </ScrollView>

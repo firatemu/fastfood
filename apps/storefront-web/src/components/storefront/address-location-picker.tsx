@@ -29,10 +29,7 @@ export function AddressLocationPicker(props: {
   const readOnly = props.readOnly === true;
   const mapUrl = addressMapHtml(props.initialPoint ?? null, props.center, !readOnly);
   const mapOrigin = mapUrl ? new URL(mapUrl).origin : null;
-  const effectiveMapState: MapState =
-    !mapUrl || (typeof window !== 'undefined' && mapOrigin === window.location.origin)
-      ? 'unavailable'
-      : mapState;
+  const effectiveMapState: MapState = !mapUrl ? 'unavailable' : mapState;
 
   useEffect(() => {
     onSelectRef.current = props.onSelect;
@@ -63,7 +60,7 @@ export function AddressLocationPicker(props: {
    * effects: one owns the timeout, this one owns the subscription.
    */
   useEffect(() => {
-    if (!mapUrl || !mapOrigin || mapOrigin === window.location.origin) return;
+    if (!mapUrl || !mapOrigin) return;
     function receiveMapMessage(event: MessageEvent<unknown>) {
       if (event.source !== frameRef.current?.contentWindow) return;
       if (event.origin !== mapOrigin) return;
@@ -100,7 +97,7 @@ export function AddressLocationPicker(props: {
   // The map's own readiness timeout, independent of the subscription.
   useEffect(() => {
     if (mapState !== 'loading') return;
-    if (!mapUrl || !mapOrigin || mapOrigin === window.location.origin) return;
+    if (!mapUrl || !mapOrigin) return;
     const timeout = window.setTimeout(() => setMapState('unavailable'), 30_000);
     return () => window.clearTimeout(timeout);
   }, [mapState, mapOrigin, mapUrl]);

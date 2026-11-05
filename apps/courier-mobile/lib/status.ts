@@ -82,7 +82,11 @@ export interface DeliveryAction {
  * rather than a disabled one.
  */
 export const NEXT_ACTIONS: Partial<Record<CourierDeliveryStatus, DeliveryAction>> = {
-  ASSIGNED: { path: 'pickup', label: 'Şubeden teslim aldım', successLabel: 'Şubeden teslim alındı.' },
+  ASSIGNED: {
+    path: 'pickup',
+    label: 'Şubeden teslim aldım',
+    successLabel: 'Şubeden teslim alındı.',
+  },
   PICKED_UP: { path: 'on-the-way', label: 'Yola çıktım', successLabel: 'Teslimat yola çıktı.' },
   ON_THE_WAY: { path: 'deliver', label: 'Teslim edildi', successLabel: 'Teslimat teslim edildi.' },
 };

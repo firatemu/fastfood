@@ -8,9 +8,7 @@ describe('Timeline', () => {
     render(
       <Timeline
         ariaLabel="Sipariş geçmişi"
-        events={[
-          { id: '1', time: '18:00', title: 'Alındı', description: 'Web' },
-        ]}
+        events={[{ id: '1', time: '18:00', title: 'Alındı', description: 'Web' }]}
       />,
     );
     expect(screen.getByLabelText('Sipariş geçmişi')).toBeTruthy();

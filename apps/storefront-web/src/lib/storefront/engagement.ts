@@ -89,6 +89,24 @@ export async function markAllNotificationsRead(): Promise<void> {
   });
 }
 
+export async function deleteNotification(id: string): Promise<void> {
+  await createStorefrontClient().request({
+    method: 'DELETE',
+    path: `me/notifications/${id}`,
+    headers: sessionHeaders(),
+    schema: okResponseSchema,
+  });
+}
+
+export async function clearAllNotifications(): Promise<void> {
+  await createStorefrontClient().request({
+    method: 'DELETE',
+    path: 'me/notifications',
+    headers: sessionHeaders(),
+    schema: okResponseSchema,
+  });
+}
+
 export async function openSupport(orderId?: string): Promise<SupportConversation> {
   const res = await createStorefrontClient().request({
     method: 'POST',

@@ -115,6 +115,23 @@ export async function seedMenuFromXlsx(prisma: PrismaClient): Promise<void> {
     }
 
     // Options are rebuilt wholesale: the workbook is the only source of truth.
+    // The old option rows must not leave dangling cart lines behind — a cart
+    // line that points at a deleted modifier can never be priced again, and
+    // with the referential-integrity constraints in place the delete would
+    // be rejected outright.
+    const staleOptions = await prisma.modifier.findMany({
+      where: { modifierGroupId: id },
+      select: { id: true },
+    });
+    const staleOptionIds = staleOptions.map((o) => o.id);
+    if (staleOptionIds.length > 0) {
+      await prisma.cartLineModifier.deleteMany({
+        where: { modifierId: { in: staleOptionIds } },
+      });
+      await prisma.orderItemModifier.deleteMany({
+        where: { modifierId: { in: staleOptionIds } },
+      });
+    }
     await prisma.modifier.deleteMany({ where: { modifierGroupId: id } });
     const options = [...(spec.required ?? [])];
     for (const product of menu.products) {
@@ -165,7 +182,19 @@ export async function seedMenuFromXlsx(prisma: PrismaClient): Promise<void> {
     });
 
     // Variants are size choices only. The base size IS the product price, so
-    // every price in the workbook becomes a selectable variant.
+    // every price in the workbook becomes a selectable variant. Cart lines
+    // that referenced a removed variant are deleted first so the delete is
+    // not rejected by the referential-integrity constraints.
+    const staleVariants = await prisma.productVariant.findMany({
+      where: { productId: product.id },
+      select: { id: true },
+    });
+    const staleVariantIds = staleVariants.map((v) => v.id);
+    if (staleVariantIds.length > 0) {
+      await prisma.cartLineItem.deleteMany({
+        where: { productVariantId: { in: staleVariantIds } },
+      });
+    }
     await prisma.productVariant.deleteMany({ where: { productId: product.id } });
     if (p.prices.length > 1) {
       await prisma.productVariant.createMany({

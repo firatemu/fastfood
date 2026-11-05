@@ -3,7 +3,7 @@
  */
 import { test, expect } from '@playwright/test';
 
-const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3100);
+const STOREFRONT_PORT = Number(process.env.STOREFRONT_PORT ?? 3110);
 
 test.describe('storefront-web qa polish', () => {
   test.use({ baseURL: `http://localhost:${STOREFRONT_PORT}` });

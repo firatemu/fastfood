@@ -7,6 +7,8 @@ import { isCustomerAuthenticated } from '../../lib/api';
 import { errorMessage } from '../../lib/load-state';
 import { notifyNotificationsChanged } from '../../lib/notification-events';
 import {
+  clearAllNotifications,
+  deleteNotification,
   fetchNotifications,
   markAllNotificationsRead,
   markNotificationRead,
@@ -86,78 +88,145 @@ export function NotificationsPage() {
     }
   }, [toast]);
 
+  const deleteOne = useCallback(
+    async (id: string) => {
+      try {
+        await deleteNotification(id);
+        const target = items.find((row) => row.id === id);
+        setItems((rows) => rows.filter((row) => row.id !== id));
+        if (target && !target.read) {
+          setUnread((count) => Math.max(0, count - 1));
+        }
+        notifyNotificationsChanged();
+        toast.ok('Bildirim silindi.');
+      } catch (err) {
+        const message = errorMessage(err);
+        setError(message);
+        toast.error('Bildirim silinemedi.', message);
+      }
+    },
+    [items, toast],
+  );
+
+  const clearAll = useCallback(async () => {
+    if (!window.confirm('Tüm bildirimleri silmek istediğinizden emin misiniz?')) {
+      return;
+    }
+    try {
+      await clearAllNotifications();
+      setItems([]);
+      setUnread(0);
+      notifyNotificationsChanged();
+      toast.ok('Tüm bildirimler silindi.');
+    } catch (err) {
+      const message = errorMessage(err);
+      setError(message);
+      toast.error('Bildirimler silinemedi.', message);
+    }
+  }, [toast]);
+
   if (status === 'loading') return <ShopSkeleton />;
   if (status === 'error') {
     return (
-      <ShopError title="Bildirimler" message={error ?? 'Yüklenemedi.'} onRetry={() => void load()} />
+      <ShopError
+        title="Bildirimler"
+        message={error ?? 'Yüklenemedi.'}
+        onRetry={() => void load()}
+      />
     );
   }
 
   return (
     <AccountShell
       surface="notifications"
-      eyebrow="Yardım"
-      title="Bildirimler"
+      eyebrow="Hesap Merkezi"
+      title="Bildirimler & Mesajlar"
       description={
         unread > 0
-          ? `${unread} bildirim okunmayı bekliyor.`
-          : 'Hesabına ilişkin uygulama içi bildirimler.'
+          ? `${unread} yeni bildiriminiz bulunuyor.`
+          : 'Siparişleriniz, kampanyalarınız ve üyelik avantajlarınıza ilişkin tüm duyurular.'
       }
       actions={
-        unread > 0 ? (
-          <button
-            type="button"
-            className="ff-btn ff-btn-outline"
-            onClick={() => void readAll()}
-            data-ff-notifications-read-all
-          >
-            <MaterialIcon name="mark_email_read" />
-            Tümünü okundu işaretle
-          </button>
-        ) : null
+        <div className="flex items-center gap-2">
+          {unread > 0 ? (
+            <button
+              type="button"
+              className="ff-btn ff-btn-outline"
+              onClick={() => void readAll()}
+              data-ff-notifications-read-all
+            >
+              <MaterialIcon name="mark_email_read" />
+              Tümünü Okundu İşaretle
+            </button>
+          ) : null}
+          {items.length > 0 ? (
+            <button
+              type="button"
+              className="ff-btn ff-btn-outline text-error hover:bg-error/10 hover:border-error/40"
+              onClick={() => void clearAll()}
+              data-ff-notifications-clear-all
+            >
+              <MaterialIcon name="delete_sweep" />
+              Tümünü Sil
+            </button>
+          ) : null}
+        </div>
       }
     >
       {error ? (
-        <div className="ff-notice" data-tone="danger" role="alert">
+        <div className="ff-notice mb-4" data-tone="danger" role="alert">
           <MaterialIcon name="error" />
           <span>{error}</span>
         </div>
       ) : null}
 
-      <section className="ff-section">
-        <div className="ff-section-head">
-          <h2 className="ff-section-title">Gelen kutusu</h2>
-          <p className="ff-section-desc">
-            {items.length === 0 ? 'Gelen kutun boş.' : `${items.length} bildirim listeleniyor.`}
-          </p>
+      <section className="ff-card">
+        <div className="ff-card-header">
+          <div>
+            <h2 className="ff-card-title">
+              <MaterialIcon name="notifications" />
+              Gelen Bildirim Kutusu
+            </h2>
+            <p className="ff-card-desc">
+              {items.length === 0 ? 'Gelen kutunuzda bildirim bulunmuyor.' : `${items.length} bildirim listeleniyor.`}
+            </p>
+          </div>
+          {unread > 0 ? (
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-secondary/15 text-secondary border border-secondary/30">
+              {unread} Okunmamış
+            </span>
+          ) : (
+            <span className="text-xs text-on-surface-variant font-medium">Hepsi okundu</span>
+          )}
         </div>
-        <div className="ff-section-body">
+
+        <div>
           {items.length === 0 ? (
             <div className="ff-empty">
               <MaterialIcon name="notifications_none" />
-              <p className="ff-empty-title">Bildirim yok</p>
-              <p className="ff-empty-text">Sipariş ve kampanya bildirimleri burada görünür.</p>
+              <p className="ff-empty-title">Henüz bildiriminiz yok</p>
+              <p className="ff-empty-text">Sipariş durumları ve size özel fırsatlar burada listelenecektir.</p>
             </div>
           ) : (
             <div className="ff-rows" data-ff-notification-list>
               {items.map((item) => (
                 <div
-                  className="ff-inbox-row"
+                  className="ff-inbox-row transition-colors"
                   key={item.id}
                   data-ff-notification={item.read ? 'read' : 'unread'}
                   data-unread={item.read ? 'false' : 'true'}
                 >
-                  {/* Decorative: the row's own action labels already announce
-                      the read state to assistive technology. */}
                   <span aria-hidden className="ff-inbox-dot" />
 
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <p className="ff-inbox-title">{item.title}</p>
-                    <p className="ff-inbox-body">{item.body}</p>
-                    <p className="ff-inbox-when">{formatWhen(item.createdAt)}</p>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="ff-inbox-title font-semibold">{item.title}</p>
+                      <span className="ff-inbox-when text-xs">{formatWhen(item.createdAt)}</span>
+                    </div>
+                    <p className="ff-inbox-body mt-1">{item.body}</p>
                   </div>
 
-                  <div className="ff-row-actions" style={{ alignItems: 'center' }}>
+                  <div className="ff-row-actions flex items-center gap-2 pl-2">
                     {!item.read ? (
                       <button
                         type="button"
@@ -177,6 +246,16 @@ export function NotificationsPage() {
                         <MaterialIcon name="open_in_new" />
                       </Link>
                     ) : null}
+                    <button
+                      type="button"
+                      className="ff-btn ff-btn-ghost ff-btn-sm text-on-surface-variant hover:text-error hover:bg-error/10"
+                      onClick={() => void deleteOne(item.id)}
+                      aria-label="Bildirimi sil"
+                      title="Bildirimi sil"
+                      data-ff-notification-delete={item.id}
+                    >
+                      <MaterialIcon name="delete_outline" />
+                    </button>
                   </div>
                 </div>
               ))}

@@ -50,7 +50,7 @@ describe('Phase 6 engagement HTTP', () => {
   it('returns club snapshot and welcome once', async () => {
     if (!app) throw new Error('app not initialized');
     const session = await issueCustomer(auth, '+905551000021');
-    const headers = { authorization: `Bearer ${session.refreshToken}` };
+    const headers = { authorization: `Bearer ${session.accessToken}` };
     const first = await app.inject({ method: 'GET', url: '/api/v1/me/club', headers });
     expect(first.statusCode).toBe(200);
     const body = first.json() as { data?: { programName: string; welcome: { status: string } } };
@@ -63,7 +63,10 @@ describe('Phase 6 engagement HTTP', () => {
   it('spins once per day with idempotency', async () => {
     if (!app) throw new Error('app not initialized');
     const session = await issueCustomer(auth, '+905551000022');
-    const headers = { authorization: `Bearer ${session.refreshToken}`, 'content-type': 'application/json' };
+    const headers = {
+      authorization: `Bearer ${session.accessToken}`,
+      'content-type': 'application/json',
+    };
     const a = await app.inject({
       method: 'POST',
       url: '/api/v1/me/spin',
@@ -95,10 +98,14 @@ describe('Phase 6 engagement HTTP', () => {
     if (!app) throw new Error('app not initialized');
     const a = await issueCustomer(auth, '+905551000023');
     const b = await issueCustomer(auth, '+905551000024');
-    const headersA = { authorization: `Bearer ${a.refreshToken}` };
-    const headersB = { authorization: `Bearer ${b.refreshToken}` };
+    const headersA = { authorization: `Bearer ${a.accessToken}` };
+    const headersB = { authorization: `Bearer ${b.accessToken}` };
     await app.inject({ method: 'GET', url: '/api/v1/me/club', headers: headersB });
-    const inboxB = await app.inject({ method: 'GET', url: '/api/v1/me/notifications', headers: headersB });
+    const inboxB = await app.inject({
+      method: 'GET',
+      url: '/api/v1/me/notifications',
+      headers: headersB,
+    });
     const items = (inboxB.json() as { data?: { items: { id: string }[] } }).data?.items ?? [];
     if (items[0]) {
       const stolen = await app.inject({
