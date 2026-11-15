@@ -11,7 +11,7 @@
 # "Environment Variables" tab — see infrastructure/production/README.md.
 
 x-public-urls: &public-urls
-  NEXT_PUBLIC_API_BASE_URL: ${PUBLIC_API_URL:-https://apiburger.azem.cloud}/api/v1
+  NEXT_PUBLIC_API_BASE_URL: ${PUBLIC_API_URL:-https://apiburger.azemyazilim.net}/api/v1
 
 services:
   postgres:
@@ -98,11 +98,11 @@ services:
       API_HOST: 0.0.0.0
       API_PORT: '4000'
       API_BASE_PATH: /api/v1
-      API_PUBLIC_URL: ${PUBLIC_API_URL:-https://apiburger.azem.cloud}
-      API_CORS_ORIGINS: ${PUBLIC_STOREFRONT_URL:-https://burger.azem.cloud},${PUBLIC_ADMIN_URL:-https://adminburger.azem.cloud},${PUBLIC_COURIER_URL:-https://kuryeburger.azem.cloud},${PUBLIC_QR_URL:-https://qrburger.azem.cloud},${PUBLIC_MENU_URL:-https://menu.azem.cloud}
-      COURIER_WEB_ORIGIN: ${PUBLIC_COURIER_URL:-https://kuryeburger.azem.cloud}
-      ADMIN_WEB_ORIGIN: ${PUBLIC_ADMIN_URL:-https://adminburger.azem.cloud}
-      STOREFRONT_PUBLIC_URL: ${PUBLIC_STOREFRONT_URL:-https://burger.azem.cloud}
+      API_PUBLIC_URL: ${PUBLIC_API_URL:-https://apiburger.azemyazilim.net}
+      API_CORS_ORIGINS: ${PUBLIC_STOREFRONT_URL:-https://burger.azemyazilim.net},${PUBLIC_ADMIN_URL:-https://adminburger.azemyazilim.net},${PUBLIC_COURIER_URL:-https://kuryeburger.azemyazilim.net},${PUBLIC_QR_URL:-https://qrburger.azemyazilim.net},${PUBLIC_MENU_URL:-https://menu.azemyazilim.net}
+      COURIER_WEB_ORIGIN: ${PUBLIC_COURIER_URL:-https://kuryeburger.azemyazilim.net}
+      ADMIN_WEB_ORIGIN: ${PUBLIC_ADMIN_URL:-https://adminburger.azemyazilim.net}
+      STOREFRONT_PUBLIC_URL: ${PUBLIC_STOREFRONT_URL:-https://burger.azemyazilim.net}
       API_DEV_SECRET: ${SERVICE_PASSWORD_64_APISECRET}
       DATABASE_URL: postgresql://fastfood:${SERVICE_PASSWORD_POSTGRES}@postgres:5432/fastfood?schema=public
       REDIS_URL: redis://default:${SERVICE_PASSWORD_REDIS}@redis:6379
@@ -125,8 +125,8 @@ services:
       GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
       GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
       GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET:-}
-      GOOGLE_OAUTH_REDIRECT_URI: ${PUBLIC_API_URL:-https://apiburger.azem.cloud}/api/v1/auth/customer/oauth/google/callback
-      JWT_ISSUER: fastfood-azem-cloud
+      GOOGLE_OAUTH_REDIRECT_URI: ${PUBLIC_API_URL:-https://apiburger.azemyazilim.net}/api/v1/auth/customer/oauth/google/callback
+      JWT_ISSUER: fastfood-azemyazilim-net
       JWT_AUDIENCE: fastfood-api
       JWT_PRIVATE_KEY_B64: ${JWT_PRIVATE_KEY_B64:?set JWT_PRIVATE_KEY_B64 in Coolify}
       JWT_PUBLIC_KEY_B64: ${JWT_PUBLIC_KEY_B64:?set JWT_PUBLIC_KEY_B64 in Coolify}
@@ -141,7 +141,7 @@ services:
         APP_DIR: storefront-web
         APP_PKG: '@fastfood/storefront-web'
         <<: *public-urls
-        NEXT_PUBLIC_STOREFRONT_MAP_FRAME_ORIGIN: ${PUBLIC_MAP_URL:-https://mapburger.azem.cloud}
+        NEXT_PUBLIC_STOREFRONT_MAP_FRAME_ORIGIN: ${PUBLIC_MAP_URL:-https://mapburger.azemyazilim.net}
         NEXT_PUBLIC_MAPS_PROVIDER: ${MAPS_PROVIDER:-osm}
         NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
     restart: unless-stopped
@@ -183,7 +183,7 @@ services:
         APP_DIR: qr-menu
         APP_PKG: '@fastfood/qr-menu'
         <<: *public-urls
-        QR_MENU_MEDIA_ORIGIN: ${PUBLIC_API_URL:-https://apiburger.azem.cloud}
+        QR_MENU_MEDIA_ORIGIN: ${PUBLIC_API_URL:-https://apiburger.azemyazilim.net}
     restart: unless-stopped
     depends_on:
       api:

@@ -20,10 +20,10 @@ const SECTIONS: LegalSection[] = [
           <strong>Telefon:</strong> 0850 308 00 00 / +90 216 123 45 67
         </p>
         <p>
-          <strong>E-posta:</strong> destek@burger.azem.cloud
+          <strong>E-posta:</strong> destek@burger.azemyazilim.net
         </p>
         <p>
-          <strong>Müşteri Şikayet / Canlı Destek:</strong> burger.azem.cloud/account/support
+          <strong>Müşteri Şikayet / Canlı Destek:</strong> burger.azemyazilim.net/account/support
         </p>
       </div>
     ),

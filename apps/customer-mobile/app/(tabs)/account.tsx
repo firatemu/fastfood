@@ -1,5 +1,5 @@
-import { ApiError } from '@fastfood/api-client';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { ApiError } from '@fastfood/api-client';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState, type ComponentProps } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -12,13 +12,13 @@ import { fetchCustomerProfile, fetchLoyaltyPoints, patchCustomerProfile } from '
 import { formatApiError } from '../../lib/api';
 import { logoutCustomer } from '../../lib/auth';
 import { authErrorMessage } from '../../lib/auth-error';
+import { haptic } from '../../lib/haptics';
 import { formatTryMinor } from '../../lib/money';
 import { fetchMyOrders } from '../../lib/orders';
 import { profileFormToPatch, profileToForm, type ProfileForm } from '../../lib/profile-map';
 import type { CustomerOrder, CustomerProfile } from '../../lib/schemas';
 import { restoreSession } from '../../lib/session';
 import { useAuthBootstrap, useCustomerSession } from '../../lib/use-session';
-import { haptic } from '../../lib/haptics';
 import { colors, fonts, minTouch, radius, space } from '../../theme';
 
 type AccountIcon = ComponentProps<typeof MaterialCommunityIcons>['name'];

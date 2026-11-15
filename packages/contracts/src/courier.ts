@@ -21,6 +21,47 @@ export const courierAssignmentSchema = z.object({
   createdAt: z.union([z.string(), z.number()]),
 });
 
+export const courierDeliveryBranchSummarySchema = z.object({
+  id: z.string(),
+  code: z.string().optional(),
+  name: z.string(),
+  addressLine: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
+});
+
+export const courierDeliveryOrderItemSchema = z.object({
+  id: z.string(),
+  productName: z.string(),
+  quantity: z.number().int().positive(),
+  modifiers: z.array(z.string()).optional(),
+  removals: z.array(z.string()).optional(),
+});
+
+export const courierDeliveryOrderSummarySchema = z.object({
+  displayNumber: z.string(),
+  status: z.string(),
+  fulfillmentMode: z.string().optional(),
+  scheduledFor: z.string().nullable().optional(),
+  contactless: z.boolean().optional(),
+  ecoPackaging: z.boolean().optional(),
+  buildingAccessCode: z.string().nullable().optional(),
+  deliveryNote: z.string().nullable().optional(),
+  currency: z.string().optional(),
+  finalPayableMinor: z.string().optional(),
+  tipMinor: z.string().optional(),
+  itemCount: z.number().int().nonnegative(),
+  items: z.array(courierDeliveryOrderItemSchema),
+});
+
+export const courierLatestLocationSchema = z.object({
+  latitude: z.number(),
+  longitude: z.number(),
+  accuracyM: z.number().nullable().optional(),
+  recordedAt: z.union([z.string(), z.number()]),
+});
+
 /** Courier-visible projection of a delivery; does not expose the full order/customer graph. */
 export const courierDeliverySchema = z.object({
   id: z.string(),
@@ -35,6 +76,9 @@ export const courierDeliverySchema = z.object({
   longitude: z.number().nullable(),
   deliveryNote: z.string().nullable(),
   navigationUrl: z.string().optional(),
+  branch: courierDeliveryBranchSummarySchema.optional(),
+  order: courierDeliveryOrderSummarySchema.optional(),
+  latestLocation: courierLatestLocationSchema.nullable().optional(),
   pickedUpAt: z.union([z.string(), z.null()]),
   deliveredAt: z.union([z.string(), z.null()]),
   assignments: z.array(courierAssignmentSchema),
@@ -46,19 +90,59 @@ export const courierDeliveriesResponseSchema = responseEnvelope(z.array(courierD
 export const courierDeliveryResponseSchema = responseEnvelope(courierDeliverySchema);
 export const courierClaimResponseSchema = responseEnvelope(courierDeliverySchema);
 export const courierNavigationResponseSchema = responseEnvelope(z.object({ url: z.string() }));
-export const courierLocationResponseSchema = responseEnvelope(z.unknown());
+export const courierLocationResponseSchema = responseEnvelope(courierLatestLocationSchema);
 export const courierPerformanceResponseSchema = responseEnvelope(
   z.object({
     courierId: z.string(),
     deliveredCount: z.number().int().nonnegative(),
     activeCount: z.number().int().nonnegative(),
     assignedCount: z.number().int().nonnegative(),
+    cancelledCount: z.number().int().nonnegative().optional(),
+    todayDeliveredCount: z.number().int().nonnegative().optional(),
+    avgDeliveryMinutes: z.number().nonnegative().nullable().optional(),
+    completionRatePercent: z.number().min(0).max(100).optional(),
+    maxActiveDeliveries: z.number().int().positive().optional(),
+    totalTipMinor: z.string().optional(),
   }),
 );
 
+export const courierMeBranchSchema = z.object({
+  id: z.string(),
+  code: z.string().optional(),
+  name: z.string(),
+  addressLine: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
+  isPrimary: z.boolean(),
+});
+
+export const courierMeProfileSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  username: z.string(),
+  displayName: z.string(),
+  phone: z.string().nullable(),
+  isActive: z.boolean(),
+  maxActiveDeliveries: z.number().int().positive(),
+  activeDeliveriesCount: z.number().int().nonnegative(),
+  availableCapacitySlots: z.number().int().nonnegative(),
+  branches: z.array(courierMeBranchSchema),
+  createdAt: z.union([z.string(), z.number()]).optional(),
+  updatedAt: z.union([z.string(), z.number()]).optional(),
+});
+
+export const courierMeProfileResponseSchema = responseEnvelope(courierMeProfileSchema);
+
+export type CourierDeliveryBranchSummary = z.infer<typeof courierDeliveryBranchSummarySchema>;
+export type CourierDeliveryOrderItem = z.infer<typeof courierDeliveryOrderItemSchema>;
+export type CourierDeliveryOrderSummary = z.infer<typeof courierDeliveryOrderSummarySchema>;
+export type CourierLatestLocation = z.infer<typeof courierLatestLocationSchema>;
 export type CourierDelivery = z.infer<typeof courierDeliverySchema>;
 export type CourierDeliveryStatus = z.infer<typeof courierDeliveryStatusSchema>;
 export type CourierPerformance = z.infer<typeof courierPerformanceResponseSchema>['data'];
+export type CourierMeBranch = z.infer<typeof courierMeBranchSchema>;
+export type CourierMeProfile = z.infer<typeof courierMeProfileSchema>;
 
 // ─── Admin courier roster management ───
 //

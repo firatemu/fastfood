@@ -10,7 +10,7 @@ const SECTIONS: LegalSection[] = [
     title: 'Koşulların Kabulü',
     content: (
       <p>
-        burger.azem.cloud web sitesini veya {BRAND_NAME} mobil uygulamasını ziyaret eden, kayıt olan
+        burger.azemyazilim.net web sitesini veya {BRAND_NAME} mobil uygulamasını ziyaret eden, kayıt olan
         veya sipariş veren her kullanıcı, işbu Kullanım Koşulları&apos;nda yer alan kuralları
         okuduğunu ve bunlara uymayı kabul ettiğini beyan eder.
       </p>

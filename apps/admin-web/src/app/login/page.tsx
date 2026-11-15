@@ -111,7 +111,8 @@ const FIELD_MESSAGES: Record<FieldName, string> = {
   totp: 'Doğrulama kodu altı rakam olmalı.',
 };
 
-const INVALID_CREDENTIALS = 'Kimlik bilgileri doğrulanamadı.';
+const INVALID_CREDENTIALS =
+  'Kullanıcı adı/e-posta veya şifre hatalı. Lütfen bilgilerinizi kontrol edin.';
 const CHALLENGE_EXPIRED = 'Doğrulama oturumu sona erdi. Lütfen baştan başlayın.';
 
 /**
@@ -166,6 +167,7 @@ export default function LoginPage() {
   const [revealPassword, setRevealPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [formError, setFormError] = useState('');
   const [challengeExpired, setChallengeExpired] = useState(false);
 
   const identifierRef = useRef<HTMLInputElement | null>(null);
@@ -200,13 +202,24 @@ export default function LoginPage() {
   }
 
   async function signIn() {
-    setBusy(true);
     setFieldErrors({});
+    setFormError('');
+    const trimmedIdentifier = identifier.trim();
+    const localErrors: FieldErrors = {};
+    if (!trimmedIdentifier) localErrors.identifier = FIELD_MESSAGES.identifier;
+    if (!password) localErrors.password = FIELD_MESSAGES.password;
+    if (Object.keys(localErrors).length > 0) {
+      setFieldErrors(localErrors);
+      setFormError('Lütfen kullanıcı adı/e-posta ve şifre alanlarını doldurun.');
+      return;
+    }
+
+    setBusy(true);
     try {
       const res = await createAdminClient().request({
         method: 'POST',
         path: 'auth/staff/login',
-        body: { identifier, password },
+        body: { identifier: trimmedIdentifier, password },
         schema: staffLoginSchema,
       });
 
@@ -223,12 +236,13 @@ export default function LoginPage() {
     } catch (err) {
       const perField = readFieldErrors(err);
       setFieldErrors(perField);
+      const message =
+        err instanceof ApiError && err.envelope.error.code === 'AUTH_INVALID_CREDENTIALS'
+          ? INVALID_CREDENTIALS
+          : errorMessage(err);
+      setFormError(message);
       if (Object.keys(perField).length === 0) {
-        toast.error(
-          err instanceof ApiError && err.envelope.error.code === 'AUTH_INVALID_CREDENTIALS'
-            ? INVALID_CREDENTIALS
-            : errorMessage(err),
-        );
+        toast.error(message);
       }
     } finally {
       setBusy(false);
@@ -236,13 +250,21 @@ export default function LoginPage() {
   }
 
   async function verifyMfa() {
-    setBusy(true);
     setFieldErrors({});
+    setFormError('');
+    const cleanTotp = totp.trim();
+    if (cleanTotp.length !== 6) {
+      setFieldErrors({ totp: FIELD_MESSAGES.totp });
+      setFormError(FIELD_MESSAGES.totp);
+      return;
+    }
+
+    setBusy(true);
     try {
       const mfa = await createAdminClient().request({
         method: 'POST',
         path: 'auth/staff/mfa/verify',
-        body: refreshToken ? { refreshToken, totp } : { totp },
+        body: refreshToken ? { refreshToken, totp: cleanTotp } : { totp: cleanTotp },
         schema: staffMfaSchema,
       });
       setStaffSession({ accessToken: mfa.data.accessToken, userId: mfa.data.userId });
@@ -255,14 +277,14 @@ export default function LoginPage() {
       const perField = readFieldErrors(err);
       setChallengeExpired(expired);
       setFieldErrors(perField);
+      const message = expired
+        ? CHALLENGE_EXPIRED
+        : err instanceof ApiError && err.envelope.error.code === 'AUTH_INVALID_CREDENTIALS'
+          ? 'Doğrulama kodu hatalı veya süresi dolmuş.'
+          : errorMessage(err);
+      setFormError(message);
       if (Object.keys(perField).length === 0) {
-        toast.error(
-          expired
-            ? CHALLENGE_EXPIRED
-            : err instanceof ApiError && err.envelope.error.code === 'AUTH_INVALID_CREDENTIALS'
-              ? INVALID_CREDENTIALS
-              : errorMessage(err),
-        );
+        toast.error(message);
       }
     } finally {
       setBusy(false);
@@ -277,6 +299,7 @@ export default function LoginPage() {
     setRevealPassword(false);
     setChallengeExpired(false);
     setFieldErrors({});
+    setFormError('');
   }
 
   return (
@@ -421,9 +444,19 @@ export default function LoginPage() {
             ) : null}
           </ol>
 
+          {formError ? (
+            <div className={styles.formAlert} role="alert">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                error
+              </span>
+              <span>{formError}</span>
+            </div>
+          ) : null}
+
           {step === 'credentials' ? (
             <form
               className={styles.form}
+              noValidate
               onSubmit={(event) => {
                 event.preventDefault();
                 void signIn();
@@ -552,6 +585,7 @@ export default function LoginPage() {
           ) : (
             <form
               className={styles.form}
+              noValidate
               onSubmit={(event) => {
                 event.preventDefault();
                 void verifyMfa();

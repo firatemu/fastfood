@@ -395,6 +395,12 @@ export class AdminBranchController {
     const schema = z.object({
       name: z.string().min(1).max(128).optional(),
       priority: z.number().int().min(0).optional(),
+      polygonGeoJson: z
+        .object({
+          type: z.enum(['Polygon', 'MultiPolygon']),
+          coordinates: z.unknown(),
+        })
+        .optional(),
     });
     const parsed = safeValidate(schema, body);
     if (!parsed.ok) {
@@ -408,7 +414,16 @@ export class AdminBranchController {
       };
     }
     try {
-      const area = await this.branchService.updateServiceArea(branchId, serviceAreaId, parsed.data);
+      const area = await this.branchService.updateServiceArea(branchId, serviceAreaId, {
+        name: parsed.data.name,
+        priority: parsed.data.priority,
+        ...(parsed.data.polygonGeoJson !== undefined
+          ? {
+              polygonGeoJson:
+                parsed.data.polygonGeoJson as CreateServiceAreaInput['polygonGeoJson'],
+            }
+          : {}),
+      });
       return { data: area, meta: { requestId: REQUEST_ID } };
     } catch (err) {
       const e = err as { name?: string };

@@ -10,8 +10,8 @@
 #   FASTFOOD_RELEASE_KEYSTORE_PASS   keystore + key password
 #   FASTFOOD_RELEASE_KEY_ALIAS       key alias
 # Optional:
-#   EXPO_PUBLIC_API_BASE_URL         default https://apiburger.azem.cloud/api/v1
-#   EXPO_PUBLIC_STOREFRONT_URL       default https://burger.azem.cloud
+#   EXPO_PUBLIC_API_BASE_URL         default https://apiburger.azemyazilim.net/api/v1
+#   EXPO_PUBLIC_STOREFRONT_URL       default https://burger.azemyazilim.net
 #
 # For Play uploads the same keystore is the upload key; Play App Signing holds
 # the app signing key. app.json `expo.version` / `android.versionCode` are
@@ -40,11 +40,13 @@ case "$FORMAT" in
   *) echo "FAIL: format must be apk or aab"; exit 1 ;;
 esac
 
+[ -f "$HOME/.android/fastfood-release.env" ] && source "$HOME/.android/fastfood-release.env"
+
 export FASTFOOD_RELEASE_KEYSTORE="${FASTFOOD_RELEASE_KEYSTORE:-$ROOT/app/debug.keystore}"
 export FASTFOOD_RELEASE_KEYSTORE_PASS="${FASTFOOD_RELEASE_KEYSTORE_PASS:-android}"
 export FASTFOOD_RELEASE_KEY_ALIAS="${FASTFOOD_RELEASE_KEY_ALIAS:-androiddebugkey}"
-export EXPO_PUBLIC_API_BASE_URL="${EXPO_PUBLIC_API_BASE_URL:-https://apiburger.azem.cloud/api/v1}"
-export EXPO_PUBLIC_STOREFRONT_URL="${EXPO_PUBLIC_STOREFRONT_URL:-https://burger.azem.cloud}"
+export EXPO_PUBLIC_API_BASE_URL="${EXPO_PUBLIC_API_BASE_URL:-https://apiburger.azemyazilim.net/api/v1}"
+export EXPO_PUBLIC_STOREFRONT_URL="${EXPO_PUBLIC_STOREFRONT_URL:-https://burger.azemyazilim.net}"
 
 [ -d "$SDK" ]  || { echo "FAIL: no Linux Android SDK at $SDK"; exit 1; }
 [ -f "$FASTFOOD_RELEASE_KEYSTORE" ] || { echo "FAIL: keystore not found"; exit 1; }

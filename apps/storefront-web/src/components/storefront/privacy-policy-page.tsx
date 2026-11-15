@@ -9,7 +9,7 @@ const SECTIONS: ReadonlyArray<{ id: string; title: string; body: readonly string
     id: 'kapsam',
     title: 'Kapsam',
     body: [
-      `Bu politika ${BRAND_NAME} web sitesi (burger.azem.cloud) ve ${BRAND_NAME} Android uygulaması (com.azemyazilim.fastfoodcustomer) için geçerlidir.`,
+      `Bu politika ${BRAND_NAME} web sitesi (burger.azemyazilim.net) ve ${BRAND_NAME} Android uygulaması (com.azemyazilim.fastfoodcustomer) için geçerlidir.`,
       'Uygulama şu anda test aşamasındadır; ödemeler iyzico test (sandbox) ortamında yapılır ve gerçek para çekilmez.',
     ],
   },

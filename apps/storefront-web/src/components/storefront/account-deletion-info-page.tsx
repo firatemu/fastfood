@@ -21,7 +21,7 @@ export function AccountDeletionInfoPage({ deleted }: { deleted: boolean }) {
         <article>
           <h2 className="font-headline-sm uppercase">Nasıl silinir</h2>
           <ol className="mt-space-sm flex flex-col gap-2 list-decimal pl-5 font-body-md text-on-surface-variant">
-            <li>{BRAND_NAME} uygulamasında veya burger.azem.cloud adresinde hesabına giriş yap.</li>
+            <li>{BRAND_NAME} uygulamasında veya burger.azemyazilim.net adresinde hesabına giriş yap.</li>
             <li>Hesabım › Güvenlik ekranını aç.</li>
             <li>
               “Hesabı sil” bölümünde onay kutusunu işaretle ve “Hesabımı kalıcı olarak sil”

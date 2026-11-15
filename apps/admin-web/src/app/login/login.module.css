@@ -553,6 +553,28 @@
   font-size: 15px;
 }
 
+.formAlert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 0.75rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+
+.formAlert :global(.material-symbols-outlined) {
+  font-size: 18px;
+  color: #f87171;
+  flex: none;
+  margin-top: 1px;
+}
+
 /* Actions */
 .button {
   display: flex;

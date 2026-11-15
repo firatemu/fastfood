@@ -95,10 +95,15 @@ const ICON: Record<OpsToastVariant, string> = {
 };
 
 export function OpsToastProvider({ children }: { children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
   const [toasts, setToasts] = useState<OpsToastTone[]>([]);
   const seq = useRef(0);
   const timers = useRef(new Map<number, number>());
   const paused = useRef(new Set<number>());
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const dismiss = useCallback((id: number) => {
     const timer = timers.current.get(id);
@@ -195,7 +200,7 @@ export function OpsToastProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [dismiss, toasts]);
 
-  const host = resolveToastHost();
+  const host = mounted && toasts.length > 0 ? resolveToastHost() : null;
   const stack =
     toasts.length === 0 || !host
       ? null

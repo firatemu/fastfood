@@ -114,7 +114,7 @@ const SECTIONS: LegalSection[] = [
             Hesap Silme Sayfası
           </Link>
           . Diğer tüm talepleriniz için{' '}
-          <span className="text-on-surface">destek@burger.azem.cloud</span> adresine
+          <span className="text-on-surface">destek@burger.azemyazilim.net</span> adresine
           başvurabilirsiniz.
         </p>
       </>

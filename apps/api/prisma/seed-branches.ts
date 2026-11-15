@@ -25,42 +25,48 @@ type BranchSeedData = {
   deliveryEnabled: boolean;
 };
 
-const EARTH_RADIUS_KM = 6371.0;
+type PinPoint = { lat: number; lng: number };
 
-function generateCirclePolygon(
+export const DEFAULT_SERVICE_RADIUS_KM = 2.0;
+export const DEFAULT_PIN_CORNERS = 6;
+
+function round6(n: number): number {
+  return Math.round(n * 1_000_000) / 1_000_000;
+}
+
+/**
+ * Generates a closed radial N-pin GeoJSON Polygon around a branch center,
+ * matching the `/branches/service-areas` pin editor geometry.
+ */
+export function buildRadialHexagonPolygon(
   centerLat: number,
   centerLng: number,
-  radiusKm: number,
-  numPoints = 64,
+  radiusKm = DEFAULT_SERVICE_RADIUS_KM,
+  corners = DEFAULT_PIN_CORNERS,
 ): { type: 'Polygon'; coordinates: [number, number][][] } {
-  const d = radiusKm / EARTH_RADIUS_KM;
   const latRad = (centerLat * Math.PI) / 180;
-  const lngRad = (centerLng * Math.PI) / 180;
-  const ring: [number, number][] = [];
+  const degPerKmLat = 1 / 110.574;
+  const degPerKmLng = 1 / (111.32 * Math.max(0.1, Math.cos(latRad)));
+  const pins: PinPoint[] = [];
 
-  for (let i = 0; i < numPoints; i++) {
-    const bearing = (2 * Math.PI * i) / numPoints;
-    const sinLat = Math.sin(latRad);
-    const cosLat = Math.cos(latRad);
-    const sinD = Math.sin(d);
-    const cosD = Math.cos(d);
-    const sinBearing = Math.sin(bearing);
-    const cosBearing = Math.cos(bearing);
-
-    const ptLatRad = Math.asin(sinLat * cosD + cosLat * sinD * cosBearing);
-    const ptLngRad =
-      lngRad + Math.atan2(sinBearing * sinD * cosLat, cosD - sinLat * Math.sin(ptLatRad));
-
-    const ptLat = (ptLatRad * 180) / Math.PI;
-    let ptLng = (ptLngRad * 180) / Math.PI;
-    ptLng = ((ptLng + 540) % 360) - 180;
-
-    ring.push([ptLng, ptLat]);
+  for (let i = 0; i < corners; i++) {
+    const theta = (2 * Math.PI * i) / corners;
+    pins.push({
+      lat: round6(centerLat + radiusKm * degPerKmLat * Math.cos(theta)),
+      lng: round6(centerLng + radiusKm * degPerKmLng * Math.sin(theta)),
+    });
   }
 
-  const firstPoint = ring[0];
-  if (firstPoint) {
-    ring.push([firstPoint[0], firstPoint[1]]);
+  pins.sort((a, b) => {
+    const angA = Math.atan2(a.lat - centerLat, a.lng - centerLng);
+    const angB = Math.atan2(b.lat - centerLat, b.lng - centerLng);
+    return angA - angB;
+  });
+
+  const ring: [number, number][] = pins.map((p) => [round6(p.lng), round6(p.lat)]);
+  const first = pins[0];
+  if (first) {
+    ring.push([round6(first.lng), round6(first.lat)]);
   }
 
   return {
@@ -74,15 +80,66 @@ function timeToDate(hhmm: string): Date {
   return new Date(Date.UTC(1970, 0, 1, h ?? 0, m ?? 0, 0));
 }
 
-const branchesData = JSON.parse(
-  readFileSync(new URL('./seed-data/branches.json', import.meta.url), 'utf8'),
-) as BranchSeedData[];
+async function upsertBranchServiceArea(
+  client: PrismaClient,
+  branchId: string,
+  branchName: string,
+  latitude: number,
+  longitude: number,
+): Promise<void> {
+  const polygon = buildRadialHexagonPolygon(
+    latitude,
+    longitude,
+    DEFAULT_SERVICE_RADIUS_KM,
+    DEFAULT_PIN_CORNERS,
+  );
+  const name = `${branchName} — 2 km Servis Alanı (6 Pin)`;
+  const existing = await client.serviceArea.findMany({
+    where: { branchId },
+    orderBy: [{ priority: 'asc' }, { id: 'asc' }],
+  });
+
+  const primary = existing[0];
+  if (primary) {
+    await client.serviceArea.update({
+      where: { id: primary.id },
+      data: {
+        name,
+        polygonGeoJson: polygon as object,
+        priority: 1,
+        isActive: true,
+      },
+    });
+    if (existing.length > 1) {
+      await client.serviceArea.deleteMany({
+        where: {
+          branchId,
+          id: { not: primary.id },
+        },
+      });
+    }
+  } else {
+    await client.serviceArea.create({
+      data: {
+        branchId,
+        name,
+        polygonGeoJson: polygon as object,
+        priority: 1,
+        isActive: true,
+      },
+    });
+  }
+}
 
 export async function seedBranches(client: PrismaClient): Promise<{
   branches: number;
   operatingHours: number;
   serviceAreas: number;
 }> {
+  const branchesData = JSON.parse(
+    readFileSync(new URL('./seed-data/branches.json', import.meta.url), 'utf8'),
+  ) as BranchSeedData[];
+
   let branchCount = 0;
   let hoursCount = 0;
   let serviceAreaCount = 0;
@@ -157,56 +214,23 @@ export async function seedBranches(client: PrismaClient): Promise<{
       hoursCount++;
     }
 
-    // Service Area: 10km circle customer distance
-    const polygon = generateCirclePolygon(b.latitude, b.longitude, 10.0, 64);
-    const existingArea = await client.serviceArea.findFirst({
-      where: { branchId: b.id },
-    });
-
-    if (existingArea) {
-      await client.serviceArea.update({
-        where: { id: existingArea.id },
-        data: {
-          name: `${b.name} — Maks. 10km Müşteri Uzaklığı`,
-          polygonGeoJson: polygon as object,
-          priority: 1,
-          isActive: true,
-        },
-      });
-    } else {
-      await client.serviceArea.create({
-        data: {
-          branchId: b.id,
-          name: `${b.name} — Maks. 10km Müşteri Uzaklığı`,
-          polygonGeoJson: polygon as object,
-          priority: 1,
-          isActive: true,
-        },
-      });
-    }
+    await upsertBranchServiceArea(client, b.id, b.name, b.latitude, b.longitude);
     serviceAreaCount++;
   }
 
-  // Also ensure IST-DT (Kadıköy Moda) has accurate 10km service area
+  // Also ensure IST-DT (Kadıköy Moda) has a 2 km (6-pin) service area
   const istBranch = await client.branch.findUnique({
     where: { code: 'IST-DT' },
   });
   if (istBranch) {
-    const lat = Number(istBranch.latitude);
-    const lng = Number(istBranch.longitude);
-    const polygon = generateCirclePolygon(lat, lng, 10.0, 64);
-    const istArea = await client.serviceArea.findFirst({
-      where: { branchId: istBranch.id },
-    });
-    if (istArea) {
-      await client.serviceArea.update({
-        where: { id: istArea.id },
-        data: {
-          polygonGeoJson: polygon as object,
-          isActive: true,
-        },
-      });
-    }
+    await upsertBranchServiceArea(
+      client,
+      istBranch.id,
+      istBranch.name,
+      Number(istBranch.latitude),
+      Number(istBranch.longitude),
+    );
+    serviceAreaCount++;
   }
 
   process.stdout.write(

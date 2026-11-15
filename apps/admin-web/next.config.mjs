@@ -13,6 +13,14 @@ const nextConfig = {
   ],
   // Move `experimental.typedRoutes` to the top-level `typedRoutes` field per Next 16.
   typedRoutes: true,
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: 'http://127.0.0.1:4000/api/v1/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

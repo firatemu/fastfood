@@ -1,5 +1,4 @@
 import localFont from 'next/font/local';
-import Script from 'next/script';
 import type { ReactNode } from 'react';
 
 // `@fastfood/ui-web/styles.css` kaldirildi (ADR-019). Bu paket emekli tasarim
@@ -82,16 +81,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${anton.variable} ${inter.variable} ${jetbrains.variable} ${plusJakarta.variable} ${materialSymbols.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        <Script
-          id="admin-color-mode-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{const mode=window.localStorage.getItem('fastfood-admin-color-mode');if(mode==='light'||mode==='dark'){document.documentElement.dataset.colorMode=mode;document.documentElement.style.colorScheme=mode}}catch{}",
-          }}
-        />
-      </head>
       <body>
         <AdminShell>{children}</AdminShell>
       </body>

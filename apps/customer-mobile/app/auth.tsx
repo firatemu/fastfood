@@ -207,6 +207,13 @@ export default function AuthRoute() {
                   thumbColor={kvkk ? colors.mustard : colors.ash}
                 />
               </View>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push('/legal')}
+                style={styles.legalLink}
+              >
+                <Text style={styles.forgot}>KVKK ve yasal metinleri incele</Text>
+              </Pressable>
               <View style={styles.switchRow}>
                 <Text style={styles.switchLabel}>Kampanya e-postası / bülten (isteğe bağlı)</Text>
                 <Switch
@@ -298,6 +305,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.mustard,
     textTransform: 'uppercase',
+  },
+  legalLink: {
+    minHeight: minTouch,
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
   },
   error: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.error },
   ctaWrap: { borderRadius: radius.md, overflow: 'hidden' },

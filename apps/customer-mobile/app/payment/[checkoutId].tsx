@@ -2,6 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { AppState, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { WebView } from 'react-native-webview';
 
 import { StackHeader } from '../../components/stack-header';
 import { ErrorBlock, LoadingBlock, MustardButton, SecondaryButton } from '../../components/ui';
@@ -26,6 +27,7 @@ export default function PaymentStatusRoute() {
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState<PaymentStatus | null>(null);
   const [pollTick, setPollTick] = useState(0);
+  const [webViewClosed, setWebViewClosed] = useState(false);
   const summary = readPaymentSummary();
   const valid = isCheckoutSessionId(checkoutId);
   const loopRef = useRef(0);
@@ -121,11 +123,44 @@ export default function PaymentStatusRoute() {
   const amount = summary?.finalPayableMinor ?? attempt?.amountMinor ?? '0';
   const currency = summary?.currency ?? attempt?.currency ?? 'TRY';
   const redirectUrl = summary?.redirectUrl;
+  const showEmbeddedWebView =
+    pending && Boolean(redirectUrl && /^https?:\/\//i.test(redirectUrl)) && !webViewClosed;
 
   return (
     <View style={styles.screen}>
       <StackHeader title="Güvenli ödeme" onBack={() => router.replace('/checkout')} />
       <ScrollView contentContainerStyle={styles.scroll}>
+        {showEmbeddedWebView && redirectUrl ? (
+          <View style={styles.webWrap} accessibilityLabel="iyzico 3-D Secure ödeme ekranı">
+            <WebView
+              source={{ uri: redirectUrl }}
+              style={styles.webView}
+              javaScriptEnabled
+              domStorageEnabled
+              thirdPartyCookiesEnabled
+              sharedCookiesEnabled
+              nestedScrollEnabled
+              originWhitelist={['https://*', 'http://*', 'fastfoodcustomer://*']}
+              onShouldStartLoadWithRequest={(request) => {
+                if (request.url.startsWith('fastfoodcustomer://')) {
+                  setWebViewClosed(true);
+                  setPollTick((n) => n + 1);
+                  return false;
+                }
+                return true;
+              }}
+              onNavigationStateChange={(navState) => {
+                if (
+                  navState.url.startsWith('fastfoodcustomer://') ||
+                  navState.url.includes('/payment/return')
+                ) {
+                  setWebViewClosed(true);
+                  setPollTick((n) => n + 1);
+                }
+              }}
+            />
+          </View>
+        ) : null}
         <View style={styles.card}>
           <MaterialCommunityIcons
             name={
@@ -146,19 +181,25 @@ export default function PaymentStatusRoute() {
               ? 'Ödeme süresi doldu. Checkout’tan yeniden başla.'
               : failed
                 ? 'Kart reddedildi veya işlem iptal edildi. Yeni bir ödeme başlatılmadı.'
-                : 'Kart bilgisi uygulamada toplanmaz. iyzico ödeme sayfasını tarayıcıda tamamla; uygulamaya dönünce sonuç iyzico’dan doğrulanır.'}
+                : 'Kart bilgisi uygulamada toplanmaz. iyzico ödeme formunu yukarıdaki güvenli pencerede veya tarayıcıda tamamlayın.'}
           </Text>
           <Text style={styles.amount}>{formatTryMinor(amount, currency)}</Text>
           <Text style={styles.meta}>Durum: {status}</Text>
           {error ? <Text style={styles.err}>{error}</Text> : null}
+          {pending && redirectUrl && webViewClosed ? (
+            <SecondaryButton
+              label="3-D Secure ekranını yeniden aç"
+              onPress={() => setWebViewClosed(false)}
+            />
+          ) : null}
           {pending && redirectUrl ? (
-            <MustardButton
-              label="iyzico ödeme sayfasını aç"
+            <SecondaryButton
+              label="Ödeme sayfasını tarayıcıda aç"
               onPress={() => void Linking.openURL(redirectUrl).catch(() => undefined)}
             />
           ) : null}
           {pending ? (
-            <SecondaryButton label="Durumu yenile" onPress={() => setPollTick((n) => n + 1)} />
+            <MustardButton label="Durumu yenile" onPress={() => setPollTick((n) => n + 1)} />
           ) : null}
           {failed ? (
             <MustardButton label="Checkout’a dön" onPress={() => router.replace('/checkout')} />
@@ -190,6 +231,15 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.canvas },
   padded: { padding: space.gutter },
   scroll: { padding: space.gutter, gap: space.md },
+  webWrap: {
+    height: 520,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.hairline,
+    backgroundColor: colors.white,
+  },
+  webView: { flex: 1, backgroundColor: colors.white },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,

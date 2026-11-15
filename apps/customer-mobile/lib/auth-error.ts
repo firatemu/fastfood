@@ -1,4 +1,21 @@
-import { ApiError } from '@fastfood/api-client';
+import { ApiError, ApiNetworkError, ApiTimeoutError } from '@fastfood/api-client';
+
+const CUSTOMER_REASON_MESSAGES: Record<string, string> = {
+  OTP_EXPIRED: 'Kodun süresi doldu. Yeni kod isteyin.',
+  OTP_ATTEMPTS_EXHAUSTED: 'Çok fazla deneme. Yeni kod isteyin.',
+  EMAIL_TAKEN: 'Bu e-posta zaten kayıtlı.',
+  KVKK_REQUIRED: 'Devam etmek için KVKK onayını işaretleyin.',
+  PASSWORD_POLICY: 'Şifre en az 10 karakter olmalı.',
+  OAUTH_UNAVAILABLE: 'Bu giriş yöntemi henüz yapılandırılmadı.',
+};
+
+const CUSTOMER_CODE_MESSAGES: Record<string, string> = {
+  RATE_LIMITED: 'Çok fazla deneme. Lütfen bekleyin.',
+  AUTH_INVALID_CREDENTIALS:
+    'Telefon numarası/e-posta veya şifre hatalı. Lütfen bilgilerinizi kontrol edin.',
+  AUTH_SESSION_EXPIRED: 'Oturum sona erdi. Yeniden giriş yapın.',
+  VALIDATION_ERROR: 'Girilen bilgiler doğrulanamadı. Lütfen alanları kontrol edin.',
+};
 
 export function authErrorMessage(err: unknown): string {
   if (err instanceof ApiError) {
@@ -6,23 +23,30 @@ export function authErrorMessage(err: unknown): string {
       | { reason?: string; retryAfterSeconds?: number }
       | undefined;
     const reason = details?.reason;
-    if (reason === 'OTP_EXPIRED') return 'Kodun süresi doldu. Yeni kod isteyin.';
-    if (reason === 'OTP_ATTEMPTS_EXHAUSTED') return 'Çok fazla deneme. Yeni kod isteyin.';
     if (reason === 'OTP_COOLDOWN') {
       return `Yeni kod için ${details?.retryAfterSeconds ?? 60} sn bekleyin.`;
     }
-    if (reason === 'EMAIL_TAKEN') return 'Bu e-posta zaten kayıtlı.';
-    if (reason === 'KVKK_REQUIRED') return 'Devam etmek için KVKK onayını işaretleyin.';
-    if (reason === 'PASSWORD_POLICY') return 'Şifre en az 10 karakter olmalı.';
-    if (reason === 'OAUTH_UNAVAILABLE') return 'Bu giriş yöntemi henüz yapılandırılmadı.';
-    if (err.envelope.error.code === 'RATE_LIMITED') return 'Çok fazla deneme. Lütfen bekleyin.';
-    if (err.envelope.error.code === 'AUTH_INVALID_CREDENTIALS')
-      return 'Giriş bilgileri doğrulanamadı.';
-    if (err.envelope.error.code === 'AUTH_SESSION_EXPIRED')
-      return 'Oturum sona erdi. Yeniden giriş yapın.';
-    if (err.envelope.error.code === 'VALIDATION_ERROR') return 'Girilen bilgiler doğrulanamadı.';
-    return err.envelope.error.message;
+    if (reason && CUSTOMER_REASON_MESSAGES[reason]) {
+      return CUSTOMER_REASON_MESSAGES[reason];
+    }
+    const codeMessage = CUSTOMER_CODE_MESSAGES[err.envelope.error.code];
+    if (codeMessage) {
+      return codeMessage;
+    }
+    if (err.status === 401) {
+      return 'Oturum süresi doldu veya giriş bilgileri doğrulanamadı.';
+    }
+    if (err.status >= 500) {
+      return 'Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.';
+    }
+    return err.envelope.error.message || 'İşlem tamamlanamadı.';
   }
-  if (err instanceof Error) return err.message;
+  if (err instanceof ApiTimeoutError) {
+    return 'Sunucu yanıt vermedi (zaman aşımı). Lütfen bağlantınızı kontrol edip tekrar deneyin.';
+  }
+  if (err instanceof ApiNetworkError) {
+    return 'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin.';
+  }
+  if (err instanceof Error && err.message) return err.message;
   return 'İşlem tamamlanamadı.';
 }

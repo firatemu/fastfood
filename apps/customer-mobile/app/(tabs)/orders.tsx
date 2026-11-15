@@ -1,5 +1,5 @@
-import { ApiError } from '@fastfood/api-client';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { ApiError } from '@fastfood/api-client';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -83,7 +83,11 @@ export default function OrdersTabRoute() {
         >
           <View style={styles.guestCard}>
             <View style={styles.guestIconCircle}>
-              <MaterialCommunityIcons name="account-lock-outline" size={32} color={colors.mustard} />
+              <MaterialCommunityIcons
+                name="account-lock-outline"
+                size={32}
+                color={colors.mustard}
+              />
             </View>
             <Text style={styles.guestTitle}>Giriş Yapın</Text>
             <Text style={styles.body}>
@@ -92,7 +96,9 @@ export default function OrdersTabRoute() {
             <View style={{ width: '100%', marginTop: space.sm }}>
               <MustardButton
                 label="Giriş yap / Kayıt ol"
-                onPress={() => router.push({ pathname: '/auth', params: { next: '/(tabs)/orders' } })}
+                onPress={() =>
+                  router.push({ pathname: '/auth', params: { next: '/(tabs)/orders' } })
+                }
               />
             </View>
           </View>
@@ -162,10 +168,7 @@ export default function OrdersTabRoute() {
                   haptic.light();
                   router.push(`/orders/${order.id}`);
                 }}
-                style={({ pressed }) => [
-                  styles.card,
-                  pressed && styles.cardPressed,
-                ]}
+                style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
               >
                 <View style={styles.row}>
                   <View style={styles.orderNoRow}>
@@ -227,7 +230,11 @@ export default function OrdersTabRoute() {
                         {formatTryMinor(order.finalPayableMinor, order.currency ?? 'TRY')}
                       </Text>
                     ) : null}
-                    <MaterialCommunityIcons name="chevron-right" size={20} color={colors.onSurfaceVariant} />
+                    <MaterialCommunityIcons
+                      name="chevron-right"
+                      size={20}
+                      color={colors.onSurfaceVariant}
+                    />
                   </View>
                 </View>
               </Pressable>
@@ -361,5 +368,10 @@ const styles = StyleSheet.create({
   },
   when: { fontFamily: fonts.jakarta, fontSize: 12, color: colors.onSurfaceVariant },
   priceRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  total: { fontFamily: fonts.jakartaBold, fontSize: 15, color: colors.mustard, fontVariant: ['tabular-nums'] },
+  total: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 15,
+    color: colors.mustard,
+    fontVariant: ['tabular-nums'],
+  },
 });

@@ -32,6 +32,10 @@ export function isStaffMfaBypassEnabled(env: NodeJS.ProcessEnv): boolean {
   return env['NODE_ENV'] !== 'production' && env['ALLOW_DEV_MFA_BYPASS'] === 'true';
 }
 
+function normalizeStaffIdentifier(value: string): string {
+  return value.trim().toLocaleLowerCase('en-US');
+}
+
 interface StaffUserRecord {
   userId: string;
   identifier: string;
@@ -56,14 +60,19 @@ export class StaffAuthService {
   }
 
   async registerDevStaff(identifier: string, plain: string): Promise<string> {
+    const normalizedIdentifier = normalizeStaffIdentifier(identifier);
     const passwordHash = await scryptPasswordHasher.hash(plain);
     if (!this.prisma) {
-      const userId = `01900000-0000-7000-8000-${identifier.replace(/\D/g, '').padStart(12, '0').slice(0, 12)}`;
-      this.#users.set(identifier, { userId, identifier, passwordHash });
+      const userId = `01900000-0000-7000-8000-${normalizedIdentifier.replace(/\D/g, '').padStart(12, '0').slice(0, 12)}`;
+      this.#users.set(normalizedIdentifier, {
+        userId,
+        identifier: normalizedIdentifier,
+        passwordHash,
+      });
       return userId;
     }
     const existing = await this.prisma.user.findUnique({
-      where: { primaryIdentifier: identifier },
+      where: { primaryIdentifier: normalizedIdentifier },
     });
     if (existing) {
       await this.prisma.staffProfile.upsert({
@@ -86,9 +95,9 @@ export class StaffAuthService {
       data: {
         actorType: 'STAFF',
         status: 'ACTIVE',
-        primaryIdentifier: identifier,
+        primaryIdentifier: normalizedIdentifier,
         primaryIdentifierType: 'EMAIL',
-        displayName: identifier.split('@')[0] ?? identifier,
+        displayName: normalizedIdentifier.split('@')[0] ?? normalizedIdentifier,
         staffProfile: {
           create: {
             passwordHash,
@@ -192,20 +201,32 @@ export class StaffAuthService {
       }
     | { ok: false; reason: 'USER_NOT_FOUND' | 'PASSWORD_MISMATCH' }
   > {
+    const normalizedIdentifier = normalizeStaffIdentifier(identifier);
+    const trimmedIdentifier = identifier.trim();
     let userId: string;
     let passwordHash: string;
     if (!this.prisma) {
-      const user = this.#users.get(identifier);
+      const user =
+        this.#users.get(normalizedIdentifier) ??
+        (trimmedIdentifier !== normalizedIdentifier
+          ? this.#users.get(trimmedIdentifier)
+          : undefined);
       if (!user) {
         return { ok: false, reason: 'USER_NOT_FOUND' };
       }
       userId = user.userId;
       passwordHash = user.passwordHash;
     } else {
-      const row = await this.prisma.user.findUnique({
-        where: { primaryIdentifier: identifier },
+      let row = await this.prisma.user.findUnique({
+        where: { primaryIdentifier: normalizedIdentifier },
         include: { staffProfile: true },
       });
+      if (!row && trimmedIdentifier !== normalizedIdentifier) {
+        row = await this.prisma.user.findUnique({
+          where: { primaryIdentifier: trimmedIdentifier },
+          include: { staffProfile: true },
+        });
+      }
       if (
         !row ||
         (row.actorType !== 'STAFF' && row.actorType !== 'COURIER') ||

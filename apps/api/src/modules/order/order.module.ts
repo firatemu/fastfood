@@ -7,6 +7,7 @@ import { CatalogModule } from '../catalog/catalog.module.js';
 import { CheckoutModule } from '../checkout/checkout.module.js';
 import { CourierModule } from '../courier/courier.module.js';
 import { NotificationModule } from '../notification/notification.module.js';
+import { TelegramModule } from '../telegram/telegram.module.js';
 
 import { CustomerOrderQueryService } from './customer-order-query.service.js';
 import { OrderOutboxService } from './order-outbox.service.js';
@@ -27,6 +28,7 @@ import { ReorderService } from './reorder.service.js';
     CustomerAuthModule,
     forwardRef(() => CourierModule),
     forwardRef(() => CheckoutModule),
+    TelegramModule,
     NotificationModule,
   ],
   controllers: [OrderController],

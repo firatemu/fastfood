@@ -425,11 +425,6 @@ function ShopCartContents() {
                 <h2 className="font-anton text-2xl text-white uppercase tracking-wide">
                   SİPARİŞ ÖZETİ
                 </h2>
-                {branch ? (
-                  <span className="font-anton text-xs text-amber-400 bg-amber-500/15 border border-amber-400/30 px-3 py-1 rounded-full uppercase tracking-wider font-bold">
-                    {branch.name}
-                  </span>
-                ) : null}
               </div>
 
               {coupon.status === 'valid' && coupon.code ? (
@@ -581,7 +576,7 @@ function ShopCartContents() {
                     />
                     <span>
                       <strong className="text-white">{eta} Ekspres Teslimat:</strong>{' '}
-                      {branch?.name ?? 'Seçili şube'} çevresi.
+                      Adresinize en yakın şubeden teslim.
                     </span>
                   </div>
                 ) : null}

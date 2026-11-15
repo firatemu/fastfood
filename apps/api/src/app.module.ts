@@ -27,6 +27,7 @@ import { StorageModule } from './modules/storage/storage.module.js';
 import { StorefrontContentModule } from './modules/storefront-content/storefront-content.module.js';
 import { StorefrontHomeModule } from './modules/storefront-home/storefront-home.module.js';
 import { SupportModule } from './modules/support/support.module.js';
+import { TelegramModule } from './modules/telegram/telegram.module.js';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { SupportModule } from './modules/support/support.module.js';
     GamificationModule,
     DiningModule,
     SupportModule,
+    TelegramModule,
   ],
 })
 export class AppModule implements NestModule {

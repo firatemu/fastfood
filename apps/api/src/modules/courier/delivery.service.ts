@@ -37,6 +37,73 @@ export interface DeliveryAssignmentDto {
   createdAt: Date;
 }
 
+export interface DeliveryBranchSummaryDto {
+  id: string;
+  code?: string;
+  name: string;
+  addressLine: string | null;
+  phone: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}
+
+export interface DeliveryOrderItemSummaryDto {
+  id: string;
+  productName: string;
+  quantity: number;
+  modifiers?: string[];
+  removals?: string[];
+}
+
+export interface DeliveryOrderSummaryDto {
+  displayNumber: string;
+  status: string;
+  fulfillmentMode: string;
+  scheduledFor: string | null;
+  contactless: boolean;
+  ecoPackaging: boolean;
+  buildingAccessCode: string | null;
+  deliveryNote: string | null;
+  currency: string;
+  finalPayableMinor: string;
+  tipMinor: string;
+  itemCount: number;
+  items: DeliveryOrderItemSummaryDto[];
+}
+
+export interface DeliveryLatestLocationDto {
+  latitude: number;
+  longitude: number;
+  accuracyM: number | null;
+  recordedAt: Date;
+}
+
+export interface CourierMeBranchDto {
+  id: string;
+  code?: string;
+  name: string;
+  addressLine: string | null;
+  phone: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  isPrimary: boolean;
+}
+
+export interface CourierMeProfileDto {
+  id: string;
+  userId: string;
+  username: string;
+  displayName: string;
+  phone: string | null;
+  isActive: boolean;
+  maxActiveDeliveries: number;
+  activeDeliveriesCount: number;
+  availableCapacitySlots: number;
+  branches: CourierMeBranchDto[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export interface DeliveryDto {
   id: string;
   orderId: string;
@@ -49,6 +116,9 @@ export interface DeliveryDto {
   latitude: number | null;
   longitude: number | null;
   deliveryNote: string | null;
+  branch?: DeliveryBranchSummaryDto;
+  order?: DeliveryOrderSummaryDto;
+  latestLocation?: DeliveryLatestLocationDto | null;
   pickedUpAt: Date | null;
   deliveredAt: Date | null;
   assignments: DeliveryAssignmentDto[];
@@ -319,7 +389,8 @@ export class DeliveryService {
       if (!d) {
         throw new NotFoundException({ code: ErrorCodes.NOT_FOUND, message: 'Delivery not found.' });
       }
-      return this.#clone(d);
+      const [enriched] = await this.#enrichDeliveries([this.#clone(d)]);
+      return enriched ?? this.#clone(d);
     }
     const d = await this.prisma.delivery.findUnique({
       where: { id: deliveryId },
@@ -328,7 +399,8 @@ export class DeliveryService {
     if (!d) {
       throw new NotFoundException({ code: ErrorCodes.NOT_FOUND, message: 'Delivery not found.' });
     }
-    return this.#mapDelivery(d);
+    const [enriched] = await this.#enrichDeliveries([this.#mapDelivery(d)]);
+    return enriched ?? this.#mapDelivery(d);
   }
 
   async getByOrderId(orderId: string): Promise<DeliveryDto | null> {
@@ -369,23 +441,28 @@ export class DeliveryService {
 
   async listForCourier(courierId: string): Promise<DeliveryDto[]> {
     if (!this.prisma) {
-      return [...this.#deliveries.values()]
+      const list = [...this.#deliveries.values()]
         .filter((d) => d.courierId === courierId)
+        .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
         .map((d) => this.#clone(d));
+      return this.#enrichDeliveries(list);
     }
     const rows = await this.prisma.delivery.findMany({
       where: { courierId },
       include: DELIVERY_INCLUDE,
+      orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
     });
-    return rows.map((r) => this.#mapDelivery(r));
+    return this.#enrichDeliveries(rows.map((r) => this.#mapDelivery(r)));
   }
 
   async listUnassigned(branchId?: string): Promise<DeliveryDto[]> {
     if (!this.prisma) {
-      return [...this.#deliveries.values()]
+      const list = [...this.#deliveries.values()]
         .filter((d) => d.status === 'UNASSIGNED')
         .filter((d) => (branchId ? d.branchId === branchId : true))
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
         .map((d) => this.#clone(d));
+      return this.#enrichDeliveries(list);
     }
     const rows = await this.prisma.delivery.findMany({
       where: {
@@ -393,8 +470,109 @@ export class DeliveryService {
         ...(branchId ? { branchId } : {}),
       },
       include: DELIVERY_INCLUDE,
+      orderBy: { createdAt: 'desc' },
     });
-    return rows.map((r) => this.#mapDelivery(r));
+    return this.#enrichDeliveries(rows.map((r) => this.#mapDelivery(r)));
+  }
+
+  async listAvailableForCourier(courierId: string): Promise<DeliveryDto[]> {
+    await this.getCourier(courierId);
+    if (!this.prisma) {
+      return this.listUnassigned();
+    }
+    const scopes = this.prisma.courierBranch
+      ? await this.prisma.courierBranch.findMany({
+          where: { courierId },
+          select: { branchId: true },
+        })
+      : [];
+    const branchIds = scopes.map((scope) => scope.branchId);
+    const rows = await this.prisma.delivery.findMany({
+      where: {
+        status: 'UNASSIGNED',
+        ...(branchIds.length > 0 ? { branchId: { in: branchIds } } : {}),
+      },
+      include: DELIVERY_INCLUDE,
+      orderBy: { createdAt: 'desc' },
+    });
+    return this.#enrichDeliveries(rows.map((r) => this.#mapDelivery(r)));
+  }
+
+  async getCourierMeProfile(courierId: string): Promise<CourierMeProfileDto> {
+    if (!this.prisma) {
+      const courier = await this.getCourier(courierId);
+      const activeDeliveriesCount = [...this.#deliveries.values()].filter(
+        (d) => d.courierId === courierId && ACTIVE_DELIVERY_STATUSES.has(d.status),
+      ).length;
+      return {
+        ...courier,
+        username: courier.userId,
+        activeDeliveriesCount,
+        availableCapacitySlots: Math.max(0, courier.maxActiveDeliveries - activeDeliveriesCount),
+        branches: [],
+      };
+    }
+
+    const row = await this.prisma.courierProfile.findUnique({
+      where: { id: courierId },
+      include: {
+        branchScopes: {
+          include: {
+            branch: {
+              select: {
+                id: true,
+                code: true,
+                name: true,
+                addressLine: true,
+                phone: true,
+                latitude: true,
+                longitude: true,
+              },
+            },
+          },
+          orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
+        },
+      },
+    });
+    if (!row) {
+      throw new NotFoundException({ code: ErrorCodes.NOT_FOUND, message: 'Courier not found.' });
+    }
+    const [user, activeDeliveriesCount] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: row.userId },
+        select: { primaryIdentifier: true },
+      }),
+      this.prisma.delivery.count({
+        where: {
+          courierId: row.id,
+          status: { in: [...ACTIVE_DELIVERY_STATUSES] },
+        },
+      }),
+    ]);
+
+    return {
+      id: row.id,
+      userId: row.userId,
+      username: user?.primaryIdentifier ?? row.displayName,
+      displayName: row.displayName,
+      phone: row.phone,
+      isActive: row.isActive,
+      maxActiveDeliveries: row.maxActiveDeliveries,
+      activeDeliveriesCount,
+      availableCapacitySlots: Math.max(0, row.maxActiveDeliveries - activeDeliveriesCount),
+      branches: row.branchScopes.map((scope) => ({
+        id: scope.branch.id,
+        code: scope.branch.code,
+        name: scope.branch.name,
+        addressLine: scope.branch.addressLine,
+        phone: scope.branch.phone,
+        latitude: scope.branch.latitude != null ? Number(scope.branch.latitude) : null,
+        longitude: scope.branch.longitude != null ? Number(scope.branch.longitude) : null,
+        isPrimary: scope.isPrimary,
+      })),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
   }
 
   async assign(
@@ -688,16 +866,81 @@ export class DeliveryService {
     deliveredCount: number;
     activeCount: number;
     assignedCount: number;
+    cancelledCount: number;
+    todayDeliveredCount: number;
+    avgDeliveryMinutes: number | null;
+    completionRatePercent: number;
+    maxActiveDeliveries: number;
+    totalTipMinor: string;
   }> {
     const all = this.prisma
       ? await this.prisma.delivery.findMany({ where: { courierId } })
       : [...this.#deliveries.values()].filter((d) => d.courierId === courierId);
+    const courierProfile = this.prisma
+      ? await this.prisma.courierProfile.findUnique({
+          where: { id: courierId },
+          select: { maxActiveDeliveries: true },
+        })
+      : (this.#couriers.get(courierId) ?? null);
+    const maxActiveDeliveries = courierProfile?.maxActiveDeliveries ?? 3;
+
+    const deliveredRows = all.filter((d) => d.status === 'DELIVERED');
+    const cancelledCount = all.filter((d) => d.status === 'CANCELLED').length;
+    const activeCount = all.filter((d) =>
+      ACTIVE_DELIVERY_STATUSES.has(d.status as DeliveryStatus),
+    ).length;
+
+    const istanbulDateFormatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Istanbul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    const todayKey = istanbulDateFormatter.format(new Date());
+    const todayDeliveredCount = deliveredRows.filter(
+      (d) => d.deliveredAt != null && istanbulDateFormatter.format(d.deliveredAt) === todayKey,
+    ).length;
+
+    const durationsMs = deliveredRows
+      .map((d) => {
+        if (!d.deliveredAt) return null;
+        const start = d.pickedUpAt ?? d.createdAt;
+        const diff = d.deliveredAt.getTime() - start.getTime();
+        return diff >= 0 ? diff : null;
+      })
+      .filter((ms): ms is number => ms !== null);
+    const avgDeliveryMinutes =
+      durationsMs.length > 0
+        ? Math.round((durationsMs.reduce((acc, ms) => acc + ms, 0) / durationsMs.length / 60_000) * 10) /
+          10
+        : null;
+
+    const finishedCount = deliveredRows.length + cancelledCount;
+    const completionRatePercent =
+      finishedCount > 0 ? Math.round((deliveredRows.length / finishedCount) * 100) : 0;
+
+    let totalTipMinor = 0n;
+    if (this.prisma && deliveredRows.length > 0 && this.prisma.order) {
+      const orders = await this.prisma.order.findMany({
+        where: { id: { in: deliveredRows.map((d) => d.orderId) } },
+        select: { tipMinor: true },
+      });
+      for (const order of orders) {
+        totalTipMinor += order.tipMinor;
+      }
+    }
+
     return {
       courierId,
-      deliveredCount: all.filter((d) => d.status === 'DELIVERED').length,
-      activeCount: all.filter((d) => ACTIVE_DELIVERY_STATUSES.has(d.status as DeliveryStatus))
-        .length,
+      deliveredCount: deliveredRows.length,
+      activeCount,
       assignedCount: all.length,
+      cancelledCount,
+      todayDeliveredCount,
+      avgDeliveryMinutes,
+      completionRatePercent,
+      maxActiveDeliveries,
+      totalTipMinor: totalTipMinor.toString(),
     };
   }
 
@@ -739,7 +982,8 @@ export class DeliveryService {
       mutable.status = to;
       mutable.updatedAt = new Date();
       await after(mutable);
-      return this.#clone(mutable);
+      const [enriched] = await this.#enrichDeliveries([this.#clone(mutable)]);
+      return enriched ?? this.#clone(mutable);
     }
     await this.prisma.delivery.update({
       where: { id: deliveryId },
@@ -748,6 +992,143 @@ export class DeliveryService {
     const result = await this.get(deliveryId);
     await after(result);
     return this.get(deliveryId);
+  }
+
+  async #enrichDeliveries(deliveries: DeliveryDto[]): Promise<DeliveryDto[]> {
+    if (deliveries.length === 0) return [];
+
+    if (!this.prisma) {
+      return deliveries.map((delivery) => {
+        const points = this.#locations.filter((point) => point.deliveryId === delivery.id);
+        const latest = [...points].sort(
+          (a, b) => b.recordedAt.getTime() - a.recordedAt.getTime(),
+        )[0];
+        return {
+          ...delivery,
+          latestLocation: latest
+            ? {
+                latitude: latest.latitude,
+                longitude: latest.longitude,
+                accuracyM: latest.accuracyM,
+                recordedAt: latest.recordedAt,
+              }
+            : null,
+        };
+      });
+    }
+
+    const branchIds = [...new Set(deliveries.map((d) => d.branchId).filter(Boolean))];
+    const orderIds = [...new Set(deliveries.map((d) => d.orderId).filter(Boolean))];
+    const deliveryIds = deliveries.map((d) => d.id);
+
+    const [branches, orders, locations] = await Promise.all([
+      branchIds.length > 0 && this.prisma.branch
+        ? this.prisma.branch.findMany({
+            where: { id: { in: branchIds } },
+            select: {
+              id: true,
+              code: true,
+              name: true,
+              addressLine: true,
+              phone: true,
+              latitude: true,
+              longitude: true,
+            },
+          })
+        : Promise.resolve([]),
+      orderIds.length > 0 && this.prisma.order
+        ? this.prisma.order.findMany({
+            where: { id: { in: orderIds } },
+            select: {
+              id: true,
+              displayNumber: true,
+              status: true,
+              fulfillmentMode: true,
+              scheduledFor: true,
+              contactless: true,
+              ecoPackaging: true,
+              buildingAccessCode: true,
+              deliveryNote: true,
+              currency: true,
+              finalPayableMinor: true,
+              tipMinor: true,
+              items: {
+                select: {
+                  id: true,
+                  productNameSnapshot: true,
+                  quantity: true,
+                  modifiers: { select: { nameSnapshot: true } },
+                  removals: { select: { nameSnapshot: true } },
+                },
+              },
+            },
+          })
+        : Promise.resolve([]),
+      deliveryIds.length > 0 && this.prisma.courierLocationPoint
+        ? this.prisma.courierLocationPoint.findMany({
+            where: { deliveryId: { in: deliveryIds } },
+            orderBy: { recordedAt: 'desc' },
+          })
+        : Promise.resolve([]),
+    ]);
+
+    const branchMap = new Map<string, DeliveryBranchSummaryDto>();
+    for (const branch of branches) {
+      branchMap.set(branch.id, {
+        id: branch.id,
+        code: branch.code,
+        name: branch.name,
+        addressLine: branch.addressLine,
+        phone: branch.phone,
+        latitude: branch.latitude != null ? Number(branch.latitude) : null,
+        longitude: branch.longitude != null ? Number(branch.longitude) : null,
+      });
+    }
+
+    const orderMap = new Map<string, DeliveryOrderSummaryDto>();
+    for (const order of orders) {
+      const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
+      orderMap.set(order.id, {
+        displayNumber: order.displayNumber,
+        status: order.status,
+        fulfillmentMode: order.fulfillmentMode,
+        scheduledFor: order.scheduledFor ? order.scheduledFor.toISOString() : null,
+        contactless: order.contactless,
+        ecoPackaging: order.ecoPackaging,
+        buildingAccessCode: order.buildingAccessCode,
+        deliveryNote: order.deliveryNote,
+        currency: order.currency,
+        finalPayableMinor: order.finalPayableMinor.toString(),
+        tipMinor: order.tipMinor.toString(),
+        itemCount,
+        items: order.items.map((item) => ({
+          id: item.id,
+          productName: item.productNameSnapshot,
+          quantity: item.quantity,
+          modifiers: item.modifiers.map((m) => m.nameSnapshot),
+          removals: item.removals.map((r) => r.nameSnapshot),
+        })),
+      });
+    }
+
+    const locationMap = new Map<string, DeliveryLatestLocationDto>();
+    for (const point of locations) {
+      if (!locationMap.has(point.deliveryId)) {
+        locationMap.set(point.deliveryId, {
+          latitude: point.latitude,
+          longitude: point.longitude,
+          accuracyM: point.accuracyM,
+          recordedAt: point.recordedAt,
+        });
+      }
+    }
+
+    return deliveries.map((delivery) => ({
+      ...delivery,
+      branch: branchMap.get(delivery.branchId),
+      order: orderMap.get(delivery.orderId),
+      latestLocation: locationMap.get(delivery.id) ?? null,
+    }));
   }
 
   async #assertCapacity(courierId: string): Promise<void> {
@@ -784,6 +1165,18 @@ export class DeliveryService {
   #clone(d: DeliveryDto): DeliveryDto {
     return {
       ...d,
+      branch: d.branch ? { ...d.branch } : undefined,
+      order: d.order
+        ? {
+            ...d.order,
+            items: d.order.items.map((item) => ({
+              ...item,
+              modifiers: item.modifiers ? [...item.modifiers] : undefined,
+              removals: item.removals ? [...item.removals] : undefined,
+            })),
+          }
+        : undefined,
+      latestLocation: d.latestLocation ? { ...d.latestLocation } : d.latestLocation,
       assignments: d.assignments.map((a) => ({ ...a })),
     };
   }

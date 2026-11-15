@@ -72,13 +72,13 @@ const SECTIONS: LegalSection[] = [
             <strong>Kadıköy Şube Telefon:</strong> +90 216 123 45 67
           </li>
           <li>
-            <strong>Kurumsal E-posta:</strong> iletisim@burger.azem.cloud
+            <strong>Kurumsal E-posta:</strong> iletisim@burger.azemyazilim.net
           </li>
           <li>
-            <strong>Müşteri Destek E-posta:</strong> destek@burger.azem.cloud
+            <strong>Müşteri Destek E-posta:</strong> destek@burger.azemyazilim.net
           </li>
           <li>
-            <strong>Web Sitesi:</strong> https://burger.azem.cloud
+            <strong>Web Sitesi:</strong> https://burger.azemyazilim.net
           </li>
           <li>
             <strong>Canlı Destek Hattı:</strong>{' '}

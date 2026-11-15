@@ -11,5 +11,5 @@ export function getApiBaseUrl(): string {
 
 /** Public storefront origin hosting `/gizlilik` and `/hesap-silme` (ADR-023). */
 export function getStorefrontUrl(): string {
-  return process.env['EXPO_PUBLIC_STOREFRONT_URL'] ?? 'https://burger.azem.cloud';
+  return process.env['EXPO_PUBLIC_STOREFRONT_URL'] ?? 'https://burger.azemyazilim.net';
 }

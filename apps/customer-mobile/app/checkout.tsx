@@ -3,7 +3,6 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
-  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -17,6 +16,8 @@ import {
 import { StackHeader } from '../components/stack-header';
 import { StickyCta, stickyCtaReserve } from '../components/sticky-cta';
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '../components/ui';
+import { addressLine } from '../lib/address-map';
+import { listCustomerAddresses } from '../lib/addresses';
 import { formatApiError } from '../lib/api';
 import { fetchCart } from '../lib/cart';
 import { cartLineTitle } from '../lib/cart-present';
@@ -43,7 +44,7 @@ import { DEFAULT_DELIVERY_LOCATION, getDeliveryLocation } from '../lib/delivery-
 import { formatTryMinor } from '../lib/money';
 import { snapshotFromQuote, writePaymentSummary } from '../lib/payment-session';
 import { quotePresentationRows } from '../lib/quote-present';
-import type { Branch, Cart, CheckoutQuote, PaymentMethod } from '../lib/schemas';
+import type { Branch, Cart, CheckoutQuote, CustomerAddress, PaymentMethod } from '../lib/schemas';
 import { getCustomerSession } from '../lib/session';
 import { colors, fonts, minTouch, radius, space } from '../theme';
 
@@ -56,6 +57,8 @@ export default function CheckoutRoute() {
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<FulfillmentMode>('DELIVERY');
   const [location, setLocation] = useState(getDeliveryLocation);
+  const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [pickupBranchId, setPickupBranchId] = useState<string | null>(null);
   const [deliveryBranchId, setDeliveryBranchId] = useState<string | null>(null);
@@ -98,19 +101,48 @@ export default function CheckoutRoute() {
       );
       setMethods(nextMethods);
       setPayMethod(operationalPayMethod(nextMethods));
-      const loc = getDeliveryLocation();
+      let loc = getDeliveryLocation();
+      if (authenticated) {
+        const [saved, points] = await Promise.all([
+          listCustomerAddresses().catch(() => [] as CustomerAddress[]),
+          fetchLoyaltyBalance().catch(() => null),
+        ]);
+        setAddresses(saved);
+        setLoyaltyPoints(points);
+        const matched = saved.find(
+          (item) =>
+            Math.abs(item.latitude - loc.latitude) < 1e-4 &&
+            Math.abs(item.longitude - loc.longitude) < 1e-4,
+        );
+        const preferred =
+          matched ??
+          (loc.label === DEFAULT_DELIVERY_LOCATION.label
+            ? (saved.find((item) => item.isDefault) ?? saved[0])
+            : undefined);
+        if (preferred) {
+          setSelectedAddressId(preferred.id);
+          setDeliveryNote((prev) => prev || preferred.deliveryNote || '');
+          setAccessCode((prev) => prev || preferred.accessCode || '');
+          loc = {
+            ...loc,
+            latitude: preferred.latitude,
+            longitude: preferred.longitude,
+            label: preferred.label ?? addressLine(preferred) ?? 'Kayıtlı Adres',
+          };
+        } else {
+          setSelectedAddressId(null);
+        }
+      } else {
+        setAddresses([]);
+        setSelectedAddressId(null);
+        setLoyaltyPoints(null);
+        setUseLoyalty(false);
+      }
       try {
         const checked = await checkDeliveryServiceability(loc.latitude, loc.longitude, loc.label);
         setLocation(checked);
       } catch {
         setLocation(loc.latitude ? loc : DEFAULT_DELIVERY_LOCATION);
-      }
-      if (authenticated) {
-        const points = await fetchLoyaltyBalance().catch(() => null);
-        setLoyaltyPoints(points);
-      } else {
-        setLoyaltyPoints(null);
-        setUseLoyalty(false);
       }
       setStatus('ready');
       setError(null);
@@ -307,13 +339,7 @@ export default function CheckoutRoute() {
         providerPaymentId: init.providerPaymentId,
         redirectUrl: init.redirectUrl,
       });
-      router.push(`/payment/${fresh.checkoutSessionId}`);
-      if (init.redirectUrl) {
-        // ADR-022: card entry + 3-D Secure on iyzico's page; the provider
-        // returns to fastfoodcustomer://payment/return and the status screen
-        // reads the server-verified result.
-        void Linking.openURL(init.redirectUrl).catch(() => undefined);
-      }
+      router.replace(`/payment/${fresh.checkoutSessionId}`);
       payingRef.current = false;
       setPaying(false);
     } catch (err) {
@@ -354,6 +380,23 @@ export default function CheckoutRoute() {
         </View>
       </View>
     );
+  }
+
+  function onSelectSavedAddress(addr: CustomerAddress) {
+    setSelectedAddressId(addr.id);
+    setDeliveryNote(addr.deliveryNote ?? '');
+    setAccessCode(addr.accessCode ?? '');
+    const label = addr.label ?? addressLine(addr) ?? 'Kayıtlı Adres';
+    void checkDeliveryServiceability(addr.latitude, addr.longitude, label)
+      .then(setLocation)
+      .catch(() =>
+        setLocation({
+          label,
+          latitude: addr.latitude,
+          longitude: addr.longitude,
+          serviceable: location.serviceable,
+        }),
+      );
   }
 
   const pickupBranches = branches.filter((item) => item.isAcceptingOrders);
@@ -421,7 +464,62 @@ export default function CheckoutRoute() {
 
         {mode === 'DELIVERY' ? (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Teslimat adresi</Text>
+            <View style={styles.addressHead}>
+              <Text style={styles.cardTitle}>Teslimat adresi</Text>
+              <View style={styles.addressActions}>
+                {authenticated ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => router.push('/account/addresses')}
+                    style={styles.addressActionBtn}
+                  >
+                    <Text style={styles.addressActionText}>Adres Defteri</Text>
+                  </Pressable>
+                ) : null}
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => router.push('/address')}
+                  style={styles.addressActionBtn}
+                >
+                  <Text style={styles.addressActionText}>
+                    {authenticated ? 'Haritadan Seç' : 'Konumu Değiştir'}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+            {authenticated && addresses.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.savedAddressRow}
+              >
+                {addresses.map((addr) => {
+                  const selected = selectedAddressId === addr.id;
+                  return (
+                    <Pressable
+                      key={addr.id}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected }}
+                      onPress={() => onSelectSavedAddress(addr)}
+                      style={[styles.savedAddressChip, selected && styles.savedAddressChipOn]}
+                    >
+                      <Text
+                        style={[styles.savedAddressTitle, selected && styles.savedAddressTitleOn]}
+                        numberOfLines={1}
+                      >
+                        {addr.label || 'Adres'}
+                      </Text>
+                      <Text
+                        style={[styles.savedAddressSub, selected && styles.savedAddressSubOn]}
+                        numberOfLines={1}
+                      >
+                        {addressLine(addr)}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            ) : null}
             <Text style={styles.strong}>{location.label}</Text>
             <Text style={styles.muted}>
               {location.serviceable
@@ -810,6 +908,65 @@ const styles = StyleSheet.create({
     color: colors.onSurface,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
+  },
+  addressHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  addressActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  addressActionBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceHigh,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+  },
+  addressActionText: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 11,
+    color: colors.mustard,
+    textTransform: 'uppercase',
+  },
+  savedAddressRow: {
+    gap: 8,
+    paddingVertical: 2,
+  },
+  savedAddressChip: {
+    width: 170,
+    padding: 10,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceLow,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    gap: 2,
+  },
+  savedAddressChipOn: {
+    backgroundColor: colors.surfaceHigh,
+    borderColor: colors.mustard,
+  },
+  savedAddressTitle: {
+    fontFamily: fonts.jakartaBold,
+    fontSize: 12,
+    color: colors.onSurface,
+  },
+  savedAddressTitleOn: {
+    color: colors.mustard,
+  },
+  savedAddressSub: {
+    fontFamily: fonts.jakarta,
+    fontSize: 11,
+    color: colors.ash,
+  },
+  savedAddressSubOn: {
+    color: colors.onSurfaceVariant,
   },
   strong: { fontFamily: fonts.jakartaBold, fontSize: 14, color: colors.onSurface },
   muted: { fontFamily: fonts.jakarta, fontSize: 13, color: colors.ash },

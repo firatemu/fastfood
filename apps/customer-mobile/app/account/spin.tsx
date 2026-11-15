@@ -9,9 +9,9 @@ import { ErrorBlock, LoadingBlock, MustardButton } from '../../components/ui';
 import { formatApiError } from '../../lib/api';
 import { fetchSpin, playSpin } from '../../lib/engagement';
 import { newClientRequestId, spinResultCopy } from '../../lib/engagement-map';
+import { haptic } from '../../lib/haptics';
 import type { SpinEligibility, SpinPlay } from '../../lib/schemas';
 import { formatStorefrontDateTime } from '../../lib/tracking-map';
-import { haptic } from '../../lib/haptics';
 import { colors, fonts, minTouch, radius, space } from '../../theme';
 
 function reasonCopy(reason: string): string {

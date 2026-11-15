@@ -1,5 +1,5 @@
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -40,6 +40,7 @@ import {
 } from '../../lib/addresses';
 import { formatApiError } from '../../lib/api';
 import { checkDeliveryServiceability } from '../../lib/checkout';
+import { setDeliveryLocation, type DeliveryLocation } from '../../lib/delivery-location';
 import { deviceLocationMessage, getDeviceLocation } from '../../lib/device-location';
 import type { CustomerAddress } from '../../lib/schemas';
 import { colors, fonts, minTouch, radius, space } from '../../theme';
@@ -70,6 +71,7 @@ function AddressesBody() {
   const [error, setError] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, ServiceNote>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedIdRef = useRef<string | null>(null);
   const [editingId, setEditingId] = useState<string | 'new' | null>(null);
   const [form, setForm] = useState<AddressForm>(emptyAddressForm);
   const [saving, setSaving] = useState(false);
@@ -108,10 +110,15 @@ function AddressesBody() {
     try {
       const rows = await listCustomerAddresses();
       setList(rows);
-      setSelectedId(
-        (current) => current ?? rows.find((row) => row.isDefault)?.id ?? rows[0]?.id ?? null,
-      );
+      const nextSelectedId =
+        rows.find((row) => row.id === selectedIdRef.current)?.id ??
+        rows.find((row) => row.isDefault)?.id ??
+        rows[0]?.id ??
+        null;
+      selectedIdRef.current = nextSelectedId;
+      setSelectedId(nextSelectedId);
       const next: Record<string, ServiceNote> = {};
+      const checkedById: Record<string, DeliveryLocation> = {};
       await Promise.all(
         rows.map(async (row) => {
           try {
@@ -119,7 +126,9 @@ function AddressesBody() {
               row.latitude,
               row.longitude,
               row.label ?? row.street ?? 'Adres',
+              { persist: false },
             );
+            checkedById[row.id] = loc;
             next[row.id] = loc.serviceable
               ? { tone: 'delivery', label: 'Teslimat var' }
               : { tone: 'outside', label: 'Bölge dışı' };
@@ -128,6 +137,9 @@ function AddressesBody() {
           }
         }),
       );
+      if (nextSelectedId && checkedById[nextSelectedId]) {
+        setDeliveryLocation(checkedById[nextSelectedId]);
+      }
       setNotes(next);
       setStatus('ready');
       setError(null);
@@ -434,7 +446,15 @@ function AddressesBody() {
             return (
               <Pressable
                 key={address.id}
-                onPress={() => setSelectedId(address.id)}
+                onPress={() => {
+                  selectedIdRef.current = address.id;
+                  setSelectedId(address.id);
+                  void checkDeliveryServiceability(
+                    address.latitude,
+                    address.longitude,
+                    address.label ?? address.street ?? 'Adres',
+                  ).catch(() => undefined);
+                }}
                 style={[styles.card, isActive && styles.cardActive]}
                 accessibilityRole="button"
               >

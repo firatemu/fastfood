@@ -12,6 +12,7 @@ import { PrismaService } from '../../common/database/prisma.service.js';
 import { BranchService, type ServiceAreaDto } from '../branch/branch.service.js';
 import { RoutingService } from '../branch/routing/routing.service.js';
 import { NotificationService } from '../notification/notification.service.js';
+import { TelegramService } from '../telegram/telegram.service.js';
 
 import { OrderOutboxService } from './order-outbox.service.js';
 import {
@@ -217,6 +218,9 @@ export class OrderService {
     @Optional()
     @Inject(NotificationService)
     private readonly notifications: NotificationService | null = null,
+    @Optional()
+    @Inject(TelegramService)
+    private readonly telegram: TelegramService | null = null,
     @Optional() @Inject(PrismaService) private readonly prisma: PrismaService | null = null,
   ) {}
 
@@ -1262,6 +1266,9 @@ export class OrderService {
       actorUserId,
     });
     await this.notifyCustomerStatus(order, toStatus);
+    if (toStatus === 'BRANCH_ASSIGNED') {
+      await this.telegram?.sendOrderNotification(this.#clone(order));
+    }
   }
 
   async #setStatusDb(
@@ -1304,6 +1311,10 @@ export class OrderService {
       );
     });
     await this.notifyCustomerStatus(current, toStatus);
+    if (toStatus === 'BRANCH_ASSIGNED') {
+      const fullOrder = await this.get(orderId);
+      await this.telegram?.sendOrderNotification(fullOrder);
+    }
     return this.get(orderId);
   }
 

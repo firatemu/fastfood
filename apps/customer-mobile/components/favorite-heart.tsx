@@ -3,8 +3,8 @@ import { useRouter } from 'expo-router';
 import type { ReactElement } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { useFavorites } from '../lib/use-favorites';
 import { haptic } from '../lib/haptics';
+import { useFavorites } from '../lib/use-favorites';
 import { useCustomerSession } from '../lib/use-session';
 import { colors, hitSlop, radius } from '../theme';
 

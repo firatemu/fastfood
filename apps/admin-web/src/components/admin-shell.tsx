@@ -35,11 +35,22 @@ export function AdminShell({ children }: { children: ReactNode }) {
   );
   const isLogin = pathname === '/login' || pathname.startsWith('/invite/');
 
+  useEffect(() => {
+    try {
+      const mode = window.localStorage.getItem('fastfood-admin-color-mode');
+      if (mode === 'light' || mode === 'dark') {
+        document.documentElement.dataset.colorMode = mode;
+        document.documentElement.style.colorScheme = mode;
+      }
+    } catch {}
+  }, []);
+
   // The access token lives in memory only (audit P0-3), so a full page load
   // starts without one. The HttpOnly session cookie still holds the server
   // session and is exchanged for a new access token here.
   useEffect(() => {
     if (isLogin) return;
+    if (getStaffAccessToken()) return;
     void restoreStaffSession();
   }, [isLogin]);
 

@@ -188,21 +188,37 @@ export class CourierController {
   }
 
   @UseGuards(AuthGuard, AccountStatusGuard)
+  @Get('courier/me')
+  async me(
+    @Req() req: { authenticatedUserId?: string; courierId?: string },
+  ): Promise<unknown> {
+    const courierId = await this.#resolveCourierId(req);
+    if (!courierId) return this.#unauthenticated();
+    try {
+      return { data: await this.deliveries.getCourierMeProfile(courierId) };
+    } catch (err) {
+      return this.#err(err);
+    }
+  }
+
+  @UseGuards(AuthGuard, AccountStatusGuard)
   @Get('courier/deliveries')
   async listMine(
     @Req() req: { authenticatedUserId?: string; courierId?: string },
   ): Promise<unknown> {
     const courierId = await this.#resolveCourierId(req);
-    if (!courierId) {
-      return {
-        error: {
-          code: ErrorCodes.AUTH_UNAUTHENTICATED,
-          message: 'Courier authentication required.',
-          requestId: REQUEST_ID,
-        },
-      };
-    }
+    if (!courierId) return this.#unauthenticated();
     return { data: await this.deliveries.listForCourier(courierId) };
+  }
+
+  @UseGuards(AuthGuard, AccountStatusGuard)
+  @Get('courier/deliveries/pool')
+  async listPool(
+    @Req() req: { authenticatedUserId?: string; courierId?: string },
+  ): Promise<unknown> {
+    const courierId = await this.#resolveCourierId(req);
+    if (!courierId) return this.#unauthenticated();
+    return { data: await this.deliveries.listAvailableForCourier(courierId) };
   }
 
   @UseGuards(AuthGuard, AccountStatusGuard)
@@ -212,26 +228,10 @@ export class CourierController {
     @Req() req: { authenticatedUserId?: string; courierId?: string },
   ): Promise<unknown> {
     const courierId = await this.#resolveCourierId(req);
-    if (!courierId) {
-      return {
-        error: {
-          code: ErrorCodes.AUTH_UNAUTHENTICATED,
-          message: 'Courier authentication required.',
-          requestId: REQUEST_ID,
-        },
-      };
-    }
+    if (!courierId) return this.#unauthenticated();
     try {
       const d = await this.deliveries.get(deliveryId);
-      if (d.courierId !== courierId) {
-        return {
-          error: {
-            code: ErrorCodes.AUTH_SCOPE_DENIED,
-            message: 'Delivery not in courier scope.',
-            requestId: REQUEST_ID,
-          },
-        };
-      }
+      if (d.courierId !== courierId) return this.#outOfScope();
       return {
         data: {
           ...d,
@@ -251,26 +251,9 @@ export class CourierController {
     @Body() body: unknown,
   ): Promise<unknown> {
     const courierId = await this.#resolveCourierId(req);
-    if (!courierId) {
-      return {
-        error: {
-          code: ErrorCodes.AUTH_UNAUTHENTICATED,
-          message: 'Courier authentication required.',
-          requestId: REQUEST_ID,
-        },
-      };
-    }
+    if (!courierId) return this.#unauthenticated();
     const parsed = safeValidate(claimSchema, body);
-    if (!parsed.ok) {
-      return {
-        error: {
-          code: ErrorCodes.VALIDATION_ERROR,
-          message: 'One or more fields are invalid.',
-          details: { fields: parsed.issues },
-          requestId: REQUEST_ID,
-        },
-      };
-    }
+    if (!parsed.ok) return this.#validationError(parsed.issues);
     try {
       return { data: await this.deliveries.claimByQr(parsed.data.token, courierId) };
     } catch (err) {
@@ -313,26 +296,9 @@ export class CourierController {
     @Body() body: unknown,
   ): Promise<unknown> {
     const courierId = await this.#resolveCourierId(req);
-    if (!courierId) {
-      return {
-        error: {
-          code: ErrorCodes.AUTH_UNAUTHENTICATED,
-          message: 'Courier authentication required.',
-          requestId: REQUEST_ID,
-        },
-      };
-    }
+    if (!courierId) return this.#unauthenticated();
     const parsed = safeValidate(locationSchema, body);
-    if (!parsed.ok) {
-      return {
-        error: {
-          code: ErrorCodes.VALIDATION_ERROR,
-          message: 'One or more fields are invalid.',
-          details: { fields: parsed.issues },
-          requestId: REQUEST_ID,
-        },
-      };
-    }
+    if (!parsed.ok) return this.#validationError(parsed.issues);
     try {
       return {
         data: await this.deliveries.recordLocation({
@@ -354,15 +320,7 @@ export class CourierController {
     @Req() req: { authenticatedUserId?: string; courierId?: string },
   ): Promise<unknown> {
     const courierId = await this.#resolveCourierId(req);
-    if (!courierId) {
-      return {
-        error: {
-          code: ErrorCodes.AUTH_UNAUTHENTICATED,
-          message: 'Courier authentication required.',
-          requestId: REQUEST_ID,
-        },
-      };
-    }
+    if (!courierId) return this.#unauthenticated();
     return { data: await this.deliveries.performance(courierId) };
   }
 
@@ -374,26 +332,10 @@ export class CourierController {
     @Query('unused') _unused?: string,
   ): Promise<unknown> {
     const courierId = await this.#resolveCourierId(req);
-    if (!courierId) {
-      return {
-        error: {
-          code: ErrorCodes.AUTH_UNAUTHENTICATED,
-          message: 'Courier authentication required.',
-          requestId: REQUEST_ID,
-        },
-      };
-    }
+    if (!courierId) return this.#unauthenticated();
     try {
       const d = await this.deliveries.get(deliveryId);
-      if (d.courierId !== courierId) {
-        return {
-          error: {
-            code: ErrorCodes.AUTH_SCOPE_DENIED,
-            message: 'Delivery not in courier scope.',
-            requestId: REQUEST_ID,
-          },
-        };
-      }
+      if (d.courierId !== courierId) return this.#outOfScope();
       return { data: { url: await this.deliveries.mapsNavigationUrl(deliveryId) } };
     } catch (err) {
       return this.#err(err);
@@ -406,20 +348,43 @@ export class CourierController {
     fn: (courierId: string) => Promise<unknown> | unknown,
   ): Promise<unknown> {
     const courierId = await this.#resolveCourierId(req);
-    if (!courierId) {
-      return {
-        error: {
-          code: ErrorCodes.AUTH_UNAUTHENTICATED,
-          message: 'Courier authentication required.',
-          requestId: REQUEST_ID,
-        },
-      };
-    }
+    if (!courierId) return this.#unauthenticated();
     try {
       return { data: await fn(courierId) };
     } catch (err) {
       return this.#err(err);
     }
+  }
+
+  #unauthenticated() {
+    return {
+      error: {
+        code: ErrorCodes.AUTH_UNAUTHENTICATED,
+        message: 'Kurye oturumu doğrulanamadı.',
+        requestId: REQUEST_ID,
+      },
+    };
+  }
+
+  #outOfScope() {
+    return {
+      error: {
+        code: ErrorCodes.AUTH_SCOPE_DENIED,
+        message: 'Bu teslimat sizin hesabınıza atanmamış.',
+        requestId: REQUEST_ID,
+      },
+    };
+  }
+
+  #validationError(fields: unknown) {
+    return {
+      error: {
+        code: ErrorCodes.VALIDATION_ERROR,
+        message: 'Girilen alanlar geçersiz.',
+        details: { fields },
+        requestId: REQUEST_ID,
+      },
+    };
   }
 
   #err(err: unknown): unknown {
@@ -430,7 +395,7 @@ export class CourierController {
     return {
       error: {
         code,
-        message: err instanceof Error ? err.message : 'Request failed.',
+        message: err instanceof Error ? err.message : 'İşlem tamamlanamadı.',
         requestId: REQUEST_ID,
       },
     };

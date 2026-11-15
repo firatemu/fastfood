@@ -722,6 +722,7 @@ model Branch {
   latitude                    Decimal  @map("latitude") @db.Decimal(9, 6)
   longitude                   Decimal  @map("longitude") @db.Decimal(9, 6)
   phone                       String?  @map("phone") @db.VarChar(32)
+  telegramChatId              String?  @map("telegram_chat_id") @db.VarChar(64)
   isActive                    Boolean  @default(true) @map("is_active")
   isAcceptingOrders           Boolean  @default(true) @map("is_accepting_orders")
   minOrderMinor               BigInt   @default(0) @map("min_order_minor") @db.BigInt

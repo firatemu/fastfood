@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>FASTFOOD Servis Alanı Pin Editörü</title>
+    <link
+      href="https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background: #0d1117;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+          sans-serif;
+        overflow: hidden;
+      }
+      #map,
+      #leaflet-map {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      #leaflet-map {
+        display: none;
+      }
+      .draw-cursor .maplibregl-canvas {
+        cursor: crosshair !important;
+      }
+      .test-cursor .maplibregl-canvas {
+        cursor: help !important;
+      }
+
+      /* Branch Center Anchor Pin */
+      .branch-center-marker {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+        pointer-events: none;
+      }
+      .center-dot-wrap {
+        position: relative;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+      }
+      .center-pulse {
+        position: absolute;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 183, 77, 0.35);
+        animation: centerPulse 2.2s infinite ease-out;
+      }
+      @keyframes centerPulse {
+        0% {
+          transform: scale(0.5);
+          opacity: 0.9;
+        }
+        100% {
+          transform: scale(1.9);
+          opacity: 0;
+        }
+      }
+      .center-core {
+        position: relative;
+        z-index: 2;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #ffb74d;
+        border: 3px solid #0d1117;
+        box-shadow: 0 0 14px rgba(255, 183, 77, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 900;
+        color: #0d1117;
+      }
+      .center-label {
+        margin-top: 4px;
+        background: rgba(13, 17, 23, 0.94);
+        color: #ffb74d;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 183, 77, 0.6);
+        white-space: nowrap;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);
+      }
+
+      /* Polygon Vertex Pin Markers */
+      .pin-marker {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #ffffff;
+        color: #0d1117;
+        border: 3px solid #ff9800;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 800;
+        cursor: grab;
+        user-select: none;
+        transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+      }
+      .pin-marker:hover {
+        transform: scale(1.18);
+        border-color: #58a6ff;
+        z-index: 20;
+      }
+      .pin-marker:active {
+        cursor: grabbing;
+        transform: scale(1.22);
+      }
+      .pin-marker--first {
+        background: #3fb950;
+        color: #ffffff;
+        border-color: #ffffff;
+      }
+      .pin-marker--warning {
+        border-color: #f85149;
+      }
+
+      /* Midpoint Insert (+) Handles */
+      .midpoint-marker {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: rgba(13, 17, 23, 0.85);
+        color: #ffb74d;
+        border: 1.5px dashed rgba(255, 183, 77, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1;
+        cursor: pointer;
+        user-select: none;
+        opacity: 0.78;
+        transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
+      }
+      .midpoint-marker:hover {
+        opacity: 1;
+        transform: scale(1.25);
+        background: #ffb74d;
+        color: #0d1117;
+        border-style: solid;
+      }
+
+      /* Distance Ring Label */
+      .ring-label {
+        pointer-events: none;
+        background: rgba(13, 17, 23, 0.78);
+        color: rgba(255, 183, 77, 0.85);
+        border: 1px solid rgba(255, 183, 77, 0.3);
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 1px 5px;
+        white-space: nowrap;
+      }
+
+      /* Other Branch Center Marker */
+      .other-branch-marker {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+        pointer-events: auto;
+        opacity: 0.88;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+      }
+      .other-branch-marker:hover {
+        opacity: 1;
+        transform: scale(1.12);
+        z-index: 15;
+      }
+      .other-branch-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #a371f7;
+        border: 2px solid #0d1117;
+        box-shadow: 0 0 10px rgba(163, 113, 247, 0.8);
+      }
+      .other-branch-label {
+        margin-top: 3px;
+        background: rgba(13, 17, 23, 0.92);
+        color: #d2a8ff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(163, 113, 247, 0.5);
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      }
+
+      /* Test Pin Marker */
+      .test-marker {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        pointer-events: none;
+      }
+      .test-marker-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #58a6ff;
+        border: 2.5px solid #ffffff;
+        box-shadow: 0 0 12px rgba(88, 166, 255, 0.9);
+      }
+      .test-marker-dot--ok {
+        background: #3fb950;
+        box-shadow: 0 0 12px rgba(63, 185, 80, 0.9);
+      }
+      .test-marker-dot--fail {
+        background: #f85149;
+        box-shadow: 0 0 12px rgba(248, 81, 73, 0.9);
+      }
+      .test-marker-label {
+        margin-top: 4px;
+        background: rgba(13, 17, 23, 0.92);
+        color: #f0f6fc;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        white-space: nowrap;
+      }
+
+      /* Popup Styling */
+      .maplibregl-popup-content,
+      .leaflet-popup-content-wrapper {
+        background: #161b22 !important;
+        color: #f0f6fc !important;
+        border: 1px solid rgba(255, 183, 77, 0.35) !important;
+        border-radius: 8px !important;
+        padding: 10px 12px !important;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.65) !important;
+        font-size: 12px !important;
+      }
+      .maplibregl-popup-tip {
+        border-top-color: #161b22 !important;
+      }
+      .maplibregl-popup-close-button {
+        color: #8b949e !important;
+      }
+
+      /* Scale Control */
+      .maplibregl-ctrl-scale {
+        background-color: rgba(13, 17, 23, 0.88) !important;
+        color: #ffb74d !important;
+        border: 2px solid #ffb74d !important;
+        border-top: none !important;
+        font-weight: 700 !important;
+        font-size: 11px !important;
+        padding: 2px 8px !important;
+        border-radius: 0 0 4px 4px !important;
+      }
+    </style>
+  </head>
+  <body class="draw-cursor">
+    <div id="map"></div>
+    <div id="leaflet-map"></div>
+
+    <script type="module">
+      import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.mjs';
+
+      const parentOrigin = (() => {
+        try {
+          return document.referrer ? new URL(document.referrer).origin : '*';
+        } catch {
+          return '*';
+        }
+      })();
+
+      const post = (msg) => {
+        try {
+          window.parent.postMessage(JSON.stringify(msg), parentOrigin);
+        } catch (err) {
+          console.error('postMessage failed:', err);
+        }
+      };
+
+      const round6 = (n) => Math.round(n * 1_000_000) / 1_000_000;
+
+      // Build a GeoJSON circle ring at distance km from (lat, lng)
+      function circleCoordinates(lat, lng, radiusKm, steps = 64) {
+        const latRad = (lat * Math.PI) / 180;
+        const degPerKmLat = 1 / 110.574;
+        const degPerKmLng = 1 / (111.32 * Math.max(0.1, Math.cos(latRad)));
+        const ring = [];
+        for (let i = 0; i <= steps; i++) {
+          const theta = (2 * Math.PI * i) / steps;
+          ring.push([
+            round6(lng + radiusKm * degPerKmLng * Math.sin(theta)),
+            round6(lat + radiusKm * degPerKmLat * Math.cos(theta)),
+          ]);
+        }
+        return ring;
+      }
+
+      // State synced with Next.js parent
+      let state = {
+        branch: null, // { id, code, name, latitude, longitude, addressLine }
+        pins: [], // [{ lat, lng }]
+        savedAreas: [], // [{ id, name, polygonGeoJson }]
+        activeAreaId: null,
+        otherBranchAreas: [], // [{ branchId, branchName, branchCode, branchLat, branchLng, areaId, areaName, polygonGeoJson }]
+        otherBranches: [], // [{ id, name, code, latitude, longitude }]
+        showOtherBranches: true,
+        mode: 'draw', // 'draw' | 'test'
+        showGuides: true,
+        centerInside: true,
+        testPoint: null, // { lat, lng, serviceable }
+      };
+
+      let map = null;
+      let styleReady = false;
+      let centerMarker = null;
+      let pinMarkers = [];
+      let midpointMarkers = [];
+      let ringLabelMarkers = [];
+      let otherBranchMarkers = [];
+      let testMarker = null;
+      let lastDragEndAt = 0;
+      let usingLeaflet = false;
+      let lMap = null;
+      let lLayerGroup = null;
+
+      function applyCursorClass() {
+        document.body.classList.remove('draw-cursor', 'test-cursor');
+        document.body.classList.add(state.mode === 'test' ? 'test-cursor' : 'draw-cursor');
+      }
+
+      function emitPinsChanged() {
+        post({
+          type: 'pins-changed',
+          pins: state.pins.map((p) => ({ lat: round6(p.lat), lng: round6(p.lng) })),
+        });
+      }
+
+      // Initialize MapLibre
+      try {
+        map = new maplibregl.Map({
+          container: 'map',
+          style: 'https://tiles.openfreemap.org/styles/liberty',
+          center: [35.32, 37.0],
+          zoom: 12,
+          attributionControl: false,
+        });
+
+        map.addControl(new maplibregl.NavigationControl(), 'top-right');
+        map.addControl(
+          new maplibregl.ScaleControl({ maxWidth: 160, unit: 'metric' }),
+          'bottom-left',
+        );
+
+        map.once('load', () => {
+          styleReady = true;
+          ensureSourcesAndLayers();
+          renderAll();
+          post({ type: 'map-ready' });
+        });
+
+        map.on('click', (e) => {
+          // Avoid synthetic click immediately after dragging a marker
+          if (Date.now() - lastDragEndAt < 220) return;
+
+          const target = e.originalEvent?.target;
+          if (
+            target &&
+            typeof target.closest === 'function' &&
+            target.closest(
+              '.pin-marker, .midpoint-marker, .branch-center-marker, .other-branch-marker, .maplibregl-ctrl, .maplibregl-popup',
+            )
+          ) {
+            return;
+          }
+
+          const lat = round6(e.lngLat.lat);
+          const lng = round6(e.lngLat.lng);
+
+          if (state.mode === 'test') {
+            post({ type: 'test-point-clicked', latitude: lat, longitude: lng });
+            return;
+          }
+
+          state.pins = [...state.pins, { lat, lng }];
+          renderAll();
+          emitPinsChanged();
+        });
+
+        map.on('error', (err) => {
+          console.warn('MapLibre notice:', err);
+        });
+      } catch (err) {
+        console.warn('MapLibre initialization failed, falling back to Leaflet:', err);
+        initLeafletFallback();
+      }
+
+      function ensureSourcesAndLayers() {
+        if (!map || !styleReady) return;
+
+        // 0. Other branches' service areas (rendered lowest so active poly is on top)
+        if (!map.getSource('other-branches-src')) {
+          map.addSource('other-branches-src', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: [] },
+          });
+          map.addLayer({
+            id: 'other-branches-fill',
+            type: 'fill',
+            source: 'other-branches-src',
+            paint: {
+              'fill-color': '#a371f7',
+              'fill-opacity': 0.13,
+            },
+          });
+          map.addLayer({
+            id: 'other-branches-stroke',
+            type: 'line',
+            source: 'other-branches-src',
+            paint: {
+              'line-color': '#a371f7',
+              'line-width': 1.6,
+              'line-dasharray': [3, 2],
+              'line-opacity': 0.85,
+            },
+          });
+
+          // Shift-click or test mode popup on other branch areas
+          map.on('click', 'other-branches-fill', (e) => {
+            if (state.mode === 'draw' && !e.originalEvent?.shiftKey) {
+              return; // Allow placing pins in normal draw mode
+            }
+            if (!e.features || !e.features[0]) return;
+            const p = e.features[0].properties || {};
+            new maplibregl.Popup({ offset: 12 })
+              .setLngLat(e.lngLat)
+              .setHTML(`
+                <div style="font-weight:700;color:#a371f7;margin-bottom:3px;font-size:13px;">🏢 ${escapeHtml(p.branchName || 'Diğer Şube')}</div>
+                <div style="color:#8b949e;font-size:11px;margin-bottom:3px;">Kod: ${escapeHtml(p.branchCode || '-')}</div>
+                <div style="color:#f0f6fc;font-size:12px;font-weight:600;">Alan: ${escapeHtml(p.areaName || 'Servis Alanı')}</div>
+                <div style="color:#7ee787;font-size:10px;margin-top:6px;font-weight:700;">● DİĞER ŞUBE SERVİS ALANI</div>
+              `)
+              .addTo(map);
+          });
+        }
+
+        if (!map.getSource('saved-areas-src')) {
+          map.addSource('saved-areas-src', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: [] },
+          });
+          map.addLayer({
+            id: 'saved-areas-fill',
+            type: 'fill',
+            source: 'saved-areas-src',
+            paint: {
+              'fill-color': '#58a6ff',
+              'fill-opacity': 0.08,
+            },
+          });
+          map.addLayer({
+            id: 'saved-areas-stroke',
+            type: 'line',
+            source: 'saved-areas-src',
+            paint: {
+              'line-color': '#58a6ff',
+              'line-width': 1.8,
+              'line-dasharray': [4, 3],
+              'line-opacity': 0.75,
+            },
+          });
+        }
+
+        if (!map.getSource('guide-rings-src')) {
+          map.addSource('guide-rings-src', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: [] },
+          });
+          map.addLayer({
+            id: 'guide-rings-line',
+            type: 'line',
+            source: 'guide-rings-src',
+            paint: {
+              'line-color': '#ffb74d',
+              'line-width': 1.1,
+              'line-dasharray': [3, 4],
+              'line-opacity': 0.4,
+            },
+          });
+        }
+
+        if (!map.getSource('radial-lines-src')) {
+          map.addSource('radial-lines-src', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: [] },
+          });
+          map.addLayer({
+            id: 'radial-lines-layer',
+            type: 'line',
+            source: 'radial-lines-src',
+            paint: {
+              'line-color': '#ffb74d',
+              'line-width': 1,
+              'line-dasharray': [2, 3],
+              'line-opacity': 0.35,
+            },
+          });
+        }
+
+        if (!map.getSource('active-poly-src')) {
+          map.addSource('active-poly-src', {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: [] },
+          });
+          map.addLayer({
+            id: 'active-poly-fill',
+            type: 'fill',
+            source: 'active-poly-src',
+            filter: ['==', '$type', 'Polygon'],
+            paint: {
+              'fill-color': '#ffb74d',
+              'fill-opacity': 0.24,
+            },
+          });
+          map.addLayer({
+            id: 'active-poly-stroke',
+            type: 'line',
+            source: 'active-poly-src',
+            paint: {
+              'line-color': '#ffb74d',
+              'line-width': 3,
+              'line-opacity': 0.95,
+            },
+          });
+        }
+      }
+
+      function updateVectorLayers() {
+        if (!map || !styleReady) return;
+        ensureSourcesAndLayers();
+
+        // 0. Other Branches' Service Areas
+        const otherFeatures = [];
+        if (state.showOtherBranches && Array.isArray(state.otherBranchAreas)) {
+          for (const item of state.otherBranchAreas) {
+            const geom = item.polygonGeoJson || item.polygon;
+            if (geom && geom.coordinates) {
+              otherFeatures.push({
+                type: 'Feature',
+                properties: {
+                  branchId: item.branchId,
+                  branchName: item.branchName,
+                  branchCode: item.branchCode,
+                  areaId: item.areaId,
+                  areaName: item.areaName,
+                },
+                geometry: geom,
+              });
+            }
+          }
+        }
+        if (map.getSource('other-branches-src')) {
+          map.getSource('other-branches-src').setData({
+            type: 'FeatureCollection',
+            features: otherFeatures,
+          });
+        }
+
+        // 1. Saved Areas (excluding activeAreaId)
+        const savedFeatures = [];
+        for (const area of state.savedAreas || []) {
+          if (area.id === state.activeAreaId) continue;
+          const geom = area.polygonGeoJson || area.polygon;
+          if (geom && geom.coordinates) {
+            savedFeatures.push({
+              type: 'Feature',
+              properties: { id: area.id, name: area.name },
+              geometry: geom,
+            });
+          }
+        }
+        map.getSource('saved-areas-src').setData({
+          type: 'FeatureCollection',
+          features: savedFeatures,
+        });
+
+        // 2. Guide Rings around Branch Center
+        const ringFeatures = [];
+        if (state.showGuides && state.branch) {
+          const { latitude, longitude } = state.branch;
+          for (const km of [2, 5, 10]) {
+            ringFeatures.push({
+              type: 'Feature',
+              properties: { km },
+              geometry: {
+                type: 'LineString',
+                coordinates: circleCoordinates(latitude, longitude, km, 64),
+              },
+            });
+          }
+        }
+        map.getSource('guide-rings-src').setData({
+          type: 'FeatureCollection',
+          features: ringFeatures,
+        });
+
+        // 3. Radial lines from center to pins
+        const radialFeatures = [];
+        if (state.branch && state.pins.length > 0) {
+          const cLon = state.branch.longitude;
+          const cLat = state.branch.latitude;
+          for (const p of state.pins) {
+            radialFeatures.push({
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'LineString',
+                coordinates: [
+                  [cLon, cLat],
+                  [p.lng, p.lat],
+                ],
+              },
+            });
+          }
+        }
+        map.getSource('radial-lines-src').setData({
+          type: 'FeatureCollection',
+          features: radialFeatures,
+        });
+
+        // 4. Active Polygon / Line
+        const activeFeatures = [];
+        if (state.pins.length === 2) {
+          activeFeatures.push({
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [state.pins[0].lng, state.pins[0].lat],
+                [state.pins[1].lng, state.pins[1].lat],
+              ],
+            },
+          });
+        } else if (state.pins.length >= 3) {
+          const ring = state.pins.map((p) => [p.lng, p.lat]);
+          ring.push([state.pins[0].lng, state.pins[0].lat]);
+          activeFeatures.push({
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'Polygon',
+              coordinates: [ring],
+            },
+          });
+        }
+        map.getSource('active-poly-src').setData({
+          type: 'FeatureCollection',
+          features: activeFeatures,
+        });
+
+        const strokeColor = state.centerInside || state.pins.length < 3 ? '#ffb74d' : '#f85149';
+        const fillColor = state.centerInside || state.pins.length < 3 ? '#ffb74d' : '#f85149';
+        map.setPaintProperty('active-poly-stroke', 'line-color', strokeColor);
+        map.setPaintProperty('active-poly-fill', 'fill-color', fillColor);
+      }
+
+      function renderMarkers() {
+        if (!map) return;
+
+        // Clear existing DOM markers
+        if (centerMarker) {
+          centerMarker.remove();
+          centerMarker = null;
+        }
+        for (const m of pinMarkers) m.remove();
+        pinMarkers = [];
+        for (const m of midpointMarkers) m.remove();
+        midpointMarkers = [];
+        for (const m of ringLabelMarkers) m.remove();
+        ringLabelMarkers = [];
+        for (const m of otherBranchMarkers) m.remove();
+        otherBranchMarkers = [];
+        if (testMarker) {
+          testMarker.remove();
+          testMarker = null;
+        }
+
+        // Branch Center Anchor Marker
+        if (state.branch) {
+          const b = state.branch;
+          const el = document.createElement('div');
+          el.className = 'branch-center-marker';
+          el.innerHTML = `
+            <div class="center-dot-wrap">
+              <div class="center-pulse"></div>
+              <div class="center-core">★</div>
+            </div>
+            <div class="center-label">MERKEZ: ${escapeHtml(b.name)}</div>
+          `;
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+          });
+
+          const popup = new maplibregl.Popup({ offset: 18 }).setHTML(`
+            <div style="font-weight:700;color:#ffb74d;margin-bottom:4px;">${escapeHtml(b.name)} (${escapeHtml(b.code || '')})</div>
+            <div style="color:#8b949e;font-size:11px;">${escapeHtml(b.addressLine || 'Şube merkez noktası')}</div>
+            <div style="color:#c9d1d9;font-size:11px;margin-top:4px;">Konum: ${Number(b.latitude).toFixed(5)}, ${Number(b.longitude).toFixed(5)}</div>
+          `);
+
+          centerMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
+            .setLngLat([b.longitude, b.latitude])
+            .setPopup(popup)
+            .addTo(map);
+
+          // Guide Ring distance labels (North side)
+          if (state.showGuides) {
+            const degPerKmLat = 1 / 110.574;
+            for (const km of [2, 5, 10]) {
+              const lblEl = document.createElement('div');
+              lblEl.className = 'ring-label';
+              lblEl.textContent = `${km} km`;
+              const rm = new maplibregl.Marker({ element: lblEl, anchor: 'center' })
+                .setLngLat([b.longitude, b.latitude + km * degPerKmLat])
+                .addTo(map);
+              ringLabelMarkers.push(rm);
+            }
+          }
+        }
+
+        // Midpoint (+) insertion handles between consecutive pins
+        if (state.mode === 'draw' && state.pins.length >= 2) {
+          const edgeCount = state.pins.length === 2 ? 1 : state.pins.length;
+          for (let i = 0; i < edgeCount; i++) {
+            const p1 = state.pins[i];
+            const p2 = state.pins[(i + 1) % state.pins.length];
+            const midLat = round6((p1.lat + p2.lat) / 2);
+            const midLng = round6((p1.lng + p2.lng) / 2);
+
+            const midEl = document.createElement('div');
+            midEl.className = 'midpoint-marker';
+            midEl.textContent = '+';
+            midEl.title = 'Bu kenarın ortasına yeni köşe pini ekle';
+
+            midEl.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const next = [...state.pins];
+              next.splice(i + 1, 0, { lat: midLat, lng: midLng });
+              state.pins = next;
+              renderAll();
+              emitPinsChanged();
+            });
+
+            const mm = new maplibregl.Marker({ element: midEl, anchor: 'center' })
+              .setLngLat([midLng, midLat])
+              .addTo(map);
+            midpointMarkers.push(mm);
+          }
+        }
+
+        // Draggable Vertex Pin Markers (1..N)
+        state.pins.forEach((pin, idx) => {
+          const el = document.createElement('div');
+          const warnClass =
+            !state.centerInside && state.pins.length >= 3 ? 'pin-marker--warning' : '';
+          el.className = `pin-marker ${idx === 0 ? 'pin-marker--first' : ''} ${warnClass}`;
+          el.textContent = String(idx + 1);
+          el.title = `Pin #${idx + 1} (${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)}) — Sürükleyerek taşıyın, silmek için sağ tıklayın`;
+
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+          });
+
+          const removeThisPin = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            state.pins = state.pins.filter((_, i) => i !== idx);
+            renderAll();
+            emitPinsChanged();
+          };
+          el.addEventListener('contextmenu', removeThisPin);
+          el.addEventListener('dblclick', removeThisPin);
+
+          const marker = new maplibregl.Marker({
+            element: el,
+            draggable: state.mode === 'draw',
+            anchor: 'center',
+          })
+            .setLngLat([pin.lng, pin.lat])
+            .addTo(map);
+
+          marker.on('drag', () => {
+            const lngLat = marker.getLngLat();
+            state.pins[idx] = { lat: round6(lngLat.lat), lng: round6(lngLat.lng) };
+            updateVectorLayers();
+          });
+
+          marker.on('dragend', () => {
+            lastDragEndAt = Date.now();
+            const lngLat = marker.getLngLat();
+            state.pins[idx] = { lat: round6(lngLat.lat), lng: round6(lngLat.lng) };
+            renderAll();
+            emitPinsChanged();
+          });
+
+          pinMarkers.push(marker);
+        });
+
+        // Other Branch Center Anchor Markers
+        if (state.showOtherBranches && Array.isArray(state.otherBranches)) {
+          for (const ob of state.otherBranches) {
+            if (ob.latitude == null || ob.longitude == null) continue;
+            if (state.branch && ob.id === state.branch.id) continue;
+
+            const el = document.createElement('div');
+            el.className = 'other-branch-marker';
+            el.innerHTML = `
+              <div class="other-branch-dot"></div>
+              <div class="other-branch-label">${escapeHtml(ob.name)}</div>
+            `;
+            el.addEventListener('click', (e) => {
+              e.stopPropagation();
+            });
+
+            const popup = new maplibregl.Popup({ offset: 12 }).setHTML(`
+              <div style="font-weight:700;color:#a371f7;margin-bottom:3px;font-size:12px;">🏢 ${escapeHtml(ob.name)} (${escapeHtml(ob.code)})</div>
+              <div style="color:#8b949e;font-size:11px;">Konum: ${Number(ob.latitude).toFixed(5)}, ${Number(ob.longitude).toFixed(5)}</div>
+              <div style="color:#c9d1d9;font-size:11px;margin-top:4px;">Diğer şube merkezi ve servis alanı</div>
+            `);
+
+            const m = new maplibregl.Marker({ element: el, anchor: 'center' })
+              .setLngLat([ob.longitude, ob.latitude])
+              .setPopup(popup)
+              .addTo(map);
+
+            otherBranchMarkers.push(m);
+          }
+        }
+
+        // Test Point Marker
+        if (state.testPoint) {
+          const tp = state.testPoint;
+          const el = document.createElement('div');
+          el.className = 'test-marker';
+          const statusClass =
+            tp.serviceable === true
+              ? 'test-marker-dot--ok'
+              : tp.serviceable === false
+                ? 'test-marker-dot--fail'
+                : '';
+          const statusLabel =
+            tp.serviceable === true
+              ? 'Servis Alanı İçinde'
+              : tp.serviceable === false
+                ? 'Alan Dışında'
+                : 'Test Noktası';
+          el.innerHTML = `<div class="test-marker-dot ${statusClass}"></div><div class="test-marker-label">${statusLabel}</div>`;
+          testMarker = new maplibregl.Marker({ element: el, anchor: 'top' })
+            .setLngLat([tp.lng, tp.lat])
+            .addTo(map);
+        }
+      }
+
+      function renderAll() {
+        applyCursorClass();
+        if (usingLeaflet) {
+          renderLeaflet();
+          return;
+        }
+        updateVectorLayers();
+        renderMarkers();
+      }
+
+      function flyToBranch() {
+        if (!state.branch) return;
+        const { longitude, latitude } = state.branch;
+        if (usingLeaflet && lMap) {
+          lMap.setView([latitude, longitude], 13);
+          return;
+        }
+        if (map) {
+          map.flyTo({
+            center: [longitude, latitude],
+            zoom: 12.6,
+            essential: true,
+            speed: 1.5,
+          });
+        }
+      }
+
+      function fitBoundsToPins() {
+        const pts = [];
+        if (state.branch) pts.push([state.branch.longitude, state.branch.latitude]);
+        for (const p of state.pins) pts.push([p.lng, p.lat]);
+        if (pts.length === 0) return;
+        if (pts.length === 1) {
+          flyToBranch();
+          return;
+        }
+        if (usingLeaflet && lMap) {
+          const bounds = window.L.latLngBounds(pts.map(([lng, lat]) => [lat, lng]));
+          lMap.fitBounds(bounds, { padding: [50, 50] });
+          return;
+        }
+        if (map) {
+          const bounds = new maplibregl.LngLatBounds(pts[0], pts[0]);
+          for (const pt of pts) bounds.extend(pt);
+          map.fitBounds(bounds, { padding: 70, maxZoom: 14, duration: 700 });
+        }
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      // Handle incoming messages from parent
+      window.addEventListener('message', (event) => {
+        let msg;
+        try {
+          msg = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        } catch {
+          return;
+        }
+        if (!msg || typeof msg !== 'object') return;
+
+        if (msg.type === 'set-state') {
+          if (msg.branch !== undefined) state.branch = msg.branch;
+          if (Array.isArray(msg.pins)) state.pins = msg.pins;
+          if (Array.isArray(msg.savedAreas)) state.savedAreas = msg.savedAreas;
+          if (msg.activeAreaId !== undefined) state.activeAreaId = msg.activeAreaId;
+          if (Array.isArray(msg.otherBranchAreas)) state.otherBranchAreas = msg.otherBranchAreas;
+          if (Array.isArray(msg.otherBranches)) state.otherBranches = msg.otherBranches;
+          if (typeof msg.showOtherBranches === 'boolean') state.showOtherBranches = msg.showOtherBranches;
+          if (msg.mode) state.mode = msg.mode;
+          if (typeof msg.showGuides === 'boolean') state.showGuides = msg.showGuides;
+          if (typeof msg.centerInside === 'boolean') state.centerInside = msg.centerInside;
+          if (msg.testPoint !== undefined) state.testPoint = msg.testPoint;
+          renderAll();
+        } else if (msg.type === 'fly-to-branch') {
+          if (msg.branch) state.branch = msg.branch;
+          flyToBranch();
+        } else if (msg.type === 'fit-bounds') {
+          fitBoundsToPins();
+        } else if (msg.type === 'focus-pin') {
+          const p = state.pins[msg.index];
+          if (p && map) {
+            map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 13.5), essential: true });
+          } else if (p && lMap) {
+            lMap.panTo([p.lat, p.lng]);
+          }
+        }
+      });
+
+      // Leaflet Fallback if MapLibre fails in restricted browsers
+      function initLeafletFallback() {
+        usingLeaflet = true;
+        document.getElementById('map').style.display = 'none';
+        const leafletEl = document.getElementById('leaflet-map');
+        leafletEl.style.display = 'block';
+
+        const s = document.createElement('script');
+        s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        s.onload = () => {
+          lMap = window.L.map('leaflet-map').setView([37.0, 35.32], 12);
+          window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+          }).addTo(lMap);
+          lLayerGroup = window.L.layerGroup().addTo(lMap);
+
+          lMap.on('click', (e) => {
+            const lat = round6(e.latlng.lat);
+            const lng = round6(e.latlng.lng);
+            if (state.mode === 'test') {
+              post({ type: 'test-point-clicked', latitude: lat, longitude: lng });
+              return;
+            }
+            state.pins = [...state.pins, { lat, lng }];
+            renderAll();
+            emitPinsChanged();
+          });
+
+          renderLeaflet();
+          post({ type: 'map-ready' });
+        };
+        document.head.appendChild(s);
+      }
+
+      function renderLeaflet() {
+        if (!lMap || !lLayerGroup) return;
+        lLayerGroup.clearLayers();
+        const L = window.L;
+
+        // Other branches' service areas in Leaflet
+        if (state.showOtherBranches && Array.isArray(state.otherBranchAreas)) {
+          for (const item of state.otherBranchAreas) {
+            const geom = item.polygonGeoJson || item.polygon;
+            if (geom && geom.type === 'Polygon' && Array.isArray(geom.coordinates) && geom.coordinates[0]) {
+              const ring = geom.coordinates[0];
+              const latlngs = ring.map((pt) => [pt[1], pt[0]]);
+              L.polygon(latlngs, {
+                color: '#a371f7',
+                weight: 1.5,
+                dashArray: '3 3',
+                fillColor: '#a371f7',
+                fillOpacity: 0.12,
+                interactive: false,
+              }).addTo(lLayerGroup);
+            }
+          }
+        }
+
+        // Other branches' center markers in Leaflet
+        if (state.showOtherBranches && Array.isArray(state.otherBranches)) {
+          for (const ob of state.otherBranches) {
+            if (ob.latitude == null || ob.longitude == null) continue;
+            if (state.branch && ob.id === state.branch.id) continue;
+            const icon = L.divIcon({
+              className: '',
+              html: `<div class="other-branch-marker"><div class="other-branch-dot"></div><div class="other-branch-label">${escapeHtml(ob.name)}</div></div>`,
+              iconSize: [120, 36],
+              iconAnchor: [60, 7],
+            });
+            L.marker([ob.latitude, ob.longitude], { icon, interactive: false }).addTo(lLayerGroup);
+          }
+        }
+
+        if (state.branch) {
+          const b = state.branch;
+          if (state.showGuides) {
+            for (const km of [2, 5, 10]) {
+              L.circle([b.latitude, b.longitude], {
+                radius: km * 1000,
+                color: '#ffb74d',
+                weight: 1,
+                dashArray: '4 4',
+                fill: false,
+                interactive: false,
+              }).addTo(lLayerGroup);
+            }
+          }
+          const icon = L.divIcon({
+            className: '',
+            html: `<div class="branch-center-marker"><div class="center-core">★</div><div class="center-label">MERKEZ: ${escapeHtml(b.name)}</div></div>`,
+            iconSize: [140, 48],
+            iconAnchor: [70, 12],
+          });
+          L.marker([b.latitude, b.longitude], { icon, interactive: false }).addTo(lLayerGroup);
+        }
+
+        if (state.pins.length === 2) {
+          L.polyline(
+            state.pins.map((p) => [p.lat, p.lng]),
+            { color: '#ffb74d', weight: 3 },
+          ).addTo(lLayerGroup);
+        } else if (state.pins.length >= 3) {
+          const color = state.centerInside ? '#ffb74d' : '#f85149';
+          L.polygon(
+            state.pins.map((p) => [p.lat, p.lng]),
+            { color, weight: 3, fillColor: color, fillOpacity: 0.24 },
+          ).addTo(lLayerGroup);
+        }
+
+        state.pins.forEach((pin, idx) => {
+          const icon = L.divIcon({
+            className: '',
+            html: `<div class="pin-marker ${idx === 0 ? 'pin-marker--first' : ''}">${idx + 1}</div>`,
+            iconSize: [26, 26],
+            iconAnchor: [13, 13],
+          });
+          const m = L.marker([pin.lat, pin.lng], {
+            icon,
+            draggable: state.mode === 'draw',
+          }).addTo(lLayerGroup);
+
+          m.on('dragend', () => {
+            const ll = m.getLatLng();
+            state.pins[idx] = { lat: round6(ll.lat), lng: round6(ll.lng) };
+            renderAll();
+            emitPinsChanged();
+          });
+          m.on('contextmenu', () => {
+            state.pins = state.pins.filter((_, i) => i !== idx);
+            renderAll();
+            emitPinsChanged();
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

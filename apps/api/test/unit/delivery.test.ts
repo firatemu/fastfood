@@ -120,5 +120,34 @@ describe('Phase 8 DeliveryService', () => {
     await svc.deliver(delivery.id, courier.id);
     const perf = await svc.performance(courier.id);
     expect(perf.deliveredCount).toBe(1);
+    expect(perf.todayDeliveredCount).toBe(1);
+    expect(perf.completionRatePercent).toBe(100);
+    expect(perf.maxActiveDeliveries).toBe(2);
+    expect(perf.avgDeliveryMinutes).toBeTypeOf('number');
+  });
+
+  it('returns courier profile summary and unassigned pool', async () => {
+    const { svc, courier, delivery } = await seed();
+    const poolBefore = await svc.listAvailableForCourier(courier.id);
+    expect(poolBefore.map((item) => item.id)).toContain(delivery.id);
+
+    await svc.assign(delivery.id, courier.id);
+    await svc.recordLocation({
+      courierId: courier.id,
+      deliveryId: delivery.id,
+      latitude: 41.045,
+      longitude: 28.995,
+      accuracyM: 8,
+    });
+
+    const profile = await svc.getCourierMeProfile(courier.id);
+    expect(profile.displayName).toBe('Ali Kurye');
+    expect(profile.maxActiveDeliveries).toBe(2);
+    expect(profile.activeDeliveriesCount).toBe(1);
+    expect(profile.availableCapacitySlots).toBe(1);
+
+    const enriched = await svc.get(delivery.id);
+    expect(enriched.latestLocation?.latitude).toBe(41.045);
+    expect(enriched.latestLocation?.accuracyM).toBe(8);
   });
 });

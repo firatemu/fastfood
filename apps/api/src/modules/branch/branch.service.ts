@@ -430,7 +430,11 @@ export class BranchService {
   async updateServiceArea(
     branchId: string,
     serviceAreaId: string,
-    input: { name?: string; priority?: number },
+    input: {
+      name?: string;
+      priority?: number;
+      polygonGeoJson?: CreateServiceAreaInput['polygonGeoJson'];
+    },
   ): Promise<ServiceAreaDto> {
     if (!this.prisma) {
       const area = this.#serviceAreas.get(serviceAreaId);
@@ -441,6 +445,7 @@ export class BranchService {
         ...area,
         ...(input.name !== undefined ? { name: input.name } : {}),
         ...(input.priority !== undefined ? { priority: input.priority } : {}),
+        ...(input.polygonGeoJson !== undefined ? { polygonGeoJson: input.polygonGeoJson } : {}),
       };
       this.#serviceAreas.set(serviceAreaId, updated);
       return updated;
@@ -454,6 +459,9 @@ export class BranchService {
       data: {
         ...(input.name !== undefined ? { name: input.name } : {}),
         ...(input.priority !== undefined ? { priority: input.priority } : {}),
+        ...(input.polygonGeoJson !== undefined
+          ? { polygonGeoJson: input.polygonGeoJson as object }
+          : {}),
       },
     });
     return {

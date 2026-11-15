@@ -6,18 +6,18 @@ managed by Coolify as the Docker Compose application **fastfood-burger**
 `docker-compose.coolify.yml` on `main` of `github.com/firatemu/fastfood`.
 Providers are sandbox/fake only; see ADR-021 for scope.
 
-| Host                     | Compose service | Container port |
-| ------------------------ | --------------- | -------------- |
-| `apiburger.azem.cloud`   | `api`           | 4000           |
-| `burger.azem.cloud`      | `storefront`    | 3000           |
-| `mapburger.azem.cloud`   | `storefront`    | 3000           |
-| `adminburger.azem.cloud` | `admin`         | 3000           |
-| `kuryeburger.azem.cloud` | `courier`       | 3000           |
-| `qrburger.azem.cloud`    | `qr`            | 3000           |
-| `menu.azem.cloud`        | `qr`            | 3000           |
+| Host                          | Compose service | Container port |
+| ----------------------------- | --------------- | -------------- |
+| `apiburger.azemyazilim.net`   | `api`           | 4000           |
+| `burger.azemyazilim.net`      | `storefront`    | 3000           |
+| `mapburger.azemyazilim.net`   | `storefront`    | 3000           |
+| `adminburger.azemyazilim.net` | `admin`         | 3000           |
+| `kuryeburger.azemyazilim.net` | `courier`       | 3000           |
+| `qrburger.azemyazilim.net`    | `qr`            | 3000           |
+| `menu.azemyazilim.net`        | `qr`            | 3000           |
 
 PostgreSQL, Redis and MinIO have no public port. DNS A records live in the
-Hostinger zone of `azem.cloud`.
+DNS zone of `azemyazilim.net`.
 
 ## Deploy
 

@@ -12,10 +12,10 @@ import {
   clubProgressPercent,
   welcomeRewardCopy,
 } from '../../lib/engagement-map';
+import { haptic } from '../../lib/haptics';
 import { cacheClub } from '../../lib/private-cache';
 import type { ClubSnapshot } from '../../lib/schemas';
 import { formatStorefrontDateTime } from '../../lib/tracking-map';
-import { haptic } from '../../lib/haptics';
 import { colors, fonts, radius, space } from '../../theme';
 
 export default function AccountClubRoute() {

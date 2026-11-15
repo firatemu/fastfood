@@ -6,9 +6,9 @@ import { StackHeader } from '../components/stack-header';
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '../components/ui';
 import { formatApiError } from '../lib/api';
 import { fetchContentBySlug, fetchCustomerBranches } from '../lib/content';
+import { haptic } from '../lib/haptics';
 import { groupOperatingHours } from '../lib/hours';
 import { formatDeliveryWindow } from '../lib/money';
-import { haptic } from '../lib/haptics';
 import type { CustomerBranch, StorefrontContent } from '../lib/schemas';
 import { colors, fonts, minTouch, radius, space } from '../theme';
 

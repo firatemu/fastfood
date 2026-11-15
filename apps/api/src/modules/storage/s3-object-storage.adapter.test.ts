@@ -23,10 +23,10 @@ describe('S3ObjectStorageAdapter.publicUrl', () => {
   it('uses API_PUBLIC_URL and tolerates a trailing slash', () => {
     const adapter = new S3ObjectStorageAdapter({
       ...baseEnv,
-      API_PUBLIC_URL: 'https://apiburger.azem.cloud/',
+      API_PUBLIC_URL: 'https://apiburger.azemyazilim.net/',
     });
     expect(adapter.publicUrl('catalog/a.webp')).toBe(
-      'https://apiburger.azem.cloud/api/v1/public/media/catalog/a.webp',
+      'https://apiburger.azemyazilim.net/api/v1/public/media/catalog/a.webp',
     );
   });
 });

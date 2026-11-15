@@ -23,7 +23,12 @@ import {
   isRouteIdentifiedBranchPath,
   routeBranchId,
 } from '../../lib/admin-routes';
-import { clearStaffSession, getStaffAccessToken, subscribeStaffSession } from '../../lib/api';
+import {
+  clearStaffSession,
+  getStaffAccessToken,
+  isStaffSessionRestoring,
+  subscribeStaffSession,
+} from '../../lib/api';
 
 import { useBranchContext } from './branch-context';
 import { NAV_ICON, OpsIcon } from './ops-icon';
@@ -122,6 +127,11 @@ export function OpsShell({ children }: { children: ReactNode }) {
     () => (typeof window !== 'undefined' ? Boolean(getStaffAccessToken()) : false),
     () => false,
   );
+  const restoring = useSyncExternalStore(
+    subscribeSession,
+    () => (typeof window !== 'undefined' ? isStaffSessionRestoring() : true),
+    () => true,
+  );
   const [navOpen, setNavOpen] = useState(false);
   const [navFilter, setNavFilter] = useState('');
   const colorMode = useSyncExternalStore(
@@ -161,6 +171,7 @@ export function OpsShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (isStandalone) return;
+    if (restoring) return;
     if (!loggedIn) {
       router.replace('/login');
       return;
@@ -184,7 +195,7 @@ export function OpsShell({ children }: { children: ReactNode }) {
     // between two denied pages (pageDenied stays true) never re-ran this
     // effect, so the second page was never redirected and could render
     // content the operator has no permission for.
-  }, [access.error, access.loading, isStandalone, loggedIn, pageDenied, pagePermission, router]);
+  }, [access.error, access.loading, isStandalone, loggedIn, pageDenied, pagePermission, restoring, router]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -337,7 +348,7 @@ export function OpsShell({ children }: { children: ReactNode }) {
   }
 
   if (isStandalone) return <>{children}</>;
-  if (!loggedIn || access.loading) {
+  if (restoring || !loggedIn || access.loading) {
     return (
       <div className="ops-access-loading" role="status">
         Yetkiler yükleniyor…

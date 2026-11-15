@@ -11,7 +11,7 @@ const SECTIONS: LegalSection[] = [
     content: (
       <>
         <p>
-          İşbu Mesafeli Satış Sözleşmesi (&quot;Sözleşme&quot;), bir tarafta burger.azem.cloud
+          İşbu Mesafeli Satış Sözleşmesi (&quot;Sözleşme&quot;), bir tarafta burger.azemyazilim.net
           internet sitesi ve mobil uygulaması üzerinden sipariş alan <strong>{BRAND_NAME}</strong>{' '}
           (bundan böyle &quot;SATICI&quot; olarak anılacaktır) ile diğer tarafta internet sitesi
           üzerinden sipariş veren gerçek veya tüzel kişi (bundan böyle &quot;ALICI&quot; veya
@@ -23,7 +23,7 @@ const SECTIONS: LegalSection[] = [
           </p>
           <p>Unvan: {BRAND_NAME} Gıda ve Restoran İşletmeleri</p>
           <p>Adres: Moda Caddesi No:12, Kadıköy / İstanbul</p>
-          <p>E-posta: destek@burger.azem.cloud</p>
+          <p>E-posta: destek@burger.azemyazilim.net</p>
           <p>Müşteri Hizmetleri: 0850 308 00 00</p>
         </div>
       </>

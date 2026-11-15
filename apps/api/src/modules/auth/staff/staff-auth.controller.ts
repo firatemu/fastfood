@@ -47,12 +47,38 @@ const STAFF_COOKIE_FAMILIES = {
 
 type StaffCookieFamily = (typeof STAFF_COOKIE_FAMILIES)[keyof typeof STAFF_COOKIE_FAMILIES];
 
+const LOCAL_DEV_COURIER_ORIGINS = [
+  'http://localhost:3102',
+  'http://127.0.0.1:3102',
+  'http://kurye.fastfood.localhost',
+  'http://kurye.fastfood.localhost:3102',
+] as const;
+
+const LOCAL_DEV_ADMIN_ORIGINS = [
+  'http://localhost:3101',
+  'http://127.0.0.1:3101',
+  'http://admin.fastfood.localhost',
+  'http://admin.fastfood.localhost:3101',
+] as const;
+
 function originOf(raw: string): string | null {
   try {
     return new URL(raw).origin;
   } catch {
     return null;
   }
+}
+
+function configuredOrigins(raw: string | undefined, devAliases: readonly string[]): Set<string> {
+  const origins = new Set<string>();
+  for (const part of (raw ?? '').split(',')) {
+    const parsed = originOf(part.trim());
+    if (parsed) origins.add(parsed);
+  }
+  if (process.env['NODE_ENV'] !== 'production') {
+    for (const alias of devAliases) origins.add(alias);
+  }
+  return origins;
 }
 
 /**
@@ -70,13 +96,19 @@ function staffCookieFamily(request: FastifyRequest): StaffCookieFamily | null {
   if (!origin) {
     throw new ForbiddenException({
       code: ErrorCodes.AUTH_SCOPE_DENIED,
-      message: 'Staff session origin is invalid.',
+      message: 'Personel oturum kaynağı (Origin) geçersiz.',
     });
   }
-  const courierOrigin = originOf(process.env['COURIER_WEB_ORIGIN'] ?? 'http://localhost:3102');
-  const adminOrigin = originOf(process.env['ADMIN_WEB_ORIGIN'] ?? 'http://localhost:3101');
-  if (courierOrigin && origin === courierOrigin) return STAFF_COOKIE_FAMILIES.courier;
-  if (adminOrigin && origin === adminOrigin) return STAFF_COOKIE_FAMILIES.admin;
+  const courierOrigins = configuredOrigins(
+    process.env['COURIER_WEB_ORIGIN'],
+    LOCAL_DEV_COURIER_ORIGINS,
+  );
+  const adminOrigins = configuredOrigins(
+    process.env['ADMIN_WEB_ORIGIN'],
+    LOCAL_DEV_ADMIN_ORIGINS,
+  );
+  if (courierOrigins.has(origin)) return STAFF_COOKIE_FAMILIES.courier;
+  if (adminOrigins.has(origin)) return STAFF_COOKIE_FAMILIES.admin;
   return null;
 }
 
@@ -118,7 +150,7 @@ export class StaffAuthController {
       return {
         error: {
           code: ErrorCodes.AUTH_UNAUTHENTICATED,
-          message: 'An active staff session is required.',
+          message: 'Aktif bir personel oturumu gereklidir.',
           requestId: REQUEST_ID,
         },
       };
@@ -142,7 +174,7 @@ export class StaffAuthController {
       return {
         error: {
           code: ErrorCodes.VALIDATION_ERROR,
-          message: 'One or more fields are invalid.',
+          message: 'Girilen alanlardan biri veya birkaçı geçersiz.',
           details: { fields: parsed.issues },
           requestId: REQUEST_ID,
         },
@@ -153,7 +185,8 @@ export class StaffAuthController {
       return {
         error: {
           code: ErrorCodes.AUTH_INVALID_CREDENTIALS,
-          message: 'Email verification is invalid, expired, or already used.',
+          message:
+            'E-posta doğrulama bağlantısı geçersiz, süresi dolmuş veya daha önce kullanılmış.',
           requestId: REQUEST_ID,
         },
       };
@@ -181,7 +214,7 @@ export class StaffAuthController {
       return {
         error: {
           code: ErrorCodes.VALIDATION_ERROR,
-          message: 'One or more fields are invalid.',
+          message: 'Lütfen kullanıcı adı/e-posta ve şifre alanlarını kontrol edin.',
           details: { fields: parsed.issues },
           requestId: REQUEST_ID,
         },
@@ -193,7 +226,7 @@ export class StaffAuthController {
       return {
         error: {
           code: ErrorCodes.AUTH_INVALID_CREDENTIALS,
-          message: 'Staff login failed.',
+          message: 'Kullanıcı adı/e-posta veya şifre hatalı.',
           details: { reason: result.reason },
           requestId: REQUEST_ID,
         },
@@ -207,6 +240,7 @@ export class StaffAuthController {
       return {
         data: {
           userId: result.userId,
+          ...(!result.mfaRequired ? { refreshToken: result.refreshToken } : {}),
           refreshExpiresAt: result.refreshExpiresAt.toISOString(),
           mfaRequired: result.mfaRequired,
         },
@@ -244,21 +278,21 @@ export class StaffAuthController {
       return {
         error: {
           code: ErrorCodes.VALIDATION_ERROR,
-          message: 'One or more fields are invalid.',
+          message: 'Doğrulama kodu 6 haneli olmalıdır.',
           details: { fields: parsed.issues },
           requestId: REQUEST_ID,
         },
       };
     }
-    const refreshToken = browserSession
-      ? readCookie(request, browserSession.mfa)
-      : parsed.data.refreshToken;
+    const refreshToken =
+      (browserSession ? readCookie(request, browserSession.mfa) : undefined) ??
+      parsed.data.refreshToken;
     if (!refreshToken) {
       reply.status(401);
       return {
         error: {
           code: ErrorCodes.AUTH_SESSION_EXPIRED,
-          message: 'Sign-in challenge expired. Start again.',
+          message: 'Giriş doğrulama süresi doldu. Lütfen tekrar giriş yapın.',
           requestId: REQUEST_ID,
         },
       };
@@ -269,7 +303,7 @@ export class StaffAuthController {
       return {
         error: {
           code: ErrorCodes.AUTH_INVALID_CREDENTIALS,
-          message: 'MFA verification failed.',
+          message: 'Doğrulama kodu hatalı veya süresi dolmuş.',
           details: { reason: result.reason },
           requestId: REQUEST_ID,
         },
@@ -306,7 +340,7 @@ export class StaffAuthController {
     if (!browserSession) {
       throw new ForbiddenException({
         code: ErrorCodes.AUTH_SCOPE_DENIED,
-        message: 'Staff refresh requires the MFA-established browser session cookie.',
+        message: 'Oturum yenileme için geçerli tarayıcı oturumu gereklidir.',
       });
     }
     const parsed = safeValidate(z.object({}), body);
@@ -315,7 +349,7 @@ export class StaffAuthController {
       return {
         error: {
           code: ErrorCodes.VALIDATION_ERROR,
-          message: 'One or more fields are invalid.',
+          message: 'Girilen alanlardan biri veya birkaçı geçersiz.',
           details: { fields: parsed.issues },
           requestId: REQUEST_ID,
         },
@@ -327,7 +361,7 @@ export class StaffAuthController {
       return {
         error: {
           code: ErrorCodes.AUTH_SESSION_EXPIRED,
-          message: 'Session expired. Sign in again.',
+          message: 'Oturum süresi doldu. Lütfen tekrar giriş yapın.',
           requestId: REQUEST_ID,
         },
       };
@@ -338,7 +372,7 @@ export class StaffAuthController {
       return {
         error: {
           code: ErrorCodes.AUTH_SESSION_EXPIRED,
-          message: 'Session expired. Sign in again.',
+          message: 'Oturum süresi doldu. Lütfen tekrar giriş yapın.',
           details: { reason: result.reason },
           requestId: REQUEST_ID,
         },
@@ -377,7 +411,7 @@ export class StaffAuthController {
       return {
         error: {
           code: ErrorCodes.VALIDATION_ERROR,
-          message: 'One or more fields are invalid.',
+          message: 'Girilen alanlardan biri veya birkaçı geçersiz.',
           details: { fields: parsed.issues },
           requestId: REQUEST_ID,
         },

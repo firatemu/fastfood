@@ -19,6 +19,7 @@ let accessToken: string | undefined;
 let accessTokenExpiresAt = 0;
 let refreshPromise: Promise<string | undefined> | undefined;
 let sessionExpected = false;
+let sessionRestoring = typeof window !== 'undefined' && Boolean(window.localStorage.getItem(USER_ID_KEY));
 const listeners = new Set<() => void>();
 
 const REFRESH_SKEW_MS = 60_000;
@@ -51,6 +52,10 @@ export function getStaffUserId(): string | undefined {
   return window.localStorage.getItem(USER_ID_KEY) ?? undefined;
 }
 
+export function isStaffSessionRestoring(): boolean {
+  return sessionRestoring;
+}
+
 export function setStaffSession(input: { accessToken?: string; userId?: string }): void {
   if (input.accessToken) {
     accessToken = input.accessToken;
@@ -67,6 +72,7 @@ export function clearStaffSession(): void {
   accessToken = undefined;
   accessTokenExpiresAt = 0;
   sessionExpected = false;
+  sessionRestoring = false;
   if (typeof window !== 'undefined') {
     window.localStorage.removeItem(USER_ID_KEY);
   }
@@ -74,6 +80,13 @@ export function clearStaffSession(): void {
 }
 
 function adminBaseUrl(): string {
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1'
+  ) {
+    return `${window.location.origin}/api/v1/`;
+  }
   return API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`;
 }
 
@@ -116,7 +129,12 @@ async function refreshOnce(): Promise<string | undefined> {
  */
 export function restoreStaffSession(): Promise<string | undefined> {
   sessionExpected = true;
-  return refreshOnce();
+  sessionRestoring = true;
+  notify();
+  return refreshOnce().finally(() => {
+    sessionRestoring = false;
+    notify();
+  });
 }
 
 /**

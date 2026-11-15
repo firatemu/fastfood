@@ -69,6 +69,7 @@ export async function checkDeliveryServiceability(
   latitude: number,
   longitude: number,
   label: string,
+  options?: { persist?: boolean },
 ): Promise<DeliveryLocation> {
   const res = await getApiClient().request({
     method: 'GET',
@@ -84,7 +85,9 @@ export async function checkDeliveryServiceability(
     branchId: res.data.branchId ?? undefined,
     serviceAreaId: res.data.serviceAreaId ?? undefined,
   };
-  setDeliveryLocation(next);
+  if (options?.persist !== false) {
+    setDeliveryLocation(next);
+  }
   return next;
 }
 
