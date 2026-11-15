@@ -80,13 +80,6 @@ export function clearStaffSession(): void {
 }
 
 function adminBaseUrl(): string {
-  if (
-    typeof window !== 'undefined' &&
-    window.location.hostname !== 'localhost' &&
-    window.location.hostname !== '127.0.0.1'
-  ) {
-    return `${window.location.origin}/api/v1/`;
-  }
   return API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`;
 }
 
