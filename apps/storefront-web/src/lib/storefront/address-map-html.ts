@@ -1,6 +1,6 @@
 export type AddressMapPoint = { latitude: number; longitude: number };
 
-const INITIAL_MAP_CENTER: AddressMapPoint = { latitude: 41.036, longitude: 28.985 };
+const INITIAL_MAP_CENTER: AddressMapPoint = { latitude: 37.0, longitude: 35.3213 };
 
 /**
  * The map document must live on a dedicated origin. MapLibre creates a blob

@@ -102,6 +102,8 @@ export async function openSupport(orderId?: string): Promise<SupportConversation
 export async function fetchSupport(id: string): Promise<SupportConversation> {
   const res = await getApiClient().request({
     path: `/me/support/conversations/${id}`,
+    query: { _t: Date.now() },
+    headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
     schema: supportConversationResponseSchema,
   });
   return res.data;
@@ -124,6 +126,8 @@ export async function sendSupportMessage(
 export async function listSupport(): Promise<SupportConversation[]> {
   const res = await getApiClient().request({
     path: '/me/support/conversations',
+    query: { _t: Date.now() },
+    headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
     schema: supportConversationsResponseSchema,
   });
   return res.data;

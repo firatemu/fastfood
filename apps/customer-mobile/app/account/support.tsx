@@ -28,6 +28,7 @@ import {
   dedupeSupportMessages,
   isSystemSender,
   newClientRequestId,
+  supportSenderLabel,
 } from '../../lib/engagement-map';
 import type { SupportConversation } from '../../lib/schemas';
 import { formatStorefrontDateTime } from '../../lib/tracking-map';
@@ -94,7 +95,38 @@ function SupportBody(props: { orderId?: string }) {
     if (!convo?.id) return;
     const conversationId = convo.id;
     let cancelled = false;
-    const tick = async () => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let isFetching = false;
+
+    const poll = async () => {
+      if (cancelled || isFetching) return;
+      isFetching = true;
+      try {
+        const next = await fetchSupport(conversationId);
+        if (!cancelled && next) {
+          setConvo((prev) => {
+            if (!prev) return next;
+            const prevCount = prev.messages?.length ?? 0;
+            const nextCount = next.messages?.length ?? 0;
+            if (prevCount === nextCount && prev.status === next.status) {
+              const prevLast = prev.messages?.[prevCount - 1]?.id;
+              const nextLast = next.messages?.[nextCount - 1]?.id;
+              if (prevLast === nextLast) return prev;
+            }
+            return next;
+          });
+        }
+      } catch {
+        /* keep last thread */
+      } finally {
+        isFetching = false;
+        if (!cancelled) schedule();
+      }
+    };
+
+    const schedule = () => {
+      if (cancelled) return;
+      if (timer) clearTimeout(timer);
       const decision = decideSupportPoll({
         conversationId,
         appActive: AppState.currentState === 'active',
@@ -102,20 +134,20 @@ function SupportBody(props: { orderId?: string }) {
       });
       const waitMs = decision.intervalMs;
       if (decision.pace === 'stop' || waitMs == null) return;
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, waitMs);
-      });
-      if (cancelled) return;
-      try {
-        setConvo(await fetchSupport(conversationId));
-      } catch {
-        /* keep last thread */
-      }
-      if (!cancelled) void tick();
+      timer = setTimeout(() => {
+        void poll();
+      }, waitMs);
     };
-    void tick();
+
+    if (AppState.currentState === 'active') {
+      void poll();
+    } else {
+      schedule();
+    }
+
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
     };
   }, [convo?.id, appActive]);
 
@@ -225,9 +257,11 @@ function SupportBody(props: { orderId?: string }) {
         ) : (
           messages.map((message) => {
             const system = isSystemSender(message.senderType);
+            const support = message.senderType.toUpperCase() === 'SUPPORT';
+            const bubbleStyle = system ? styles.system : support ? styles.support : styles.mine;
             return (
-              <View key={message.id} style={[styles.bubble, system ? styles.system : styles.mine]}>
-                <Text style={styles.sender}>{system ? 'Sistem' : 'Sen'}</Text>
+              <View key={message.id} style={[styles.bubble, bubbleStyle]}>
+                <Text style={styles.sender}>{supportSenderLabel(message.senderType)}</Text>
                 <Text style={styles.body}>{message.body}</Text>
                 <Text style={styles.meta}>{formatStorefrontDateTime(message.createdAt)}</Text>
               </View>
@@ -235,21 +269,31 @@ function SupportBody(props: { orderId?: string }) {
           })
         )}
         {error ? <Text style={styles.error}>{error}</Text> : null}
-        <FormField
-          label="Mesaj"
-          value={body}
-          onChangeText={setBody}
-          multiline
-          maxLength={2000}
-          accessibilityLabel="Destek mesajı"
-          placeholder="Mesajını yaz"
-        />
-        <MustardButton
-          label={sending ? 'Gönderiliyor…' : 'Gönder'}
-          loading={sending}
-          disabled={!clampSupportBody(body)}
-          onPress={() => void send()}
-        />
+        {convo.status === 'CLOSED' ? (
+          <View style={styles.panel}>
+            <Text style={styles.meta}>
+              Bu görüşme kapatıldı. Yeni bir talep için destek ekranını yeniden açabilirsiniz.
+            </Text>
+          </View>
+        ) : (
+          <>
+            <FormField
+              label="Mesaj"
+              value={body}
+              onChangeText={setBody}
+              multiline
+              maxLength={2000}
+              accessibilityLabel="Destek mesajı"
+              placeholder="Mesajını yaz"
+            />
+            <MustardButton
+              label={sending ? 'Gönderiliyor…' : 'Gönder'}
+              loading={sending}
+              disabled={!clampSupportBody(body)}
+              onPress={() => void send()}
+            />
+          </>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -262,6 +306,11 @@ const styles = StyleSheet.create({
   scroll: { padding: space.gutter, gap: 12, paddingBottom: 40 },
   bubble: { borderRadius: radius.md, padding: space.md, gap: 4 },
   system: { backgroundColor: colors.surfaceLow },
+  support: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.mustard,
+  },
   mine: { backgroundColor: colors.surfaceHigh },
   sender: {
     fontFamily: fonts.jakartaBold,

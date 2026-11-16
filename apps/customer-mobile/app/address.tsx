@@ -92,7 +92,7 @@ export default function AddressServiceabilityRoute(): ReactElement {
                 value={lat}
                 onChangeText={setLat}
                 keyboardType="numbers-and-punctuation"
-                placeholder="41.0360"
+                placeholder="37.0000"
               />
             </View>
             <View style={styles.half}>
@@ -101,7 +101,7 @@ export default function AddressServiceabilityRoute(): ReactElement {
                 value={lng}
                 onChangeText={setLng}
                 keyboardType="numbers-and-punctuation"
-                placeholder="28.9850"
+                placeholder="35.3213"
               />
             </View>
           </View>

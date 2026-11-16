@@ -16,9 +16,45 @@
         height: 100%;
         margin: 0;
         background: #1b1b1f;
+        cursor: crosshair;
+      }
+      .maplibregl-ctrl-group {
+        background: #252528;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        overflow: hidden;
       }
       .maplibregl-ctrl-group button {
-        color: #222;
+        width: 36px;
+        height: 36px;
+        background-color: #252528;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+      }
+      .maplibregl-ctrl-group button:last-child {
+        border-bottom: none;
+      }
+      .maplibregl-ctrl-group button:hover {
+        background-color: #38383c;
+      }
+      .maplibregl-ctrl-icon {
+        filter: invert(1) brightness(1.2);
+      }
+      .maplibregl-ctrl-scale {
+        background-color: rgba(27, 27, 31, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #f3f4f6;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 4px;
       }
     </style>
   </head>
@@ -43,7 +79,7 @@
       const center =
         validPoint && (latitude !== 0 || longitude !== 0)
           ? [longitude, latitude]
-          : [28.985, 41.036];
+          : [35.3213, 37.0];
       const parentOrigin = (() => {
         try {
           return document.referrer ? new URL(document.referrer).origin : '*';
@@ -60,16 +96,54 @@
         style: 'https://tiles.openfreemap.org/styles/liberty',
         center,
         zoom: initialPoint ? 16 : 12,
-        scrollZoom: false,
+        scrollZoom: true,
         attributionControl: false,
       });
 
+      // Zoom In, Zoom Out, Compass / Reset North
+      map.addControl(
+        new maplibregl.NavigationControl({
+          showCompass: true,
+          showZoom: true,
+          visualizePitch: true,
+        }),
+        'top-right',
+      );
+
+      // Fullscreen control
+      map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+
+      // Geolocate control (Locate user directly on the map)
+      const geolocate = new maplibregl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: false,
+      });
+      map.addControl(geolocate, 'top-right');
+
+      geolocate.on('geolocate', (event) => {
+        if (!interactive) return;
+        const point = { latitude: event.coords.latitude, longitude: event.coords.longitude };
+        setMarker(point);
+        post({ type: 'location-selected', ...point });
+      });
+
+      // Scale control (metric)
+      map.addControl(new maplibregl.ScaleControl({ maxWidth: 100, unit: 'metric' }), 'bottom-left');
+
       const setMarker = (point) => {
-        if (marker) marker.setLngLat([point.longitude, point.latitude]);
-        else {
-          marker = new maplibregl.Marker({ color: '#d97706' })
+        if (marker) {
+          marker.setLngLat([point.longitude, point.latitude]);
+        } else {
+          marker = new maplibregl.Marker({ color: '#d97706', draggable: interactive })
             .setLngLat([point.longitude, point.latitude])
             .addTo(map);
+          if (interactive) {
+            marker.on('dragend', () => {
+              const lngLat = marker.getLngLat();
+              const p = { latitude: lngLat.lat, longitude: lngLat.lng };
+              post({ type: 'location-selected', ...p });
+            });
+          }
         }
       };
 

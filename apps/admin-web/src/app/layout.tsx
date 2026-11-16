@@ -78,6 +78,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="tr"
       data-theme="operations"
       data-color-mode="dark"
+      data-admin-theme="fastfood-navy"
       className={`${anton.variable} ${inter.variable} ${jetbrains.variable} ${plusJakarta.variable} ${materialSymbols.variable}`}
       suppressHydrationWarning
     >

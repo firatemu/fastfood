@@ -10,9 +10,11 @@ export function shouldPollPayment(input: {
   status: string;
   appState: string;
   mounted: boolean;
+  webViewActive?: boolean;
 }): boolean {
   if (!input.mounted) return false;
   if (input.appState !== 'active') return false;
+  if (input.webViewActive) return false;
   return !isPaymentTerminalStatus(input.status);
 }
 

@@ -102,7 +102,13 @@ export function OpsToastProvider({ children }: { children: ReactNode }) {
   const paused = useRef(new Set<number>());
 
   useEffect(() => {
-    setMounted(true);
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) setMounted(true);
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const dismiss = useCallback((id: number) => {

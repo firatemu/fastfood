@@ -65,7 +65,13 @@ export default function NotificationsAdminPage() {
   }, []);
 
   useEffect(() => {
-    void fetchHistory();
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) void fetchHistory();
+    });
+    return () => {
+      active = false;
+    };
   }, [fetchHistory]);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -124,30 +130,34 @@ export default function NotificationsAdminPage() {
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>Hedef Kitle</label>
               <div className={styles.radioGroup}>
-                <div
+                <label
+                  htmlFor="target-all"
                   className={`${styles.radioOption} ${target === 'all' ? styles.active : ''}`}
-                  onClick={() => setTarget('all')}
                 >
                   <input
+                    id="target-all"
                     type="radio"
                     name="target"
+                    value="all"
                     checked={target === 'all'}
                     onChange={() => setTarget('all')}
                   />
                   <span>Tüm Kullanıcılar (Broadcast)</span>
-                </div>
-                <div
+                </label>
+                <label
+                  htmlFor="target-user"
                   className={`${styles.radioOption} ${target === 'user' ? styles.active : ''}`}
-                  onClick={() => setTarget('user')}
                 >
                   <input
+                    id="target-user"
                     type="radio"
                     name="target"
+                    value="user"
                     checked={target === 'user'}
                     onChange={() => setTarget('user')}
                   />
                   <span>Belirli Müşteri (User ID)</span>
-                </div>
+                </label>
               </div>
             </div>
 

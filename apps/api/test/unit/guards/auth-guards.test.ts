@@ -14,7 +14,7 @@ import { AccountStatusGuard } from '../../../src/modules/auth/guards/account-sta
 import { AuthGuard } from '../../../src/modules/auth/guards/auth.guard.js';
 import { RbacGuard } from '../../../src/modules/auth/guards/rbac.guard.js';
 import { ResourceScopeGuard } from '../../../src/modules/auth/guards/resource-scope.guard.js';
-import { ActorType, Permissions } from '@fastfood/domain-types';
+import { ActorType, adminPagePermission, Permissions } from '@fastfood/domain-types';
 import type { AuthenticatedPrincipal } from '../../../src/modules/auth/guards/authenticated-principal.js';
 
 /**
@@ -198,6 +198,37 @@ describe('Phase 3 canonical guard sequence', () => {
         } satisfies AuthenticatedPrincipal,
       });
       expect(local.canActivate(ctx)).toBe(true);
+    });
+    it('authorizes /admin/support POST with customers.view page permission and customers.read', () => {
+      const local = new RbacGuard(makeReflectorReturning([Permissions.CustomersRead]));
+      const allowedCtx = makeContext({
+        method: 'POST',
+        url: '/api/v1/admin/support/conversations/123/messages',
+        routeOptions: { url: '/api/v1/admin/support/conversations/:id/messages' },
+        principal: {
+          id: '01900000-0000-7000-8000-000000000001',
+          actorType: ActorType.STAFF,
+          status: 'ACTIVE',
+          permissions: new Set<string>([
+            adminPagePermission('customer-list', 'view'),
+            Permissions.CustomersRead,
+          ]),
+        } satisfies AuthenticatedPrincipal,
+      });
+      expect(local.canActivate(allowedCtx)).toBe(true);
+
+      const deniedCtx = makeContext({
+        method: 'POST',
+        url: '/api/v1/admin/support/conversations/123/messages',
+        routeOptions: { url: '/api/v1/admin/support/conversations/:id/messages' },
+        principal: {
+          id: '01900000-0000-7000-8000-000000000001',
+          actorType: ActorType.STAFF,
+          status: 'ACTIVE',
+          permissions: new Set<string>([Permissions.CustomersRead]),
+        } satisfies AuthenticatedPrincipal,
+      });
+      expect(() => local.canActivate(deniedCtx)).toThrow(ForbiddenException);
     });
   });
 

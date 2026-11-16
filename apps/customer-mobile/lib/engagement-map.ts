@@ -74,6 +74,13 @@ export function isSystemSender(senderType: string): boolean {
   return senderType.toUpperCase() === 'SYSTEM';
 }
 
+export function supportSenderLabel(senderType: string): 'Sen' | 'Destek Temsilcisi' | 'Sistem' {
+  const normalized = senderType.toUpperCase();
+  if (normalized === 'SYSTEM') return 'Sistem';
+  if (normalized === 'SUPPORT') return 'Destek Temsilcisi';
+  return 'Sen';
+}
+
 export function dedupeSupportMessages(messages: SupportMessage[]): SupportMessage[] {
   const seen = new Set<string>();
   const out: SupportMessage[] = [];

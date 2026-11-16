@@ -23,32 +23,43 @@ export default function PaymentStatusRoute() {
   const router = useRouter();
   const params = useLocalSearchParams<{ checkoutId: string }>();
   const checkoutId = Array.isArray(params.checkoutId) ? params.checkoutId[0] : params.checkoutId;
-  const [load, setLoad] = useState<'loading' | 'ready' | 'error'>('loading');
+  const summary = readPaymentSummary();
+  const [load, setLoad] = useState<'loading' | 'ready' | 'error'>(
+    summary?.redirectUrl ? 'ready' : 'loading',
+  );
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState<PaymentStatus | null>(null);
   const [pollTick, setPollTick] = useState(0);
   const [webViewClosed, setWebViewClosed] = useState(false);
-  const summary = readPaymentSummary();
   const valid = isCheckoutSessionId(checkoutId);
   const loopRef = useRef(0);
+
+  const status = attempt?.status ?? 'PENDING';
+  const failed = status === 'FAILED' || status === 'CANCELLED' || status === 'EXPIRED';
+  const pending = !isPaymentTerminalStatus(status);
+  const amount = summary?.finalPayableMinor ?? attempt?.amountMinor ?? '0';
+  const currency = summary?.currency ?? attempt?.currency ?? 'TRY';
+  const redirectUrl = summary?.redirectUrl;
+  const showEmbeddedWebView =
+    pending && Boolean(redirectUrl && /^https?:\/\//i.test(redirectUrl)) && !webViewClosed;
 
   useEffect(() => {
     if (!valid || !checkoutId) return;
     let mounted = true;
     let appState = AppState.currentState;
-    let status = 'PENDING';
     let inFlight = false;
     loopRef.current += 1;
     const loopId = loopRef.current;
 
     async function tick() {
       if (inFlight) return;
-      if (!shouldPollPayment({ status, appState, mounted })) return;
+      if (!shouldPollPayment({ status, appState, mounted, webViewActive: showEmbeddedWebView })) {
+        return;
+      }
       inFlight = true;
       try {
         const data = await fetchPaymentStatus(checkoutId);
         if (!mounted || loopId !== loopRef.current) return;
-        status = data.status;
         setAttempt(data);
         setLoad('ready');
         setError(null);
@@ -65,19 +76,25 @@ export default function PaymentStatusRoute() {
       }
     }
 
-    void tick();
-    const interval = setInterval(() => void tick(), 2000);
+    if (!showEmbeddedWebView) {
+      void tick();
+    }
+    const interval = setInterval(() => {
+      if (!showEmbeddedWebView) {
+        void tick();
+      }
+    }, 2000);
     const sub = AppState.addEventListener('change', (next) => {
       const resume = appState !== 'active' && next === 'active';
       appState = next;
-      if (resume) void tick();
+      if (resume && !showEmbeddedWebView) void tick();
     });
     return () => {
       mounted = false;
       clearInterval(interval);
       sub.remove();
     };
-  }, [checkoutId, valid, router, pollTick]);
+  }, [checkoutId, valid, router, pollTick, showEmbeddedWebView, status]);
 
   if (!valid) {
     return (
@@ -117,15 +134,6 @@ export default function PaymentStatusRoute() {
     );
   }
 
-  const status = attempt?.status ?? 'PENDING';
-  const failed = status === 'FAILED' || status === 'CANCELLED' || status === 'EXPIRED';
-  const pending = !isPaymentTerminalStatus(status);
-  const amount = summary?.finalPayableMinor ?? attempt?.amountMinor ?? '0';
-  const currency = summary?.currency ?? attempt?.currency ?? 'TRY';
-  const redirectUrl = summary?.redirectUrl;
-  const showEmbeddedWebView =
-    pending && Boolean(redirectUrl && /^https?:\/\//i.test(redirectUrl)) && !webViewClosed;
-
   return (
     <View style={styles.screen}>
       <StackHeader title="Güvenli ödeme" onBack={() => router.replace('/checkout')} />
@@ -150,10 +158,7 @@ export default function PaymentStatusRoute() {
                 return true;
               }}
               onNavigationStateChange={(navState) => {
-                if (
-                  navState.url.startsWith('fastfoodcustomer://') ||
-                  navState.url.includes('/payment/return')
-                ) {
+                if (navState.url.startsWith('fastfoodcustomer://')) {
                   setWebViewClosed(true);
                   setPollTick((n) => n + 1);
                 }
@@ -195,11 +200,20 @@ export default function PaymentStatusRoute() {
           {pending && redirectUrl ? (
             <SecondaryButton
               label="Ödeme sayfasını tarayıcıda aç"
-              onPress={() => void Linking.openURL(redirectUrl).catch(() => undefined)}
+              onPress={() => {
+                setWebViewClosed(true);
+                void Linking.openURL(redirectUrl).catch(() => undefined);
+              }}
             />
           ) : null}
           {pending ? (
-            <MustardButton label="Durumu yenile" onPress={() => setPollTick((n) => n + 1)} />
+            <MustardButton
+              label="Durumu yenile"
+              onPress={() => {
+                setWebViewClosed(true);
+                setPollTick((n) => n + 1);
+              }}
+            />
           ) : null}
           {failed ? (
             <MustardButton label="Checkout’a dön" onPress={() => router.replace('/checkout')} />

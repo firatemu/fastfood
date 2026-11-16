@@ -9,6 +9,7 @@ import {
   reorderOpensCart,
   spinReasonCopy,
   spinResultCopy,
+  supportSenderLabel,
   welcomeRewardCopy,
 } from './engagement-map';
 import type { ReorderResult, SpinPlay, SupportMessage } from './schemas';
@@ -104,5 +105,8 @@ describe('support message safety', () => {
       { id: 'm2', conversationId: 'c', senderType: 'SYSTEM', body: 'ok', createdAt: 't' },
     ];
     expect(dedupeSupportMessages(messages).map((item) => item.id)).toEqual(['m1', 'm2']);
+    expect(supportSenderLabel('CUSTOMER')).toBe('Sen');
+    expect(supportSenderLabel('SYSTEM')).toBe('Sistem');
+    expect(supportSenderLabel('SUPPORT')).toBe('Destek Temsilcisi');
   });
 });

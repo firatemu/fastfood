@@ -32,11 +32,13 @@ export function isA3Path(pathname: string): boolean {
   return false;
 }
 
-/** Customers, loyalty, promotions, payments, refunds rebuilt in A4. */
+/** Customers, loyalty, promotions, notifications, payments, refunds rebuilt in A4. */
 export function isA4Path(pathname: string): boolean {
   if (pathname === '/loyalty' || pathname === '/refunds') return true;
   if (pathname === '/customers' || pathname.startsWith('/customers/')) return true;
+  if (pathname === '/support' || pathname.startsWith('/support/')) return true;
   if (pathname === '/promotions' || pathname.startsWith('/promotions/')) return true;
+  if (pathname === '/notifications' || pathname.startsWith('/notifications/')) return true;
   if (pathname === '/payments' || pathname.startsWith('/payments/')) return true;
   return false;
 }

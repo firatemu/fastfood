@@ -65,26 +65,77 @@ export function SupportPage() {
     if (!convo?.id || typeof document === 'undefined') return;
     const conversationId = convo.id;
     let cancelled = false;
-    const tick = async () => {
-      const hidden = document.visibilityState === 'hidden';
-      await new Promise((resolve) => setTimeout(resolve, hidden ? 20_000 : 4_000));
-      if (cancelled) return;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let isFetching = false;
+
+    const poll = async () => {
+      if (cancelled || isFetching) return;
+      isFetching = true;
       try {
-        setConvo(await fetchSupport(conversationId));
+        const next = await fetchSupport(conversationId);
+        if (!cancelled && next) {
+          setConvo((prev) => {
+            if (!prev) return next;
+            const prevCount = prev.messages?.length ?? 0;
+            const nextCount = next.messages?.length ?? 0;
+            const prevStatus = prev.status;
+            const nextStatus = next.status;
+            const prevClosed = prev.closedAt ?? '';
+            const nextClosed = next.closedAt ?? '';
+            if (
+              prevCount === nextCount &&
+              prevStatus === nextStatus &&
+              prevClosed === nextClosed
+            ) {
+              const prevLast = prev.messages?.[prevCount - 1]?.id;
+              const nextLast = next.messages?.[nextCount - 1]?.id;
+              if (prevLast === nextLast) return prev;
+            }
+            return next;
+          });
+        }
       } catch {
         /* keep last thread */
+      } finally {
+        isFetching = false;
+        if (!cancelled) {
+          schedule();
+        }
       }
-      if (!cancelled) void tick();
     };
-    void tick();
+
+    const schedule = () => {
+      if (cancelled) return;
+      if (timer) clearTimeout(timer);
+      const isHidden = typeof document !== 'undefined' && document.visibilityState === 'hidden';
+      const delay = isHidden ? 10_000 : 1_500;
+      timer = setTimeout(() => {
+        void poll();
+      }, delay);
+    };
+
+    const triggerImmediate = () => {
+      if (cancelled) return;
+      if (timer) clearTimeout(timer);
+      void poll();
+    };
+
+    schedule();
+
+    window.addEventListener('focus', triggerImmediate);
+    document.addEventListener('visibilitychange', triggerImmediate);
+
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
+      window.removeEventListener('focus', triggerImmediate);
+      document.removeEventListener('visibilitychange', triggerImmediate);
     };
   }, [convo?.id]);
 
   // Keep the newest message in view as the thread grows or the poll returns.
   useEffect(() => {
-    threadEndRef.current?.scrollIntoView({ block: 'end' });
+    threadEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [convo?.messages?.length, convo?.id]);
 
   const toggleHistory = useCallback(async () => {
@@ -277,7 +328,9 @@ export function SupportPage() {
                       data-own={mine ? 'true' : 'false'}
                     >
                       <div className="flex items-center justify-between gap-4 text-[10px] font-bold uppercase tracking-wider opacity-75 mb-1">
-                        <span>{mine ? 'Sen' : 'Destek Temsilcisi'}</span>
+                        <span>
+                          {mine ? 'Sen' : message.senderType === 'SYSTEM' ? 'Sistem' : 'Destek Temsilcisi'}
+                        </span>
                         <span>{formatWhen(message.createdAt)}</span>
                       </div>
                       <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.body}</p>

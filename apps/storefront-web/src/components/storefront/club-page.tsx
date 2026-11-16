@@ -80,7 +80,7 @@ export function ClubPage() {
       actions={
         <Link href="/account/spin" className="ff-btn ff-btn-primary">
           <MaterialIcon name="casino" />
-          Ateş Çarkı'nı Çevir
+          Ateş Çarkı’nı Çevir
         </Link>
       }
     >

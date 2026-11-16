@@ -42,7 +42,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
         document.documentElement.dataset.colorMode = mode;
         document.documentElement.style.colorScheme = mode;
       }
-    } catch {}
+    } catch {
+      // ignore
+    }
   }, []);
 
   // The access token lives in memory only (audit P0-3), so a full page load

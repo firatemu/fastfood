@@ -21,6 +21,7 @@ export function AddressLocationPicker(props: {
   center?: AddressMapPoint | null;
   focusPoint?: AddressMapPoint | null;
   readOnly?: boolean;
+  height?: string;
   onSelect?: (point: AddressMapPoint) => void;
 }) {
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -118,8 +119,11 @@ export function AddressLocationPicker(props: {
           ref={frameRef}
           title={readOnly ? 'Kayıtlı adres önizlemesi' : 'Teslimat adresi konum seçimi'}
           src={mapUrl ?? 'about:blank'}
-          sandbox="allow-scripts allow-same-origin"
-          className="block h-[300px] w-full border-0"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-modals"
+          allow="geolocation; fullscreen"
+          allowFullScreen
+          className="ff-map-frame"
+          style={props.height ? { height: props.height, minHeight: props.height } : undefined}
         />
         {effectiveMapState === 'loading' ? (
           <p className="pointer-events-none absolute left-3 top-3 flex items-center gap-2 rounded border border-outline border-outline bg-surface-container/95 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-on-surface backdrop-blur">

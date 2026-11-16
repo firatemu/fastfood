@@ -150,6 +150,9 @@ export class IyzicoCheckoutFormAdapter implements PaymentPort {
       }
       return { status: 'PAID', payload };
     }
+    if (result.paymentStatus === 'INIT_THREEDS' || result.paymentStatus === 'CALLBACK_THREEDS') {
+      return { status: 'PENDING', payload };
+    }
     if (result.paymentStatus === 'FAILURE') {
       return {
         status: 'FAILED',

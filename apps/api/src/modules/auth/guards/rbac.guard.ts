@@ -119,9 +119,9 @@ function resolveAdminPagePermissions(
                       ? 'branch-list'
                       : /^\/admin\/customers\/[^/]+\/club(?:\/|$)/.test(adminPath)
                         ? 'loyalty'
-                        : /^\/admin\/customers(?:\/|$)/.test(adminPath)
+                        : /^\/admin\/(?:customers|support)(?:\/|$)/.test(adminPath)
                           ? 'customer-list'
-                          : /^\/admin\/promotions(?:\/|$)/.test(adminPath)
+                          : /^\/admin\/(?:promotions|notifications)(?:\/|$)/.test(adminPath)
                             ? 'promotions'
                             : /^\/admin\/payments\/[^/]+\/refunds(?:\/|$)/.test(adminPath) ||
                                 /^\/admin\/refunds(?:\/|$)/.test(adminPath)
@@ -144,7 +144,7 @@ function resolveAdminPagePermissions(
   if (!page) return null;
   const upperMethod = method.toUpperCase();
   let action: AdminPageAction;
-  if (upperMethod === 'GET' || upperMethod === 'HEAD') {
+  if (upperMethod === 'GET' || upperMethod === 'HEAD' || /^\/admin\/support(?:\/|$)/.test(adminPath)) {
     action = 'view';
   } else if (upperMethod === 'DELETE' && /\/admin\/users\/[^/]+\/roles\/[^/]+$/.test(adminPath)) {
     action = 'update';

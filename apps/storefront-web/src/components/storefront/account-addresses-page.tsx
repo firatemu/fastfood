@@ -132,56 +132,74 @@ export function AccountAddressesPage() {
   }, [load]);
 
   useEffect(() => {
-    if (!form.provinceId) {
-      setDistricts([]);
-      setDistrictsLoading(false);
-      return;
-    }
     let active = true;
-    setDistrictsLoading(true);
-    setDistricts([]);
-    void listAddressDistricts(Number(form.provinceId)).then(
-      (options) => {
+    if (!form.provinceId) {
+      void Promise.resolve().then(() => {
         if (active) {
-          setDistricts(options);
+          setDistricts([]);
           setDistrictsLoading(false);
         }
-      },
-      (err: unknown) => {
-        if (active) {
-          setError(errorMessage(err));
-          setDistrictsLoading(false);
-        }
-      },
-    );
+      });
+      return () => {
+        active = false;
+      };
+    }
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      setDistrictsLoading(true);
+      setDistricts([]);
+      void listAddressDistricts(Number(form.provinceId)).then(
+        (options) => {
+          if (active) {
+            setDistricts(options);
+            setDistrictsLoading(false);
+          }
+        },
+        (err: unknown) => {
+          if (active) {
+            setError(errorMessage(err));
+            setDistrictsLoading(false);
+          }
+        },
+      );
+    });
     return () => {
       active = false;
     };
   }, [form.provinceId, geoToken]);
 
   useEffect(() => {
-    if (!form.districtId) {
-      setNeighborhoods([]);
-      setNeighborhoodsLoading(false);
-      return;
-    }
     let active = true;
-    setNeighborhoodsLoading(true);
-    setNeighborhoods([]);
-    void listAddressNeighborhoods(Number(form.districtId)).then(
-      (options) => {
+    if (!form.districtId) {
+      void Promise.resolve().then(() => {
         if (active) {
-          setNeighborhoods(options);
+          setNeighborhoods([]);
           setNeighborhoodsLoading(false);
         }
-      },
-      (err: unknown) => {
-        if (active) {
-          setError(errorMessage(err));
-          setNeighborhoodsLoading(false);
-        }
-      },
-    );
+      });
+      return () => {
+        active = false;
+      };
+    }
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      setNeighborhoodsLoading(true);
+      setNeighborhoods([]);
+      void listAddressNeighborhoods(Number(form.districtId)).then(
+        (options) => {
+          if (active) {
+            setNeighborhoods(options);
+            setNeighborhoodsLoading(false);
+          }
+        },
+        (err: unknown) => {
+          if (active) {
+            setError(errorMessage(err));
+            setNeighborhoodsLoading(false);
+          }
+        },
+      );
+    });
     return () => {
       active = false;
     };

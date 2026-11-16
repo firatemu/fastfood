@@ -203,6 +203,17 @@ describe('IyzicoCheckoutFormAdapter', () => {
       status: 'PENDING',
     });
   });
+
+  it('keeps intermediate 3-D Secure statuses in PENDING', async () => {
+    const init3ds = adapterWith({ status: 'success', paymentStatus: 'INIT_THREEDS' });
+    await expect(init3ds.adapter.verify('cf-token-1', expected)).resolves.toMatchObject({
+      status: 'PENDING',
+    });
+    const cb3ds = adapterWith({ status: 'success', paymentStatus: 'CALLBACK_THREEDS' });
+    await expect(cb3ds.adapter.verify('cf-token-1', expected)).resolves.toMatchObject({
+      status: 'PENDING',
+    });
+  });
 });
 
 describe('PaymentService with the iyzico gateway', () => {

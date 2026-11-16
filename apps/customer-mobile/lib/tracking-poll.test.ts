@@ -26,7 +26,7 @@ describe('support poll lifecycle', () => {
   it('uses 4s foreground and 20s background, and stops when unmounted', () => {
     expect(decideSupportPoll({ conversationId: 'c1', appActive: true, mounted: true })).toEqual({
       pace: 'foreground',
-      intervalMs: 4000,
+      intervalMs: 2000,
     });
     expect(decideSupportPoll({ conversationId: 'c1', appActive: false, mounted: true })).toEqual({
       pace: 'background',

@@ -411,7 +411,7 @@ function AddressesBody() {
         <View style={styles.hero}>
           <View style={styles.heroCopy}>
             <Text style={styles.eyebrow}>ADRES DEFTERİ</Text>
-            <Text style={styles.heroTitle}>Neresi getirelim?</Text>
+            <Text style={styles.heroTitle}>Nereye Getirelim?</Text>
             <Text style={styles.heroSub}>
               {list.length === 0
                 ? 'İlk teslimat noktanı haritadan işaretle.'
@@ -421,12 +421,16 @@ function AddressesBody() {
           {list.length > 0 ? <MustardButton label="Yeni adres ekle" onPress={openNew} /> : null}
         </View>
 
-        <View style={styles.mapCard}>
-          <AddressLocationPicker
-            readOnly
-            focusPoint={active ? { latitude: active.latitude, longitude: active.longitude } : null}
-          />
-        </View>
+        {list.length > 0 ? (
+          <View style={styles.mapCard}>
+            <AddressLocationPicker
+              readOnly
+              focusPoint={
+                active ? { latitude: active.latitude, longitude: active.longitude } : null
+              }
+            />
+          </View>
+        ) : null}
 
         {list.length === 0 ? (
           <View style={styles.empty}>

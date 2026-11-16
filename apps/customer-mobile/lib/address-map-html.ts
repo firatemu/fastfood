@@ -1,6 +1,6 @@
 export type AddressMapPoint = { latitude: number; longitude: number };
 
-const INITIAL_MAP_CENTER: AddressMapPoint = { latitude: 41.036, longitude: 28.985 };
+const INITIAL_MAP_CENTER: AddressMapPoint = { latitude: 37.0, longitude: 35.3213 };
 
 /**
  * `interactive = false` renders the same read-only preview used by the account

@@ -51,8 +51,10 @@ const TITLES: Record<string, string> = {
   '/branches/availability': 'Ürün müsaitliği',
   '/couriers': 'Kurye / Teslimat',
   '/customers': 'Müşteriler',
+  '/support': 'Müşteri mesajları',
   '/loyalty': 'BURGER HOME CLUB',
   '/promotions': 'Promosyonlar',
+  '/notifications': 'Bildirim yönetimi',
   '/payments': 'Ödemeler',
   '/refunds': 'İadeler',
   '/reports': 'Raporlar',
@@ -73,7 +75,14 @@ function titleFor(pathname: string): string {
 
 function a4ScopeTag(pathname: string): string | null {
   if (!isA4Path(pathname)) return null;
-  if (pathname === '/promotions' || pathname.startsWith('/promotions/')) return 'Küresel pazarlama';
+  if (
+    pathname === '/promotions' ||
+    pathname.startsWith('/promotions/') ||
+    pathname === '/notifications' ||
+    pathname.startsWith('/notifications/')
+  ) {
+    return 'Küresel pazarlama';
+  }
   if (pathname === '/payments' || pathname.startsWith('/payments/') || pathname === '/refunds') {
     return 'Küresel ödeme';
   }

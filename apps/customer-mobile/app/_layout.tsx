@@ -2,9 +2,10 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, AppState, StyleSheet, View } from 'react-native';
+import { AppState } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { BurgerSplashIntro } from '../components/burger-splash-intro';
 import { useBurgerHomeFonts } from '../components/use-fonts';
 import { getApiClient } from '../lib/api';
 import { configureDiningStore, restoreDiningContext } from '../lib/dining-context';
@@ -23,6 +24,7 @@ import { colors } from '../theme';
 export default function RootLayout() {
   const fontsReady = useBurgerHomeFonts();
   const [sessionReady, setSessionReady] = useState(false);
+  const [splashFinished, setSplashFinished] = useState(false);
 
   useEffect(() => {
     void SystemUI.setBackgroundColorAsync(colors.canvas);
@@ -61,13 +63,7 @@ export default function RootLayout() {
     return () => sub.remove();
   }, []);
 
-  if (!fontsReady || !sessionReady) {
-    return (
-      <View style={styles.boot}>
-        <ActivityIndicator color={colors.mustard} size="large" />
-      </View>
-    );
-  }
+  const isReady = Boolean(fontsReady && sessionReady);
 
   return (
     <SafeAreaProvider>
@@ -109,15 +105,13 @@ export default function RootLayout() {
           <Stack.Screen name="legal/allergens" />
         </Stack>
       </FavoritesProvider>
+
+      {!splashFinished ? (
+        <BurgerSplashIntro
+          isReady={isReady}
+          onFinish={() => setSplashFinished(true)}
+        />
+      ) : null}
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  boot: {
-    flex: 1,
-    backgroundColor: colors.canvas,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

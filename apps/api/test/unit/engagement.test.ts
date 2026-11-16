@@ -1,8 +1,9 @@
-import { ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
 
 import { DiningTableService } from '../../src/modules/dining/dining-table.service.js';
 import { NotificationService } from '../../src/modules/notification/notification.service.js';
+import { AdminSupportController } from '../../src/modules/support/admin-support.controller.js';
 import {
   sanitizeBody,
   SupportChatService,
@@ -90,5 +91,73 @@ describe('Support chat', () => {
     const loaded = await chat.getOwned('cust-a', convo.id);
     expect(loaded.messages.some((m) => m.senderType === 'SYSTEM')).toBe(true);
     expect(sanitizeBody('<b>hi</b>')).toBe('<b>hi</b>');
+  });
+
+  it('lists non-empty conversations for admin, replies, reopens closed threads, and notifies customer', async () => {
+    const notifications = new NotificationService();
+    const chat = new SupportChatService(null, notifications);
+    const emptyConvo = await chat.open({ userId: 'cust-empty' });
+    const convo = await chat.open({ userId: 'cust-a' });
+    await chat.send({
+      userId: 'cust-a',
+      conversationId: convo.id,
+      body: 'Siparişim nerede?',
+      clientRequestId: 'req-admin-test-1',
+    });
+
+    const defaultList = await chat.listAdmin();
+    expect(defaultList.map((c) => c.id)).toEqual([convo.id]);
+    expect(defaultList[0]?.needsReply).toBe(true);
+    expect(defaultList[0]?.lastMessageBody).toBe('Siparişim nerede?');
+    expect(defaultList[0]?.lastMessageSenderType).toBe('CUSTOMER');
+
+    const withEmpty = await chat.listAdmin({ includeEmpty: true });
+    expect(withEmpty.map((c) => c.id)).toContain(emptyConvo.id);
+
+    const closed = await chat.updateStatusAdmin({ conversationId: convo.id, status: 'CLOSED' });
+    expect(closed.status).toBe('CLOSED');
+    expect(closed.closedAt).toBeTruthy();
+
+    const replied = await chat.replyAdmin({
+      conversationId: convo.id,
+      body: 'Kuryemiz yola çıktı, 10 dakika içinde sizde olacak.',
+    });
+    expect(replied.status).toBe('OPEN');
+    expect(replied.closedAt).toBeNull();
+    expect(replied.needsReply).toBe(false);
+    expect(replied.lastMessageSenderType).toBe('SUPPORT');
+    expect(replied.messages.at(-1)?.senderType).toBe('SUPPORT');
+
+    const inbox = await notifications.listCustomerInbox('cust-a');
+    expect(inbox).toHaveLength(1);
+    expect(inbox[0]?.templateKey).toBe('support.message_received');
+  });
+
+  it('validates admin support controller endpoints', async () => {
+    const chat = new SupportChatService();
+    const controller = new AdminSupportController(chat);
+    const convo = await chat.open({ userId: 'cust-ctrl' });
+    await chat.send({
+      userId: 'cust-ctrl',
+      conversationId: convo.id,
+      body: 'Merhaba destek',
+      clientRequestId: 'req-ctrl-1',
+    });
+
+    await expect(controller.detail('not-a-uuid')).rejects.toThrow(NotFoundException);
+    await expect(controller.reply(convo.id, { body: '   ' })).rejects.toThrow(BadRequestException);
+    await expect(controller.updateStatus(convo.id, { status: 'INVALID' })).rejects.toThrow(
+      BadRequestException,
+    );
+
+    const listRes = (await controller.list('ALL', 'false', '50')) as {
+      data: Array<{ id: string }>;
+    };
+    expect(listRes.data.map((item) => item.id)).toContain(convo.id);
+
+    const replyRes = (await controller.reply(convo.id, { body: 'Size yardımcı oluyoruz.' })) as {
+      data: { lastMessageSenderType: string };
+    };
+    expect(replyRes.data.lastMessageSenderType).toBe('SUPPORT');
   });
 });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { adminPageForPath } from './admin-nav';
 import { isA4Path, isOpsShellPath } from './admin-routes';
 import {
   a4ResourceScope,
@@ -27,6 +28,9 @@ describe('isA4Path', () => {
     expect(isA4Path('/users')).toBe(false);
     expect(isA4Path('/branches')).toBe(false);
     expect(isOpsShellPath('/customers')).toBe(true);
+    expect(isA4Path('/support')).toBe(true);
+    expect(isOpsShellPath('/support')).toBe(true);
+    expect(adminPageForPath('/support')).toBe('customer-list');
     expect(isOpsShellPath('/reports')).toBe(true);
   });
 });

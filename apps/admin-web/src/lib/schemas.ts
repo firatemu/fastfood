@@ -982,3 +982,45 @@ export const pickupTokenScanResponseSchema = envelope(
     })
     .passthrough(),
 );
+
+export const adminSupportMessageSchema = z
+  .object({
+    id: z.string(),
+    conversationId: z.string(),
+    senderType: z.enum(['CUSTOMER', 'SUPPORT', 'SYSTEM']),
+    body: z.string(),
+    createdAt: z.string(),
+  })
+  .passthrough();
+
+export const adminSupportSummarySchema = z
+  .object({
+    id: z.string(),
+    userId: z.string(),
+    customerName: z.string().nullable().optional(),
+    customerPhone: z.string().nullable().optional(),
+    customerEmail: z.string().nullable().optional(),
+    orderId: z.string().nullable().optional(),
+    orderDisplayNumber: z.string().nullable().optional(),
+    orderStatus: z.string().nullable().optional(),
+    branchId: z.string().nullable().optional(),
+    branchName: z.string().nullable().optional(),
+    status: z.enum(['OPEN', 'CLOSED']),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    closedAt: z.string().nullable().optional(),
+    messageCount: z.number(),
+    customerMessageCount: z.number(),
+    lastMessageBody: z.string().nullable().optional(),
+    lastMessageSenderType: z.enum(['CUSTOMER', 'SUPPORT', 'SYSTEM']).nullable().optional(),
+    lastMessageAt: z.string().nullable().optional(),
+    needsReply: z.boolean(),
+  })
+  .passthrough();
+
+export const adminSupportDetailSchema = adminSupportSummarySchema.extend({
+  messages: z.array(adminSupportMessageSchema),
+});
+
+export const adminSupportConversationsSchema = envelope(z.array(adminSupportSummarySchema));
+export const adminSupportConversationDetailSchema = envelope(adminSupportDetailSchema);

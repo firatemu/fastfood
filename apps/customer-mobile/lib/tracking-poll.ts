@@ -24,5 +24,5 @@ export function decideSupportPoll(input: {
   if (!input.appActive) {
     return { pace: 'background', intervalMs: 20_000 };
   }
-  return { pace: 'foreground', intervalMs: 4_000 };
+  return { pace: 'foreground', intervalMs: 2_000 };
 }

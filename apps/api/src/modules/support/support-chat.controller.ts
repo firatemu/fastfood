@@ -4,6 +4,7 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   HttpCode,
   Inject,
   NotFoundException,
@@ -55,6 +56,8 @@ export class SupportChatController {
   }
 
   @Get('conversations')
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
+  @Header('Pragma', 'no-cache')
   async list(
     @Req() request: FastifyRequest & { principal?: AuthenticatedPrincipal },
   ): Promise<unknown> {
@@ -99,6 +102,8 @@ export class SupportChatController {
   }
 
   @Get('conversations/:id')
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
+  @Header('Pragma', 'no-cache')
   async get(
     @Req() request: FastifyRequest & { principal?: AuthenticatedPrincipal },
     @Param('id') id: string,

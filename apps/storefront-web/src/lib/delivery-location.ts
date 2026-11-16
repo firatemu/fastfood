@@ -9,11 +9,11 @@ export interface DeliveryLocation {
 
 const KEY = 'ff_delivery_location';
 
-/** Downtown Istanbul — known serviceable seed coordinates. */
+/** Downtown Adana — known serviceable seed coordinates. */
 export const DEFAULT_DELIVERY_LOCATION: DeliveryLocation = {
-  label: 'Kadıköy · Teslimat',
-  latitude: 41.036,
-  longitude: 28.985,
+  label: 'Seyhan · Teslimat',
+  latitude: 37.0,
+  longitude: 35.3213,
   serviceable: true,
 };
 

@@ -27,6 +27,22 @@ describe('shouldPollPayment', () => {
     expect(shouldPollPayment({ status: 'PENDING', appState: 'active', mounted: false })).toBe(
       false,
     );
+    expect(
+      shouldPollPayment({
+        status: 'PENDING',
+        appState: 'active',
+        mounted: true,
+        webViewActive: true,
+      }),
+    ).toBe(false);
+    expect(
+      shouldPollPayment({
+        status: 'PENDING',
+        appState: 'active',
+        mounted: true,
+        webViewActive: false,
+      }),
+    ).toBe(true);
   });
 });
 

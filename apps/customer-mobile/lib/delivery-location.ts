@@ -7,11 +7,11 @@ export type DeliveryLocation = {
   serviceAreaId?: string;
 };
 
-/** Downtown Istanbul — same known-serviceable seed as Storefront. */
+/** Downtown Adana — same known-serviceable seed as Storefront. */
 export const DEFAULT_DELIVERY_LOCATION: DeliveryLocation = {
-  label: 'Kadıköy · Teslimat',
-  latitude: 41.036,
-  longitude: 28.985,
+  label: 'Seyhan · Teslimat',
+  latitude: 37.0,
+  longitude: 35.3213,
   serviceable: true,
 };
 

@@ -138,15 +138,14 @@ export function StorefrontHeader({
   // Live debounced search effect
   useEffect(() => {
     const trimmed = query.trim();
-    if (trimmed.length < 2) {
-      setSearchResults([]);
-      setIsSearching(false);
-      setIsDropdownOpen(false);
-      return;
-    }
-
-    setIsSearching(true);
     const timer = setTimeout(async () => {
+      if (trimmed.length < 2) {
+        setSearchResults([]);
+        setIsSearching(false);
+        setIsDropdownOpen(false);
+        return;
+      }
+      setIsSearching(true);
       try {
         const data = await fetchStorefrontHome({ q: trimmed });
         setSearchResults((data.products ?? []) as SearchProductItem[]);
@@ -156,7 +155,7 @@ export function StorefrontHeader({
       } finally {
         setIsSearching(false);
       }
-    }, 250);
+    }, trimmed.length < 2 ? 0 : 250);
 
     return () => clearTimeout(timer);
   }, [query]);
