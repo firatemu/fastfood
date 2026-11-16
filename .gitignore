@@ -13,6 +13,9 @@ out/
 .turbo/
 .turbo-cache/
 *.tsbuildinfo
+releases/
+*.aab
+*.apk
 
 # Expo / React Native
 .expo/
